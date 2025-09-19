@@ -424,13 +424,13 @@ if ($_SERVER["QUERY_STRING"] ?? "") {
           <?php elseif ($parser->registered): ?>
             <div class="message message-positive">
               <div class="message-data">
-                <h2 class="message-title">
+                <h1 class="message-title">
                     <svg width="1em" height="1em" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true" class="message-icon">
                       <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14m0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16" />
                       <path d="m10.97 4.97-.02.022-3.473 4.425-2.093-2.094a.75.75 0 0 0-1.06 1.06L6.97 11.03a.75.75 0 0 0 1.079-.02l3.992-4.99a.75.75 0 0 0-1.071-1.05" />
                     </svg>
                     <a href="http://<?= $domain; ?>" rel="nofollow noopener noreferrer" target="_blank"><?= $domain; ?></a> 已被注册，查看以下信息吧。
-                </h2>
+                </h1>
                 <?php if ($parser->registrar): ?>
                   <div class="message-label">
                     <span class="message-icon-leading">
