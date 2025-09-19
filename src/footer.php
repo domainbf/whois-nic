@@ -40,7 +40,7 @@
         .footer {
             background: transparent;
             margin-top: auto;
-            text-align: center; /* 使页脚内容居中 */
+            text-align: center;
         }
         
         .announcement-container {
@@ -92,34 +92,6 @@
             text-decoration: underline;
         }
 
-        /* 导航栏样式调整 */
-        .nav-links {
-            display: flex;
-            justify-content: center; /* 导航链接居中对齐 */
-            flex-wrap: wrap;
-            gap: 20px;
-            padding: 20px 0; /* 增加上下内边距 */
-            width: 100%;
-            max-width: 1000px;
-            margin: 0 auto;
-        }
-
-        .nav-links a {
-            color: #4a5568;
-            text-decoration: none;
-            font-size: 1rem;
-            font-weight: 500;
-            padding: 5px;
-            background-color: transparent;
-            transition: all 0.2s ease;
-            white-space: nowrap;
-        }
-
-        .nav-links a:hover {
-            color: #2d3748;
-            border-bottom: 2px solid #3b82f6;
-        }
-
         .copyright {
             padding: 10px;
             font-size: 0.9rem;
@@ -127,10 +99,6 @@
         }
         
         @media (max-width: 768px) {
-            .nav-links {
-                gap: 8px;
-            }
-            
             .container h1 {
                 font-size: 2.5rem;
             }
@@ -155,13 +123,6 @@
         <div class="host-info">
             Hosted on <a href="https://vercel.com" rel="noopener" target="_blank">Vercel Platform</a>
         </div>
-        
-        <nav class="nav-links">
-            <a href="#">首页</a>
-            <a href="https://domain.bf">我的域名</a>
-            <a href="#">关于我们</a>
-            <a href="#">联系方式</a>
-        </nav>
         
         <div class="copyright">
             &copy; 2025 NIC.BN. All rights reserved.
