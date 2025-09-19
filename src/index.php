@@ -169,44 +169,6 @@ if ($_SERVER["QUERY_STRING"] ?? "") {
   <link rel="shortcut icon" href="public/favicon.ico">
   <link rel="icon" href="public/images/favicon.svg" type="image/svg+xml">
   <link rel="apple-touch-icon" href="public/images/apple-icon-180.png">
-  <link rel="apple-touch-startup-image" href="public/images/apple-splash-2048-2732.jpg" media="(device-width: 1024px) and (device-height: 1366px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)">
-  <link rel="apple-touch-startup-image" href="public/images/apple-splash-1668-2388.jpg" media="(device-width: 834px) and (device-height: 1194px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)">
-  <link rel="apple-touch-startup-image" href="public/images/apple-splash-1536-2048.jpg" media="(device-width: 768px) and (device-height: 1024px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)">
-  <link rel="apple-touch-startup-image" href="public/images/apple-splash-1640-2360.jpg" media="(device-width: 820px) and (device-height: 1180px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)">
-  <link rel="apple-touch-startup-image" href="public/images/apple-splash-1668-2224.jpg" media="(device-width: 834px) and (device-height: 1112px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)">
-  <link rel="apple-touch-startup-image" href="public/images/apple-splash-1620-2160.jpg" media="(device-width: 810px) and (device-height: 1080px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)">
-  <link rel="apple-touch-startup-image" href="public/images/apple-splash-1488-2266.jpg" media="(device-width: 744px) and (device-height: 1133px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)">
-  <link rel="apple-touch-startup-image" href="public/images/apple-splash-1320-2868.jpg" media="(device-width: 440px) and (device-height: 956px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)">
-  <link rel="apple-touch-startup-image" href="public/images/apple-splash-1206-2622.jpg" media="(device-width: 402px) and (device-height: 874px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)">
-  <link rel="apple-touch-startup-image" href="public/images/apple-splash-1290-2796.jpg" media="(device-width: 430px) and (device-height: 932px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)">
-  <link rel="apple-touch-startup-image" href="public/images/apple-splash-1179-2556.jpg" media="(device-width: 393px) and (device-height: 852px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)">
-  <link rel="apple-touch-startup-image" href="public/images/apple-splash-1170-2532.jpg" media="(device-width: 390px) and (device-height: 844px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)">
-  <link rel="apple-touch-startup-image" href="public/images/apple-splash-1284-2778.jpg" media="(device-width: 428px) and (device-height: 926px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)">
-  <link rel="apple-touch-startup-image" href="public/images/apple-splash-1125-2436.jpg" media="(device-width: 375px) and (device-height: 812px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)">
-  <link rel="apple-touch-startup-image" href="public/images/apple-splash-1242-2688.jpg" media="(device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)">
-  <link rel="apple-touch-startup-image" href="public/images/apple-splash-828-1792.jpg" media="(device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)">
-  <link rel="apple-touch-startup-image" href="public/images/apple-splash-1242-2208.jpg" media="(device-width: 414px) and (device-height: 736px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)">
-  <link rel="apple-touch-startup-image" href="public/images/apple-splash-750-1334.jpg" media="(device-width: 375px) and (device-height: 667px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)">
-  <link rel="apple-touch-startup-image" href="public/images/apple-splash-640-1136.jpg" media="(device-width: 320px) and (device-height: 568px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)">
-  <link rel="apple-touch-startup-image" href="public/images/apple-splash-2732-2048.jpg" media="(device-width: 1024px) and (device-height: 1366px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape)">
-  <link rel="apple-touch-startup-image" href="public/images/apple-splash-2388-1668.jpg" media="(device-width: 834px) and (device-height: 1194px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape)">
-  <link rel="apple-touch-startup-image" href="public/images/apple-splash-2048-1536.jpg" media="(device-width: 768px) and (device-height: 1024px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape)">
-  <link rel="apple-touch-startup-image" href="public/images/apple-splash-2360-1640.jpg" media="(device-width: 820px) and (device-height: 1180px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape)">
-  <link rel="apple-touch-startup-image" href="public/images/apple-splash-2224-1668.jpg" media="(device-width: 834px) and (device-height: 1112px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape)">
-  <link rel="apple-touch-startup-image" href="public/images/apple-splash-2160-1620.jpg" media="(device-width: 810px) and (device-height: 1080px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape)">
-  <link rel="apple-touch-startup-image" href="public/images/apple-splash-2266-1488.jpg" media="(device-width: 744px) and (device-height: 1133px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape)">
-  <link rel="apple-touch-startup-image" href="public/images/apple-splash-2868-1320.jpg" media="(device-width: 440px) and (device-height: 956px) and (-webkit-device-pixel-ratio: 3) and (orientation: landscape)">
-  <link rel="apple-touch-startup-image" href="public/images/apple-splash-2622-1206.jpg" media="(device-width: 402px) and (device-height: 874px) and (-webkit-device-pixel-ratio: 3) and (orientation: landscape)">
-  <link rel="apple-touch-startup-image" href="public/images/apple-splash-2796-1290.jpg" media="(device-width: 430px) and (device-height: 932px) and (-webkit-device-pixel-ratio: 3) and (orientation: landscape)">
-  <link rel="apple-touch-startup-image" href="public/images/apple-splash-2556-1179.jpg" media="(device-width: 393px) and (device-height: 852px) and (-webkit-device-pixel-ratio: 3) and (orientation: landscape)">
-  <link rel="apple-touch-startup-image" href="public/images/apple-splash-2532-1170.jpg" media="(device-width: 390px) and (device-height: 844px) and (-webkit-device-pixel-ratio: 3) and (orientation: landscape)">
-  <link rel="apple-touch-startup-image" href="public/images/apple-splash-2778-1284.jpg" media="(device-width: 428px) and (device-height: 926px) and (-webkit-device-pixel-ratio: 3) and (orientation: landscape)">
-  <link rel="apple-touch-startup-image" href="public/images/apple-splash-2436-1125.jpg" media="(device-width: 375px) and (device-height: 812px) and (-webkit-device-pixel-ratio: 3) and (orientation: landscape)">
-  <link rel="apple-touch-startup-image" href="public/images/apple-splash-2688-1242.jpg" media="(device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 3) and (orientation: landscape)">
-  <link rel="apple-touch-startup-image" href="public/images/apple-splash-1792-828.jpg" media="(device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape)">
-  <link rel="apple-touch-startup-image" href="public/images/apple-splash-2208-1242.jpg" media="(device-width: 414px) and (device-height: 736px) and (-webkit-device-pixel-ratio: 3) and (orientation: landscape)">
-  <link rel="apple-touch-startup-image" href="public/images/apple-splash-1334-750.jpg" media="(device-width: 375px) and (device-height: 667px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape)">
-  <link rel="apple-touch-startup-image" href="public/images/apple-splash-1136-640.jpg" media="(device-width: 320px) and (device-height: 568px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape)">
   <link rel="manifest" href="<?= $manifestHref; ?>">
   <title><?= ($domain ? "$domain | " : "") . SITE_TITLE ?></title>
   <link rel="stylesheet" href="public/css/global.css">
@@ -230,6 +192,21 @@ if ($_SERVER["QUERY_STRING"] ?? "") {
       width: 18px;
       height: 18px;
       margin-right: 2px;
+    }
+    /* 结果页透明样式 */
+    .messages, .message, .message-data {
+      background: transparent !important;
+      background-color: transparent !important;
+      box-shadow: none !important;
+    }
+    /* 标签图标样式 */
+    .icon-label {
+      display: inline-flex;
+      align-items: center;
+      margin-right: 6px;
+      vertical-align: middle;
+      width: 1.2em;
+      height: 1.2em;
     }
   </style>
 </head>
@@ -261,7 +238,7 @@ if ($_SERVER["QUERY_STRING"] ?? "") {
             value="<?= $domain; ?>">
           <button class="search-clear" id="domain-clear" type="button" aria-label="Clear">
             <svg width="1em" height="1em" viewBox="0 0 16 16" fill="currentColor">
-              <path d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708" />
+              <path d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a[...]
             </svg>
           </button>
         </div>
@@ -339,7 +316,7 @@ if ($_SERVER["QUERY_STRING"] ?? "") {
               <div class="message-header">
                 <svg width="1em" height="1em" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true" class="message-icon">
                   <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14m0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16" />
-                  <path d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708" />
+                  <path d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a[...]
                 </svg>
                 <h2 class="message-title">
                   <?= $error; ?>
@@ -351,7 +328,7 @@ if ($_SERVER["QUERY_STRING"] ?? "") {
               <div class="message-header">
                 <svg width="1em" height="1em" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true" class="message-icon">
                   <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14m0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16" />
-                  <path d="M5.255 5.786a.237.237 0 0 0 .241.247h.825c.138 0 .248-.113.266-.25.09-.656.54-1.134 1.342-1.134.686 0 1.314.343 1.314 1.168 0 .635-.374.927-.965 1.371-.673.489-1.206 1.06-1.168 1.987l.003.217a.25.25 0 0 0 .25.246h.811a.25.25 0 0 0 .25-.25v-.105c0-.718.273-.927 1.01-1.486.609-.463 1.244-.977 1.244-2.056 0-1.511-1.276-2.241-2.673-2.241-1.267 0-2.655.59-2.75 2.286m1.557 5.763c0 .533.425.927 1.01.927.609 0 1.028-.394 1.028-.927 0-.552-.42-.94-1.029-.94-.584 0-1.009.388-1.009.94" />
+                  <path d="M5.255 5.786a.237.237 0 0 0 .241.247h.825c.138 0 .248-.113.266-.25.09-.656.54-1.134 1.342-1.134.686 0 1.314.343 1.314 1.168 0 .635-.374.927-.965 1.371-.673.489-1.206 1.06-1.[...]
                 </svg>
                 <h2 class="message-title">
                   &#39;<?= $domain; ?>&#39; is unknown
@@ -398,6 +375,13 @@ if ($_SERVER["QUERY_STRING"] ?? "") {
               <div class="message-data">
                 <?php if ($parser->registrar): ?>
                   <div class="message-label">
+                    <span class="icon-label">
+                      <!-- 公司/人形 SVG 图标 -->
+                      <svg viewBox="0 0 16 16" width="1em" height="1em" fill="currentColor">
+                        <rect x="2" y="7" width="12" height="7" rx="2" fill="#888"/>
+                        <rect x="5" y="2" width="6" height="5" rx="1" fill="#222"/>
+                      </svg>
+                    </span>
                     Registrar
                   </div>
                   <div>
@@ -410,6 +394,15 @@ if ($_SERVER["QUERY_STRING"] ?? "") {
                 <?php endif; ?>
                 <?php if ($parser->creationDate): ?>
                   <div class="message-label">
+                    <span class="icon-label">
+                      <!-- 日历 SVG 图标 -->
+                      <svg viewBox="0 0 16 16" width="1em" height="1em" fill="currentColor">
+                        <rect x="2" y="4" width="12" height="10" rx="2" fill="#888"/>
+                        <rect x="4" y="2" width="1" height="2" fill="#222"/>
+                        <rect x="11" y="2" width="1" height="2" fill="#222"/>
+                        <rect x="2" y="7" width="12" height="1" fill="#222"/>
+                      </svg>
+                    </span>
                     Creation Date
                   </div>
                   <div>
@@ -428,6 +421,14 @@ if ($_SERVER["QUERY_STRING"] ?? "") {
                 <?php endif; ?>
                 <?php if ($parser->expirationDate): ?>
                   <div class="message-label">
+                    <span class="icon-label">
+                      <!-- 时钟/警示 SVG 图标 -->
+                      <svg viewBox="0 0 16 16" width="1em" height="1em" fill="currentColor">
+                        <circle cx="8" cy="8" r="7" fill="#888"/>
+                        <rect x="7.5" y="4" width="1" height="5" rx="0.5" fill="#222"/>
+                        <rect x="8" y="8" width="4" height="1" rx="0.5" fill="#222" transform="rotate(30 8 8)"/>
+                      </svg>
+                    </span>
                     Expiration Date
                   </div>
                   <div>
@@ -446,6 +447,13 @@ if ($_SERVER["QUERY_STRING"] ?? "") {
                 <?php endif; ?>
                 <?php if ($parser->updatedDate): ?>
                   <div class="message-label">
+                    <span class="icon-label">
+                      <!-- 刷新 SVG 图标 -->
+                      <svg viewBox="0 0 16 16" width="1em" height="1em" fill="currentColor">
+                        <path d="M12 8a4 4 0 1 0-4 4" stroke="#222" stroke-width="1.5" fill="none"/>
+                        <polyline points="12,8 12,4 8,4" stroke="#222" stroke-width="1.5" fill="none"/>
+                      </svg>
+                    </span>
                     Updated Date
                   </div>
                   <div>
@@ -462,26 +470,15 @@ if ($_SERVER["QUERY_STRING"] ?? "") {
                     <?php endif; ?>
                   </div>
                 <?php endif; ?>
-                <?php if ($parser->availableDate): ?>
-                  <div class="message-label">
-                    Available Date
-                  </div>
-                  <div>
-                    <?php if ($parser->availableDateISO8601 === null): ?>
-                      <span><?= $parser->availableDate; ?></span>
-                    <?php elseif (str_ends_with($parser->availableDateISO8601, "Z")): ?>
-                      <button id="available-date" data-iso8601="<?= $parser->availableDateISO8601; ?>">
-                        <?= $parser->availableDate; ?>
-                      </button>
-                    <?php else: ?>
-                      <span id="available-date" data-iso8601="<?= $parser->availableDateISO8601; ?>">
-                        <?= $parser->availableDate; ?>
-                      </span>
-                    <?php endif; ?>
-                  </div>
-                <?php endif; ?>
                 <?php if ($parser->status): ?>
                   <div class="message-label">
+                    <span class="icon-label">
+                      <!-- 信息圆点 SVG 图标 -->
+                      <svg viewBox="0 0 16 16" width="1em" height="1em" fill="currentColor">
+                        <circle cx="8" cy="8" r="6" fill="#888"/>
+                        <circle cx="8" cy="8" r="3" fill="#222"/>
+                      </svg>
+                    </span>
                     Status
                   </div>
                   <div class="message-value-status">
@@ -498,6 +495,14 @@ if ($_SERVER["QUERY_STRING"] ?? "") {
                 <?php endif; ?>
                 <?php if ($parser->nameServers): ?>
                   <div class="message-label">
+                    <span class="icon-label">
+                      <!-- 服务器/地球 SVG 图标 -->
+                      <svg viewBox="0 0 16 16" width="1em" height="1em" fill="currentColor">
+                        <ellipse cx="8" cy="8" rx="7" ry="6" fill="#888"/>
+                        <ellipse cx="8" cy="8" rx="4" ry="3" fill="#222"/>
+                        <rect x="3" y="6.5" width="10" height="3" rx="1.5" fill="#444" opacity="0.5"/>
+                      </svg>
+                    </span>
                     Name Servers
                   </div>
                   <div class="message-value-name-servers">
@@ -523,7 +528,7 @@ if ($_SERVER["QUERY_STRING"] ?? "") {
                   <?php if ($parser->remaining): ?>
                     <button class="message-tag message-tag-gray" id="remaining" data-seconds="<?= $parser->remainingSeconds; ?>">
                       <svg width="1em" height="1em" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true">
-                        <path d="M2 1.5a.5.5 0 0 1 .5-.5h11a.5.5 0 0 1 0 1h-1v1a4.5 4.5 0 0 1-2.557 4.06c-.29.139-.443.377-.443.59v.7c0 .213.154.451.443.59A4.5 4.5 0 0 1 12.5 13v1h1a.5.5 0 0 1 0 1h-11a.5.5 0 1 1 0-1h1v-1a4.5 4.5 0 0 1 2.557-4.06c.29-.139.443-.377.443-.59v-.7c0-.213-.154-.451-.443-.59A4.5 4.5 0 0 1 3.5 3V2h-1a.5.5 0 0 1-.5-.5m2.5.5v1a3.5 3.5 0 0 0 1.989 3.158c.533.256 1.011.791 1.011 1.491v.702c0 .7-.478 1.235-1.011 1.491A3.5 3.5 0 0 0 4.5 13v1h7v-1a3.5 3.5 0 0 0-1.989-3.158C8.978 9.586 8.5 9.052 8.5 8.351v-.702c0-.7.478-1.235 1.011-1.491A3.5 3.5 0 0 0 11.5 3V2z" />
+                        <path d="M2 1.5a.5.5 0 0 1 .5-.5h11a.5.5 0 0 1 0 1h-1v1a4.5 4.5 0 0 1-2.557 4.06c-.29.139-.443.377-.443.59v.7c0 .213.154.451.443.59A4.5 4.5 0 0 1 12.5 13v1h1a.5.5 0 0 1 0 1h-11[...]
                       </svg>
                       <span><?= $parser->remaining; ?></span>
                     </button>
@@ -552,7 +557,7 @@ if ($_SERVER["QUERY_STRING"] ?? "") {
               <div class="message-header">
                 <svg width="1em" height="1em" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true" class="message-icon">
                   <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14m0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16" />
-                  <path d="m8.93 6.588-2.29.287-.082.38.45.083c.294.07.352.176.288.469l-.738 3.468c-.194.897.105 1.319.808 1.319.545 0 1.178-.252 1.465-.598l.088-.416c-.2.176-.492.246-.686.246-.275 0-.375-.193-.304-.533zM9 4.5a1 1 0 1 1-2 0 1 1 0 0 1 2 0" />
+                  <path d="m8.93 6.588-2.29.287-.082.38.45.083c.294.07.352.176.288.469l-.738 3.468c-.194.897.105 1.319.808 1.319.545 0 1.178-.252 1.465-.598l.088-.416c-.2.176-.492.246-.686.246-.275 0-[...]
                 </svg>
                 <h2 class="message-title">
                   &#39;<?= $domain; ?>&#39; does not appear registered yet
@@ -726,166 +731,4 @@ if ($_SERVER["QUERY_STRING"] ?? "") {
                 content: offset,
                 placement: "right",
               });
-            }
-          }
-        }
-
-        updateDateElementTooltip("creation-date");
-        updateDateElementTooltip("expiration-date");
-        updateDateElementTooltip("updated-date");
-        updateDateElementTooltip("available-date");
-
-        function updateSecondsElementTooltip(elementId, prefix) {
-          const element = document.getElementById(elementId);
-          if (element) {
-            const seconds = element.dataset.seconds;
-            if (seconds) {
-              let days = seconds / 24 / 60 / 60;
-              days = seconds < 0 ? Math.ceil(days) : Math.floor(days);
-              if (seconds < 0 && days === 0) {
-                days = "-0";
-              }
-              tippy(`#${elementId}`, {
-                content: `${prefix}: ${days} days`,
-                placement: "bottom",
-              });
-            }
-          }
-        }
-
-        updateSecondsElementTooltip("age", "Age");
-        updateSecondsElementTooltip("remaining", "Remaining");
-
-        const dataSourceWHOIS = document.getElementById("data-source-whois");
-        const dataSourceRDAP = document.getElementById("data-source-rdap");
-        const rawDataWHOIS = document.getElementById("raw-data-whois");
-        const rawDataRDAP = document.getElementById("raw-data-rdap");
-
-        if (dataSourceWHOIS && dataSourceRDAP) {
-          dataSourceWHOIS.addEventListener("click", () => {
-            if (dataSourceWHOIS.classList.contains("segmented-item-selected")) {
-              return;
-            }
-
-            dataSourceWHOIS.classList.add("segmented-item-selected");
-            rawDataWHOIS.style.display = "block";
-            dataSourceRDAP.classList.remove("segmented-item-selected");
-            rawDataRDAP.style.display = "none";
-          });
-          dataSourceRDAP.addEventListener("click", () => {
-            if (dataSourceRDAP.classList.contains("segmented-item-selected")) {
-              return;
-            }
-
-            dataSourceWHOIS.classList.remove("segmented-item-selected");
-            rawDataWHOIS.style.display = "none";
-            dataSourceRDAP.classList.add("segmented-item-selected");
-            rawDataRDAP.style.display = "block";
-          });
-        }
-
-        function linkifyRawData(element) {
-          if (element) {
-            element.innerHTML = linkifyHtml(element.innerHTML, {
-              rel: "nofollow noopener noreferrer",
-              target: "_blank",
-              validate: {
-                url: (value) => /^https?:\/\//.test(value),
-              },
-            });
-          }
-        }
-
-        linkifyRawData(rawDataWHOIS);
-        linkifyRawData(rawDataRDAP);
-      });
-    </script>
-  <?php endif; ?>
-  <?php if ($fetchPrices): ?>
-    <script>
-      window.addEventListener("DOMContentLoaded", async () => {
-        const messagePrice = document.getElementById("message-price");
-
-        if (!messagePrice) {
-          return;
-        }
-
-        const startTime = Date.now();
-
-        try {
-          const response = await fetch("https://api.tian.hu/whois.php?domain=<?= $domain; ?>&action=checkPrice");
-
-          if (!response.ok) {
-            throw new Error();
-          }
-
-          const data = await response.json();
-
-          if (data.code !== "200") {
-            throw new Error();
-          }
-
-          let innerHTML = "";
-
-          const isPremium = data.data.premium === "true";
-
-          if (isPremium) {
-            innerHTML = `
-              <button class="message-tag message-tag-purple" id="price-premium">
-                <svg width="1em" height="1em" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true">
-                  <path d="M2.866 14.85c-.078.444.36.791.746.593l4.39-2.256 4.389 2.256c.386.198.824-.149.746-.592l-.83-4.73 3.522-3.356c.33-.314.16-.888-.282-.95l-4.898-.696L8.465.792a.513.513 0 0 0-.927 0L5.354 5.12l-4.898.696c-.441.062-.612.636-.283.95l3.523 3.356-.83 4.73zm4.905-2.767-3.686 1.894.694-3.957a.56.56 0 0 0-.163-.505L1.71 6.745l4.052-.576a.53.53 0 0 0 .393-.288L8 2.223l1.847 3.658a.53.53 0 0 0 .393.288l4.052.575-2.906 2.77a.56.56 0 0 0-.163.506l.694 3.957-3.686-1.894a.5.5 0 0 0-.461 0z" />
-                </svg>
-              </button>
-            `;
-          }
-
-          let registerUSD = data.data.register_usd;
-          let renewUSD = data.data.renew_usd;
-          let registerCNY = data.data.register;
-          let renewCNY = data.data.renew;
-
-          registerUSD = registerUSD === "unknow" ? "?" : registerUSD;
-          renewUSD = renewUSD === "unknow" ? "?" : renewUSD;
-          registerCNY = registerCNY === "unknow" ? "?" : registerCNY;
-          renewCNY = renewCNY === "unknow" ? "?" : renewCNY;
-
-          innerHTML = `
-            ${innerHTML}
-            <button class="message-tag message-tag-gray" id="price-register">
-              <span>Register: $${registerUSD}</span>
-            </button>
-            <button class="message-tag message-tag-gray" id="price-renew">
-              <span>Renew: $${renewUSD}</span>
-            </button>
-          `;
-
-          setTimeout(() => {
-            messagePrice.innerHTML = innerHTML;
-
-            if (isPremium) {
-              tippy("#price-premium", {
-                content: "Premium",
-                placement: "bottom",
-              });
-            }
-            tippy("#price-register", {
-              content: `¥${registerCNY}`,
-              placement: "bottom"
-            });
-            tippy("#price-renew", {
-              content: `¥${renewCNY}`,
-              placement: "bottom"
-            });
-          }, Math.max(0, 500 - (Date.now() - startTime)));
-        } catch {
-          setTimeout(() => {
-            messagePrice.innerHTML = `<span class="message-tag message-tag-pink">Failed to fetch prices</span>`;
-          }, Math.max(0, 500 - (Date.now() - startTime)));
-        }
-      });
-    </script>
-  <?php endif; ?>
-  <?= CUSTOM_SCRIPT ?>
-</body>
-
-</html>
+           
