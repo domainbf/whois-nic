@@ -148,10 +148,10 @@
     <footer class="footer">
         <div class="announcement-container">
             <div class="announcement-box">
-                <div class="announcement active">RDAP+WHOIS 双核驱动提供准确信息。</div>
+                <div class="announcement active">RDAP+WHOIS 双核驱动提供准确数据。</div>
                 <div class="announcement">我们提供查询平台，但不储存任何查询数据。</div>
-                <div class="announcement">域名出售，更多☝️点击{我的域名}查看，</div>
-                <div class="announcement">程序并不完善，欢迎体验并提供宝贵意见！</div>
+                <div class="announcement">在售域名👇点击{我的域名}查看，</div>
+                <div class="announcement">欢迎体验，如有问题可提交信息反馈！</div>
             </div>
         </div>
         
