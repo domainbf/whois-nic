@@ -275,7 +275,7 @@ if ($_SERVER["QUERY_STRING"] ?? "") {
             id="domain"
             inputmode="url"
             name="domain"
-            placeholder="Enter a domain"
+            placeholder="示例：NIC.RW"
             required
             type="text"
             value="<?= $domain; ?>">
