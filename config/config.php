@@ -1,5 +1,5 @@
 <?php
-define("DEFAULT_EXTENSION", getenv("DEFAULT_EXTENSION") ?: ".com");
+define("DEFAULT_EXTENSION", getenv("DEFAULT_EXTENSION") ?: "");
 
 define("SITE_TITLE", getenv("SITE_TITLE") ?: "WHOIS+RDAP lookup");
 
