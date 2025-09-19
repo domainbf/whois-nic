@@ -115,8 +115,8 @@
             <div class="announcement-box">
                 <div class="announcement active">RDAP+WHOIS 双核驱动提供准确数据。</div>
                 <div class="announcement">我们提供查询平台，但不储存任何查询数据。</div>
-                <div class="announcement">在售域名👇点击{我的域名}查看，</div>
-                <div class="announcement">欢迎体验，如有问题可提交信息反馈！</div>
+                <div class="announcement">在售的域名，可👇点击{下方}进入列表查看，</div>
+                <div class="announcement">不记录·不储存·所有数据仅保留在您本地浏览器。</div>
             </div>
         </div>
         
