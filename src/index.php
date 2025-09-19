@@ -245,6 +245,56 @@ if ($_SERVER["QUERY_STRING"] ?? "") {
       width: 1.2em;
       height: 1.2em;
     }
+
+    /* New CSS for the result card */
+    .message {
+      background: rgba(255, 255, 255, 0.85); /* Semi-transparent white background */
+      backdrop-filter: blur(5px); /* Add a slight blur effect */
+      border: none; /* No border */
+      border-radius: 12px; /* Rounded corners */
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); /* Soft shadow for depth */
+      padding: 1.5rem;
+      margin-bottom: 2rem;
+    }
+
+    /* Raw data container styles */
+    .raw-data {
+      border: none;
+      background: transparent;
+      padding: 0;
+      margin-top: 1rem;
+      border-radius: 12px;
+      overflow: hidden;
+    }
+
+    .raw-data pre {
+      background: rgba(0, 0, 0, 0.7);
+      color: #fff;
+      padding: 1.5rem;
+      border-radius: 12px;
+      white-space: pre-wrap;
+      word-wrap: break-word;
+      font-family: monospace;
+      position: relative;
+    }
+
+    .copy-button {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      background: #444;
+      color: #fff;
+      border: none;
+      border-radius: 6px;
+      padding: 6px 12px;
+      cursor: pointer;
+      font-size: 0.8rem;
+      transition: background 0.2s;
+    }
+
+    .copy-button:hover {
+      background: #555;
+    }
   </style>
 </head>
 
@@ -273,7 +323,7 @@ if ($_SERVER["QUERY_STRING"] ?? "") {
             required
             type="text"
             value="<?= $domain; ?>">
-          <button class="search-clear" id="domain-clear" type="button" aria-label="Clear">
+          <button class="search-clear" id="domain-clear" type="button" aria-label="清空">
             <svg width="1em" height="1em" viewBox="0 0 16 16" fill="currentColor">
               <path d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708" />
             </svg>
@@ -290,8 +340,9 @@ if ($_SERVER["QUERY_STRING"] ?? "") {
             <input <?= in_array("whois", $dataSource, true) ? "checked" : "" ?> class="checkbox-trigger" id="checkbox-whois" name="whois" type="checkbox" value="1">
             <label class="checkbox-label" for="checkbox-whois">
               <span class="checkbox-leading-icon">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-                  <path d="M12 2A10 10 0 1 0 12 22A10 10 0 1 0 12 2ZM8 12a1 1 0 0 1 1-1h6a1 1 0 0 1 1 1v6a1 1 0 0 1-1 1H9a1 1 0 0 1-1-1Z"/>
+                <svg width="18" height="18" viewBox="0 0 18 18" aria-hidden="true">
+                  <circle cx="9" cy="9" r="9" fill="#222"/>
+                  <text x="9" y="13" text-anchor="middle" fill="#fff" font-size="12" font-family="Arial" font-weight="bold">W</text>
                 </svg>
               </span>
               WHOIS
@@ -306,8 +357,9 @@ if ($_SERVER["QUERY_STRING"] ?? "") {
             <input <?= in_array("rdap", $dataSource, true) ? "checked" : "" ?> class="checkbox-trigger" id="checkbox-rdap" name="rdap" type="checkbox" value="1">
             <label class="checkbox-label" for="checkbox-rdap">
               <span class="checkbox-leading-icon">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-                  <path d="M12 2A10 10 0 1 0 12 22A10 10 0 1 0 12 2ZM10 10a2 2 0 1 1-2 2a2 2 0 0 1 2-2Zm4 0a2 2 0 1 1-2 2a2 2 0 0 1 2-2Zm-2 4a2 2 0 1 1-2 2a2 2 0 0 1 2-2Zm-4 0a2 2 0 1 1-2 2a2 2 0 0 1 2-2Z"/>
+                <svg width="18" height="18" viewBox="0 0 18 18" aria-hidden="true">
+                  <circle cx="9" cy="9" r="9" fill="#222"/>
+                  <text x="9" y="13" text-anchor="middle" fill="#fff" font-size="12" font-family="Arial" font-weight="bold">R</text>
                 </svg>
               </span>
               RDAP
@@ -322,8 +374,9 @@ if ($_SERVER["QUERY_STRING"] ?? "") {
             <input <?= $fetchPrices ? "checked" : "" ?> class="checkbox-trigger" id="checkbox-prices" name="prices" type="checkbox" value="1">
             <label class="checkbox-label" for="checkbox-prices">
               <span class="checkbox-leading-icon">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-                  <path d="M12 2A10 10 0 1 0 12 22A10 10 0 1 0 12 2ZM12 8a4 4 0 1 1-4 4a4 4 0 0 1 4-4Z"/>
+                <svg width="18" height="18" viewBox="0 0 18 18" aria-hidden="true">
+                  <circle cx="9" cy="9" r="9" fill="#222"/>
+                  <text x="9" y="13" text-anchor="middle" fill="#fff" font-size="12" font-family="Arial" font-weight="bold">$</text>
                 </svg>
               </span>
               价格
@@ -350,7 +403,7 @@ if ($_SERVER["QUERY_STRING"] ?? "") {
                   <path d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708" />
                 </svg>
                 <h2 class="message-title">
-                  <?= $error; ?>
+                  '<?= $domain; ?>' 不是一个有效域名
                 </h2>
               </div>
             </div>
@@ -362,7 +415,7 @@ if ($_SERVER["QUERY_STRING"] ?? "") {
                   <path d="M5.255 5.786a.237.237 0 0 0 .241.247h.825c.138 0 .248-.113.266-.25.09-.656.54-1.134 1.342-1.134.686 0 1.314.343 1.314 1.168 0 .635-.374.927-.965 1.371-.673.489-1.206 1.06-1.168 1.987l.003.217a.25.25 0 0 0 .25.246h.811a.25.25 0 0 0 .25-.25v-.105c0-.718.273-.927 1.01-1.486.609-.463 1.244-.977 1.244-2.056 0-1.511-1.276-2.241-2.673-2.241-1.267 0-2.655.59-2.75 2.286m1.557 5.763c0 .533.425.927 1.01.927.609 0 1.028-.394 1.028-.927 0-.552-.42-.94-1.029-.94-.584 0-1.009.388-1.009.94" />
                 </svg>
                 <h2 class="message-title">
-                  &#39;<?= $domain; ?>&#39; 状态未知
+                  '<?= $domain; ?>' 看起来还未被注册
                 </h2>
               </div>
               <?php if ($fetchPrices): ?>
@@ -378,7 +431,7 @@ if ($_SERVER["QUERY_STRING"] ?? "") {
                   <path d="M15 8a6.97 6.97 0 0 0-1.71-4.584l-9.874 9.875A7 7 0 0 0 15 8M2.71 12.584l9.874-9.875a7 7 0 0 0-9.874 9.874ZM16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0" />
                 </svg>
                 <h2 class="message-title">
-                  &#39;<?= $domain; ?>&#39; 已被保留
+                  '<?= $domain; ?>' 已被保留
                 </h2>
               </div>
               <?php if ($fetchPrices): ?>
@@ -407,13 +460,9 @@ if ($_SERVER["QUERY_STRING"] ?? "") {
                 <?php if ($parser->registrar): ?>
                   <div class="message-label">
                     <span class="message-icon-leading">
-                      <svg width="1em" height="1em" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-                        <path d="M6 3h12a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2m0 1a1 1 0 0 0-1 1v14a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V5a1 1 0 0 0-1-1Z"/>
-                        <path d="M9 6h6v1h-6Z"/>
-                        <path d="M9 8h6v1h-6Z"/>
-                        <path d="M9 10h6v1h-6Z"/>
-                        <path d="M9 12h6v1h-6Z"/>
-                        <path d="M9 14h6v1h-6Z"/>
+                      <svg width="1em" height="1em" viewBox="0 0 16 16" fill="currentColor">
+                        <path d="M4 14.5a.5.5 0 0 1 .5-.5h7a.5.5 0 0 1 .5.5v.5h-8v-.5zm-.5-2a.5.5 0 0 0-.5.5v.5H2V2h12v11.5h-.5a.5.5 0 0 0-.5.5v.5h1a.5.5 0 0 0 .5-.5V1.5a.5.5 0 0 0-.5-.5H1.5a.5.5 0 0 0-.5.5v13a.5.5 0 0 0 .5.5h1a.5.5 0 0 0 .5-.5v-.5z" />
+                        <path d="M6 14.5a.5.5 0 0 1 .5-.5h3a.5.5 0 0 1 .5.5v.5h-4v-.5zm0-2a.5.5 0 0 0-.5.5v.5H5V3a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v11.5h-1v-.5a.5.5 0 0 0-.5-.5h-3a.5.5 0 0 0-.5.5v.5h-1v-.5z" />
                       </svg>
                     </span>
                     注册商
@@ -429,9 +478,8 @@ if ($_SERVER["QUERY_STRING"] ?? "") {
                 <?php if ($parser->creationDate): ?>
                   <div class="message-label">
                     <span class="message-icon-leading">
-                      <svg width="1em" height="1em" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-                        <path d="M19 4h-2V3a1 1 0 0 0-2 0v1H9V3a1 1 0 0 0-2 0v1H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2m-2 16H7V10h10Zm2-2V8a1 1 0 0 1-1-1H6a1 1 0 0 1-1-1V6H5v14H19Z"/>
-                        <path d="M9 12h2v2H9Zm4 0h2v2h-2Zm-4 4h2v2H9Zm4 0h2v2h-2Z"/>
+                      <svg width="1em" height="1em" viewBox="0 0 16 16" fill="currentColor">
+                        <path d="M4 0h8a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V2a2 2 0 0 1 2-2zM4 1a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1H4zm1.5 5h5a.5.5 0 0 1 0 1h-5a.5.5 0 0 1 0-1zm0-2h5a.5.5 0 0 1 0 1h-5a.5.5 0 0 1 0-1zm0-2h5a.5.5 0 0 1 0 1h-5a.5.5 0 0 1 0-1zm0 8h5a.5.5 0 0 1 0 1h-5a.5.5 0 0 1 0-1z" />
                       </svg>
                     </span>
                     创建日期
@@ -453,9 +501,8 @@ if ($_SERVER["QUERY_STRING"] ?? "") {
                 <?php if ($parser->expirationDate): ?>
                   <div class="message-label">
                     <span class="message-icon-leading">
-                      <svg width="1em" height="1em" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-                        <path d="M19 4h-2V3a1 1 0 0 0-2 0v1H9V3a1 1 0 0 0-2 0v1H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2m-2 16H7V10h10Zm2-2V8a1 1 0 0 1-1-1H6a1 1 0 0 1-1-1V6H5v14H19Z"/>
-                        <path d="M9 12h2v2H9Zm4 0h2v2h-2Zm-4 4h2v2H9Zm4 0h2v2h-2Z"/>
+                      <svg width="1em" height="1em" viewBox="0 0 16 16" fill="currentColor">
+                        <path d="M4 0h8a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V2a2 2 0 0 1 2-2zm0 1a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1H4zm1.5 5h5a.5.5 0 0 1 0 1h-5a.5.5 0 0 1 0-1zm0-2h5a.5.5 0 0 1 0 1h-5a.5.5 0 0 1 0-1zm0-2h5a.5.5 0 0 1 0 1h-5a.5.5 0 0 1 0-1zm0 8h5a.5.5 0 0 1 0 1h-5a.5.5 0 0 1 0-1z" />
                       </svg>
                     </span>
                     到期日期
@@ -477,8 +524,8 @@ if ($_SERVER["QUERY_STRING"] ?? "") {
                 <?php if ($parser->updatedDate): ?>
                   <div class="message-label">
                     <span class="message-icon-leading">
-                      <svg width="1em" height="1em" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-                        <path d="M12 2A10 10 0 0 0 2 12a10 10 0 0 0 10 10a10 10 0 0 0 10-10A10 10 0 0 0 12 2m0 2a8 8 0 0 1 8 8a8 8 0 0 1-8 8a8 8 0 0 1-8-8a8 8 0 0 1 8-8m1 4v5.3l4.3 2.5l-.7 1.2l-5-2.9v-6.1Z"/>
+                      <svg width="1em" height="1em" viewBox="0 0 16 16" fill="currentColor">
+                        <path d="M4 0h8a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V2a2 2 0 0 1 2-2zM4 1a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1H4zm1.5 5h5a.5.5 0 0 1 0 1h-5a.5.5 0 0 1 0-1zm0-2h5a.5.5 0 0 1 0 1h-5a.5.5 0 0 1 0-1zm0-2h5a.5.5 0 0 1 0 1h-5a.5.5 0 0 1 0-1zm0 8h5a.5.5 0 0 1 0 1h-5a.5.5 0 0 1 0-1z" />
                       </svg>
                     </span>
                     更新日期
@@ -500,12 +547,11 @@ if ($_SERVER["QUERY_STRING"] ?? "") {
                 <?php if ($parser->availableDate): ?>
                   <div class="message-label">
                     <span class="message-icon-leading">
-                      <svg width="1em" height="1em" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-                        <path d="M19 4h-2V3a1 1 0 0 0-2 0v1H9V3a1 1 0 0 0-2 0v1H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2m-2 16H7V10h10Zm2-2V8a1 1 0 0 1-1-1H6a1 1 0 0 1-1-1V6H5v14H19Z"/>
-                        <path d="M9 12h2v2H9Zm4 0h2v2h-2Zm-4 4h2v2H9Zm4 0h2v2h-2Z"/>
+                      <svg width="1em" height="1em" viewBox="0 0 16 16" fill="currentColor">
+                        <path d="M4 0h8a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V2a2 2 0 0 1 2-2zM4 1a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1H4zm1.5 5h5a.5.5 0 0 1 0 1h-5a.5.5 0 0 1 0-1zm0-2h5a.5.5 0 0 1 0 1h-5a.5.5 0 0 1 0-1zm0-2h5a.5.5 0 0 1 0 1h-5a.5.5 0 0 1 0-1zm0 8h5a.5.5 0 0 1 0 1h-5a.5.5 0 0 1 0-1z" />
                       </svg>
                     </span>
-                    可注册日期
+                    可用日期
                   </div>
                   <div>
                     <?php if ($parser->availableDateISO8601 === null): ?>
@@ -524,8 +570,9 @@ if ($_SERVER["QUERY_STRING"] ?? "") {
                 <?php if ($parser->status): ?>
                   <div class="message-label">
                     <span class="message-icon-leading">
-                      <svg width="1em" height="1em" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-                        <path d="M12 2A10 10 0 1 0 12 22A10 10 0 1 0 12 2Zm-2 15l-5-5l1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9Z"/>
+                      <svg width="1em" height="1em" viewBox="0 0 16 16" fill="currentColor">
+                        <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14m0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16" />
+                        <path d="m10.97 4.97-.02.022-3.473 4.425-2.093-2.094a.75.75 0 0 0-1.06 1.06L6.97 11.03a.75.75 0 0 0 1.079-.02l3.992-4.99a.75.75 0 0 0-1.071-1.05" />
                       </svg>
                     </span>
                     状态
@@ -545,8 +592,9 @@ if ($_SERVER["QUERY_STRING"] ?? "") {
                 <?php if ($parser->nameServers): ?>
                   <div class="message-label">
                     <span class="message-icon-leading">
-                      <svg width="1em" height="1em" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-                        <path d="M12 2A10 10 0 1 0 12 22A10 10 0 1 0 12 2M10 16a2 2 0 1 1-2 2a2 2 0 0 1 2-2M14 8a2 2 0 1 1-2 2a2 2 0 0 1 2-2M18 10a2 2 0 1 1-2 2a2 2 0 0 1 2-2Z"/>
+                      <svg width="1em" height="1em" viewBox="0 0 16 16" fill="currentColor">
+                        <path d="M5.5 10a.5.5 0 0 0-.5.5v1a.5.5 0 0 0 .5.5h5a.5.5 0 0 0 .5-.5v-1a.5.5 0 0 0-.5-.5h-5z" />
+                        <path d="M12.44 1.44a.5.5 0 0 1 .12.55l-2.49 11.55a.5.5 0 0 1-.95.06L7 8.355l-2.043 4.65a.5.5 0 0 1-.95-.06L1.44 2a.5.5 0 0 1 .55-.12L8 4.288l5.44-2.968z" />
                       </svg>
                     </span>
                     域名服务器
@@ -568,7 +616,7 @@ if ($_SERVER["QUERY_STRING"] ?? "") {
                         <path d="M8 3.5a.5.5 0 0 0-1 0V9a.5.5 0 0 0 .252.434l3.5 2a.5.5 0 0 0 .496-.868L8 8.71z" />
                         <path d="M8 16A8 8 0 1 0 8 0a8 8 0 0 0 0 16m7-8A7 7 0 1 1 1 8a7 7 0 0 1 14 0" />
                       </svg>
-                      <span><?= $parser->age; ?></span>
+                      <span>年限：<?= $parser->age; ?></span>
                     </button>
                   <?php endif; ?>
                   <?php if ($parser->remaining): ?>
@@ -576,7 +624,7 @@ if ($_SERVER["QUERY_STRING"] ?? "") {
                       <svg width="1em" height="1em" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true">
                         <path d="M2 1.5a.5.5 0 0 1 .5-.5h11a.5.5 0 0 1 0 1h-1v1a4.5 4.5 0 0 1-2.557 4.06c-.29.139-.443.377-.443.59v.7c0 .213.154.451.443.59A4.5 4.5 0 0 1 12.5 13v1h1a.5.5 0 0 1 0 1h-11a.5.5 0 1 1 0-1h1v-1a4.5 4.5 0 0 1 2.557-4.06c.29-.139.443-.377.443-.59v-.7c0-.213-.154-.451-.443-.59A4.5 4.5 0 0 1 3.5 3V2h-1a.5.5 0 0 1-.5-.5m2.5.5v1a3.5 3.5 0 0 0 1.989 3.158c.533.256 1.011.791 1.011 1.491v.702c0 .7-.478 1.235-1.011 1.491A3.5 3.5 0 0 0 4.5 13v1h7v-1a3.5 3.5 0 0 0-1.989-3.158C8.978 9.586 8.5 9.052 8.5 8.351v-.702c0-.7.478-1.235 1.011-1.491A3.5 3.5 0 0 0 11.5 3V2z" />
                       </svg>
-                      <span><?= $parser->remaining; ?></span>
+                      <span>剩余：<?= $parser->remaining; ?></span>
                     </button>
                   <?php endif; ?>
                   <?php if ($parser->ageSeconds && $parser->ageSeconds < 7 * 24 * 60 * 60): ?>
@@ -586,12 +634,12 @@ if ($_SERVER["QUERY_STRING"] ?? "") {
                     <span class="message-tag message-tag-yellow">即将到期</span>
                   <?php endif; ?>
                   <?php if ($parser->pendingDelete): ?>
-                    <span class="message-tag message-tag-red">待删除</span>
+                    <span class="message-tag message-tag-red">等待删除</span>
                   <?php elseif ($parser->remainingSeconds < 0): ?>
                     <span class="message-tag message-tag-red">已过期</span>
                   <?php endif; ?>
                   <?php if ($parser->gracePeriod): ?>
-                    <span class="message-tag message-tag-yellow">续费宽限期</span>
+                    <span class="message-tag message-tag-yellow">宽限期</span>
                   <?php elseif ($parser->redemptionPeriod): ?>
                     <span class="message-tag message-tag-blue">赎回期</span>
                   <?php endif; ?>
@@ -606,7 +654,7 @@ if ($_SERVER["QUERY_STRING"] ?? "") {
                   <path d="m8.93 6.588-2.29.287-.082.38.45.083c.294.07.352.176.288.469l-.738 3.468c-.194.897.105 1.319.808 1.319.545 0 1.178-.252 1.465-.598l.088-.416c-.2.176-.492.246-.686.246-.275 0-.375-.193-.304-.533zM9 4.5a1 1 0 1 1-2 0 1 1 0 0 1 2 0" />
                 </svg>
                 <h2 class="message-title">
-                  &#39;<?= $domain; ?>&#39; 尚未注册
+                  '<?= $domain; ?>' 看起来还未被注册
                 </h2>
               </div>
               <?php if ($fetchPrices): ?>
@@ -619,21 +667,19 @@ if ($_SERVER["QUERY_STRING"] ?? "") {
         </div>
       </section>
     <?php endif; ?>
-    <?php if ($whoisData && $rdapData): ?>
+    <?php if ($whoisData || $rdapData): ?>
       <section class="data-source">
         <div class="segmented">
           <button class="segmented-item segmented-item-selected" id="data-source-whois" type="button">WHOIS</button>
           <button class="segmented-item" id="data-source-rdap" type="button">RDAP</button>
         </div>
       </section>
-    <?php endif; ?>
-    <?php if ($whoisData || $rdapData): ?>
       <section class="raw-data">
         <?php if ($whoisData): ?>
-          <pre class="raw-data-whois" id="raw-data-whois" tabindex="0"><?= $whoisData; ?></pre>
+          <pre class="raw-data-whois" id="raw-data-whois" tabindex="0"><?= $whoisData; ?><button class="copy-button" data-target="raw-data-whois">复制</button></pre>
         <?php endif; ?>
         <?php if ($rdapData): ?>
-          <pre class="raw-data-rdap" id="raw-data-rdap"><code class="language-json"><?= $rdapData; ?></code></pre>
+          <pre class="raw-data-rdap" id="raw-data-rdap"><code class="language-json"><?= $rdapData; ?></code><button class="copy-button" data-target="raw-data-rdap">复制</button></pre>
         <?php endif; ?>
       </section>
     <?php endif; ?>
@@ -797,21 +843,21 @@ if ($_SERVER["QUERY_STRING"] ?? "") {
                 days = "-0";
               }
               tippy(`#${elementId}`, {
-                content: `${prefix}: ${days} days`,
+                content: `${prefix}: ${days} 天`,
                 placement: "bottom",
               });
             }
           }
         }
 
-        updateSecondsElementTooltip("age", "Age");
-        updateSecondsElementTooltip("remaining", "Remaining");
+        updateSecondsElementTooltip("age", "年限");
+        updateSecondsElementTooltip("remaining", "剩余");
 
         const dataSourceWHOIS = document.getElementById("data-source-whois");
         const dataSourceRDAP = document.getElementById("data-source-rdap");
         const rawDataWHOIS = document.getElementById("raw-data-whois");
         const rawDataRDAP = document.getElementById("raw-data-rdap");
-
+        
         if (dataSourceWHOIS && dataSourceRDAP) {
           dataSourceWHOIS.addEventListener("click", () => {
             if (dataSourceWHOIS.classList.contains("segmented-item-selected")) {
@@ -830,14 +876,15 @@ if ($_SERVER["QUERY_STRING"] ?? "") {
 
             dataSourceWHOIS.classList.remove("segmented-item-selected");
             rawDataWHOIS.style.display = "none";
-            rawDataRDAP.classList.add("segmented-item-selected");
             rawDataRDAP.style.display = "block";
           });
         }
 
         function linkifyRawData(element) {
           if (element) {
-            element.innerHTML = linkifyHtml(element.innerHTML, {
+            const codeElement = element.querySelector("code");
+            const targetElement = codeElement || element;
+            targetElement.innerHTML = linkifyHtml(targetElement.innerHTML, {
               rel: "nofollow noopener noreferrer",
               target: "_blank",
               validate: {
@@ -849,6 +896,27 @@ if ($_SERVER["QUERY_STRING"] ?? "") {
 
         linkifyRawData(rawDataWHOIS);
         linkifyRawData(rawDataRDAP);
+
+        // Copy button functionality
+        const copyButtons = document.querySelectorAll(".copy-button");
+        copyButtons.forEach(button => {
+          button.addEventListener("click", async () => {
+            const targetId = button.dataset.target;
+            const targetElement = document.getElementById(targetId);
+            const textToCopy = targetElement.innerText || targetElement.textContent;
+
+            try {
+              await navigator.clipboard.writeText(textToCopy.trim());
+              const originalText = button.innerText;
+              button.innerText = "已复制!";
+              setTimeout(() => {
+                button.innerText = originalText;
+              }, 2000);
+            } catch (err) {
+              console.error("Failed to copy text: ", err);
+            }
+          });
+        });
       });
     </script>
   <?php endif; ?>
@@ -930,7 +998,7 @@ if ($_SERVER["QUERY_STRING"] ?? "") {
           }, Math.max(0, 500 - (Date.now() - startTime)));
         } catch {
           setTimeout(() => {
-            messagePrice.innerHTML = `<span class="message-tag message-tag-pink">价格查询失败</span>`;
+            messagePrice.innerHTML = `<span class="message-tag message-tag-pink">获取价格失败</span>`;
           }, Math.max(0, 500 - (Date.now() - startTime)));
         }
       });
