@@ -11,7 +11,7 @@
             box-sizing: border-box;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
-        
+
         body {
             background: #f8fafc;
             color: #333;
@@ -19,6 +19,34 @@
             display: flex;
             flex-direction: column;
             padding: 20px;
+        }
+
+        /* 导航栏样式调整 */
+        .nav-links {
+            display: flex;
+            justify-content: flex-end; /* 导航链接靠右对齐 */
+            flex-wrap: wrap;
+            gap: 20px;
+            padding: 20px; /* 增加整体内边距 */
+            width: 100%;
+            max-width: 1000px; /* 限制宽度，保持与内容区一致 */
+            margin: 0 auto;
+        }
+
+        .nav-links a {
+            color: #4a5568; /* 调整为深灰色文字，更接近参考网站 */
+            text-decoration: none;
+            font-size: 1rem;
+            font-weight: 500;
+            padding: 5px; /* 减少内边距 */
+            background-color: transparent; /* 移除背景色 */
+            transition: all 0.2s ease;
+            white-space: nowrap;
+        }
+
+        .nav-links a:hover {
+            color: #2d3748; /* 悬停时颜色加深 */
+            border-bottom: 2px solid #3b82f6; /* 添加蓝色下划线效果 */
         }
         
         .container {
@@ -91,32 +119,7 @@
         .host-info a:hover {
             text-decoration: underline;
         }
-        
-        .nav-links {
-            display: flex;
-            justify-content: center;
-            flex-wrap: wrap;
-            gap: 10px;
-            margin-bottom: 20px;
-        }
-        
-        .nav-links a {
-            color: #fff;
-            text-decoration: none;
-            font-size: 1rem;
-            font-weight: 500;
-            padding: 10px 20px; /* Increased padding for a better feel */
-            border-radius: 8px; /* Slightly less rounded corners */
-            background-color: #3b82f6; /* A clean, modern blue */
-            transition: all 0.2s ease;
-            white-space: nowrap;
-        }
-        
-        .nav-links a:hover {
-            background-color: #2563eb; /* A darker shade on hover */
-            transform: translateY(-2px);
-        }
-        
+
         .copyright {
             text-align: center;
             padding: 10px;
@@ -127,20 +130,23 @@
         @media (max-width: 768px) {
             .nav-links {
                 gap: 8px;
-            }
-            
-            .nav-links a {
-                font-size: 0.9rem;
-                padding: 8px 16px;
+                justify-content: center; /* 在小屏设备上居中对齐 */
             }
             
             .container h1 {
-                font-size: 2.5rem;
+                font-size: 2.5rem; /* 根据您的意愿调整，保持或删除此行 */
             }
         }
     </style>
 </head>
 <body>
+    <nav class="nav-links">
+        <a href="#">首页</a>
+        <a href="https://domain.bf">我的域名</a>
+        <a href="#">关于我们</a>
+        <a href="#">联系方式</a>
+    </nav>
+    
     <div class="container">
         <h1>NIC.BN</h1>
     </div>
@@ -157,13 +163,6 @@
         
         <div class="host-info">
             Hosted on <a href="https://vercel.com" rel="noopener" target="_blank">Vercel Platform</a>
-        </div>
-        
-        <div class="nav-links">
-            <a href="#">首页</a>
-            <a href="https://domain.bf">我的域名</a>
-            <a href="#">关于我们</a>
-            <a href="#">联系方式</a>
         </div>
         
         <div class="copyright">
