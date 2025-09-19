@@ -3,39 +3,60 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>精简页脚设计</title>
+    <title>简洁页脚设计</title>
     <style>
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
         }
         
         body {
-            background: #1a2238;
-            color: #e2e8f0;
+            background: #f8fafc;
+            color: #334155;
             min-height: 100vh;
             display: flex;
             flex-direction: column;
-            justify-content: space-between;
             padding: 20px;
         }
         
         .container {
+            flex: 1;
             max-width: 1200px;
             margin: 0 auto;
-            padding: 20px;
+            padding: 30px 20px;
             text-align: center;
         }
         
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 20px;
+            color: #1e293b;
+        }
+        
+        p {
+            font-size: 1.2rem;
+            color: #64748b;
+            max-width: 700px;
+            margin: 0 auto 30px;
+        }
+        
+        .content {
+            background: white;
+            border-radius: 12px;
+            padding: 30px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+            margin-bottom: 30px;
+        }
+        
         .footer {
-            background: rgba(15, 23, 42, 0.95);
+            background: white;
             border-radius: 12px;
             overflow: hidden;
-            box-shadow: 0 -5px 25px rgba(0, 0, 0, 0.4);
-            margin-top: 30px;
-            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 -4px 6px rgba(0, 0, 0, 0.05);
+            margin-top: auto;
+            border: 1px solid #e2e8f0;
         }
         
         .nav-links {
@@ -44,44 +65,43 @@
             padding: 20px;
             flex-wrap: wrap;
             gap: 15px;
-            background: rgba(30, 41, 59, 0.9);
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            border-bottom: 1px solid #e2e8f0;
         }
         
         .nav-links a {
-            color: #e2e8f0;
+            color: #475569;
             text-decoration: none;
             font-size: 1.1rem;
             font-weight: 500;
-            padding: 10px 20px;
-            border-radius: 8px;
-            transition: all 0.3s ease;
+            padding: 8px 16px;
+            border-radius: 6px;
+            transition: all 0.2s ease;
         }
         
         .nav-links a:hover {
-            background: rgba(56, 189, 248, 0.15);
+            background: #f1f5f9;
             color: #3b82f6;
         }
         
         .announcement-container {
             padding: 15px 20px;
             text-align: center;
-            background: rgba(30, 41, 59, 0.8);
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            border-bottom: 1px solid #e2e8f0;
         }
         
         .announcement-title {
-            font-size: 1.2rem;
+            font-size: 1.1rem;
             margin-bottom: 10px;
             color: #3b82f6;
             display: flex;
             align-items: center;
             justify-content: center;
             gap: 8px;
+            font-weight: 600;
         }
         
         .announcement-box {
-            background: rgba(15, 23, 42, 0.7);
+            background: #f8fafc;
             border-radius: 8px;
             padding: 15px;
             min-height: 60px;
@@ -92,6 +112,7 @@
             max-width: 700px;
             position: relative;
             overflow: hidden;
+            border: 1px solid #e2e8f0;
         }
         
         .announcement {
@@ -102,7 +123,7 @@
             width: 90%;
             text-align: center;
             transition: opacity 0.5s ease;
-            color: #cbd5e1;
+            color: #475569;
         }
         
         .announcement.active {
@@ -112,9 +133,8 @@
         .host-info {
             text-align: center;
             padding: 15px;
-            background: rgba(30, 41, 59, 0.9);
             font-size: 0.95rem;
-            color: #94a3b8;
+            color: #64748b;
         }
         
         .host-info a {
@@ -129,7 +149,7 @@
         .copyright {
             text-align: center;
             padding: 15px;
-            background: rgba(15, 23, 42, 0.9);
+            background: #f1f5f9;
             font-size: 0.9rem;
             color: #64748b;
         }
@@ -141,7 +161,15 @@
             
             .nav-links a {
                 font-size: 0.95rem;
-                padding: 8px 15px;
+                padding: 6px 12px;
+            }
+            
+            h1 {
+                font-size: 2rem;
+            }
+            
+            p {
+                font-size: 1rem;
             }
         }
     </style>
@@ -149,7 +177,12 @@
 <body>
     <div class="container">
         <h1>网站内容区域</h1>
-        <p>这是您网站的主要内容区域。下方页脚包含导航链接和公告系统。</p>
+        <p>这是您网站的主要内容区域。页脚设计简洁，与参考网站风格一致，不影响页面文字颜色。</p>
+        
+        <div class="content">
+            <h2>主要功能</h2>
+            <p>此页面使用浅色背景和深色文字，页脚不会影响页面其他部分的文字颜色。</p>
+        </div>
     </div>
     
     <footer class="footer">
@@ -174,7 +207,7 @@
         </div>
         
         <div class="host-info">
-            Hosted on <a href="https://example.com" rel="noopener" target="_blank">Example Hosting</a>
+            Hosted on <a href="https://vercel.com" rel="noopener" target="_blank">Vercel</a>
         </div>
         
         <div class="copyright">
@@ -200,4 +233,20 @@
                 setTimeout(() => {
                     announcements[currentIndex].style.display = 'none';
                     
-                    // 移动到下一个
+                    // 移动到下一个公告
+                    currentIndex = (currentIndex + 1) % announcements.length;
+                    
+                    // 显示下一个公告
+                    announcements[currentIndex].style.display = 'block';
+                    setTimeout(() => {
+                        announcements[currentIndex].classList.add('active');
+                    }, 50);
+                }, 500);
+            }
+            
+            // 每6秒切换一次公告
+            setInterval(showNextAnnouncement, 6000);
+        });
+    </script>
+</body>
+</html>
