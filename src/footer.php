@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>简约透明页脚设计</title>
+    <title>简约透明页脚</title>
     <style>
         * {
             margin: 0;
@@ -13,7 +13,7 @@
         }
         
         body {
-            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            background: #f8fafc;
             color: #333;
             min-height: 100vh;
             display: flex;
@@ -26,29 +26,6 @@
             max-width: 1000px;
             margin: 0 auto;
             padding: 40px 20px;
-            text-align: center;
-        }
-        
-        h1 {
-            font-size: 2.5rem;
-            margin-bottom: 20px;
-            color: #2d3748;
-        }
-        
-        p {
-            font-size: 1.1rem;
-            color: #4a5568;
-            max-width: 700px;
-            margin: 0 auto 30px;
-            line-height: 1.6;
-        }
-        
-        .content {
-            background: rgba(255, 255, 255, 0.8);
-            border-radius: 12px;
-            padding: 30px;
-            margin-bottom: 30px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
         }
         
         .footer {
@@ -61,7 +38,7 @@
             justify-content: center;
             flex-wrap: wrap;
             gap: 10px;
-            margin-bottom: 20px;
+            margin-bottom: 15px;
         }
         
         .nav-links a {
@@ -73,41 +50,29 @@
             border-radius: 20px;
             background: #2d3748;
             transition: all 0.2s ease;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            white-space: nowrap;
         }
         
         .nav-links a:hover {
             background: #1a202c;
             transform: translateY(-2px);
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
         }
         
         .announcement-container {
             text-align: center;
-            margin-bottom: 20px;
+            margin-bottom: 15px;
             max-width: 100%;
             overflow: hidden;
         }
         
-        .announcement-title {
-            font-size: 1rem;
-            margin-bottom: 8px;
-            color: #4a5568;
-            font-weight: 600;
-        }
-        
         .announcement-box {
-            background: rgba(255, 255, 255, 0.9);
-            border-radius: 8px;
-            padding: 12px;
-            min-height: 50px;
+            padding: 10px;
+            min-height: 40px;
             display: flex;
             align-items: center;
             justify-content: center;
             margin: 0 auto;
             max-width: 100%;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-            border: 1px solid rgba(0, 0, 0, 0.05);
         }
         
         .announcement {
@@ -118,7 +83,7 @@
             width: 90%;
             text-align: center;
             transition: opacity 0.5s ease;
-            color: #2d3748;
+            color: #4a5568;
         }
         
         .announcement.active {
@@ -127,7 +92,7 @@
         
         .host-info {
             text-align: center;
-            padding: 10px;
+            padding: 8px;
             font-size: 0.9rem;
             color: #718096;
         }
@@ -144,7 +109,7 @@
         
         .copyright {
             text-align: center;
-            padding: 10px;
+            padding: 8px;
             font-size: 0.85rem;
             color: #718096;
         }
@@ -158,65 +123,30 @@
                 font-size: 0.9rem;
                 padding: 6px 12px;
             }
-            
-            h1 {
-                font-size: 2rem;
-            }
-            
-            p {
-                font-size: 1rem;
-            }
-            
-            .announcement {
-                font-size: 0.9rem;
-            }
-        }
-        
-        @media (max-width: 480px) {
-            .nav-links {
-                flex-direction: column;
-                align-items: center;
-            }
-            
-            .nav-links a {
-                width: 180px;
-                text-align: center;
-            }
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>简约透明页脚设计</h1>
-        <p>这个设计采用了完全透明的页脚背景，导航链接使用黑色标签包裹，公告区域不会超出屏幕宽度。</p>
-        
-        <div class="content">
-            <h2>设计特点</h2>
-            <p>透明背景页脚 | 黑色标签导航 | 响应式设计 | 简约风格</p>
-            <p>页脚不会影响页面内容布局，保持整体设计的简洁性和一致性。</p>
-        </div>
-        
-        <div class="content">
-            <h2>使用说明</h2>
-            <p>直接将此代码复制到您的项目中即可使用。所有样式都是自包含的，无需外部依赖。</p>
-        </div>
+        <!-- 页面内容区域 -->
+        <h1>网站主要内容</h1>
+        <p>这里是您网站的主要内容区域。页脚将显示在页面底部。</p>
     </div>
     
     <footer class="footer">
         <div class="nav-links">
             <a href="#">首页</a>
-            <a href="#">产品服务</a>
+            <a href="https://domain.bf">我的域名</a>
             <a href="#">关于我们</a>
             <a href="#">联系方式</a>
         </div>
         
         <div class="announcement-container">
-            <div class="announcement-title">网站公告</div>
             <div class="announcement-box">
-                <div class="announcement active">欢迎访问我们的网站！新版本已上线，提供更快的查询服务。</div>
-                <div class="announcement">系统将于下周进行维护升级，预计停机时间为2小时。</div>
-                <div class="announcement">新增批量查询功能现已上线，欢迎体验并提供宝贵意见！</div>
-                <div class="announcement">节日优惠活动正在进行中，高级会员可享受更多功能。</div>
+                <div class="announcement active">RDAP+WHOIS双模式下择最有结果显示。</div>
+                <div class="announcement">我们提供查询平台，但不储存任何数据</div>
+                <div class="announcement">此域名正在出售，更多域名请点上方☝️{我的域名}查看，</div>
+                <div class="announcement">程序并不完善，欢迎体验并提供宝贵意见！</div>
             </div>
         </div>
         
@@ -225,7 +155,7 @@
         </div>
         
         <div class="copyright">
-            &copy; 2025 NIC.BN. All rights reserved.
+            &copy; 2023 Your Website Name. All rights reserved.
         </div>
     </footer>
 
