@@ -24,24 +24,17 @@
         .container {
             flex: 1;
             max-width: 1000px;
-            margin: 0 auto;
+            margin: auto; /* Centers vertically and horizontally */
+            display: flex;
+            align-items: center; /* Vertically centers content */
+            justify-content: center; /* Horizontally centers content */
             padding: 40px 20px;
-            text-align: center;
         }
-        
-        h1 {
+
+        .container h1 {
             font-size: 3rem;
-            margin-bottom: 20px;
             color: #2d3748;
             font-weight: 700;
-        }
-        
-        p {
-            font-size: 1.2rem;
-            color: #4a5568;
-            max-width: 700px;
-            margin: 0 auto 30px;
-            line-height: 1.6;
         }
         
         .footer {
@@ -108,19 +101,19 @@
         }
         
         .nav-links a {
-            color: white;
+            color: #fff;
             text-decoration: none;
             font-size: 1rem;
             font-weight: 500;
-            padding: 8px 16px;
-            border-radius: 20px;
-            background: #2d3748;
+            padding: 10px 20px; /* Increased padding for a better feel */
+            border-radius: 8px; /* Slightly less rounded corners */
+            background-color: #3b82f6; /* A clean, modern blue */
             transition: all 0.2s ease;
             white-space: nowrap;
         }
         
         .nav-links a:hover {
-            background: #1a202c;
+            background-color: #2563eb; /* A darker shade on hover */
             transform: translateY(-2px);
         }
         
@@ -138,15 +131,11 @@
             
             .nav-links a {
                 font-size: 0.9rem;
-                padding: 6px 12px;
+                padding: 8px 16px;
             }
             
-            h1 {
+            .container h1 {
                 font-size: 2.5rem;
-            }
-            
-            p {
-                font-size: 1.1rem;
             }
         }
     </style>
@@ -154,7 +143,6 @@
 <body>
     <div class="container">
         <h1>NIC.BN</h1>
-        <p>有一些域名正在出售，点击下方我的域名查看。</p>
     </div>
     
     <footer class="footer">
@@ -188,31 +176,21 @@
             const announcements = document.querySelectorAll('.announcement');
             let currentIndex = 0;
             
-            // 初始化显示第一条公告
-            announcements.forEach((ann, index) => {
-                if (index !== 0) {
-                    ann.style.display = 'none';
-                }
-            });
+            // Add initial active class to the first announcement
+            announcements[0].classList.add('active');
             
             function showNextAnnouncement() {
-                // 隐藏当前公告
+                // Hide current announcement
                 announcements[currentIndex].classList.remove('active');
-                setTimeout(() => {
-                    announcements[currentIndex].style.display = 'none';
-                    
-                    // 移动到下一个公告
-                    currentIndex = (currentIndex + 1) % announcements.length;
-                    
-                    // 显示下一个公告
-                    announcements[currentIndex].style.display = 'block';
-                    setTimeout(() => {
-                        announcements[currentIndex].classList.add('active');
-                    }, 50);
-                }, 500);
+                
+                // Move to the next announcement
+                currentIndex = (currentIndex + 1) % announcements.length;
+                
+                // Show the next announcement
+                announcements[currentIndex].classList.add('active');
             }
             
-            // 每6秒切换一次公告
+            // Per 6 seconds
             setInterval(showNextAnnouncement, 6000);
         });
     </script>
