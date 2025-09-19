@@ -121,7 +121,7 @@
         </div>
         
         <div class="host-info">
-            Hosted on <a href="https://vercel.com" rel="noopener" target="_blank">Vercel Platform</a>
+            Domain List:  <a href="https://www.hello.sn/domain" rel="noopener" target="_blank">Click to view</a>
         </div>
         
         <div class="copyright">
