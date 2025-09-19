@@ -216,6 +216,22 @@ if ($_SERVER["QUERY_STRING"] ?? "") {
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght,SOFT,WONK@72,600,50,1&display=swap">
   <?= CUSTOM_HEAD ?>
+  <style>
+    /* 图标和文字对齐样式 */
+    .checkbox-label {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+    .checkbox-leading-icon {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 18px;
+      height: 18px;
+      margin-right: 2px;
+    }
+  </style>
 </head>
 
 <body>
@@ -258,7 +274,16 @@ if ($_SERVER["QUERY_STRING"] ?? "") {
         <div class="checkboxes">
           <div class="checkbox">
             <input <?= in_array("whois", $dataSource, true) ? "checked" : "" ?> class="checkbox-trigger" id="checkbox-whois" name="whois" type="checkbox" value="1">
-            <label class="checkbox-label" for="checkbox-whois">WHOIS</label>
+            <label class="checkbox-label" for="checkbox-whois">
+              <span class="checkbox-leading-icon">
+                <!-- WHOIS 图标 -->
+                <svg width="18" height="18" viewBox="0 0 18 18" aria-hidden="true">
+                  <circle cx="9" cy="9" r="9" fill="#222"/>
+                  <text x="9" y="13" text-anchor="middle" fill="#fff" font-size="12" font-family="Arial" font-weight="bold">w</text>
+                </svg>
+              </span>
+              WHOIS
+            </label>
             <div class="checkbox-icon-wrapper">
               <svg class="checkbox-icon checkbox-icon-checkmark" width="50" height="39.69" viewBox="0 0 50 39.69" aria-hidden="true">
                 <path d="M43.68 0L16.74 27.051 6.319 16.63l-6.32 6.32 16.742 16.74L50 6.32z" />
@@ -267,7 +292,16 @@ if ($_SERVER["QUERY_STRING"] ?? "") {
           </div>
           <div class="checkbox">
             <input <?= in_array("rdap", $dataSource, true) ? "checked" : "" ?> class="checkbox-trigger" id="checkbox-rdap" name="rdap" type="checkbox" value="1">
-            <label class="checkbox-label" for="checkbox-rdap">RDAP</label>
+            <label class="checkbox-label" for="checkbox-rdap">
+              <span class="checkbox-leading-icon">
+                <!-- RDAP 图标（简版）-->
+                <svg width="18" height="18" viewBox="0 0 18 18" aria-hidden="true">
+                  <circle cx="9" cy="9" r="9" fill="#2196f3"/>
+                  <text x="9" y="13" text-anchor="middle" fill="#fff" font-size="12" font-family="Arial" font-weight="bold">R</text>
+                </svg>
+              </span>
+              RDAP
+            </label>
             <div class="checkbox-icon-wrapper">
               <svg class="checkbox-icon checkbox-icon-checkmark" width="50" height="39.69" viewBox="0 0 50 39.69" aria-hidden="true">
                 <path d="M43.68 0L16.74 27.051 6.319 16.63l-6.32 6.32 16.742 16.74L50 6.32z" />
@@ -276,7 +310,16 @@ if ($_SERVER["QUERY_STRING"] ?? "") {
           </div>
           <div class="checkbox">
             <input <?= $fetchPrices ? "checked" : "" ?> class="checkbox-trigger" id="checkbox-prices" name="prices" type="checkbox" value="1">
-            <label class="checkbox-label" for="checkbox-prices">PRICES</label>
+            <label class="checkbox-label" for="checkbox-prices">
+              <span class="checkbox-leading-icon">
+                <!-- PRICES 图标 -->
+                <svg width="18" height="18" viewBox="0 0 18 18" aria-hidden="true">
+                  <circle cx="9" cy="9" r="9" fill="#222"/>
+                  <text x="9" y="13" text-anchor="middle" fill="#fff" font-size="12" font-family="Arial" font-weight="bold">$</text>
+                </svg>
+              </span>
+              PRICES
+            </label>
             <div class="checkbox-icon-wrapper">
               <svg class="checkbox-icon checkbox-icon-checkmark" width="50" height="39.69" viewBox="0 0 50 39.69" aria-hidden="true">
                 <path d="M43.68 0L16.74 27.051 6.319 16.63l-6.32 6.32 16.742 16.74L50 6.32z" />
