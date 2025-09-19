@@ -296,7 +296,7 @@ if ($_SERVER["QUERY_STRING"] ?? "") {
               <span class="checkbox-leading-icon">
                 <!-- RDAP 图标（简版）-->
                 <svg width="18" height="18" viewBox="0 0 18 18" aria-hidden="true">
-                  <circle cx="9" cy="9" r="9" fill="#2196f3"/>
+                  <circle cx="9" cy="9" r="9" fill="#222"/>
                   <text x="9" y="13" text-anchor="middle" fill="#fff" font-size="12" font-family="Arial" font-weight="bold">R</text>
                 </svg>
               </span>
