@@ -223,16 +223,17 @@ if ($_SERVER["QUERY_STRING"] ?? "") {
       align-items: center; /* 垂直居中对齐 */
       gap: 0.5rem; /* 图标和文字之间的间距 */
       grid-column: 1 / -1;
-      margin-bottom: 1.5rem;
-      font-size: 1.25rem;
+      margin-bottom: 1rem; /* 减小标题和下方内容的间距 */
+      font-size: 1.25rem; /* 调整标题字体大小 */
       font-weight: 600;
       color: #222;
       text-align: left;
     }
 
+    /* 调整标题内图标大小 */
     .message-title .message-icon {
-        width: 1.5em; /* 调整图标大小 */
-        height: 1.5em; /* 调整图标大小 */
+        width: 1.2em; /* 调整图标大小 */
+        height: 1.2em; /* 调整图标大小 */
     }
 
     .message-data {
@@ -269,6 +270,20 @@ if ($_SERVER["QUERY_STRING"] ?? "") {
       height: 1.2em;
     }
     
+    /* 移除背景和侧边栏 */
+    .message.message-positive {
+        background: transparent;
+        border: none;
+        box-shadow: none;
+        padding: 0;
+    }
+    /* 移除 message-positive 内的 data-source 容器的背景和阴影 */
+    .message.message-positive .message-data {
+        background: transparent;
+        box-shadow: none;
+        padding: 0;
+    }
+
     .raw-data-whois,
     .raw-data-rdap {
       background-color: #ffffff;
@@ -463,9 +478,9 @@ if ($_SERVER["QUERY_STRING"] ?? "") {
                     <?php if ($parser->creationDateISO8601 === null): ?>
                       <span><?= $parser->creationDate; ?></span>
                     <?php elseif (str_ends_with($parser->creationDateISO8601, "Z")): ?>
-                      <button id="creation-date" data-iso8601="<?= $parser->creationDateISO8601; ?>">
+                      <span id="creation-date" data-iso8601="<?= $parser->creationDateISO8601; ?>">
                         <?= $parser->creationDate; ?>
-                      </button>
+                      </span>
                     <?php else: ?>
                       <span id="creation-date" data-iso8601="<?= $parser->creationDateISO8601; ?>">
                         <?= $parser->creationDate; ?>
@@ -488,9 +503,9 @@ if ($_SERVER["QUERY_STRING"] ?? "") {
                     <?php if ($parser->expirationDateISO8601 === null): ?>
                       <span><?= $parser->expirationDate; ?></span>
                     <?php elseif (str_ends_with($parser->expirationDateISO8601, "Z")): ?>
-                      <button id="expiration-date" data-iso8601="<?= $parser->expirationDateISO8601; ?>">
+                      <span id="expiration-date" data-iso8601="<?= $parser->expirationDateISO8601; ?>">
                         <?= $parser->expirationDate; ?>
-                      </button>
+                      </span>
                     <?php else: ?>
                       <span id="expiration-date" data-iso8601="<?= $parser->expirationDateISO8601; ?>">
                         <?= $parser->expirationDate; ?>
@@ -512,9 +527,9 @@ if ($_SERVER["QUERY_STRING"] ?? "") {
                     <?php if ($parser->updatedDateISO8601 === null): ?>
                       <span><?= $parser->updatedDate; ?></span>
                     <?php elseif (str_ends_with($parser->updatedDateISO8601, "Z")): ?>
-                      <button id="updated-date" data-iso8601="<?= $parser->updatedDateISO8601; ?>">
+                      <span id="updated-date" data-iso8601="<?= $parser->updatedDateISO8601; ?>">
                         <?= $parser->updatedDate; ?>
-                      </button>
+                      </span>
                     <?php else: ?>
                       <span id="updated-date" data-iso8601="<?= $parser->updatedDateISO8601; ?>">
                         <?= $parser->updatedDate; ?>
@@ -536,9 +551,9 @@ if ($_SERVER["QUERY_STRING"] ?? "") {
                     <?php if ($parser->availableDateISO8601 === null): ?>
                       <span><?= $parser->availableDate; ?></span>
                     <?php elseif (str_ends_with($parser->availableDateISO8601, "Z")): ?>
-                      <button id="available-date" data-iso8601="<?= $parser->availableDateISO8601; ?>">
+                      <span id="available-date" data-iso8601="<?= $parser->availableDateISO8601; ?>">
                         <?= $parser->availableDate; ?>
-                      </button>
+                      </span>
                     <?php else: ?>
                       <span id="available-date" data-iso8601="<?= $parser->availableDateISO8601; ?>">
                         <?= $parser->availableDate; ?>
@@ -776,29 +791,12 @@ if ($_SERVER["QUERY_STRING"] ?? "") {
           if (element) {
             const iso8601 = element.dataset.iso8601;
             if (iso8601) {
-              if (iso8601.endsWith("Z")) {
-                const date = new Date(iso8601);
+              const date = new Date(iso8601);
+              const year = date.getFullYear();
+              const month = String(date.getMonth() + 1).padStart(2, "0");
+              const day = String(date.getDate()).padStart(2, "0");
 
-                const year = date.getFullYear();
-                const month = String(date.getMonth() + 1).padStart(2, "0");
-                const day = String(date.getDate()).padStart(2, "0");
-                const hours = String(date.getHours()).padStart(2, "0");
-                const minutes = String(date.getMinutes()).padStart(2, "0");
-                const seconds = String(date.getSeconds()).padStart(2, "0");
-
-                element.innerText = `${year}年${month}月${day}日 ${hours}时${minutes}分${seconds}秒`;
-
-                const offsetMinutes = date.getTimezoneOffset();
-                const offsetRemainingMinutes = Math.abs(offsetMinutes % 60);
-                const offsetHours = -Math.floor(offsetMinutes / 60);
-                const sign = offsetHours >= 0 ? "+" : "-";
-
-                const minutesStr = offsetRemainingMinutes ? `:${offsetRemainingMinutes}` : "";
-
-                element.dataset.offset = `UTC${sign}${Math.abs(offsetHours)}${minutesStr}`;
-              } else {
-                element.innerText = iso8601;
-              }
+              element.innerText = `${year}年${month}月${day}日`;
             }
           }
         }
@@ -840,10 +838,19 @@ if ($_SERVER["QUERY_STRING"] ?? "") {
         function updateDateElementTooltip(elementId) {
           const element = document.getElementById(elementId);
           if (element) {
-            const offset = element.dataset.offset;
-            if (offset) {
+            const iso8601 = element.dataset.iso8601;
+            if (iso8601) {
+              const date = new Date(iso8601);
+              const year = date.getFullYear();
+              const month = String(date.getMonth() + 1).padStart(2, "0");
+              const day = String(date.getDate()).padStart(2, "0");
+              const hours = String(date.getHours()).padStart(2, "0");
+              const minutes = String(date.getMinutes()).padStart(2, "0");
+              const seconds = String(date.getSeconds()).padStart(2, "0");
+              const formattedDateTime = `${year}年${month}月${day}日 ${hours}时${minutes}分${seconds}秒`;
+
               tippy(`#${elementId}`, {
-                content: offset,
+                content: formattedDateTime,
                 placement: "right",
               });
             }
