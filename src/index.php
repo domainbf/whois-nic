@@ -169,6 +169,9 @@ if ($_SERVER["QUERY_STRING"] ?? "") {
   <link rel="shortcut icon" href="public/favicon.ico">
   <link rel="icon" href="public/images/favicon.svg" type="image/svg+xml">
   <link rel="apple-touch-icon" href="public/images/apple-icon-180.png">
+  <link rel="apple-touch-startup-image" href="public/images/apple-splash-2048-2732.jpg" media="(device-width: 1024px) and (device-height: 1366px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)">
+  <link rel="apple-touch-startup-image" href="public/images/apple-splash-1668-2388.jpg" media="(device-width: 834px) and (device-height: 1194px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)">
+  <link rel="apple-touch-startup-image" href="public/images/apple-splash-1536-2048.jpg" media="(device-width: 768px) and (device-height: 1024px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)">
   <link rel="manifest" href="<?= $manifestHref; ?>">
   <title><?= ($domain ? "$domain | " : "") . SITE_TITLE ?></title>
   <link rel="stylesheet" href="public/css/global.css">
@@ -179,7 +182,6 @@ if ($_SERVER["QUERY_STRING"] ?? "") {
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@100..900&display=swap" rel="stylesheet">
   <?= CUSTOM_HEAD ?>
   <style>
-    /* 图标和文字对齐样式 */
     .checkbox-label {
       display: flex;
       align-items: center;
@@ -193,13 +195,11 @@ if ($_SERVER["QUERY_STRING"] ?? "") {
       height: 18px;
       margin-right: 2px;
     }
-    /* 结果页透明样式 */
     .messages, .message, .message-data {
       background: transparent !important;
       background-color: transparent !important;
       box-shadow: none !important;
     }
-    /* 标签图标样式 */
     .icon-label {
       display: inline-flex;
       align-items: center;
@@ -238,7 +238,7 @@ if ($_SERVER["QUERY_STRING"] ?? "") {
             value="<?= $domain; ?>">
           <button class="search-clear" id="domain-clear" type="button" aria-label="Clear">
             <svg width="1em" height="1em" viewBox="0 0 16 16" fill="currentColor">
-              <path d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a[...]
+              <path d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708z"/>
             </svg>
           </button>
         </div>
@@ -253,7 +253,6 @@ if ($_SERVER["QUERY_STRING"] ?? "") {
             <input <?= in_array("whois", $dataSource, true) ? "checked" : "" ?> class="checkbox-trigger" id="checkbox-whois" name="whois" type="checkbox" value="1">
             <label class="checkbox-label" for="checkbox-whois">
               <span class="checkbox-leading-icon">
-                <!-- WHOIS 图标 -->
                 <svg width="18" height="18" viewBox="0 0 18 18" aria-hidden="true">
                   <circle cx="9" cy="9" r="9" fill="#222"/>
                   <text x="9" y="13" text-anchor="middle" fill="#fff" font-size="12" font-family="Arial" font-weight="bold">w</text>
@@ -271,7 +270,6 @@ if ($_SERVER["QUERY_STRING"] ?? "") {
             <input <?= in_array("rdap", $dataSource, true) ? "checked" : "" ?> class="checkbox-trigger" id="checkbox-rdap" name="rdap" type="checkbox" value="1">
             <label class="checkbox-label" for="checkbox-rdap">
               <span class="checkbox-leading-icon">
-                <!-- RDAP 图标（简版）-->
                 <svg width="18" height="18" viewBox="0 0 18 18" aria-hidden="true">
                   <circle cx="9" cy="9" r="9" fill="#222"/>
                   <text x="9" y="13" text-anchor="middle" fill="#fff" font-size="12" font-family="Arial" font-weight="bold">R</text>
@@ -289,7 +287,6 @@ if ($_SERVER["QUERY_STRING"] ?? "") {
             <input <?= $fetchPrices ? "checked" : "" ?> class="checkbox-trigger" id="checkbox-prices" name="prices" type="checkbox" value="1">
             <label class="checkbox-label" for="checkbox-prices">
               <span class="checkbox-leading-icon">
-                <!-- PRICES 图标 -->
                 <svg width="18" height="18" viewBox="0 0 18 18" aria-hidden="true">
                   <circle cx="9" cy="9" r="9" fill="#222"/>
                   <text x="9" y="13" text-anchor="middle" fill="#fff" font-size="12" font-family="Arial" font-weight="bold">$</text>
@@ -316,7 +313,7 @@ if ($_SERVER["QUERY_STRING"] ?? "") {
               <div class="message-header">
                 <svg width="1em" height="1em" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true" class="message-icon">
                   <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14m0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16" />
-                  <path d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a[...]
+                  <path d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708z"/>
                 </svg>
                 <h2 class="message-title">
                   <?= $error; ?>
@@ -328,7 +325,7 @@ if ($_SERVER["QUERY_STRING"] ?? "") {
               <div class="message-header">
                 <svg width="1em" height="1em" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true" class="message-icon">
                   <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14m0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16" />
-                  <path d="M5.255 5.786a.237.237 0 0 0 .241.247h.825c.138 0 .248-.113.266-.25.09-.656.54-1.134 1.342-1.134.686 0 1.314.343 1.314 1.168 0 .635-.374.927-.965 1.371-.673.489-1.206 1.06-1.[...]
+                  <path d="M5.255 5.786a.237.237 0 0 0 .241.247h.825c.138 0 .248-.113.266-.25.09-.656.54-1.134 1.342-1.134.686 0 1.314.343 1.314 1.168 0 .635-.374.927-.965 1.371-.673.489-1.206 1.06-1.206 1.987v.07c0 .138.112.25.25.25h3.084a.25.25 0 0 0 .241-.247l.017-.206a.25.25 0 0 0-.25-.247H9.542c.138 0 .25.112.25.25V9.5a.25.25 0 0 1-.25.25H8.458c-.138 0-.25-.112-.25-.25V8.542c0-.138.112-.25.25-.25h.084a.25.25 0 0 0 .25-.25v-.07c0-.927-.533-1.498-1.206-1.987-.591-.444-.965-.736-.965-1.371 0-.825.628-1.168 1.314-1.168.802 0 1.252.478 1.342 1.134.018.137.128.25.266.25h.825a.237.237 0 0 0 .241-.247l-.017-.206a.25.25 0 0 0-.25-.247H8.458c-.138 0-.25.112-.25.25v.07c0 .927.533 1.498 1.206 1.987.591.444.965.736.965 1.371 0 .825-.628 1.168-1.314 1.168-.802 0-1.252-.478-1.342-1.134a.25.25 0 0 0-.266-.25h-.825a.237.237 0 0 0-.241.247l.017.206a.25.25 0 0 0 .25.247h3.084c.138 0 .25-.112.25-.25V8.542c0-.138-.112-.25-.25-.25H8.458a.25.25 0 0 0-.25.25v.07c0 .927.533 1.498 1.206 1.987.591.444.965.736.965 1.371 0 .825-.628 1.168-1.314 1.168-.802 0-1.252-.478-1.342-1.134a.25.25 0 0 0-.266-.25h-.825a.237.237 0 0 0-.241.247l.017.206a.25.25 0 0 0 .25.247h3.084c.138 0 .25-.112.25-.25V9.5a.25.25 0 0 1-.25.25H8.458a.25.25 0 0 1-.25-.25V8.542c0-.138.112-.25.25-.25h.084a.25.25 0 0 0 .25-.25v-.07c0-.927-.533-1.498-1.206-1.987-.591-.444-.965-.736-.965-1.371 0-.825.628-1.168 1.314-1.168.802 0 1.252.478 1.342 1.134.018.137.128.25.266.25h.825a.237.237 0 0 0 .241-.247l-.017-.206a.25.25 0 0 0-.25-.247H8.458c-.138 0-.25.112-.25.25v.07z"/>
                 </svg>
                 <h2 class="message-title">
                   &#39;<?= $domain; ?>&#39; is unknown
@@ -376,7 +373,6 @@ if ($_SERVER["QUERY_STRING"] ?? "") {
                 <?php if ($parser->registrar): ?>
                   <div class="message-label">
                     <span class="icon-label">
-                      <!-- 公司/人形 SVG 图标 -->
                       <svg viewBox="0 0 16 16" width="1em" height="1em" fill="currentColor">
                         <rect x="2" y="7" width="12" height="7" rx="2" fill="#888"/>
                         <rect x="5" y="2" width="6" height="5" rx="1" fill="#222"/>
@@ -395,7 +391,6 @@ if ($_SERVER["QUERY_STRING"] ?? "") {
                 <?php if ($parser->creationDate): ?>
                   <div class="message-label">
                     <span class="icon-label">
-                      <!-- 日历 SVG 图标 -->
                       <svg viewBox="0 0 16 16" width="1em" height="1em" fill="currentColor">
                         <rect x="2" y="4" width="12" height="10" rx="2" fill="#888"/>
                         <rect x="4" y="2" width="1" height="2" fill="#222"/>
@@ -422,7 +417,6 @@ if ($_SERVER["QUERY_STRING"] ?? "") {
                 <?php if ($parser->expirationDate): ?>
                   <div class="message-label">
                     <span class="icon-label">
-                      <!-- 时钟/警示 SVG 图标 -->
                       <svg viewBox="0 0 16 16" width="1em" height="1em" fill="currentColor">
                         <circle cx="8" cy="8" r="7" fill="#888"/>
                         <rect x="7.5" y="4" width="1" height="5" rx="0.5" fill="#222"/>
@@ -448,7 +442,6 @@ if ($_SERVER["QUERY_STRING"] ?? "") {
                 <?php if ($parser->updatedDate): ?>
                   <div class="message-label">
                     <span class="icon-label">
-                      <!-- 刷新 SVG 图标 -->
                       <svg viewBox="0 0 16 16" width="1em" height="1em" fill="currentColor">
                         <path d="M12 8a4 4 0 1 0-4 4" stroke="#222" stroke-width="1.5" fill="none"/>
                         <polyline points="12,8 12,4 8,4" stroke="#222" stroke-width="1.5" fill="none"/>
@@ -473,7 +466,6 @@ if ($_SERVER["QUERY_STRING"] ?? "") {
                 <?php if ($parser->status): ?>
                   <div class="message-label">
                     <span class="icon-label">
-                      <!-- 信息圆点 SVG 图标 -->
                       <svg viewBox="0 0 16 16" width="1em" height="1em" fill="currentColor">
                         <circle cx="8" cy="8" r="6" fill="#888"/>
                         <circle cx="8" cy="8" r="3" fill="#222"/>
@@ -496,7 +488,6 @@ if ($_SERVER["QUERY_STRING"] ?? "") {
                 <?php if ($parser->nameServers): ?>
                   <div class="message-label">
                     <span class="icon-label">
-                      <!-- 服务器/地球 SVG 图标 -->
                       <svg viewBox="0 0 16 16" width="1em" height="1em" fill="currentColor">
                         <ellipse cx="8" cy="8" rx="7" ry="6" fill="#888"/>
                         <ellipse cx="8" cy="8" rx="4" ry="3" fill="#222"/>
@@ -712,23 +703,4 @@ if ($_SERVER["QUERY_STRING"] ?? "") {
     </script>
     <script src="public/js/popper.min.js" defer></script>
     <script src="public/js/tippy-bundle.umd.min.js" defer></script>
-    <script src="public/js/linkify.min.js" defer></script>
-    <script src="public/js/linkify-html.min.js" defer></script>
-    <script src="public/js/prism.js" defer></script>
-    <script>
-      window.addEventListener("DOMContentLoaded", function() {
-        tippy.setDefaultProps({
-          arrow: false,
-          offset: [0, 8],
-        });
-
-        function updateDateElementTooltip(elementId) {
-          const element = document.getElementById(elementId);
-          if (element) {
-            const offset = element.dataset.offset;
-            if (offset) {
-              tippy(`#${elementId}`, {
-                content: offset,
-                placement: "right",
-              });
-           
+    <script src="public/js/linkify.min.js" defer></
