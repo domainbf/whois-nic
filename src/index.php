@@ -214,7 +214,7 @@ if ($_SERVER["QUERY_STRING"] ?? "") {
   <link rel="stylesheet" href="public/css/json.css">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght,SOFT,WONK@72,600,50,1&display=swap">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@100..900&display=swap" rel="stylesheet">
   <?= CUSTOM_HEAD ?>
   <style>
     /* 图标和文字对齐样式 */
