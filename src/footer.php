@@ -21,41 +21,13 @@
             padding: 20px;
         }
 
-        /* 导航栏样式调整 */
-        .nav-links {
-            display: flex;
-            justify-content: flex-end; /* 导航链接靠右对齐 */
-            flex-wrap: wrap;
-            gap: 20px;
-            padding: 20px; /* 增加整体内边距 */
-            width: 100%;
-            max-width: 1000px; /* 限制宽度，保持与内容区一致 */
-            margin: 0 auto;
-        }
-
-        .nav-links a {
-            color: #4a5568; /* 调整为深灰色文字，更接近参考网站 */
-            text-decoration: none;
-            font-size: 1rem;
-            font-weight: 500;
-            padding: 5px; /* 减少内边距 */
-            background-color: transparent; /* 移除背景色 */
-            transition: all 0.2s ease;
-            white-space: nowrap;
-        }
-
-        .nav-links a:hover {
-            color: #2d3748; /* 悬停时颜色加深 */
-            border-bottom: 2px solid #3b82f6; /* 添加蓝色下划线效果 */
-        }
-        
         .container {
             flex: 1;
             max-width: 1000px;
-            margin: auto; /* Centers vertically and horizontally */
+            margin: auto;
             display: flex;
-            align-items: center; /* Vertically centers content */
-            justify-content: center; /* Horizontally centers content */
+            align-items: center;
+            justify-content: center;
             padding: 40px 20px;
         }
 
@@ -68,6 +40,7 @@
         .footer {
             background: transparent;
             margin-top: auto;
+            text-align: center; /* 使页脚内容居中 */
         }
         
         .announcement-container {
@@ -103,7 +76,6 @@
         }
         
         .host-info {
-            text-align: center;
             padding: 15px;
             font-size: 1rem;
             color: #718096;
@@ -120,8 +92,35 @@
             text-decoration: underline;
         }
 
+        /* 导航栏样式调整 */
+        .nav-links {
+            display: flex;
+            justify-content: center; /* 导航链接居中对齐 */
+            flex-wrap: wrap;
+            gap: 20px;
+            padding: 20px 0; /* 增加上下内边距 */
+            width: 100%;
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        .nav-links a {
+            color: #4a5568;
+            text-decoration: none;
+            font-size: 1rem;
+            font-weight: 500;
+            padding: 5px;
+            background-color: transparent;
+            transition: all 0.2s ease;
+            white-space: nowrap;
+        }
+
+        .nav-links a:hover {
+            color: #2d3748;
+            border-bottom: 2px solid #3b82f6;
+        }
+
         .copyright {
-            text-align: center;
             padding: 10px;
             font-size: 0.9rem;
             color: #718096;
@@ -130,23 +129,15 @@
         @media (max-width: 768px) {
             .nav-links {
                 gap: 8px;
-                justify-content: center; /* 在小屏设备上居中对齐 */
             }
             
             .container h1 {
-                font-size: 2.5rem; /* 根据您的意愿调整，保持或删除此行 */
+                font-size: 2.5rem;
             }
         }
     </style>
 </head>
 <body>
-    <nav class="nav-links">
-        <a href="#">首页</a>
-        <a href="https://domain.bf">我的域名</a>
-        <a href="#">关于我们</a>
-        <a href="#">联系方式</a>
-    </nav>
-    
     <div class="container">
         <h1>NIC.BN</h1>
     </div>
@@ -165,6 +156,13 @@
             Hosted on <a href="https://vercel.com" rel="noopener" target="_blank">Vercel Platform</a>
         </div>
         
+        <nav class="nav-links">
+            <a href="#">首页</a>
+            <a href="https://domain.bf">我的域名</a>
+            <a href="#">关于我们</a>
+            <a href="#">联系方式</a>
+        </nav>
+        
         <div class="copyright">
             &copy; 2025 NIC.BN. All rights reserved.
         </div>
@@ -175,21 +173,14 @@
             const announcements = document.querySelectorAll('.announcement');
             let currentIndex = 0;
             
-            // Add initial active class to the first announcement
             announcements[0].classList.add('active');
             
             function showNextAnnouncement() {
-                // Hide current announcement
                 announcements[currentIndex].classList.remove('active');
-                
-                // Move to the next announcement
                 currentIndex = (currentIndex + 1) % announcements.length;
-                
-                // Show the next announcement
                 announcements[currentIndex].classList.add('active');
             }
             
-            // Per 6 seconds
             setInterval(showNextAnnouncement, 6000);
         });
     </script>
