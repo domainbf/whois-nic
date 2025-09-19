@@ -1,7 +1,7 @@
 <?php
 define("DEFAULT_EXTENSION", getenv("DEFAULT_EXTENSION") ?: "");
 
-define("SITE_TITLE", getenv("SITE_TITLE") ?: "WHOIS domain lookup");
+define("SITE_TITLE", getenv("SITE_TITLE") ?: "愚蠢的域名查询网站");
 
 define("SITE_SHORT_TITLE", getenv("SITE_SHORT_TITLE") ?: "WHOIS");
 
