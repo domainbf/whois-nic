@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>简约透明页脚</title>
+    <title>NIC.BN - 域名查询与出售</title>
     <style>
         * {
             margin: 0;
@@ -26,6 +26,22 @@
             max-width: 1000px;
             margin: 0 auto;
             padding: 40px 20px;
+            text-align: center;
+        }
+        
+        h1 {
+            font-size: 3rem;
+            margin-bottom: 20px;
+            color: #2d3748;
+            font-weight: 700;
+        }
+        
+        p {
+            font-size: 1.2rem;
+            color: #4a5568;
+            max-width: 700px;
+            margin: 0 auto 30px;
+            line-height: 1.6;
         }
         
         .footer {
@@ -33,12 +49,62 @@
             margin-top: auto;
         }
         
+        .announcement-container {
+            text-align: center;
+            margin-bottom: 20px;
+            max-width: 100%;
+            overflow: hidden;
+        }
+        
+        .announcement-box {
+            padding: 10px;
+            min-height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto;
+            max-width: 100%;
+        }
+        
+        .announcement {
+            font-size: 1rem;
+            line-height: 1.5;
+            opacity: 0;
+            position: absolute;
+            width: 90%;
+            text-align: center;
+            transition: opacity 0.5s ease;
+            color: #4a5568;
+        }
+        
+        .announcement.active {
+            opacity: 1;
+        }
+        
+        .host-info {
+            text-align: center;
+            padding: 15px;
+            font-size: 1rem;
+            color: #718096;
+            margin-bottom: 15px;
+        }
+        
+        .host-info a {
+            color: #3b82f6;
+            text-decoration: none;
+            font-weight: 500;
+        }
+        
+        .host-info a:hover {
+            text-decoration: underline;
+        }
+        
         .nav-links {
             display: flex;
             justify-content: center;
             flex-wrap: wrap;
             gap: 10px;
-            margin-bottom: 15px;
+            margin-bottom: 20px;
         }
         
         .nav-links a {
@@ -58,59 +124,10 @@
             transform: translateY(-2px);
         }
         
-        .announcement-container {
-            text-align: center;
-            margin-bottom: 15px;
-            max-width: 100%;
-            overflow: hidden;
-        }
-        
-        .announcement-box {
-            padding: 10px;
-            min-height: 40px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin: 0 auto;
-            max-width: 100%;
-        }
-        
-        .announcement {
-            font-size: 0.95rem;
-            line-height: 1.5;
-            opacity: 0;
-            position: absolute;
-            width: 90%;
-            text-align: center;
-            transition: opacity 0.5s ease;
-            color: #4a5568;
-        }
-        
-        .announcement.active {
-            opacity: 1;
-        }
-        
-        .host-info {
-            text-align: center;
-            padding: 8px;
-            font-size: 0.9rem;
-            color: #718096;
-        }
-        
-        .host-info a {
-            color: #4a5568;
-            text-decoration: none;
-            font-weight: 500;
-        }
-        
-        .host-info a:hover {
-            text-decoration: underline;
-        }
-        
         .copyright {
             text-align: center;
-            padding: 8px;
-            font-size: 0.85rem;
+            padding: 10px;
+            font-size: 0.9rem;
             color: #718096;
         }
         
@@ -123,29 +140,29 @@
                 font-size: 0.9rem;
                 padding: 6px 12px;
             }
+            
+            h1 {
+                font-size: 2.5rem;
+            }
+            
+            p {
+                font-size: 1.1rem;
+            }
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <!-- 页面内容区域 -->
-        <h1>网站主要内容</h1>
-        <p>这里是您网站的主要内容区域。页脚将显示在页面底部。</p>
+        <h1>NIC.BN</h1>
+        <p>有一些域名正在出售，点击下方我的域名查看。</p>
     </div>
     
     <footer class="footer">
-        <div class="nav-links">
-            <a href="#">首页</a>
-            <a href="https://domain.bf">我的域名</a>
-            <a href="#">关于我们</a>
-            <a href="#">联系方式</a>
-        </div>
-        
         <div class="announcement-container">
             <div class="announcement-box">
-                <div class="announcement active">RDAP+WHOIS双模式下择最有结果显示。</div>
-                <div class="announcement">我们提供查询平台，但不储存任何数据</div>
-                <div class="announcement">此域名正在出售，更多域名请点上方☝️{我的域名}查看，</div>
+                <div class="announcement active">RDAP+WHOIS 双核驱动提供准确信息。</div>
+                <div class="announcement">我们提供查询平台，但不储存任何查询数据。</div>
+                <div class="announcement">域名出售，更多☝️点击{我的域名}查看，</div>
                 <div class="announcement">程序并不完善，欢迎体验并提供宝贵意见！</div>
             </div>
         </div>
@@ -154,8 +171,15 @@
             Hosted on <a href="https://vercel.com" rel="noopener" target="_blank">Vercel Platform</a>
         </div>
         
+        <div class="nav-links">
+            <a href="#">首页</a>
+            <a href="https://domain.bf">我的域名</a>
+            <a href="#">关于我们</a>
+            <a href="#">联系方式</a>
+        </div>
+        
         <div class="copyright">
-            &copy; 2023 Your Website Name. All rights reserved.
+            &copy; 2025 NIC.BN. All rights reserved.
         </div>
     </footer>
 
