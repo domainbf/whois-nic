@@ -68,7 +68,7 @@ class WHOIS
     $server = $this->servers[idn_to_ascii($this->extension)] ?? "";
 
     if (empty($server) && !in_array($this->extension, WHOISWeb::EXTENSIONS)) {
-      throw new RuntimeException("No WHOIS server found for '$this->domain'");
+      throw new RuntimeException("未找到 WHOIS 服务器 '$this->domain'");
     }
 
     return $server;
@@ -110,7 +110,7 @@ class WHOIS
     $metaData = stream_get_meta_data($socket);
     if ($metaData["timed_out"]) {
       fclose($socket);
-      throw new RuntimeException("Operation timed out");
+      throw new RuntimeException("查询超时，请稍后重试！");
     }
 
     fclose($socket);
