@@ -1,11 +1,11 @@
 <?php
-define("DEFAULT_EXTENSION", getenv("DEFAULT_EXTENSION") ?: "");
+define("DEFAULT_EXTENSION", getenv("DEFAULT_EXTENSION") ?: ".com");
 
-define("SITE_TITLE", getenv("SITE_TITLE") ?: "愚蠢的域名查询网站");
+define("SITE_TITLE", getenv("SITE_TITLE") ?: "WHOIS+RDAP lookup");
 
-define("SITE_SHORT_TITLE", getenv("SITE_SHORT_TITLE") ?: "WHOIS");
+define("SITE_SHORT_TITLE", getenv("SITE_SHORT_TITLE") ?: "WHOIS+RDAP双核处理域名数据，更准确的域名查询平台");
 
-define("SITE_DESCRIPTION", getenv("SITE_DESCRIPTION") ?: "A simple WHOIS domain lookup website with strong TLD compatibility.");
+define("SITE_DESCRIPTION", getenv("SITE_DESCRIPTION") ?: "一个简单的 WHOIS+RDAP的域名查询网站，具有强大的 TLD 兼容性。");
 
 define("SITE_KEYWORDS", getenv("SITE_KEYWORDS") ?: "whois, rdap, domain lookup, open source, api, tld, cctld, .com, .net, .org");
 
