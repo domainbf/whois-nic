@@ -231,6 +231,20 @@ if ($_SERVER["QUERY_STRING"] ?? "") {
       height: 18px;
       margin-right: 2px;
     }
+
+    /* New CSS for message labels */
+    .message-label {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+    .message-icon-leading {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 1.2em;
+      height: 1.2em;
+    }
   </style>
 </head>
 
@@ -276,7 +290,6 @@ if ($_SERVER["QUERY_STRING"] ?? "") {
             <input <?= in_array("whois", $dataSource, true) ? "checked" : "" ?> class="checkbox-trigger" id="checkbox-whois" name="whois" type="checkbox" value="1">
             <label class="checkbox-label" for="checkbox-whois">
               <span class="checkbox-leading-icon">
-                <!-- WHOIS 图标 -->
                 <svg width="18" height="18" viewBox="0 0 18 18" aria-hidden="true">
                   <circle cx="9" cy="9" r="9" fill="#222"/>
                   <text x="9" y="13" text-anchor="middle" fill="#fff" font-size="12" font-family="Arial" font-weight="bold">w</text>
@@ -294,7 +307,6 @@ if ($_SERVER["QUERY_STRING"] ?? "") {
             <input <?= in_array("rdap", $dataSource, true) ? "checked" : "" ?> class="checkbox-trigger" id="checkbox-rdap" name="rdap" type="checkbox" value="1">
             <label class="checkbox-label" for="checkbox-rdap">
               <span class="checkbox-leading-icon">
-                <!-- RDAP 图标（简版）-->
                 <svg width="18" height="18" viewBox="0 0 18 18" aria-hidden="true">
                   <circle cx="9" cy="9" r="9" fill="#222"/>
                   <text x="9" y="13" text-anchor="middle" fill="#fff" font-size="12" font-family="Arial" font-weight="bold">R</text>
@@ -312,7 +324,6 @@ if ($_SERVER["QUERY_STRING"] ?? "") {
             <input <?= $fetchPrices ? "checked" : "" ?> class="checkbox-trigger" id="checkbox-prices" name="prices" type="checkbox" value="1">
             <label class="checkbox-label" for="checkbox-prices">
               <span class="checkbox-leading-icon">
-                <!-- PRICES 图标 -->
                 <svg width="18" height="18" viewBox="0 0 18 18" aria-hidden="true">
                   <circle cx="9" cy="9" r="9" fill="#222"/>
                   <text x="9" y="13" text-anchor="middle" fill="#fff" font-size="12" font-family="Arial" font-weight="bold">$</text>
@@ -398,6 +409,12 @@ if ($_SERVER["QUERY_STRING"] ?? "") {
               <div class="message-data">
                 <?php if ($parser->registrar): ?>
                   <div class="message-label">
+                    <span class="message-icon-leading">
+                      <svg width="1em" height="1em" viewBox="0 0 16 16" fill="currentColor">
+                        <path d="M4 14.5a.5.5 0 0 1 .5-.5h7a.5.5 0 0 1 .5.5v.5h-8v-.5zm-.5-2a.5.5 0 0 0-.5.5v.5H2V2h12v11.5h-.5a.5.5 0 0 0-.5.5v.5h1a.5.5 0 0 0 .5-.5V1.5a.5.5 0 0 0-.5-.5H1.5a.5.5 0 0 0-.5.5v13a.5.5 0 0 0 .5.5h1a.5.5 0 0 0 .5-.5v-.5z" />
+                        <path d="M6 14.5a.5.5 0 0 1 .5-.5h3a.5.5 0 0 1 .5.5v.5h-4v-.5zm0-2a.5.5 0 0 0-.5.5v.5H5V3a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v11.5h-1v-.5a.5.5 0 0 0-.5-.5h-3a.5.5 0 0 0-.5.5v.5h-1v-.5z" />
+                      </svg>
+                    </span>
                     Registrar
                   </div>
                   <div>
@@ -410,6 +427,11 @@ if ($_SERVER["QUERY_STRING"] ?? "") {
                 <?php endif; ?>
                 <?php if ($parser->creationDate): ?>
                   <div class="message-label">
+                    <span class="message-icon-leading">
+                      <svg width="1em" height="1em" viewBox="0 0 16 16" fill="currentColor">
+                        <path d="M4 0h8a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V2a2 2 0 0 1 2-2zM4 1a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1H4zm1.5 5h5a.5.5 0 0 1 0 1h-5a.5.5 0 0 1 0-1zm0-2h5a.5.5 0 0 1 0 1h-5a.5.5 0 0 1 0-1zm0-2h5a.5.5 0 0 1 0 1h-5a.5.5 0 0 1 0-1zm0 8h5a.5.5 0 0 1 0 1h-5a.5.5 0 0 1 0-1z" />
+                      </svg>
+                    </span>
                     Creation Date
                   </div>
                   <div>
@@ -428,6 +450,11 @@ if ($_SERVER["QUERY_STRING"] ?? "") {
                 <?php endif; ?>
                 <?php if ($parser->expirationDate): ?>
                   <div class="message-label">
+                    <span class="message-icon-leading">
+                      <svg width="1em" height="1em" viewBox="0 0 16 16" fill="currentColor">
+                        <path d="M4 0h8a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V2a2 2 0 0 1 2-2zm0 1a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1H4zm1.5 5h5a.5.5 0 0 1 0 1h-5a.5.5 0 0 1 0-1zm0-2h5a.5.5 0 0 1 0 1h-5a.5.5 0 0 1 0-1zm0-2h5a.5.5 0 0 1 0 1h-5a.5.5 0 0 1 0-1zm0 8h5a.5.5 0 0 1 0 1h-5a.5.5 0 0 1 0-1z" />
+                      </svg>
+                    </span>
                     Expiration Date
                   </div>
                   <div>
@@ -446,6 +473,11 @@ if ($_SERVER["QUERY_STRING"] ?? "") {
                 <?php endif; ?>
                 <?php if ($parser->updatedDate): ?>
                   <div class="message-label">
+                    <span class="message-icon-leading">
+                      <svg width="1em" height="1em" viewBox="0 0 16 16" fill="currentColor">
+                        <path d="M4 0h8a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V2a2 2 0 0 1 2-2zM4 1a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1H4zm1.5 5h5a.5.5 0 0 1 0 1h-5a.5.5 0 0 1 0-1zm0-2h5a.5.5 0 0 1 0 1h-5a.5.5 0 0 1 0-1zm0-2h5a.5.5 0 0 1 0 1h-5a.5.5 0 0 1 0-1zm0 8h5a.5.5 0 0 1 0 1h-5a.5.5 0 0 1 0-1z" />
+                      </svg>
+                    </span>
                     Updated Date
                   </div>
                   <div>
@@ -464,6 +496,11 @@ if ($_SERVER["QUERY_STRING"] ?? "") {
                 <?php endif; ?>
                 <?php if ($parser->availableDate): ?>
                   <div class="message-label">
+                    <span class="message-icon-leading">
+                      <svg width="1em" height="1em" viewBox="0 0 16 16" fill="currentColor">
+                        <path d="M4 0h8a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V2a2 2 0 0 1 2-2zM4 1a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1H4zm1.5 5h5a.5.5 0 0 1 0 1h-5a.5.5 0 0 1 0-1zm0-2h5a.5.5 0 0 1 0 1h-5a.5.5 0 0 1 0-1zm0-2h5a.5.5 0 0 1 0 1h-5a.5.5 0 0 1 0-1zm0 8h5a.5.5 0 0 1 0 1h-5a.5.5 0 0 1 0-1z" />
+                      </svg>
+                    </span>
                     Available Date
                   </div>
                   <div>
@@ -482,6 +519,12 @@ if ($_SERVER["QUERY_STRING"] ?? "") {
                 <?php endif; ?>
                 <?php if ($parser->status): ?>
                   <div class="message-label">
+                    <span class="message-icon-leading">
+                      <svg width="1em" height="1em" viewBox="0 0 16 16" fill="currentColor">
+                        <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14m0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16" />
+                        <path d="m10.97 4.97-.02.022-3.473 4.425-2.093-2.094a.75.75 0 0 0-1.06 1.06L6.97 11.03a.75.75 0 0 0 1.079-.02l3.992-4.99a.75.75 0 0 0-1.071-1.05" />
+                      </svg>
+                    </span>
                     Status
                   </div>
                   <div class="message-value-status">
@@ -498,6 +541,12 @@ if ($_SERVER["QUERY_STRING"] ?? "") {
                 <?php endif; ?>
                 <?php if ($parser->nameServers): ?>
                   <div class="message-label">
+                    <span class="message-icon-leading">
+                      <svg width="1em" height="1em" viewBox="0 0 16 16" fill="currentColor">
+                        <path d="M5.5 10a.5.5 0 0 0-.5.5v1a.5.5 0 0 0 .5.5h5a.5.5 0 0 0 .5-.5v-1a.5.5 0 0 0-.5-.5h-5z" />
+                        <path d="M12.44 1.44a.5.5 0 0 1 .12.55l-2.49 11.55a.5.5 0 0 1-.95.06L7 8.355l-2.043 4.65a.5.5 0 0 1-.95-.06L1.44 2a.5.5 0 0 1 .55-.12L8 4.288l5.44-2.968z" />
+                      </svg>
+                    </span>
                     Name Servers
                   </div>
                   <div class="message-value-name-servers">
