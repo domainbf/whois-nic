@@ -10,6 +10,8 @@
     { "source": "/manifest", "destination": "/api/vercel.php" },
     { "source": "/login", "destination": "/api/vercel.php" },
     { "source": "/api/", "destination": "/api/vercel.php?json=1" },
+    { "source": "/:domain([a-zA-Z0-9.-]+\\.[a-zA-Z0-9.-]+)", "destination": "/api/vercel.php?domain=$1" },
+    { "source": "/:domain([a-zA-Z0-9.-]+\\.[a-zA-Z0-9.-]+)/", "destination": "/api/vercel.php?domain=$1" },
     { "source": "/", "destination": "/api/vercel.php" }
   ]
 }
