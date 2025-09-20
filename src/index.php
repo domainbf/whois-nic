@@ -57,7 +57,31 @@ function checkPassword()
 
 function cleanDomain()
 {
-  $domain = htmlspecialchars($_GET["domain"] ?? "", ENT_QUOTES, "UTF-8");
+  // 从 URL path 中获取域名（伪静态）
+  $pathDomain = '';
+  if (isset($_SERVER['REQUEST_URI'])) {
+    $path = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
+    // 移除开头的斜杠，并检查是否是纯域名格式
+    $path = trim($path, '/');
+    if (!empty($path) && !preg_match('/\.(php|html|css|js|json|xml|txt|png|jpg|jpeg|gif|ico|svg)$/i', $path)) {
+      // 验证是否为合法域名格式
+      if (preg_match('/^[a-zA-Z0-9]([a-zA-Z0-9\-]{0,61}[a-zA-Z0-9])?(\.[a-zA-Z0-9]([a-zA-Z0-9\-]{0,61}[a-zA-Z0-9])?)*$/i', $path)) {
+        $pathDomain = $path;
+      }
+    }
+  }
+
+  // 从 GET 参数中获取域名（保持向后兼容）
+  $getDomain = $_GET["domain"] ?? "";
+
+  // 优先使用路径域名，其次使用GET参数
+  $domain = $pathDomain ?: $getDomain;
+  
+  if (empty($domain)) {
+    return '';
+  }
+
+  $domain = htmlspecialchars($domain, ENT_QUOTES, "UTF-8");
   $domain = trim(preg_replace(["/\s+/", "/\.{2,}/"], ["", "."], $domain), ".");
 
   $parsedUrl = parse_url($domain);
@@ -217,16 +241,16 @@ if ($_SERVER["QUERY_STRING"] ?? "") {
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@72..144,300..900&display=swap">
   <?= CUSTOM_HEAD ?>
   <style>
-    /* 首页搜索栏背景修改 - 去掉透明化，显示主页方格背景 */
+    /* 首页搜索栏背景修改 - 去掉透明化，显示主页方格背景（假设主页有方格背景，如果没有，可添加背景样式） */
     body {
-      background-color: #ffffff;
-      background-image: repeating-linear-gradient(0deg, transparent, transparent 19px, #eee 20px), repeating-linear-gradient(90deg, transparent, transparent 19px, #eee 20px);
-      background-size: 20px 20px;
+      background-color: #ffffff; /* 原背景白色，如果需要方格，可以添加 background-image: url('grid-background.png'); 或 CSS 网格 */
+      background-image: repeating-linear-gradient(0deg, transparent, transparent 19px, #eee 20px), repeating-linear-gradient(90deg, transparent, transparent 19px, #eee 20px); /* 示例方格背景 */
+      background-size: 20px 20px; /* 示例方格大小 */
     }
 
     .search-box {
-      background: transparent !important;
-      border: 2px solid #000000 !important;
+      background: transparent !important; /* 去掉透明化，让背景显示主页方格 */
+      border: 2px solid #000000 !important; /* 添加黑色边框 */
       border-radius: 8px !important;
       padding: 4px !important;
       display: flex !important;
@@ -268,69 +292,33 @@ if ($_SERVER["QUERY_STRING"] ?? "") {
       border-color: #999 !important;
     }
 
-    /* 修复域名过长文字错位问题 - 增强版 */
+    /* 修复域名过长文字错位问题 */
     .message-data .message-title {
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
+      display: flex; /* 使用 flexbox 布局 */
+      align-items: center; /* 垂直居中对齐 */
+      gap: 0.5rem; /* 图标和文字之间的间距 */
       grid-column: 1 / -1;
-      margin-bottom: 1rem;
-      font-size: 1rem;
+      margin-bottom: 1rem; /* 减小标题和下方内容的间距 */
+      font-size: 1rem; /* 统一字体大小 */
       font-weight: 600;
       color: #222;
       text-align: left;
-      flex-wrap: wrap;
-      /* 关键修复：限制容器宽度，防止撑开布局 */
-      max-width: 100%;
-      overflow: hidden;
-      word-break: break-word;
+      flex-wrap: wrap; /* 允许换行 */
     }
 
     .message-title a {
-      /* 增强限制：更严格的宽度控制 */
-      flex: 1;
-      min-width: 0; /* 允许flex item收缩 */
-      max-width: 100%; /* 防止溢出父容器 */
+      max-width: 70%; /* 限制域名链接最大宽度 */
       word-break: break-all; /* 长域名强制换行 */
-      overflow-wrap: break-word; /* 更好的断词处理 */
-      overflow: hidden;
-      text-overflow: ellipsis;
-      white-space: nowrap; /* 保持单行，但配合overflow处理 */
-      display: inline-block;
-      vertical-align: middle;
-    }
-
-    /* 移动端进一步优化 */
-    @media (max-width: 768px) {
-      .message-data .message-title {
-        font-size: 0.9rem;
-        gap: 0.25rem;
-        margin-bottom: 0.75rem;
-      }
-      
-      .message-title a {
-        font-size: 0.9rem;
-        max-width: 85%; /* 移动端给更多空间给图标 */
-      }
-    }
-
-    @media (max-width: 480px) {
-      .message-data .message-title {
-        font-size: 0.85rem;
-        gap: 0.2rem;
-      }
-      
-      .message-title a {
-        font-size: 0.85rem;
-        max-width: 80%;
-      }
+      overflow: hidden; /* 隐藏溢出部分 */
+      text-overflow: ellipsis; /* 用省略号表示溢出 */
+      display: inline-block; /* 允许设置宽度 */
+      vertical-align: middle; /* 垂直对齐 */
     }
 
     /* 调整标题内图标大小 */
     .message-title .message-icon {
-        width: 1.2em;
-        height: 1.2em;
-        flex-shrink: 0; /* 防止图标被压缩 */
+        width: 1.2em; /* 调整图标大小 */
+        height: 1.2em; /* 调整图标大小 */
     }
 
     .message-data {
@@ -374,6 +362,7 @@ if ($_SERVER["QUERY_STRING"] ?? "") {
         box-shadow: none;
         padding: 0;
     }
+    /* 移除 message-positive 内的 data-source 容器的背景和阴影 */
     .message.message-positive .message-data {
         background: transparent;
         box-shadow: none;
@@ -382,7 +371,7 @@ if ($_SERVER["QUERY_STRING"] ?? "") {
 
     /* 统一页面背景为白色，但已修改为方格 */
     header, main {
-      background-color: transparent;
+      background-color: transparent; /* 让header和main透明以显示方格背景 */
     }
 
     .raw-data-whois,
@@ -393,91 +382,46 @@ if ($_SERVER["QUERY_STRING"] ?? "") {
       box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
       position: relative;
       margin-bottom: 1rem;
-      /* 确保内容区域不被按钮覆盖 */
-      margin-top: 50px; /* 为按钮留出空间 */
     }
 
-    /* 修复的复制按钮样式 - 完全重写，确保可见性 */
-    .raw-data-container {
-      position: relative;
-      width: 100%;
-    }
-
+    /* 改进的复制按钮样式 - 右上角浮动 */
     .copy-button {
-      position: sticky;
+      position: absolute;
       top: 12px;
       right: 12px;
-      background: rgba(255, 255, 255, 0.95);
+      background: rgba(255, 255, 255, 0.9);
       backdrop-filter: blur(10px);
-      border: 1px solid rgba(0, 0, 0, 0.15);
+      border: 1px solid rgba(0, 0, 0, 0.1);
       border-radius: 6px;
-      padding: 8px 12px;
+      padding: 6px 10px;
       cursor: pointer;
       font-size: 12px;
       font-weight: 500;
       color: #666;
       transition: all 0.2s ease;
-      display: flex !important;
+      display: flex;
       align-items: center;
-      gap: 6px;
-      z-index: 100 !important; /* 提高z-index确保在最上层 */
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-      /* 始终显示，不再使用opacity隐藏 */
-      opacity: 1 !important;
-      transform: none !important;
-      box-sizing: border-box;
-      min-width: 70px;
-      justify-content: center;
-      /* 防止按钮被滚动条覆盖 */
-      margin-right: 10px;
+      gap: 4px;
+      z-index: 10;
+      opacity: 0;
+      transform: translateY(-4px);
     }
 
-    /* 移动端优化 */
-    @media (max-width: 768px) {
-      .copy-button {
-        top: 8px;
-        right: 8px;
-        padding: 6px 10px;
-        font-size: 11px;
-        min-width: 60px;
-        margin-right: 5px;
-      }
-      
-      .raw-data-whois,
-      .raw-data-rdap {
-        margin-top: 45px;
-        padding: 1rem;
-      }
+    .raw-data-whois:hover .copy-button,
+    .raw-data-rdap:hover .copy-button {
+      opacity: 1;
+      transform: translateY(0);
     }
 
-    @media (max-width: 480px) {
-      .copy-button {
-        top: 6px;
-        right: 6px;
-        padding: 5px 8px;
-        font-size: 10px;
-        min-width: 55px;
-        margin-right: 3px;
-      }
-      
-      .raw-data-whois,
-      .raw-data-rdap {
-        margin-top: 40px;
-        padding: 0.75rem;
-      }
-    }
-
-    /* 按钮悬停效果 */
     .copy-button:hover {
-      background: #fff !important;
-      border-color: #007bff !important;
-      color: #007bff !important;
-      box-shadow: 0 4px 12px rgba(0, 123, 255, 0.2);
-      transform: translateY(-1px);
+      background: #fff;
+      border-color: #007bff;
+      color: #007bff;
+      box-shadow: 0 2px 8px rgba(0, 123, 255, 0.15);
     }
 
     .copy-button:active {
-      transform: translateY(0);
+      transform: translateY(-2px);
     }
 
     .copy-icon {
@@ -489,25 +433,11 @@ if ($_SERVER["QUERY_STRING"] ?? "") {
     .copy-success {
       color: #28a745 !important;
       border-color: #28a745 !important;
-      background: rgba(40, 167, 69, 0.15) !important;
-      box-shadow: 0 2px 8px rgba(40, 167, 69, 0.2) !important;
+      background: rgba(40, 167, 69, 0.1) !important;
     }
 
     .copy-success .copy-icon {
       fill: #28a745 !important;
-    }
-
-    /* 确保pre元素不会覆盖按钮区域 */
-    .raw-data-whois,
-    .raw-data-rdap {
-      margin-top: 0 !important; /* 重置margin-top，由容器控制 */
-    }
-
-    .raw-data-container pre {
-      margin: 0 !important;
-      padding: 0 !important;
-      width: 100%;
-      box-sizing: border-box;
     }
   </style>
 </head>
@@ -896,24 +826,24 @@ if ($_SERVER["QUERY_STRING"] ?? "") {
       <section class="raw-data">
         <?php if ($whoisData): ?>
           <div class="raw-data-container">
-            <button class="copy-button" onclick="copyToClipboard('raw-data-whois')" title="复制WHOIS数据">
+            <button class="copy-button" onclick="copyToClipboard('raw-data-whois')">
               <svg class="copy-icon" viewBox="0 0 16 16" fill="currentColor">
                 <path d="M4 1a3 3 0 0 0-3 3v10a3 3 0 0 0 3 3h10a3 3 0 0 0 3-3V4a3 3 0 0 0-3-3H4zm2 2a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2V3z"/>
               </svg>
               <span>复制</span>
             </button>
-            <pre class="raw-data-whois" id="raw-data-whois" tabindex="0"><?= htmlspecialchars($whoisData, ENT_QUOTES, 'UTF-8'); ?></pre>
+            <pre class="raw-data-whois" id="raw-data-whois" tabindex="0"><?= $whoisData; ?></pre>
           </div>
         <?php endif; ?>
         <?php if ($rdapData): ?>
           <div class="raw-data-container">
-            <button class="copy-button" onclick="copyToClipboard('raw-data-rdap')" title="复制RDAP数据">
+            <button class="copy-button" onclick="copyToClipboard('raw-data-rdap')">
               <svg class="copy-icon" viewBox="0 0 16 16" fill="currentColor">
                 <path d="M4 1a3 3 0 0 0-3 3v10a3 3 0 0 0 3 3h10a3 3 0 0 0 3-3V4a3 3 0 0 0-3-3H4zm2 2a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2V3z"/>
               </svg>
               <span>复制</span>
             </button>
-            <pre class="raw-data-rdap" id="raw-data-rdap"><code class="language-json"><?= htmlspecialchars($rdapData, ENT_QUOTES, 'UTF-8'); ?></code></pre>
+            <pre class="raw-data-rdap" id="raw-data-rdap"><code class="language-json"><?= $rdapData; ?></code></pre>
           </div>
         <?php endif; ?>
       </section>
@@ -1064,13 +994,6 @@ if ($_SERVER["QUERY_STRING"] ?? "") {
     <script src="public/js/prism.js" defer></script>
     <script>
       window.addEventListener("DOMContentLoaded", function() {
-        // 确保复制按钮可见
-        const copyButtons = document.querySelectorAll('.copy-button');
-        copyButtons.forEach(button => {
-          button.style.opacity = '1';
-          button.style.transform = 'none';
-        });
-
         tippy.setDefaultProps({
           arrow: false,
           offset: [0, 8],
@@ -1169,91 +1092,9 @@ if ($_SERVER["QUERY_STRING"] ?? "") {
           }
         }
 
-        if (rawDataWHOIS) linkifyRawData(rawDataWHOIS);
-        if (rawDataRDAP) linkifyRawData(rawDataRDAP);
+        linkifyRawData(rawDataWHOIS);
+        linkifyRawData(rawDataRDAP);
       });
-
-      // 优化的复制功能 - 修复版
-      function copyToClipboard(elementId) {
-        const element = document.getElementById(elementId);
-        if (!element) {
-          console.error('Element not found:', elementId);
-          return;
-        }
-        
-        const text = element.innerText || element.textContent;
-        const button = event ? event.target.closest('.copy-button') : document.querySelector(`[onclick="copyToClipboard('${elementId}')"]`);
-        
-        if (!button) {
-          console.error('Button not found for element:', elementId);
-          return;
-        }
-        
-        const originalHTML = button.innerHTML;
-        
-        // 复制文本
-        if (navigator.clipboard && navigator.clipboard.writeText) {
-          navigator.clipboard.writeText(text).then(() => {
-            showCopySuccess(button, originalHTML);
-          }).catch(() => {
-            fallbackCopy(text, button, originalHTML);
-          });
-        } else {
-          fallbackCopy(text, button, originalHTML);
-        }
-      }
-
-      function showCopySuccess(button, originalHTML) {
-        button.innerHTML = `
-          <svg class="copy-icon" viewBox="0 0 16 16" fill="currentColor">
-            <path d="M2 13a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11.5a2 2 0 0 1 1.983 1.738l.26 1.262a2 2 0 0 0 1.708 1.352L16 9a2 2 0 0 1 2 2v2a2 2 0 0 1-2 2H2z"/>
-            <path d="M5.854 4.646a.5.5 0 1 1-.708.708L3.5 3.707 2.854 4.414a.5.5 0 1 1-.708-.708L2.293 3l1.048-1.048a.5.5 0 0 1 .708.708L3.5 2.293l.646.647a.5.5 0 1 1-.708.708L3.5 3z"/>
-          </svg>
-          <span>已复制</span>
-        `;
-        button.classList.add('copy-success');
-        
-        setTimeout(() => {
-          button.innerHTML = originalHTML;
-          button.classList.remove('copy-success');
-        }, 2000);
-      }
-
-      function fallbackCopy(text, button, originalHTML) {
-        const textArea = document.createElement('textarea');
-        textArea.value = text;
-        textArea.style.position = 'fixed';
-        textArea.style.left = '-999999px';
-        textArea.style.top = '-999999px';
-        textArea.style.opacity = '0';
-        document.body.appendChild(textArea);
-        textArea.focus();
-        textArea.select();
-        
-        try {
-          const successful = document.execCommand('copy');
-          if (successful) {
-            showCopySuccess(button, originalHTML);
-          } else {
-            alert('复制失败，请手动选择内容复制');
-            selectText(textArea);
-          }
-        } catch (err) {
-          console.error('Copy failed:', err);
-          alert('复制失败，请手动选择内容复制');
-          selectText(textArea);
-        }
-        
-        document.body.removeChild(textArea);
-      }
-
-      function selectText(textArea) {
-        textArea.select();
-        // 给用户一点时间看到选中的文本
-        setTimeout(() => {
-          textArea.blur();
-        }, 100);
-      }
     </script>
   <?php endif; ?>
   <?php if ($fetchPrices): ?>
