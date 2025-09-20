@@ -45,7 +45,7 @@ function checkPassword()
     echo json_encode(["code" => 1, "msg" => "Incorrect password.", "data" => null]);
   } else {
     $requestUri = $_SERVER["REQUEST_URI"];
-    if ($requestUri === BASE) {
+    if ($requestUri === BASE || $requestUri === "/") {
       header("Location: " . BASE . "login");
     } else {
       header("Location: " . BASE . "login?redirect=" . urlencode($requestUri));
@@ -55,21 +55,55 @@ function checkPassword()
   die;
 }
 
+// 修改后的 cleanDomain 函数 - Vercel 兼容版
 function cleanDomain()
 {
-  $domain = htmlspecialchars($_GET["domain"] ?? "", ENT_QUOTES, "UTF-8");
-  $domain = trim(preg_replace(["/\s+/", "/\.{2,}/"], ["", "."], $domain), ".");
+    // 从 URL path 中获取域名（伪静态）
+    $pathDomain = '';
+    if (isset($_SERVER['REQUEST_URI'])) {
+        $requestUri = $_SERVER['REQUEST_URI'];
+        
+        // 移除查询字符串
+        if (strpos($requestUri, '?') !== false) {
+            $requestUri = substr($requestUri, 0, strpos($requestUri, '?'));
+        }
+        
+        // 移除开头的斜杠
+        $path = trim($requestUri, '/');
+        
+        // 检查是否是纯域名格式（不是已知的路由）
+        $knownRoutes = ['api', 'login', 'manifest'];
+        if (!empty($path) && !in_array($path, $knownRoutes)) {
+            // 验证是否为合法域名格式（至少包含一个点）
+            if (preg_match('/^[a-zA-Z0-9]([a-zA-Z0-9\-]{0,61}[a-zA-Z0-9])?(\.[a-zA-Z0-9]([a-zA-Z0-9\-]{0,61}[a-zA-Z0-9])?)+$/i', $path)) {
+                $pathDomain = $path;
+            }
+        }
+    }
 
-  $parsedUrl = parse_url($domain);
-  if (!empty($parsedUrl["host"])) {
-    $domain = $parsedUrl["host"];
-  }
+    // 从 GET 参数中获取域名（保持向后兼容）
+    $getDomain = $_GET["domain"] ?? "";
 
-  if (DEFAULT_EXTENSION && strpos($domain, ".") === false) {
-    $domain .= "." . DEFAULT_EXTENSION;
-  }
+    // 优先使用路径域名，其次使用GET参数
+    $domain = $pathDomain ?: $getDomain;
+    
+    if (empty($domain)) {
+        return '';
+    }
 
-  return $domain;
+    $domain = htmlspecialchars($domain, ENT_QUOTES, "UTF-8");
+    $domain = trim(preg_replace(["/\s+/", "/\.{2,}/"], ["", "."], $domain), ".");
+
+    $parsedUrl = parse_url($domain);
+    if (!empty($parsedUrl["host"])) {
+        $domain = $parsedUrl["host"];
+    }
+
+    if (DEFAULT_EXTENSION && strpos($domain, ".") === false) {
+        $domain .= "." . DEFAULT_EXTENSION;
+    }
+
+    return $domain;
 }
 
 function getDataSource()
@@ -163,7 +197,7 @@ if ($_SERVER["QUERY_STRING"] ?? "") {
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="theme-color" content="#ffffff">
+  <meta name="theme-color" content="#e1f9f9">
   <meta name="description" content="<?= SITE_DESCRIPTION ?>">
   <meta name="keywords" content="<?= SITE_KEYWORDS ?>">
   <link rel="shortcut icon" href="public/favicon.ico">
@@ -214,26 +248,87 @@ if ($_SERVER["QUERY_STRING"] ?? "") {
   <link rel="stylesheet" href="public/css/json.css">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght,SOFT,WONK@72,600,50,1&display=swap">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@72..144,300..900&display=swap">
   <?= CUSTOM_HEAD ?>
   <style>
-    /* 解决图标和布局问题的新增样式 */
+    /* 首页搜索栏背景修改 - 去掉透明化，显示主页方格背景（假设主页有方格背景，如果没有，可添加背景样式） */
+    body {
+      background-color: #ffffff; /* 原背景白色，如果需要方格，可以添加 background-image: url('grid-background.png'); 或 CSS 网格 */
+      background-image: repeating-linear-gradient(0deg, transparent, transparent 19px, #eee 20px), repeating-linear-gradient(90deg, transparent, transparent 19px, #eee 20px); /* 示例方格背景 */
+      background-size: 20px 20px; /* 示例方格大小 */
+    }
+
+    .search-box {
+      background: transparent !important; /* 去掉透明化，让背景显示主页方格 */
+      border: 2px solid #000000 !important; /* 添加黑色边框 */
+      border-radius: 8px !important;
+      padding: 4px !important;
+      display: flex !important;
+      align-items: center !important;
+    }
+
+    .search-box .input {
+      background: transparent !important;
+      border: none !important;
+      box-shadow: none !important;
+      color: #333 !important;
+      font-size: 16px !important;
+      padding: 12px 16px !important;
+      flex: 1 !important;
+      outline: none !important;
+    }
+
+    .search-box .input::placeholder {
+      color: #666 !important;
+      opacity: 1 !important;
+    }
+
+    .search-box .input:focus {
+      outline: none !important;
+    }
+
+    .search-box .search-clear {
+      background: #f0f0f0 !important;
+      border: 1px solid #ddd !important;
+      border-radius: 4px !important;
+      padding: 4px !important;
+      margin-right: 8px !important;
+      cursor: pointer !important;
+      transition: all 0.2s ease !important;
+    }
+
+    .search-box .search-clear:hover {
+      background: #e0e0e0 !important;
+      border-color: #999 !important;
+    }
+
+    /* 修复域名过长文字错位问题 */
     .message-data .message-title {
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
+      display: flex; /* 使用 flexbox 布局 */
+      align-items: center; /* 垂直居中对齐 */
+      gap: 0.5rem; /* 图标和文字之间的间距 */
       grid-column: 1 / -1;
-      margin-bottom: 1rem;
-      font-size: 1rem;
+      margin-bottom: 1rem; /* 减小标题和下方内容的间距 */
+      font-size: 1rem; /* 统一字体大小 */
       font-weight: 600;
       color: #222;
       text-align: left;
+      flex-wrap: wrap; /* 允许换行 */
+    }
+
+    .message-title a {
+      max-width: 70%; /* 限制域名链接最大宽度 */
+      word-break: break-all; /* 长域名强制换行 */
+      overflow: hidden; /* 隐藏溢出部分 */
+      text-overflow: ellipsis; /* 用省略号表示溢出 */
+      display: inline-block; /* 允许设置宽度 */
+      vertical-align: middle; /* 垂直对齐 */
     }
 
     /* 调整标题内图标大小 */
     .message-title .message-icon {
-        width: 1.2em;
-        height: 1.2em;
+        width: 1.2em; /* 调整图标大小 */
+        height: 1.2em; /* 调整图标大小 */
     }
 
     .message-data {
@@ -284,13 +379,9 @@ if ($_SERVER["QUERY_STRING"] ?? "") {
         padding: 0;
     }
 
-    /* 统一页面背景为白色 */
-    body {
-      background-color: #ffffff;
-    }
-    
+    /* 统一页面背景为白色，但已修改为方格 */
     header, main {
-      background-color: #ffffff;
+      background-color: transparent; /* 让header和main透明以显示方格背景 */
     }
 
     .raw-data-whois,
@@ -744,7 +835,7 @@ if ($_SERVER["QUERY_STRING"] ?? "") {
     <?php if ($whoisData || $rdapData): ?>
       <section class="raw-data">
         <?php if ($whoisData): ?>
-          <div class="raw-data-container" id="whois-container">
+          <div class="raw-data-container">
             <button class="copy-button" onclick="copyToClipboard('raw-data-whois')">
               <svg class="copy-icon" viewBox="0 0 16 16" fill="currentColor">
                 <path d="M4 1a3 3 0 0 0-3 3v10a3 3 0 0 0 3 3h10a3 3 0 0 0 3-3V4a3 3 0 0 0-3-3H4zm2 2a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2V3z"/>
@@ -755,7 +846,7 @@ if ($_SERVER["QUERY_STRING"] ?? "") {
           </div>
         <?php endif; ?>
         <?php if ($rdapData): ?>
-          <div class="raw-data-container" id="rdap-container" style="display:none;">
+          <div class="raw-data-container">
             <button class="copy-button" onclick="copyToClipboard('raw-data-rdap')">
               <svg class="copy-icon" viewBox="0 0 16 16" fill="currentColor">
                 <path d="M4 1a3 3 0 0 0-3 3v10a3 3 0 0 0 3 3h10a3 3 0 0 0 3-3V4a3 3 0 0 0-3-3H4zm2 2a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2V3z"/>
@@ -916,6 +1007,10 @@ if ($_SERVER["QUERY_STRING"] ?? "") {
         tippy.setDefaultProps({
           arrow: false,
           offset: [0, 8],
+          maxWidth: 200,
+          allowHTML: false,
+          theme: 'light-border',
+          content: (reference) => reference.innerHTML,
         });
 
         function updateDateElementTooltip(elementId) {
@@ -935,6 +1030,7 @@ if ($_SERVER["QUERY_STRING"] ?? "") {
               tippy(`#${elementId}`, {
                 content: formattedDateTime,
                 placement: "right",
+                appendTo: () => document.body,
               });
             }
           }
@@ -968,23 +1064,31 @@ if ($_SERVER["QUERY_STRING"] ?? "") {
 
         const dataSourceWHOIS = document.getElementById("data-source-whois");
         const dataSourceRDAP = document.getElementById("data-source-rdap");
-        const rawDataWHOIS = document.getElementById("whois-container");
-        const rawDataRDAP = document.getElementById("rdap-container");
-        
-        <?php if ($whoisData && $rdapData): ?>
+        const rawDataWHOIS = document.getElementById("raw-data-whois");
+        const rawDataRDAP = document.getElementById("raw-data-rdap");
+
+        if (dataSourceWHOIS && dataSourceRDAP) {
           dataSourceWHOIS.addEventListener("click", () => {
+            if (dataSourceWHOIS.classList.contains("segmented-item-selected")) {
+              return;
+            }
+
             dataSourceWHOIS.classList.add("segmented-item-selected");
             rawDataWHOIS.style.display = "block";
             dataSourceRDAP.classList.remove("segmented-item-selected");
             rawDataRDAP.style.display = "none";
           });
           dataSourceRDAP.addEventListener("click", () => {
+            if (dataSourceRDAP.classList.contains("segmented-item-selected")) {
+              return;
+            }
+
             dataSourceWHOIS.classList.remove("segmented-item-selected");
             rawDataWHOIS.style.display = "none";
             dataSourceRDAP.classList.add("segmented-item-selected");
             rawDataRDAP.style.display = "block";
           });
-        <?php endif; ?>
+        }
 
         function linkifyRawData(element) {
           if (element) {
@@ -998,74 +1102,9 @@ if ($_SERVER["QUERY_STRING"] ?? "") {
           }
         }
 
-        linkifyRawData(document.getElementById("raw-data-whois"));
-        linkifyRawData(document.getElementById("raw-data-rdap"));
+        linkifyRawData(rawDataWHOIS);
+        linkifyRawData(rawDataRDAP);
       });
-
-      // 优化的复制功能
-      function copyToClipboard(elementId) {
-        const element = document.getElementById(elementId);
-        if (!element) return;
-        
-        const text = element.innerText || element.textContent;
-        const button = event.target.closest('.copy-button');
-        
-        if (!button) return;
-        
-        const originalHTML = button.innerHTML;
-        const originalText = button.innerText;
-        
-        // 复制文本
-        navigator.clipboard.writeText(text).then(() => {
-          // 成功状态
-          button.innerHTML = `
-            <svg class="copy-icon" viewBox="0 0 16 16" fill="currentColor">
-              <path d="M2 13a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11.5a2 2 0 0 1 1.983 1.738l.26 1.262a2 2 0 0 0 1.708 1.352L16 9a2 2 0 0 1 2 2v2a2 2 0 0 1-2 2H2z"/>
-              <path d="M5.854 4.646a.5.5 0 1 1-.708.708L3.5 3.707 2.854 4.414a.5.5 0 1 1-.708-.708L2.293 3l1.048-1.048a.5.5 0 0 1 .708.708L3.5 2.293l.646.647a.5.5 0 1 1-.708.708L3.5 3z"/>
-            </svg>
-            <span>已复制</span>
-          `;
-          button.classList.add('copy-success');
-          
-          setTimeout(() => {
-            button.innerHTML = originalHTML;
-            button.classList.remove('copy-success');
-          }, 1500);
-        }).catch(() => {
-          // 备用复制方法
-          const textArea = document.createElement('textarea');
-          textArea.value = text;
-          textArea.style.position = 'fixed';
-          textArea.style.left = '-999999px';
-          textArea.style.top = '-999999px';
-          document.body.appendChild(textArea);
-          textArea.focus();
-          textArea.select();
-          try {
-            const successful = document.execCommand('copy');
-            if (successful) {
-              button.innerHTML = `
-                <svg class="copy-icon" viewBox="0 0 16 16" fill="currentColor">
-                  <path d="M2 13a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11.5a2 2 0 0 1 1.983 1.738l.26 1.262a2 2 0 0 0 1.708 1.352L16 9a2 2 0 0 1 2 2v2a2 2 0 0 1-2 2H2z"/>
-                  <path d="M5.854 4.646a.5.5 0 1 1-.708.708L3.5 3.707 2.854 4.414a.5.5 0 1 1-.708-.708L2.293 3l1.048-1.048a.5.5 0 0 1 .708.708L3.5 2.293l.646.647a.5.5 0 1 1-.708.708L3.5 3z"/>
-                </svg>
-                <span>已复制</span>
-              `;
-              button.classList.add('copy-success');
-              
-              setTimeout(() => {
-                button.innerHTML = originalHTML;
-                button.classList.remove('copy-success');
-              }, 1500);
-            } else {
-              alert('复制失败，请重试');
-            }
-          } catch (err) {
-            alert('复制失败，请重试');
-          }
-          document.body.removeChild(textArea);
-        });
-      }
     </script>
   <?php endif; ?>
   <?php if ($fetchPrices): ?>
