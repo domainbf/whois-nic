@@ -831,238 +831,222 @@ if ($_SERVER["QUERY_STRING"] ?? "") {
                 </h1>
                 
                 <!-- 注册平台 -->
-                <?php if ($parser->registrar): ?>
-                  <div class="message-label">
-                    <span class="message-icon-leading">
-                      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
-                        <path d="M12.5 16a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7m.5-3.5h-1a.5.5 0 0 1 0-1h1a.5.5 0 0 1 0 1m1-1a.5.5 0 0 1 .5-.5v1a.5.5 0 0 1-.5.5h-1a.5.5 0 0 1-.5-.5v-1a.5.5 0 0 1 .5-.5zm-11 5a.5.5 0 0 1-.5-.5V1.5a.5.5 0 0 1 .5-.5h7a.5.5 0 0 1 .5.5V5h-1a.5.5 0 0 0-.5.5v3.5h-1a.5.5 0 0 1-.5-.5V1.5a.5.5 0 0 1 .5-.5h5a.5.5 0 0 1 .5.5V11a.5.5 0 0 1-.5.5h-2a.5.5 0 0 0-.5.5V13a.5.5 0 0 1-.5.5H2a.5.5 0 0 1-.5-.5v-11a.5.5 0 0 1 .5-.5h5a.5.5 0 0 1 .5.5V2.5a.5.5 0 0 0 .5.5h2a.5.5 0 0 0 .5-.5V1.5a.5.5 0 0 1 .5-.5h-7a.5.5 0 0 0-.5.5V13a.5.5 0 0 1-.5.5v2.5a.5.5 0 0 0 .5.5zm10-5a.5.5 0 0 0-.5.5v1a.5.5 0 0 0 .5.5h1a.5.5 0 0 0 .5-.5v-1a.5.5 0 0 0-.5-.5z"/>
-                      </svg>
-                    </span>
-                    注册平台
-                  </div>
-                  <div style="grid-column: 2;">
-                    <?php if ($parser->registrarURL): ?>
-                      <a href="<?= $parser->registrarURL; ?>" rel="nofollow noopener noreferrer" target="_blank"><?= $parser->registrar; ?></a>
-                    <?php else: ?>
-                      <?= $parser->registrar; ?>
-                    <?php endif; ?>
-                  </div>
-                <?php endif; ?>
+                <?php if ($parser->registered): ?>
+  <div class="message message-informative">
+    <div class="message-data">
+      <h2 class="message-title">
+        <svg width="1em" height="1em" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true" class="message-icon">
+          <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14m0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16" />
+          <path d="M8 4a.905.905 0 0 0-.9.995l.35 3.507a.552.552 0 0 0 1.1 0l.35-3.507A.905.905 0 0 0 8 4m.002 6a1 1 0 1 0 0 2 1 1 0 0 0 0-2" />
+        </svg>
+        '<?= $domain; ?>' 已注册，查看以下信息。
+      </h2>
+      <div class="message-grid">
+        <!-- 注册平台 -->
+        <?php if ($parser->registrar): ?>
+          <div class="message-label">
+            <span class="message-icon-leading">
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                <path d="M12.5 16a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7m.5-3.5h-1a.5.5 0 0 1 0-1h1a.5.5 0 0 1 0 1m1-1a.5.5 0 0 1 .5-.5v1a.5.5 0 0 1-.5.5h-1a.5.5 0 0 1-.5-.5v-1a.5.5 0 0 1 .5-.5zm-11 5a.5.5 0 0 1-.5-.5V1.5a.5.5 0 0 1 .5-.5h7a.5.5 0 0 1 .5.5V5h-1a.5.5 0 0 0-.5.5v3.5h-1a.5.5 0 0 1-.5-.5V1.5a.5.5 0 0 1 .5-.5h5a.5.5 0 0 1 .5.5V11a.5.5 0 0 1-.5.5h-2a.5.5 0 0 0-.5.5V13a.5.5 0 0 1-.5.5H2a.5.5 0 0 1-.5-.5v-11a.5.5 0 0 1 .5-.5h5a.5.5 0 0 1 .5.5V2.5a.5.5 0 0 0 .5.5h2a.5.5 0 0 0 .5-.5V1.5a.5.5 0 0 1 .5-.5h-7a.5.5 0 0 0-.5.5V13a.5.5 0 0 1-.5.5v2.5a.5.5 0 0 0 .5.5zm10-5a.5.5 0 0 0-.5.5v1a.5.5 0 0 0 .5.5h1a.5.5 0 0 0 .5-.5v-1a.5.5 0 0 0-.5-.5z"/>
+              </svg>
+            </span>
+            注册平台
+          </div>
+          <div style="grid-column: 2;">
+            <?php if ($parser->registrarURL): ?>
+              <a href="<?= $parser->registrarURL; ?>" rel="nofollow noopener noreferrer" target="_blank"><?= $parser->registrar; ?></a>
+            <?php else: ?>
+              <?= $parser->registrar; ?>
+            <?php endif; ?>
+          </div>
+        <?php endif; ?>
 
-                <!-- 创建日期 -->
-                <?php if ($parser->creationDate): ?>
-                  <div class="message-label">
-                    <span class="message-icon-leading">
-                      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
-                        <path d="M4.5 1a.5.5 0 0 0-.5.5v1a.5.5 0 0 0 .5.5h1a.5.5 0 0 0 .5-.5v-1a.5.5 0 0 0-.5-.5h-1zm1 0h3a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-3a.5.5 0 0 1-.5-.5v-1a.5.5 0 0 1 .5-.5zm4.5.5v1a.5.5 0 0 0 .5.5h1a.5.5 0 0 0 .5-.5v-1a.5.5 0 0 0-.5-.5h-1a.5.5 0 0 0-.5.5z"/>
-                        <path d="M12 4H4a1 1 0 0 0-1 1v9a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1V5a1 1 0 0 0-1-1zm-8 1h8v9H4V5z"/>
-                        <path d="M8.5 8.5v2h-1v-2zm0-2h-1v2h1v-2zm0-2h-1v2h1v-2z"/>
-                      </svg>
-                    </span>
-                    创建日期
-                  </div>
-                  <div style="grid-column: 2;">
-                    <?php if ($parser->creationDateISO8601 === null): ?>
-                      <span><?= $parser->creationDate; ?></span>
-                    <?php elseif (str_ends_with($parser->creationDateISO8601, "Z")): ?>
-                      <span id="creation-date" data-iso8601="<?= $parser->creationDateISO8601; ?>">
-                        <?= $parser->creationDate; ?>
-                      </span>
-                    <?php else: ?>
-                      <span id="creation-date" data-iso8601="<?= $parser->creationDateISO8601; ?>">
-                        <?= $parser->creationDate; ?>
-                      </span>
-                    <?php endif; ?>
-                  </div>
-                <?php endif; ?>
+        <!-- 创建日期 -->
+        <?php if ($parser->creationDate): ?>
+          <div class="message-label">
+            <span class="message-icon-leading">
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                <path d="M4.5 1a.5.5 0 0 0-.5.5v1a.5.5 0 0 0 .5.5h1a.5.5 0 0 0 .5-.5v-1a.5.5 0 0 0-.5-.5h-1zm1 0h3a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-3a.5.5 0 0 1-.5-.5v-1a.5.5 0 0 1 .5-.5zm4.5.5v1a.5.5 0 0 0 .5.5h1a.5.5 0 0 0 .5-.5v-1a.5.5 0 0 0-.5-.5h-1a.5.5 0 0 0-.5.5z"/>
+                <path d="M12 4H4a1 1 0 0 0-1 1v9a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1V5a1 1 0 0 0-1-1zm-8 1h8v9H4V5z"/>
+                <path d="M8.5 8.5v2h-1v-2zm0-2h-1v2h1v-2zm0-2h-1v2h1v-2z"/>
+              </svg>
+            </span>
+            创建日期
+          </div>
+          <div style="grid-column: 2;">
+            <?php if ($parser->creationDateISO8601 === null): ?>
+              <span><?= $parser->creationDate; ?></span>
+            <?php elseif (str_ends_with($parser->creationDateISO8601, "Z")): ?>
+              <span id="creation-date" data-iso8601="<?= $parser->creationDateISO8601; ?>">
+                <?= $parser->creationDate; ?>
+              </span>
+            <?php else: ?>
+              <span id="creation-date" data-iso8601="<?= $parser->creationDateISO8601; ?>">
+                <?= $parser->creationDate; ?>
+              </span>
+            <?php endif; ?>
+          </div>
+        <?php endif; ?>
 
-                <!-- 到期日期 -->
-                <?php if ($parser->expirationDate): ?>
-                  <div class="message-label">
-                    <span class="message-icon-leading">
-                      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
-                        <path d="M4.5 1a.5.5 0 0 0-.5.5v1a.5.5 0 0 0 .5.5h1a.5.5 0 0 0 .5-.5v-1a.5.5 0 0 0-.5-.5h-1zm1 0h3a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-3a.5.5 0 0 1-.5-.5v-1a.5.5 0 0 1 .5-.5zm4.5.5v1a.5.5 0 0 0 .5.5h1a.5.5 0 0 0 .5-.5v-1a.5.5 0 0 0-.5-.5h-1a.5.5 0 0 0-.5.5z"/>
-                        <path d="M12 4H4a1 1 0 0 0-1 1v9a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1V5a1 1 0 0 0-1-1zM4 5h8v9H4V5z"/>
-                        <path d="M8.5 8.5v2h-1v-2zm0-2h-1v2h1v-2zm0-2h-1v2h1v-2z"/>
-                      </svg>
-                    </span>
-                    到期日期
-                  </div>
-                  <div style="grid-column: 2;">
-                    <?php if ($parser->expirationDateISO8601 === null): ?>
-                      <span><?= $parser->expirationDate; ?></span>
-                    <?php elseif (str_ends_with($parser->expirationDateISO8601, "Z")): ?>
-                      <span id="expiration-date" data-iso8601="<?= $parser->expirationDateISO8601; ?>">
-                        <?= $parser->expirationDate; ?>
-                      </span>
-                    <?php else: ?>
-                      <span id="expiration-date" data-iso8601="<?= $parser->expirationDateISO8601; ?>">
-                        <?= $parser->expirationDate; ?>
-                      </span>
-                    <?php endif; ?>
-                  </div>
-                <?php endif; ?>
+        <!-- 到期日期 -->
+        <?php if ($parser->expirationDate): ?>
+          <div class="message-label">
+            <span class="message-icon-leading">
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                <path d="M4.5 1a.5.5 0 0 0-.5.5v1a.5.5 0 0 0 .5.5h1a.5.5 0 0 0 .5-.5v-1a.5.5 0 0 0-.5-.5h-1zm1 0h3a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-3a.5.5 0 0 1-.5-.5v-1a.5.5 0 0 1 .5-.5zm4.5.5v1a.5.5 0 0 0 .5.5h1a.5.5 0 0 0 .5-.5v-1a.5.5 0 0 0-.5-.5h-1a.5.5 0 0 0-.5.5z"/>
+                <path d="M12 4H4a1 1 0 0 0-1 1v9a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1V5a1 1 0 0 0-1-1zM4 5h8v9H4V5z"/>
+                <path d="M8.5 8.5v2h-1v-2zm0-2h-1v2h1v-2zm0-2h-1v2h1v-2z"/>
+              </svg>
+            </span>
+            到期日期
+          </div>
+          <div style="grid-column: 2;">
+            <?php if ($parser->expirationDateISO8601 === null): ?>
+              <span><?= $parser->expirationDate; ?></span>
+            <?php elseif (str_ends_with($parser->expirationDateISO8601, "Z")): ?>
+              <span id="expiration-date" data-iso8601="<?= $parser->expirationDateISO8601; ?>">
+                <?= $parser->expirationDate; ?>
+              </span>
+            <?php else: ?>
+              <span id="expiration-date" data-iso8601="<?= $parser->expirationDateISO8601; ?>">
+                <?= $parser->expirationDate; ?>
+              </span>
+            <?php endif; ?>
+          </div>
+        <?php endif; ?>
 
-                <!-- 更新日期 -->
-                <?php if ($parser->updatedDate): ?>
-                  <div class="message-label">
-                    <span class="message-icon-leading">
-                      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
-                        <path d="M4 14a1 1 0 0 1-1-1V1a1 1 0 0 1 1-1h8a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1zm8-1v-1H4v1zm-8-2h8V1H4v10zm-1-3a.5.5 0 0 1 .5-.5h8a.5.5 0 0 1 0 1h-8a.5.5 0 0 1-.5-.5zm0-3a.5.5 0 0 1 .5-.5h8a.5.5 0 0 1 0 1h-8a.5.5 0 0 1-.5-.5z"/>
-                        <path d="M8 12a1 1 0 1 1 0-2 1 1 0 0 1 0 2zm0-3a.5.5 0 1 0 0-1 .5.5 0 0 0 0 1z"/>
-                      </svg>
-                    </span>
-                    更新日期
-                  </div>
-                  <div style="grid-column: 2;">
-                    <?php if ($parser->updatedDateISO8601 === null): ?>
-                      <span><?= $parser->updatedDate; ?></span>
-                    <?php elseif (str_ends_with($parser->updatedDateISO8601, "Z")): ?>
-                      <span id="updated-date" data-iso8601="<?= $parser->updatedDateISO8601; ?>">
-                        <?= $parser->updatedDate; ?>
-                      </span>
-                    <?php else: ?>
-                      <span id="updated-date" data-iso8601="<?= $parser->updatedDateISO8601; ?>">
-                        <?= $parser->updatedDate; ?>
-                      </span>
-                    <?php endif; ?>
-                  </div>
-                <?php endif; ?>
+        <!-- 更新日期 -->
+        <?php if ($parser->updatedDate): ?>
+          <div class="message-label">
+            <span class="message-icon-leading">
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                <path d="M4 14a1 1 0 0 1-1-1V1a1 1 0 0 1 1-1h8a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1zm8-1v-1H4v1zm-8-2h8V1H4v10zm-1-3a.5.5 0 0 1 .5-.5h8a.5.5 0 0 1 0 1h-8a.5.5 0 0 1-.5-.5zm0-3a.5.5 0 0 1 .5-.5h8a.5.5 0 0 1 0 1h-8a.5.5 0 0 1-.5-.5z"/>
+                <path d="M8 12a1 1 0 1 1 0-2 1 1 0 0 1 0 2zm0-3a.5.5 0 1 0 0-1 .5.5 0 0 0 0 1z"/>
+              </svg>
+            </span>
+            更新日期
+          </div>
+          <div style="grid-column: 2;">
+            <?php if ($parser->updatedDateISO8601 === null): ?>
+              <span><?= $parser->updatedDate; ?></span>
+            <?php elseif (str_ends_with($parser->updatedDateISO8601, "Z")): ?>
+              <span id="updated-date" data-iso8601="<?= $parser->updatedDateISO8601; ?>">
+                <?= $parser->updatedDate; ?>
+              </span>
+            <?php else: ?>
+              <span id="updated-date" data-iso8601="<?= $parser->updatedDateISO8601; ?>">
+                <?= $parser->updatedDate; ?>
+              </span>
+            <?php endif; ?>
+          </div>
+        <?php endif; ?>
 
-                <!-- 可用日期 -->
-                <?php if ($parser->availableDate): ?>
-                  <div class="message-label">
-                    <span class="message-icon-leading">
-                      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
-                        <path d="M4 14a1 1 0 0 1-1-1V1a1 1 0 0 1 1-1h8a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1zm8-1v-1H4v1zm-8-2h8V1H4v10zm-1-3a.5.5 0 0 1 .5-.5h8a.5.5 0 0 1 0 1h-8a.5.5 0 0 1-.5-.5zm0-3a.5.5 0 0 1 .5-.5h8a.5.5 0 0 1 0 1h-8a.5.5 0 0 1-.5-.5z"/>
-                        <path d="M8 12a1 1 0 1 1 0-2 1 1 0 0 1 0 2zm0-3a.5.5 0 1 0 0-1 .5.5 0 0 0 0 1z"/>
-                      </svg>
-                    </span>
-                    可用日期
-                  </div>
-                  <div style="grid-column: 2;">
-                    <?php if ($parser->availableDateISO8601 === null): ?>
-                      <span><?= $parser->availableDate; ?></span>
-                    <?php elseif (str_ends_with($parser->availableDateISO8601, "Z")): ?>
-                      <span id="available-date" data-iso8601="<?= $parser->availableDateISO8601; ?>">
-                        <?= $parser->availableDate; ?>
-                      </span>
-                    <?php else: ?>
-                      <span id="available-date" data-iso8601="<?= $parser->availableDateISO8601; ?>">
-                        <?= $parser->availableDate; ?>
-                      </span>
-                    <?php endif; ?>
-                  </div>
-                <?php endif; ?>
-
-                <!-- 域名状态 -->
-                <?php if ($parser->status): ?>
-                  <div class="message-label">
-                    <span class="message-icon-leading">
-                      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
-                        <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14m0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16" />
-                        <path d="m10.97 4.97-.02.022-3.473 4.425-2.093-2.094a.75.75 0 0 0-1.06 1.06L6.97 11.03a.75.75 0 0 0 1.079-.02l3.992-4.99a.75.75 0 0 0-1.071-1.05" />
-                      </svg>
-                    </span>
-                    域名状态
-                  </div>
-                  <div class="message-value-status" style="grid-column: 2;">
-                    <?php foreach ($parser->status as $status): ?>
-                      <div>
-                        <?php if ($status["url"]): ?>
-                          <a href="<?= $status["url"]; ?>" rel="nofollow noopener noreferrer" target="_blank"><?= $status["text"]; ?></a>
-                        <?php else: ?>
-                          <?= $status["text"]; ?>
-                        <?php endif; ?>
-                      </div>
-                    <?php endforeach; ?>
-                  </div>
-                <?php endif; ?>
-
-                <!-- NS服务器 -->
-                <?php if ($parser->nameServers): ?>
-                  <div class="message-label">
-                    <span class="message-icon-leading">
-                      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
-                        <path d="M5.5 10a.5.5 0 0 0-.5.5v1a.5.5 0 0 0 .5.5h5a.5.5 0 0 0 .5-.5v-1a.5.5 0 0 0-.5-.5h-5z"/>
-                        <path d="M12.44 1.44a.5.5 0 0 1 .12.55l-2.49 11.55a.5.5 0 0 1-.95.06L7 8.355l-2.043 4.65a.5.5 0 0 1-.95-.06L1.44 2a.5.5 0 0 1 .55-.12L8 4.288l5.44-2.968z"/>
-                      </svg>
-                    </span>
-                    NS服务器
-                  </div>
-                  <div class="message-value-name-servers" style="grid-column: 2;">
-                    <?php foreach ($parser->nameServers as $nameServer): ?>
-                      <div>
-                        <?= $nameServer; ?>
-                      </div>
-                    <?php endforeach; ?>
-                  </div>
+        <!-- 域名状态 -->
+        <?php if ($parser->status): ?>
+          <div class="message-label">
+            <span class="message-icon-leading">
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14m0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16" />
+                <path d="m10.97 4.97-.02.022-3.473 4.425-2.093-2.094a.75.75 0 0 0-1.06 1.06L6.97 11.03a.75.75 0 0 0 1.079-.02l3.992-4.99a.75.75 0 0 0-1.071-1.05" />
+              </svg>
+            </span>
+            域名状态
+          </div>
+          <div class="message-value-status" style="grid-column: 2;">
+            <?php foreach ($parser->status as $status): ?>
+              <div>
+                <?php if ($status["url"]): ?>
+                  <a href="<?= $status["url"]; ?>" rel="nofollow noopener noreferrer" target="_blank"><?= $status["text"]; ?></a>
+                <?php else: ?>
+                  <?= $status["text"]; ?>
                 <?php endif; ?>
               </div>
-              <?php if ($fetchPrices): ?>
-                <div class="message-price" id="message-price">
-                  <div class="skeleton"></div>
-                </div>
-              <?php endif; ?>
-              <?php if ($parser->age || $parser->remaining || $parser->pendingDelete || $parser->gracePeriod || $parser->redemptionPeriod): ?>
-                <div class="message-tags">
-                  <?php if ($parser->age): ?>
-                    <button class="message-tag message-tag-gray" id="age" data-seconds="<?= $parser->ageSeconds; ?>">
-                      <svg width="1em" height="1em" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true">
-                        <path d="M8 3.5a.5.5 0 0 0-1 0V9a.5.5 0 0 0 .252.434l3.5 2a.5.5 0 0 0 .496-.868L8 8.71z" />
-                        <path d="M8 16A8 8 0 1 0 8 0a8 8 0 0 0 0 16m7-8A7 7 0 1 1 1 8a7 7 0 0 1 14 0" />
-                      </svg>
-                      <span>已经注册：<?= $parser->age; ?></span>
-                    </button>
-                  <?php endif; ?>
-                  <?php if ($parser->remaining): ?>
-                    <button class="message-tag message-tag-gray" id="remaining" data-seconds="<?= $parser->remainingSeconds; ?>">
-                      <svg width="1em" height="1em" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true">
-                        <path d="M2 1.5a.5.5 0 0 1 .5-.5h11a.5.5 0 0 1 0 1h-1v1a4.5 4.5 0 0 1-2.557 4.06c-.29.139-.443.377-.443.59v.7c0 .213.154.451.443.59A4.5 4.5 0 0 1 12.5 13v1h1a.5.5 0 0 1 0 1h-11a.5.5 0 1 1 0-1h1v-1a4.5 4.5 0 0 1 2.557-4.06c.29-.139.443-.377.443-.59v-.7c0-.213-.154-.451-.443-.59A4.5 4.5 0 0 1 3.5 3V2h-1a.5.5 0 0 1-.5-.5m2.5.5v1a3.5 3.5 0 0 0 1.989 3.158c.533.256 1.011.791 1.011 1.491v.702c0 .7-.478 1.235-1.011 1.491A3.5 3.5 0 0 0 4.5 13v1h7v-1a3.5 3.5 0 0 0-1.989-3.158C8.978 9.586 8.5 9.052 8.5 8.351v-.702c0-.7.478-1.235 1.011-1.491A3.5 3.5 0 0 0 11.5 3V2z" />
-                      </svg>
-                      <span>距离过期：<?= $parser->remaining; ?></span>
-                    </button>
-                  <?php endif; ?>
-                  <?php if ($parser->ageSeconds && $parser->ageSeconds < 7 * 24 * 60 * 60): ?>
-                    <span class="message-tag message-tag-green">新注册</span>
-                  <?php endif; ?>
-                  <?php if (($parser->remainingSeconds ?? -1) >= 0 && $parser->remainingSeconds < 7 * 24 * 60 * 60): ?>
-                    <span class="message-tag message-tag-yellow">即将过期</span>
-                  <?php endif; ?>
-                  <?php if ($parser->pendingDelete): ?>
-                    <span class="message-tag message-tag-red">待删除</span>
-                  <?php elseif ($parser->remainingSeconds < 0): ?>
-                    <span class="message-tag message-tag-red">已过期</span>
-                  <?php endif; ?>
-                  <?php if ($parser->gracePeriod): ?>
-                    <span class="message-tag message-tag-yellow">宽限期</span>
-                  <?php elseif ($parser->redemptionPeriod): ?>
-                    <span class="message-tag message-tag-blue">赎回期</span>
-                  <?php endif; ?>
-                </div>
-              <?php endif; ?>
-            </div>
-          <?php else: ?>
-            <div class="message message-informative">
-              <div class="message-data">
-                <h2 class="message-title">
-                    <svg width="1em" height="1em" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true" class="message-icon">
-                      <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14m0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16" />
-                      <path d="m8.93 6.588-2.29.287-.082.38.45.083c.294.07.352.176.288.469l-.738 3.468c-.194.897.105 1.319.808 1.319.545 0 1.178-.252 1.465-.598l.088-.416c-.2.176-.492.246-.686.246-.275 0-.375-.193-.304-.533zM9 4.5a1 1 0 1 1-2 0 1 1 0 0 1 2 0" />
-                    </svg>
-                    '<?= $domain; ?>' 这个域名似乎尚未注册，去申请试试吧。
-                </h2>
-                <?php if ($fetchPrices): ?>
-                  <div class="message-price" id="message-price">
-                    <div class="skeleton"></div>
-                  </div>
-                <?php endif; ?>
+            <?php endforeach; ?>
+          </div>
+        <?php endif; ?>
+
+        <!-- NS服务器 -->
+        <?php if ($parser->nameServers): ?>
+          <div class="message-label">
+            <span class="message-icon-leading">
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                <path d="M5.5 10a.5.5 0 0 0-.5.5v1a.5.5 0 0 0 .5.5h5a.5.5 0 0 0 .5-.5v-1a.5.5 0 0 0-.5-.5h-5z"/>
+                <path d="M12.44 1.44a.5.5 0 0 1 .12.55l-2.49 11.55a.5.5 0 0 1-.95.06L7 8.355l-2.043 4.65a.5.5 0 0 1-.95-.06L1.44 2a.5.5 0 0 1 .55-.12L8 4.288l5.44-2.968z"/>
+              </svg>
+            </span>
+            NS服务器
+          </div>
+          <div class="message-value-name-servers" style="grid-column: 2;">
+            <?php foreach ($parser->nameServers as $nameServer): ?>
+              <div>
+                <?= $nameServer; ?>
               </div>
+            <?php endforeach; ?>
+          </div>
+        <?php endif; ?>
+      </div>
+      <?php if ($fetchPrices): ?>
+        <div class="message-price" id="message-price">
+          <div class="skeleton"></div>
+        </div>
+      <?php endif; ?>
+      <?php if ($parser->age || $parser->remaining || $parser->pendingDelete || $parser->gracePeriod || $parser->redemptionPeriod): ?>
+        <div class="message-tags">
+          <?php if ($parser->age): ?>
+            <div class="message-tag message-tag-gray" id="age" data-seconds="<?= $parser->ageSeconds; ?>">
+              <svg width="1em" height="1em" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true">
+                <path d="M8 3.5a.5.5 0 0 0-1 0V9a.5.5 0 0 0 .252.434l3.5 2a.5.5 0 0 0 .496-.868L8 8.71z" />
+                <path d="M8 16A8 8 0 1 0 8 0a8 8 0 0 0 0 16m7-8A7 7 0 1 1 1 8a7 7 0 0 1 14 0" />
+              </svg>
+              <span>已经注册：<?= $parser->age; ?></span>
             </div>
           <?php endif; ?>
+          <?php if ($parser->remaining): ?>
+            <div class="message-tag message-tag-gray" id="remaining" data-seconds="<?= $parser->remainingSeconds; ?>">
+              <svg width="1em" height="1em" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true">
+                <path d="M2 1.5a.5.5 0 0 1 .5-.5h11a.5.5 0 0 1 0 1h-1v1a4.5 4.5 0 0 1-2.557 4.06c-.29.139-.443.377-.443.59v.7c0 .213.154.451.443.59A4.5 4.5 0 0 1 12.5 13v1h1a.5.5 0 0 1 0 1h-11a.5.5 0 1 1 0-1h1v-1a4.5 4.5 0 0 1 2.557-4.06c.29-.139.443-.377.443-.59v-.7c0-.213-.154-.451-.443-.59A4.5 4.5 0 0 1 3.5 3V2h-1a.5.5 0 0 1-.5-.5m2.5.5v1a3.5 3.5 0 0 0 1.989 3.158c.533.256 1.011.791 1.011 1.491v.702c0 .7-.478 1.235-1.011 1.491A3.5 3.5 0 0 0 4.5 13v1h7v-1a3.5 3.5 0 0 0-1.989-3.158C8.978 9.586 8.5 9.052 8.5 8.351v-.702c0-.7.478-1.235 1.011-1.491A3.5 3.5 0 0 0 11.5 3V2z" />
+              </svg>
+              <span>距离过期：<?= $parser->remaining; ?></span>
+            </div>
+          <?php endif; ?>
+          <?php if ($parser->ageSeconds && $parser->ageSeconds < 7 * 24 * 60 * 60): ?>
+            <span class="message-tag message-tag-green">新注册</span>
+          <?php endif; ?>
+          <?php if (($parser->remainingSeconds ?? -1) >= 0 && $parser->remainingSeconds < 7 * 24 * 60 * 60): ?>
+            <span class="message-tag message-tag-yellow">即将过期</span>
+          <?php endif; ?>
+          <?php if ($parser->pendingDelete): ?>
+            <span class="message-tag message-tag-red">待删除</span>
+          <?php elseif ($parser->remainingSeconds < 0): ?>
+            <span class="message-tag message-tag-red">已过期</span>
+          <?php endif; ?>
+          <?php if ($parser->gracePeriod): ?>
+            <span class="message-tag message-tag-yellow">宽限期</span>
+          <?php elseif ($parser->redemptionPeriod): ?>
+            <span class="message-tag message-tag-blue">赎回期</span>
+          <?php endif; ?>
         </div>
-      </section>
-    <?php endif; ?>
+      <?php endif; ?>
+    </div>
+  </div>
+<?php else: ?>
+  <div class="message message-informative">
+    <div class="message-data">
+      <h2 class="message-title">
+        <svg width="1em" height="1em" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true" class="message-icon">
+          <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14m0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16" />
+          <path d="m8.93 6.588-2.29.287-.082.38.45.083c.294.07.352.176.288.469l-.738 3.468c-.194.897.105 1.319.808 1.319.545 0 1.178-.252 1.465-.598l.088-.416c-.2.176-.492.246-.686.246-.275 0-.375-.193-.304-.533zM9 4.5a1 1 0 1 1-2 0 1 1 0 0 1 2 0" />
+        </svg>
+        '<?= $domain; ?>' 这个域名似乎尚未注册，去申请试试吧。
+      </h2>
+      <?php if ($fetchPrices): ?>
+        <div class="message-price" id="message-price">
+          <div class="skeleton"></div>
+        </div>
+      <?php endif; ?>
+    </div>
+  </div>
+<?php endif; ?>
     
     <?php if ($whoisData || $rdapData): ?>
       <section class="raw-data">
