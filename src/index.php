@@ -267,6 +267,10 @@ if ($_SERVER["QUERY_STRING"] ?? "") {
       align-items: center !important;
       height: 44px !important; /* 固定高度，与按钮对齐 */
       box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      /* 修复长域名撑出问题 */
+      overflow: hidden !important;
+      max-width: 100% !important;
+      box-sizing: border-box !important;
     }
 
     .search-box .input {
@@ -280,6 +284,11 @@ if ($_SERVER["QUERY_STRING"] ?? "") {
       outline: none !important;
       height: 36px !important; /* 调整高度 */
       line-height: 36px !important;
+      /* 修复长域名撑出问题 */
+      min-width: 0 !important; /* 允许flex子项收缩 */
+      overflow: hidden !important;
+      text-overflow: ellipsis !important;
+      white-space: nowrap !important;
     }
 
     .search-box .input::placeholder {
@@ -304,6 +313,7 @@ if ($_SERVER["QUERY_STRING"] ?? "") {
       display: flex !important;
       align-items: center !important;
       justify-content: center !important;
+      flex-shrink: 0 !important; /* 清除按钮不收缩 */
     }
 
     .search-box .search-clear:hover {
@@ -332,6 +342,7 @@ if ($_SERVER["QUERY_STRING"] ?? "") {
       font-weight: 500 !important;
       box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
       transition: all 0.2s ease !important;
+      flex-shrink: 0 !important; /* 按钮不收缩 */
     }
 
     .button.search-button:hover {
@@ -345,7 +356,7 @@ if ($_SERVER["QUERY_STRING"] ?? "") {
       height: 18px !important;
     }
 
-    /* 修复域名过长文字错位问题 - 增强版 */
+    /* 修复域名过长文字错位问题 */
     .message-data .message-title {
       display: flex; /* 使用 flexbox 布局 */
       align-items: center; /* 垂直居中对齐 */
@@ -357,35 +368,21 @@ if ($_SERVER["QUERY_STRING"] ?? "") {
       color: #222;
       text-align: left;
       flex-wrap: wrap; /* 允许换行 */
-      width: 100%; /* 确保占满容器宽度 */
-      box-sizing: border-box; /* 包含padding和border */
     }
 
     .message-title a {
       max-width: 70%; /* 限制域名链接最大宽度 */
       word-break: break-all; /* 长域名强制换行 */
-      overflow-wrap: break-word; /* 现代浏览器支持的换行方式 */
       overflow: hidden; /* 隐藏溢出部分 */
       text-overflow: ellipsis; /* 用省略号表示溢出 */
       display: inline-block; /* 允许设置宽度 */
       vertical-align: middle; /* 垂直对齐 */
-      line-height: 1.3; /* 优化行高 */
-      flex-shrink: 1; /* 允许收缩 */
-    }
-
-    /* 移动端进一步优化长域名显示 */
-    @media (max-width: 768px) {
-      .message-title a {
-        max-width: 85%; /* 移动端给域名更多空间 */
-        font-size: 0.95rem; /* 稍微减小字体 */
-      }
     }
 
     /* 调整标题内图标大小 */
     .message-title .message-icon {
         width: 1.2em; /* 调整图标大小 */
         height: 1.2em; /* 调整图标大小 */
-        flex-shrink: 0; /* 图标不收缩 */
     }
 
     .message-data {
@@ -459,42 +456,43 @@ if ($_SERVER["QUERY_STRING"] ?? "") {
       min-height: 200px; /* 确保有足够高度显示按钮 */
     }
 
-    /* 分段控件样式 - 优化配色 */
+    /* 分段控件样式 - 修改配色符合整体风格 */
     .segmented {
       display: flex;
-      background: #f8f9fa;
-      border-radius: 8px;
+      background: #ffffff !important; /* 改为白色背景 */
+      border-radius: 25px !important; /* 胶囊样式 */
       overflow: hidden;
       margin-bottom: 1rem;
-      border: 1px solid #e9ecef;
+      border: 2px solid #000000 !important; /* 黑色边框 */
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1) !important; /* 添加阴影 */
     }
 
     .segmented-item {
       flex: 1;
       padding: 12px 20px;
-      background: none;
-      border: none;
+      background: transparent !important; /* 透明背景 */
+      border: none !important;
       cursor: pointer;
       font-size: 14px;
       font-weight: 500;
-      color: #6c757d;
+      color: #333 !important; /* 深灰色文字 */
       transition: all 0.2s ease;
       position: relative;
     }
 
     .segmented-item:hover {
-      color: #495057;
-      background: #e9ecef;
+      color: #000000 !important; /* 悬停时黑色 */
+      background: #f0f0f0 !important; /* 浅灰色背景 */
     }
 
     .segmented-item-selected {
-      background: #007bff;
-      color: white;
+      background: #000000 !important; /* 选中时黑色背景 */
+      color: #ffffff !important; /* 白色文字 */
     }
 
     .segmented-item-selected:hover {
-      background: #0056b3;
-      color: white;
+      background: #333333 !important; /* 悬停时深灰色 */
+      color: #ffffff !important; /* 保持白色文字 */
     }
 
     /* 复制按钮样式 - 手机端优化 */
@@ -639,6 +637,11 @@ if ($_SERVER["QUERY_STRING"] ?? "") {
       .message-label {
         justify-content: flex-start;
       }
+
+      /* 移动端搜索框长域名处理 */
+      .search-box .input {
+        font-size: 14px !important; /* 移动端稍微减小字体 */
+      }
     }
 
     /* 确保原始数据容器有足够的空间显示按钮 */
@@ -653,9 +656,6 @@ if ($_SERVER["QUERY_STRING"] ?? "") {
     .search-clear:not(.visible) {
       display: none !important;
     }
-
-    /* 修复 Google Fonts 语法错误 */
-    @import url('https://fonts.googleapis.com/css2?family=Fraunces:wght@300..900&display=swap');
   </style>
 </head>
 
