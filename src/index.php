@@ -270,18 +270,31 @@ if ($_SERVER["QUERY_STRING"] ?? "") {
       height: 1.2em;
     }
     
-    /* 移除背景和侧边栏 */
-    .message.message-positive {
-        background: transparent;
-        border: none;
-        box-shadow: none;
-        padding: 0;
-    }
-    /* 移除 message-positive 内的 data-source 容器的背景和阴影 */
+    /* 强制移除所有绿色背景和边框 - 更高的特异性 */
+    section.messages .message.message-positive,
+    section.messages .message.message-positive *,
+    .message.message-positive,
     .message.message-positive .message-data {
-        background: transparent;
-        box-shadow: none;
-        padding: 0;
+        background: transparent !important;
+        background-color: transparent !important;
+        border: none !important;
+        border-color: transparent !important;
+        box-shadow: none !important;
+        padding: 0 !important;
+        margin: 0 !important;
+        outline: none !important;
+        border-radius: 0 !important;
+    }
+    
+    /* 移除任何可能存在的绿色边框或背景 */
+    .message-positive {
+        background: none !important;
+        border: 0 !important;
+    }
+    
+    /* 确保消息区域没有背景 */
+    .messages .message {
+        background: transparent !important;
     }
 
     /* 统一页面背景为白色 */
