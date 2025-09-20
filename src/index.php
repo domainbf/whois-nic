@@ -299,21 +299,31 @@ if ($_SERVER["QUERY_STRING"] ?? "") {
       padding: 1.5rem;
       border-radius: 12px;
       box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+      position: relative;
     }
 
     /* 新增复制按钮样式 */
     .copy-button {
-      background-color: #f0f0f0;
-      border: none;
-      border-radius: 4px;
-      padding: 8px 12px;
+      background-color: #f8f9fa;
+      border: 1px solid #e9ecef;
+      border-radius: 6px;
+      padding: 6px 12px;
       cursor: pointer;
       font-size: 14px;
       margin-bottom: 10px;
-      display: inline-block;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      color: #495057;
+      transition: all 0.2s ease;
     }
     .copy-button:hover {
-      background-color: #e0e0e0;
+      background-color: #e9ecef;
+      border-color: #dee2e6;
+      transform: translateY(-1px);
+    }
+    .copy-button:active {
+      transform: translateY(0);
     }
   </style>
 </head>
@@ -474,7 +484,7 @@ if ($_SERVER["QUERY_STRING"] ?? "") {
                   <div class="message-label">
                     <span class="message-icon-leading">
                       <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
-                        <path d="M0 4a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V4Zm2-1a1 1 0 0 0-1 1v.217l7 4.2 7-4.2V4a1 1 0 0 0-1-1H2Zm-1 11V5.383l4.88 2.928c.71.425 1.53.425 2.24 0L15 5.383V14a1 1 0 0 0-1 1H2a1 1 0 0 0-1-1Z"/>
+                        <path d="M1 8a7 7 0 1 0 14 0A7 7 0 0 0 1 8zm6 2a1 1 0 1 1-2 0 1 1 0 0 1 2 0zm7-8a.5.5 0 0 1 0 1h-1v1a.5.5 0 0 1-1 0V2a.5.5 0 0 1 .5-.5h1zm-13 0A.5.5 0 0 1 1 2v1a.5.5 0 0 1-1 0V2a.5.5 0 0 1 .5-.5h1zM3.5 4a.5.5 0 0 0 0 1h1a.5.5 0 0 0 0-1h-1zM3 6.5a.5.5 0 0 1 .5-.5h1a.5.5 0 0 1 0 1h-1a.5.5 0 0 1-.5-.5zM8.5 3a.5.5 0 0 0-1 0v1a.5.5 0 0 0 1 0V3zM8 5.5a.5.5 0 0 1 .5-.5h1a.5.5 0 0 1 0 1h-1a.5.5 0 0 1-.5-.5zM12.5 4a.5.5 0 0 0 0 1h1a.5.5 0 0 0 0-1h-1zM11.5 6a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-1 0v-1a.5.5 0 0 1 .5-.5zM10 8a3 3 0 1 0 6 0 3 3 0 0 0-6 0"/>
                       </svg>
                     </span>
                     注册平台
@@ -491,11 +501,7 @@ if ($_SERVER["QUERY_STRING"] ?? "") {
                   <div class="message-label">
                     <span class="message-icon-leading">
                       <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
-                        <path d="M4 0a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2H4Zm0 1h8a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1Z"/>
-                        <path d="M4.5 3.5a.5.5 0 0 1 .5-.5h6a.5.5 0 0 1 .5.5v.5a.5.5 0 0 1-.5.5h-6a.5.5 0 0 1-.5-.5v-.5Z"/>
-                        <path d="M5 5.5a.5.5 0 0 1 .5-.5h.5a.5.5 0 0 1 .5.5v.5a.5.5 0 0 1-.5.5h-.5a.5.5 0 0 1-.5-.5v-.5Zm3 0a.5.5 0 0 1 .5-.5h.5a.5.5 0 0 1 .5.5v.5a.5.5 0 0 1-.5.5h-.5a.5.5 0 0 1-.5-.5v-.5Zm3 0a.5.5 0 0 1 .5-.5h.5a.5.5 0 0 1 .5.5v.5a.5.5 0 0 1-.5.5h-.5a.5.5 0 0 1-.5-.5v-.5Z"/>
-                        <path d="M5 8.5a.5.5 0 0 1 .5-.5h.5a.5.5 0 0 1 .5.5v.5a.5.5 0 0 1-.5.5h-.5a.5.5 0 0 1-.5-.5v-.5Zm3 0a.5.5 0 0 1 .5-.5h.5a.5.5 0 0 1 .5.5v.5a.5.5 0 0 1-.5.5h-.5a.5.5 0 0 1-.5-.5v-.5Zm3 0a.5.5 0 0 1 .5-.5h.5a.5.5 0 0 1 .5.5v.5a.5.5 0 0 1-.5.5h-.5a.5.5 0 0 1-.5-.5v-.5Z"/>
-                        <path d="M5 11.5a.5.5 0 0 1 .5-.5h.5a.5.5 0 0 1 .5.5v.5a.5.5 0 0 1-.5.5h-.5a.5.5 0 0 1-.5-.5v-.5Zm3 0a.5.5 0 0 1 .5-.5h.5a.5.5 0 0 1 .5.5v.5a.5.5 0 0 1-.5.5h-.5a.5.5 0 0 1-.5-.5v-.5Z"/>
+                        <path d="M8 1a2 2 0 0 1 2 2v10.995A2 2 0 0 1 8 16a2 2 0 0 1-2-2V3a2 2 0 0 1 2-2zm0 1a1 1 0 0 0-1 1v12a1 1 0 0 0 2 0V3a1 1 0 0 0-1-1z"/>
                       </svg>
                     </span>
                     创建日期
@@ -518,11 +524,7 @@ if ($_SERVER["QUERY_STRING"] ?? "") {
                   <div class="message-label">
                     <span class="message-icon-leading">
                       <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
-                        <path d="M4 0a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2H4Zm0 1h8a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1Z"/>
-                        <path d="M4.5 3.5a.5.5 0 0 1 .5-.5h6a.5.5 0 0 1 .5.5v.5a.5.5 0 0 1-.5.5h-6a.5.5 0 0 1-.5-.5v-.5Z"/>
-                        <path d="M5 5.5a.5.5 0 0 1 .5-.5h.5a.5.5 0 0 1 .5.5v.5a.5.5 0 0 1-.5.5h-.5a.5.5 0 0 1-.5-.5v-.5Zm3 0a.5.5 0 0 1 .5-.5h.5a.5.5 0 0 1 .5.5v.5a.5.5 0 0 1-.5.5h-.5a.5.5 0 0 1-.5-.5v-.5Zm3 0a.5.5 0 0 1 .5-.5h.5a.5.5 0 0 1 .5.5v.5a.5.5 0 0 1-.5.5h-.5a.5.5 0 0 1-.5-.5v-.5Z"/>
-                        <path d="M5 8.5a.5.5 0 0 1 .5-.5h.5a.5.5 0 0 1 .5.5v.5a.5.5 0 0 1-.5.5h-.5a.5.5 0 0 1-.5-.5v-.5Zm3 0a.5.5 0 0 1 .5-.5h.5a.5.5 0 0 1 .5.5v.5a.5.5 0 0 1-.5.5h-.5a.5.5 0 0 1-.5-.5v-.5Zm3 0a.5.5 0 0 1 .5-.5h.5a.5.5 0 0 1 .5.5v.5a.5.5 0 0 1-.5.5h-.5a.5.5 0 0 1-.5-.5v-.5Z"/>
-                        <path d="M5 11.5a.5.5 0 0 1 .5-.5h.5a.5.5 0 0 1 .5.5v.5a.5.5 0 0 1-.5.5h-.5a.5.5 0 0 1-.5-.5v-.5Zm3 0a.5.5 0 0 1 .5-.5h.5a.5.5 0 0 1 .5.5v.5a.5.5 0 0 1-.5.5h-.5a.5.5 0 0 1-.5-.5v-.5Z"/>
+                        <path d="M8 1a2 2 0 0 1 2 2v10.995A2 2 0 0 1 8 16a2 2 0 0 1-2-2V3a2 2 0 0 1 2-2zm0 1a1 1 0 0 0-1 1v12a1 1 0 0 0 2 0V3a1 1 0 0 0-1-1z"/>
                       </svg>
                     </span>
                     到期日期
@@ -545,8 +547,7 @@ if ($_SERVER["QUERY_STRING"] ?? "") {
                   <div class="message-label">
                     <span class="message-icon-leading">
                       <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
-                        <path d="M4 14a1 1 0 0 1-1-1V1a1 1 0 0 1 1-1h8a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1zm8-1v-1H4v1zm-8-2h8V1H4v10zm-1-3a.5.5 0 0 1 .5-.5h8a.5.5 0 0 1 0 1h-8a.5.5 0 0 1-.5-.5zm0-3a.5.5 0 0 1 .5-.5h8a.5.5 0 0 1 0 1h-8a.5.5 0 0 1-.5-.5z"/>
-                        <path d="M8 12a1 1 0 1 1 0-2 1 1 0 0 1 0 2zm0-3a.5.5 0 1 0 0-1 .5.5 0 0 0 0 1z"/>
+                        <path d="M8 16s6-5.686 6-10A6 6 0 0 0 2 6c0 4.314 6 10 6 10zm0-7.418l.867-.5 2.96-.17a3.923 3.923 0 0 0 .845-.8l.933-1.247a3.958 3.958 0 0 0 .061-3.033l-.501-1.534a2.7 2.7 0 0 0-1.795-.985 2.705 2.705 0 0 0-1.422.267l-.845.752a3.954 3.954 0 0 0-.933.815 4.98 4.98 0 0 0-.22 3.003l.501 1.5a2.7 2.7 0 0 0 1.795.985 2.4 2.4 0 0 0 1.027-.03z"/>
                       </svg>
                     </span>
                     更新日期
@@ -569,8 +570,8 @@ if ($_SERVER["QUERY_STRING"] ?? "") {
                   <div class="message-label">
                     <span class="message-icon-leading">
                       <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
-                        <path d="M4 14a1 1 0 0 1-1-1V1a1 1 0 0 1 1-1h8a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1zm8-1v-1H4v1zm-8-2h8V1H4v10zm-1-3a.5.5 0 0 1 .5-.5h8a.5.5 0 0 1 0 1h-8a.5.5 0 0 1-.5-.5zm0-3a.5.5 0 0 1 .5-.5h8a.5.5 0 0 1 0 1h-8a.5.5 0 0 1-.5-.5z"/>
-                        <path d="M8 12a1 1 0 1 1 0-2 1 1 0 0 1 0 2zm0-3a.5.5 0 1 0 0-1 .5.5 0 0 0 0 1z"/>
+                        <path d="M8.5 2.687a.5.5 0 1 0-1 0v3.812a.5.5 0 0 0 1 0V2.687zM8 4a.5.5 0 0 1-.5.5v2.999a.5.5 0 0 1-1 0V4.5A.5.5 0 0 1 8 4zm0 6a1 1 0 1 1 0-2 1 1 0 0 1 0 2z"/>
+                        <path fill-rule="evenodd" d="M0 10a8 8 0 1 1 16 0A8 8 0 0 1 0 10zm8 2a2 2 0 1 0 0-4 2 2 0 0 0 0 4z"/>
                       </svg>
                     </span>
                     可用日期
@@ -593,8 +594,8 @@ if ($_SERVER["QUERY_STRING"] ?? "") {
                   <div class="message-label">
                     <span class="message-icon-leading">
                       <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
-                        <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14m0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16" />
-                        <path d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3.5a.5.5 0 0 1-.5-.5v-3.5A.5.5 0 0 1 8 4z"/>
+                        <path d="M10.5 1a1 1 0 0 1 1 1v6a1 1 0 0 1-2 0V2a1 1 0 0 1 1-1z"/>
+                        <path d="M14 3a1 1 0 0 1 1 1v6a1 1 0 0 1-1 1H2a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h12zM2 2a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2H2z"/>
                       </svg>
                     </span>
                     域名状态
@@ -615,7 +616,8 @@ if ($_SERVER["QUERY_STRING"] ?? "") {
                   <div class="message-label">
                     <span class="message-icon-leading">
                       <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
-                        <path d="M0 2a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V2zm15 2h-4v3h4V4zm0 4h-4v3h4V8zm0 4h-4v3h3a1 1 0 0 0 1-1v-2zm-5 3v-3H6v3h4zm-5 0v-3H1v2a1 1 0 0 0 1 1h3zm-4-4h4V8H1v3zm0-4h4V4H1v3zm5-3v3h4V4H6zm4 4H6v3h4V8z"/>
+                        <path d="M1.5 1.5A1.5 1.5 0 0 0 0 3v9a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V3a1.5 1.5 0 0 0-1.5-1.5H1.5zM1 2.5A.5.5 0 0 1 1.5 2h12A.5.5 0 0 1 14 2.5v10a.5.5 0 0 1-.5.5H1.5a.5.5 0 0 1-.5-.5v-9zM5 6h6a.5.5 0 0 1 0 1H5a.5.5 0 0 1 0-1zm0 3h6a.5.5 0 0 1 0 1H5a.5.5 0 0 1 0-1z"/>
+                        <path d="M2 4h4a1 1 0 0 1 1 1v2a1 1 0 0 1-1 1H2a1 1 0 0 1-1-1V5a1 1 0 0 1 1-1zm0 1v2h4V5H2zM9 4h5a1 1 0 0 1 1 1v2a1 1 0 0 1-1 1h-5a1 1 0 0 1-1-1V5a1 1 0 0 1 1-1zm0 1v2h5V5h-5z"/>
                       </svg>
                     </span>
                     NS服务器
@@ -704,11 +706,25 @@ if ($_SERVER["QUERY_STRING"] ?? "") {
     <?php if ($whoisData || $rdapData): ?>
       <section class="raw-data">
         <?php if ($whoisData): ?>
-          <button class="copy-button" onclick="copyToClipboard('raw-data-whois')">复制 WHOIS 数据</button>
+          <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 10px;">
+            <button class="copy-button" onclick="copyToClipboard('raw-data-whois')">
+              <svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true">
+                <path d="M4 1a3 3 0 0 0-3 3v10a3 3 0 0 0 3 3h10a3 3 0 0 0 3-3V4a3 3 0 0 0-3-3H4zm2 2a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2V3z"/>
+              </svg>
+              复制 WHOIS 数据
+            </button>
+          </div>
           <pre class="raw-data-whois" id="raw-data-whois" tabindex="0"><?= $whoisData; ?></pre>
         <?php endif; ?>
         <?php if ($rdapData): ?>
-          <button class="copy-button" onclick="copyToClipboard('raw-data-rdap')">复制 RDAP 数据</button>
+          <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 10px;">
+            <button class="copy-button" onclick="copyToClipboard('raw-data-rdap')">
+              <svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true">
+                <path d="M4 1a3 3 0 0 0-3 3v10a3 3 0 0 0 3 3h10a3 3 0 0 0 3-3V4a3 3 0 0 0-3-3H4zm2 2a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2V3z"/>
+              </svg>
+              复制 RDAP 数据
+            </button>
+          </div>
           <pre class="raw-data-rdap" id="raw-data-rdap"><code class="language-json"><?= $rdapData; ?></code></pre>
         <?php endif; ?>
       </section>
@@ -956,14 +972,48 @@ if ($_SERVER["QUERY_STRING"] ?? "") {
         linkifyRawData(rawDataRDAP);
       });
 
-      // 新增复制功能
+      // 改进的复制功能
       function copyToClipboard(elementId) {
         const element = document.getElementById(elementId);
-        const text = element.innerText;
+        if (!element) return;
+        
+        const text = element.innerText || element.textContent;
+        const button = event ? event.target.closest('.copy-button') : null;
+        
         navigator.clipboard.writeText(text).then(() => {
-          alert('已复制到剪贴板');
+          // 添加复制成功反馈
+          if (button) {
+            const originalText = button.innerHTML;
+            button.innerHTML = `
+              <svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true">
+                <path d="M2 13a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11.5a2 2 0 0 1 1.983 1.738l.26 1.262a2 2 0 0 0 1.708 1.352L16 9a2 2 0 0 1 2 2v2a2 2 0 0 1-2 2H2z"/>
+                <path d="M5.854 4.646a.5.5 0 1 1-.708.708L3.5 3.707 2.854 4.414a.5.5 0 1 1-.708-.708L2.293 3l1.048-1.048a.5.5 0 0 1 .708.708L3.5 2.293l.646.647a.5.5 0 1 1-.708.708L3.5 3z"/>
+              </svg>
+              已复制!
+            `;
+            button.style.backgroundColor = '#d4edda';
+            button.style.borderColor = '#c3e6cb';
+            button.style.color = '#155724';
+            
+            setTimeout(() => {
+              button.innerHTML = originalText;
+              button.style.backgroundColor = '';
+              button.style.borderColor = '';
+              button.style.color = '';
+            }, 2000);
+          } else {
+            alert('已复制到剪贴板');
+          }
         }).catch(err => {
           console.error('复制失败', err);
+          // 备用复制方法
+          const textArea = document.createElement('textarea');
+          textArea.value = text;
+          document.body.appendChild(textArea);
+          textArea.select();
+          document.execCommand('copy');
+          document.body.removeChild(textArea);
+          alert('已复制到剪贴板');
         });
       }
     </script>
