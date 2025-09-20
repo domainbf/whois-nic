@@ -161,7 +161,7 @@ if ($_SERVER["QUERY_STRING"] ?? "") {
 <head>
   <base href="<?= BASE; ?>">
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="theme-color" content="#e1f9f9">
   <meta name="description" content="<?= SITE_DESCRIPTION ?>">
@@ -212,11 +212,28 @@ if ($_SERVER["QUERY_STRING"] ?? "") {
   <link rel="stylesheet" href="public/css/global.css">
   <link rel="stylesheet" href="public/css/index.css">
   <link rel="stylesheet" href="public/css/json.css">
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght,SOFT,WONK@72,600,50,1&display=swap">
   <?= CUSTOM_HEAD ?>
   <style>
+    /* 全局字体设置，使用系统字体作为fallback，避免微信字体加载问题 */
+    body, html {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      font-size: 16px; /* 基础字体大小 */
+      line-height: 1.5;
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    *, *::before, *::after {
+      box-sizing: inherit;
+    }
+
+    /* 解决微信字体变大问题，强制字体大小 */
+    body {
+      -webkit-text-size-adjust: 100%; /* 防止iOS字体自动调整 */
+      text-size-adjust: 100%; /* 防止字体自动调整 */
+    }
+
     /* 解决图标和布局问题的新增样式 */
     .message-data .message-title {
       display: flex; /* 使用 flexbox 布局 */
@@ -230,7 +247,7 @@ if ($_SERVER["QUERY_STRING"] ?? "") {
       text-align: left;
     }
 
-    /* 调整标题内图标大小 */
+    /* 调整标题内图标大小，使用em单位自适应 */
     .message-title .message-icon {
         width: 1.2em; /* 调整图标大小 */
         height: 1.2em; /* 调整图标大小 */
@@ -247,6 +264,7 @@ if ($_SERVER["QUERY_STRING"] ?? "") {
       display: flex;
       align-items: center;
       gap: 4px;
+      font-size: 1rem; /* 统一字体大小 */
     }
     .checkbox-leading-icon {
       display: inline-flex;
@@ -255,12 +273,14 @@ if ($_SERVER["QUERY_STRING"] ?? "") {
       width: 18px;
       height: 18px;
       margin-right: 2px;
+      flex-shrink: 0; /* 防止图标压缩 */
     }
 
     .message-label {
       display: flex;
       align-items: center;
       gap: 4px;
+      font-size: 1rem; /* 统一字体大小 */
     }
     .message-icon-leading {
       display: inline-flex;
@@ -268,6 +288,7 @@ if ($_SERVER["QUERY_STRING"] ?? "") {
       justify-content: center;
       width: 1.2em;
       height: 1.2em;
+      flex-shrink: 0; /* 防止图标压缩 */
     }
     
     /* 移除背景和侧边栏 */
@@ -291,6 +312,7 @@ if ($_SERVER["QUERY_STRING"] ?? "") {
     
     header, main {
       background-color: #ffffff;
+      padding: 1rem; /* 添加padding以适应小屏 */
     }
 
     .raw-data-whois,
@@ -301,6 +323,8 @@ if ($_SERVER["QUERY_STRING"] ?? "") {
       box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
       position: relative;
       margin-bottom: 1rem;
+      font-size: 0.875rem; /* 调整raw data字体大小 */
+      overflow-x: auto; /* 防止横向溢出 */
     }
 
     /* 改进的复制按钮样式 - 右上角浮动 */
@@ -357,6 +381,35 @@ if ($_SERVER["QUERY_STRING"] ?? "") {
 
     .copy-success .copy-icon {
       fill: #28a745 !important;
+    }
+
+    /* 媒体查询，确保在小屏自适应 */
+    @media (max-width: 480px) {
+      body {
+        font-size: 14px; /* 小屏减小字体 */
+      }
+
+      .message-title {
+        font-size: 0.9rem;
+      }
+
+      .checkbox-label {
+        font-size: 0.9rem;
+      }
+
+      .message-label {
+        font-size: 0.9rem;
+      }
+
+      .search-box {
+        width: 100%; /* 输入框全宽 */
+      }
+
+      .checkboxes {
+        display: flex;
+        flex-wrap: wrap; /* 允许换行 */
+        justify-content: space-between;
+      }
     }
   </style>
 </head>
