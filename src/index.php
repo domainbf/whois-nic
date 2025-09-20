@@ -241,7 +241,7 @@ if ($_SERVER["QUERY_STRING"] ?? "") {
       gap: 0.5rem; /* 图标和文字之间的间距 */
       grid-column: 1 / -1;
       margin-bottom: 1rem; /* 减小标题和下方内容的间距 */
-      font-size: 1rem; /* 统一字体大小 */
+      font-size: 1.1rem; /* 增大字体大小 */
       font-weight: 600;
       color: #222;
       text-align: left;
@@ -280,7 +280,7 @@ if ($_SERVER["QUERY_STRING"] ?? "") {
       display: flex;
       align-items: center;
       gap: 4px;
-      font-size: 1rem; /* 统一字体大小 */
+      font-size: 1.1rem; /* 增大字体大小 */
     }
     .message-icon-leading {
       display: inline-flex;
@@ -312,9 +312,16 @@ if ($_SERVER["QUERY_STRING"] ?? "") {
     
     header, main {
       background-color: #ffffff;
-      padding: 1rem; /* 添加padding以适应小屏 */
     }
 
+    /* 结果页面布局调整 - 利用两侧空间 */
+    .messages {
+      max-width: 100%;
+      margin: 0 auto;
+      padding: 0 1rem;
+    }
+
+    /* 原始数据恢复原样样式 */
     .raw-data-whois,
     .raw-data-rdap {
       background-color: #ffffff;
@@ -323,8 +330,11 @@ if ($_SERVER["QUERY_STRING"] ?? "") {
       box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
       position: relative;
       margin-bottom: 1rem;
-      font-size: 0.875rem; /* 调整raw data字体大小 */
+      font-family: monospace; /* 恢复原始字体 */
+      font-size: 14px; /* 恢复原始字体大小 */
+      white-space: pre-wrap; /* 恢复原始换行 */
       overflow-x: auto; /* 防止横向溢出 */
+      line-height: 1.4;
     }
 
     /* 改进的复制按钮样式 - 右上角浮动 */
@@ -386,19 +396,15 @@ if ($_SERVER["QUERY_STRING"] ?? "") {
     /* 媒体查询，确保在小屏自适应 */
     @media (max-width: 480px) {
       body {
-        font-size: 14px; /* 小屏减小字体 */
+        font-size: 16px; /* 保持字体大小 */
       }
 
       .message-title {
-        font-size: 0.9rem;
-      }
-
-      .checkbox-label {
-        font-size: 0.9rem;
+        font-size: 1rem; /* 小屏调整字体大小 */
       }
 
       .message-label {
-        font-size: 0.9rem;
+        font-size: 1rem; /* 小屏调整字体大小 */
       }
 
       .search-box {
@@ -407,8 +413,41 @@ if ($_SERVER["QUERY_STRING"] ?? "") {
 
       .checkboxes {
         display: flex;
-        flex-wrap: wrap; /* 允许换行 */
+        flex-wrap: nowrap; /* 强制横排显示 */
         justify-content: space-between;
+        gap: 0.5rem; /* 调整间距 */
+        padding: 0.5rem 0;
+      }
+
+      .checkbox {
+        flex: 1; /* 平均分配空间 */
+        min-width: 0; /* 允许收缩 */
+      }
+
+      .checkbox-label {
+        font-size: 0.9rem; /* 小屏调整字体大小 */
+        white-space: nowrap; /* 防止文字换行 */
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+
+      /* 结果页面在小屏上增加宽度利用率 */
+      .messages {
+        padding: 0 0.5rem;
+      }
+
+      .message-data {
+        gap: 0.75rem 1rem;
+      }
+    }
+
+    /* 确保checkbox在所有屏幕上一排显示 */
+    @media (min-width: 481px) {
+      .checkboxes {
+        display: flex;
+        flex-wrap: nowrap; /* 强制横排 */
+        justify-content: flex-start;
+        gap: 1rem;
       }
     }
   </style>
