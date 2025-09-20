@@ -217,23 +217,56 @@ if ($_SERVER["QUERY_STRING"] ?? "") {
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght,SOFT,WONK@72,600,50,1&display=swap">
   <?= CUSTOM_HEAD ?>
   <style>
-    /* 首页搜索栏背景修改 - 去掉透明化，显示主页方格背景 */
-    body {
-      background-color: #ffffff;
-      background-image: repeating-linear-gradient(0deg, transparent, transparent 19px, #eee 20px), repeating-linear-gradient(90deg, transparent, transparent 19px, #eee 20px);
-      background-size: 20px 20px;
-    }
-
+    /* 修复输入框样式 - 添加黑色边框 */
     .search-box {
       background: transparent !important;
-      border: none !important;
-      box-shadow: none !important;
+      border: 2px solid #000000 !important;
+      border-radius: 8px !important;
+      padding: 4px !important;
+      display: flex !important;
+      align-items: center !important;
     }
 
-    .search-box .input {
+    .search-box .input.search-input {
       background: transparent !important;
       border: none !important;
       box-shadow: none !important;
+      color: #333 !important;
+      font-size: 16px !important;
+      padding: 12px 16px !important;
+      flex: 1 !important;
+      outline: none !important;
+    }
+
+    .search-box .input.search-input::placeholder {
+      color: #666 !important;
+      opacity: 1 !important;
+    }
+
+    .search-box .input.search-input:focus {
+      outline: none !important;
+    }
+
+    .search-box .search-clear {
+      background: #f0f0f0 !important;
+      border: 1px solid #ddd !important;
+      border-radius: 4px !important;
+      padding: 4px !important;
+      margin-right: 8px !important;
+      cursor: pointer !important;
+      transition: all 0.2s ease !important;
+    }
+
+    .search-box .search-clear:hover {
+      background: #e0e0e0 !important;
+      border-color: #999 !important;
+    }
+
+    /* 修复方格背景 */
+    body {
+      background-color: #ffffff;
+      background-image: repeating-linear-gradient(0deg, transparent, transparent 19px, #e9ecef 20px), repeating-linear-gradient(90deg, transparent, transparent 19px, #e9ecef 20px);
+      background-size: 20px 20px;
     }
 
     /* 解决图标和布局问题的新增样式 */
@@ -304,6 +337,58 @@ if ($_SERVER["QUERY_STRING"] ?? "") {
       background-color: transparent;
     }
 
+    /* 修复切换按钮配色 - 与整体风格协调 */
+    .data-source {
+      margin: 24px 0;
+      display: flex;
+      justify-content: center;
+    }
+
+    .segmented {
+      display: flex;
+      gap: 0;
+      background: #f8f9fa;
+      border: 1px solid #dee2e6;
+      border-radius: 8px;
+      padding: 2px;
+      overflow: hidden;
+      min-width: 200px;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    }
+
+    .segmented-item {
+      background: transparent;
+      border: none;
+      padding: 12px 24px;
+      color: #6c757d;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      flex: 1;
+      text-align: center;
+      position: relative;
+      font-size: 14px;
+      white-space: nowrap;
+    }
+
+    .segmented-item:hover {
+      background: rgba(0, 123, 255, 0.08);
+      color: #495057;
+    }
+
+    .segmented-item-selected {
+      background: #ffffff;
+      color: #007bff;
+      border: 1px solid #007bff;
+      box-shadow: inset 0 2px 4px rgba(0, 123, 255, 0.1);
+    }
+
+    .segmented-item-selected:hover {
+      background: #ffffff;
+      color: #0056b3;
+      border-color: #0056b3;
+    }
+
     /* 优化的原始数据容器样式 */
     .raw-data-whois,
     .raw-data-rdap {
@@ -313,17 +398,19 @@ if ($_SERVER["QUERY_STRING"] ?? "") {
       box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
       position: relative;
       margin-bottom: 1rem;
-      overflow: hidden; /* 防止内容溢出影响复制按钮 */
-      transition: all 0.2s ease; /* 添加平滑过渡 */
+      overflow: hidden;
+      transition: all 0.2s ease;
+      border: 1px solid #e9ecef;
     }
 
     .raw-data-whois:hover,
     .raw-data-rdap:hover {
       box-shadow: 0 8px 25px -1px rgba(0, 0, 0, 0.15), 0 4px 12px -1px rgba(0, 0, 0, 0.1);
-      transform: translateY(-1px); /* 悬停时轻微上移 */
+      transform: translateY(-1px);
+      border-color: #dee2e6;
     }
 
-    /* 优化的复制按钮样式 */
+    /* 修复移动端复制按钮 - 始终可见且响应式 */
     .copy-button {
       position: absolute;
       top: 12px;
@@ -342,18 +429,37 @@ if ($_SERVER["QUERY_STRING"] ?? "") {
       align-items: center;
       gap: 6px;
       z-index: 10;
-      opacity: 0;
-      transform: translateY(-8px) scale(0.95);
-      min-width: 68px; /* 固定最小宽度 */
+      opacity: 1; /* 移动端始终可见 */
+      transform: translateY(0) scale(1); /* 移动端无隐藏动画 */
+      min-width: 68px;
       justify-content: center;
       box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+      
+      /* 移动端优化 */
+      min-height: 36px;
+      font-size: 14px;
     }
 
-    /* 容器悬停时显示按钮 */
-    .raw-data-whois:hover .copy-button,
-    .raw-data-rdap:hover .copy-button {
-      opacity: 1;
-      transform: translateY(0) scale(1);
+    /* 桌面端保持悬停效果 */
+    @media (hover: hover) and (min-width: 768px) {
+      .copy-button {
+        opacity: 0;
+        transform: translateY(-8px) scale(0.95);
+      }
+
+      .raw-data-whois:hover .copy-button,
+      .raw-data-rdap:hover .copy-button {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+      }
+    }
+
+    /* 移动端触摸反馈 */
+    @media (max-width: 767px) {
+      .copy-button:active {
+        transform: scale(0.95);
+        background: #f8f9fa;
+      }
     }
 
     /* 按钮悬停效果 */
@@ -390,7 +496,7 @@ if ($_SERVER["QUERY_STRING"] ?? "") {
 
     .copy-success .copy-icon {
       fill: #28a745 !important;
-      transform: rotate(180deg) scale(1.1); /* 成功时图标旋转并放大 */
+      transform: rotate(180deg) scale(1.1);
     }
 
     /* 复制成功文本动画 */
@@ -436,7 +542,6 @@ if ($_SERVER["QUERY_STRING"] ?? "") {
       opacity: 0;
     }
 
-    /* 复制按钮文本渐变效果 */
     .copy-button span {
       transition: opacity 0.2s ease;
       white-space: nowrap;
@@ -452,6 +557,7 @@ if ($_SERVER["QUERY_STRING"] ?? "") {
       word-break: break-all;
       margin: 0;
       border: 1px solid rgba(0, 0, 0, 0.05);
+      padding: 16px !important; /* 增加内边距避免与复制按钮重叠 */
     }
 
     /* RDAP JSON 代码高亮 */
@@ -459,63 +565,34 @@ if ($_SERVER["QUERY_STRING"] ?? "") {
       background: none;
       padding: 0;
       border-radius: 0;
+      font-size: inherit;
     }
 
-    /* 分段按钮样式优化 */
-    .segmented {
-      display: flex;
-      gap: 0;
-      background: rgba(0, 0, 0, 0.02);
-      border-radius: 8px;
-      padding: 2px;
-      margin-bottom: 1rem;
-      overflow: hidden;
-    }
+    /* 移动端原始数据容器优化 */
+    @media (max-width: 767px) {
+      .raw-data-whois,
+      .raw-data-rdap {
+        padding: 12px !important;
+        margin: 8px 0 !important;
+        border-radius: 8px !important;
+      }
 
-    .segmented-item {
-      background: transparent;
-      border: none;
-      padding: 10px 20px;
-      border-radius: 6px;
-      color: #666;
-      font-weight: 500;
-      cursor: pointer;
-      transition: all 0.2s ease;
-      flex: 1;
-      text-align: center;
-      position: relative;
-      overflow: hidden;
-    }
+      .copy-button {
+        top: 8px !important;
+        right: 8px !important;
+        padding: 6px 10px !important;
+        font-size: 12px !important;
+        min-width: 60px !important;
+      }
 
-    .segmented-item::before {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: -100%;
-      width: 100%;
-      height: 100%;
-      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
-      transition: left 0.5s;
-    }
+      .segmented {
+        min-width: 160px !important;
+      }
 
-    .segmented-item:hover::before {
-      left: 100%;
-    }
-
-    .segmented-item:hover {
-      background: rgba(0, 123, 255, 0.05);
-      color: #007bff;
-    }
-
-    .segmented-item-selected {
-      background: #007bff;
-      color: white;
-      border-color: #007bff;
-    }
-
-    .segmented-item-selected:hover {
-      background: #0056b3;
-      color: white;
+      .segmented-item {
+        padding: 10px 16px !important;
+        font-size: 13px !important;
+      }
     }
   </style>
 </head>
@@ -893,7 +970,7 @@ if ($_SERVER["QUERY_STRING"] ?? "") {
       </section>
     <?php endif; ?>
     
-    <!-- 数据源切换按钮 -->
+    <!-- 修复后的数据源切换按钮 -->
     <?php if ($whoisData && $rdapData): ?>
       <section class="data-source">
         <div class="segmented">
@@ -903,7 +980,7 @@ if ($_SERVER["QUERY_STRING"] ?? "") {
       </section>
     <?php endif; ?>
     
-    <!-- 原始数据显示区域 -->
+    <!-- 修复后的原始数据显示区域 -->
     <?php if ($whoisData || $rdapData): ?>
       <section class="raw-data">
         <?php if ($whoisData): ?>
@@ -1008,7 +1085,7 @@ if ($_SERVER["QUERY_STRING"] ?? "") {
         }
       });
 
-      // 优化的数据源切换功能
+      // 修复后的数据源切换功能
       <?php if ($whoisData && $rdapData): ?>
         const dataSourceWHOIS = document.getElementById("data-source-whois");
         const dataSourceRDAP = document.getElementById("data-source-rdap");
@@ -1338,7 +1415,7 @@ if ($_SERVER["QUERY_STRING"] ?? "") {
           `;
 
           // 成功反馈音效（如果浏览器支持）
-          if (window.speechSynthesis) {
+          if (window.speechSynthesis && window.matchMedia("(prefers-reduced-motion: no-preference)").matches) {
             const utterance = new SpeechSynthesisUtterance('复制成功');
             utterance.volume = 0.3;
             utterance.rate = 1.5;
@@ -1394,6 +1471,13 @@ if ($_SERVER["QUERY_STRING"] ?? "") {
           0%, 100% { transform: translateX(0); }
           25% { transform: translateX(-5px); }
           75% { transform: translateX(5px); }
+        }
+
+        /* 修复移动端复制按钮触摸反馈 */
+        @media (max-width: 767px) {
+          .copy-success {
+            transform: scale(1.02) !important;
+          }
         }
       `;
       document.head.appendChild(style);
