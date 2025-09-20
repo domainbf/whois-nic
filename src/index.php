@@ -26,33 +26,37 @@ function checkPassword()
   }
 
   $password = $_COOKIE["password"] ?? null;
-  if ($password === hash("sha256", SITE_PASSWORD)) {
-    return;
-  }
-
   $authorization = $_SERVER["HTTP_AUTHORIZATION"] ?? null;
   $bearerPrefix = "Bearer ";
-  if ($authorization && str_starts_with($authorization, $bearerPrefix)) {
+
+  $isPasswordCorrect = false;
+
+  if ($password === hash("sha256", SITE_PASSWORD)) {
+    $isPasswordCorrect = true;
+  }
+
+  if (!$isPasswordCorrect && $authorization && str_starts_with($authorization, $bearerPrefix)) {
     $hash = substr($authorization, strlen($bearerPrefix));
     if ($hash === hash("sha256", SITE_PASSWORD)) {
-      return;
+      $isPasswordCorrect = true;
     }
   }
 
-  if (filter_var($_GET["json"] ?? 0, FILTER_VALIDATE_BOOL)) {
-    header("Access-Control-Allow-Origin: *");
-    header("Content-Type: application/json");
-    echo json_encode(["code" => 1, "msg" => "Incorrect password.", "data" => null]);
-  } else {
-    $requestUri = $_SERVER["REQUEST_URI"];
-    if ($requestUri === BASE) {
-      header("Location: " . BASE . "login");
+  if (!$isPasswordCorrect) {
+    if (filter_var($_GET["json"] ?? 0, FILTER_VALIDATE_BOOL)) {
+      header("Access-Control-Allow-Origin: *");
+      header("Content-Type: application/json");
+      echo json_encode(["code" => 1, "msg" => "Incorrect password.", "data" => null]);
     } else {
-      header("Location: " . BASE . "login?redirect=" . urlencode($requestUri));
+      $requestUri = $_SERVER["REQUEST_URI"];
+      if ($requestUri === BASE) {
+        header("Location: " . BASE . "login");
+      } else {
+        header("Location: " . BASE . "login?redirect=" . urlencode($requestUri));
+      }
     }
+    die;
   }
-
-  die;
 }
 
 function cleanDomain()
