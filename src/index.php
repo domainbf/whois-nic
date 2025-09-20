@@ -228,7 +228,7 @@ if ($_SERVER["QUERY_STRING"] ?? "") {
       background: transparent !important;
       border: 2px solid #000000 !important;
       border-radius: 8px !important;
-      padding: 4px !important;
+      padding: 2px !important;
       display: flex !important;
       align-items: center !important;
     }
@@ -239,9 +239,10 @@ if ($_SERVER["QUERY_STRING"] ?? "") {
       box-shadow: none !important;
       color: #333 !important;
       font-size: 16px !important;
-      padding: 12px 16px !important;
+      padding: 8px 12px !important;
       flex: 1 !important;
       outline: none !important;
+      height: 30px !important;
     }
 
     .search-box .input::placeholder {
@@ -266,6 +267,14 @@ if ($_SERVER["QUERY_STRING"] ?? "") {
     .search-box .search-clear:hover {
       background: #e0e0e0 !important;
       border-color: #999 !important;
+    }
+
+    /* 查询按钮对齐 */
+    .search-button {
+      height: 36px !important;
+      display: flex !important;
+      align-items: center !important;
+      margin-left: 8px !important;
     }
 
     /* 修复域名过长文字错位问题 - 增强版 */
@@ -386,10 +395,10 @@ if ($_SERVER["QUERY_STRING"] ?? "") {
     /* 简化的复制按钮样式 - 统一设计 */
     .raw-data-whois,
     .raw-data-rdap {
-      background-color: #ffffff;
+      background-color: transparent;
       padding: 1.5rem;
       border-radius: 12px;
-      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+      box-shadow: none;
       position: relative;
       margin-bottom: 1rem;
     }
@@ -1119,8 +1128,8 @@ if ($_SERVER["QUERY_STRING"] ?? "") {
         });
 
         tippy.setDefaultProps({
-          arrow: false,
-          offset: [0, 8],
+          arrow: false;
+          offset: [0, 8];
           maxWidth: 200,
           allowHTML: false,
           theme: 'light-border',
