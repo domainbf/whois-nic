@@ -248,7 +248,7 @@ if ($_SERVER["QUERY_STRING"] ?? "") {
   <link rel="stylesheet" href="public/css/json.css">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@72..144,300..900&display=swap">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:wght@300..900&display=swap">
   <?= CUSTOM_HEAD ?>
   <style>
     /* 首页搜索栏背景修改 - 胶囊样式 */
@@ -345,7 +345,7 @@ if ($_SERVER["QUERY_STRING"] ?? "") {
       height: 18px !important;
     }
 
-    /* 修复域名过长文字错位问题 */
+    /* 修复域名过长文字错位问题 - 增强版 */
     .message-data .message-title {
       display: flex; /* 使用 flexbox 布局 */
       align-items: center; /* 垂直居中对齐 */
@@ -357,21 +357,35 @@ if ($_SERVER["QUERY_STRING"] ?? "") {
       color: #222;
       text-align: left;
       flex-wrap: wrap; /* 允许换行 */
+      width: 100%; /* 确保占满容器宽度 */
+      box-sizing: border-box; /* 包含padding和border */
     }
 
     .message-title a {
       max-width: 70%; /* 限制域名链接最大宽度 */
       word-break: break-all; /* 长域名强制换行 */
+      overflow-wrap: break-word; /* 现代浏览器支持的换行方式 */
       overflow: hidden; /* 隐藏溢出部分 */
       text-overflow: ellipsis; /* 用省略号表示溢出 */
       display: inline-block; /* 允许设置宽度 */
       vertical-align: middle; /* 垂直对齐 */
+      line-height: 1.3; /* 优化行高 */
+      flex-shrink: 1; /* 允许收缩 */
+    }
+
+    /* 移动端进一步优化长域名显示 */
+    @media (max-width: 768px) {
+      .message-title a {
+        max-width: 85%; /* 移动端给域名更多空间 */
+        font-size: 0.95rem; /* 稍微减小字体 */
+      }
     }
 
     /* 调整标题内图标大小 */
     .message-title .message-icon {
         width: 1.2em; /* 调整图标大小 */
         height: 1.2em; /* 调整图标大小 */
+        flex-shrink: 0; /* 图标不收缩 */
     }
 
     .message-data {
@@ -445,7 +459,7 @@ if ($_SERVER["QUERY_STRING"] ?? "") {
       min-height: 200px; /* 确保有足够高度显示按钮 */
     }
 
-    /* 分段控件样式 */
+    /* 分段控件样式 - 优化配色 */
     .segmented {
       display: flex;
       background: #f8f9fa;
@@ -639,6 +653,9 @@ if ($_SERVER["QUERY_STRING"] ?? "") {
     .search-clear:not(.visible) {
       display: none !important;
     }
+
+    /* 修复 Google Fonts 语法错误 */
+    @import url('https://fonts.googleapis.com/css2?family=Fraunces:wght@300..900&display=swap');
   </style>
 </head>
 
