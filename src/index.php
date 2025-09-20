@@ -45,7 +45,7 @@ function checkPassword()
     echo json_encode(["code" => 1, "msg" => "Incorrect password.", "data" => null]);
   } else {
     $requestUri = $_SERVER["REQUEST_URI"];
-    if ($requestUri === BASE) {
+    if ($requestUri === BASE || $requestUri === "/") {
       header("Location: " . BASE . "login");
     } else {
       header("Location: " . BASE . "login?redirect=" . urlencode($requestUri));
@@ -55,45 +55,55 @@ function checkPassword()
   die;
 }
 
+// 修改后的 cleanDomain 函数 - Vercel 兼容版
 function cleanDomain()
 {
-  // 从 URL path 中获取域名（伪静态）
-  $pathDomain = '';
-  if (isset($_SERVER['REQUEST_URI'])) {
-    $path = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
-    // 移除开头的斜杠，并检查是否是纯域名格式
-    $path = trim($path, '/');
-    if (!empty($path) && !preg_match('/\.(php|html|css|js|json|xml|txt|png|jpg|jpeg|gif|ico|svg)$/i', $path)) {
-      // 验证是否为合法域名格式
-      if (preg_match('/^[a-zA-Z0-9]([a-zA-Z0-9\-]{0,61}[a-zA-Z0-9])?(\.[a-zA-Z0-9]([a-zA-Z0-9\-]{0,61}[a-zA-Z0-9])?)*$/i', $path)) {
-        $pathDomain = $path;
-      }
+    // 从 URL path 中获取域名（伪静态）
+    $pathDomain = '';
+    if (isset($_SERVER['REQUEST_URI'])) {
+        $requestUri = $_SERVER['REQUEST_URI'];
+        
+        // 移除查询字符串
+        if (strpos($requestUri, '?') !== false) {
+            $requestUri = substr($requestUri, 0, strpos($requestUri, '?'));
+        }
+        
+        // 移除开头的斜杠
+        $path = trim($requestUri, '/');
+        
+        // 检查是否是纯域名格式（不是已知的路由）
+        $knownRoutes = ['api', 'login', 'manifest'];
+        if (!empty($path) && !in_array($path, $knownRoutes)) {
+            // 验证是否为合法域名格式（至少包含一个点）
+            if (preg_match('/^[a-zA-Z0-9]([a-zA-Z0-9\-]{0,61}[a-zA-Z0-9])?(\.[a-zA-Z0-9]([a-zA-Z0-9\-]{0,61}[a-zA-Z0-9])?)+$/i', $path)) {
+                $pathDomain = $path;
+            }
+        }
     }
-  }
 
-  // 从 GET 参数中获取域名（保持向后兼容）
-  $getDomain = $_GET["domain"] ?? "";
+    // 从 GET 参数中获取域名（保持向后兼容）
+    $getDomain = $_GET["domain"] ?? "";
 
-  // 优先使用路径域名，其次使用GET参数
-  $domain = $pathDomain ?: $getDomain;
-  
-  if (empty($domain)) {
-    return '';
-  }
+    // 优先使用路径域名，其次使用GET参数
+    $domain = $pathDomain ?: $getDomain;
+    
+    if (empty($domain)) {
+        return '';
+    }
 
-  $domain = htmlspecialchars($domain, ENT_QUOTES, "UTF-8");
-  $domain = trim(preg_replace(["/\s+/", "/\.{2,}/"], ["", "."], $domain), ".");
+    $domain = htmlspecialchars($domain, ENT_QUOTES, "UTF-8");
+    $domain = trim(preg_replace(["/\s+/", "/\.{2,}/"], ["", "."], $domain), ".");
 
-  $parsedUrl = parse_url($domain);
-  if (!empty($parsedUrl["host"])) {
-    $domain = $parsedUrl["host"];
-  }
+    $parsedUrl = parse_url($domain);
+    if (!empty($parsedUrl["host"])) {
+        $domain = $parsedUrl["host"];
+    }
 
-  if (DEFAULT_EXTENSION && strpos($domain, ".") === false) {
-    $domain .= "." . DEFAULT_EXTENSION;
-  }
+    if (DEFAULT_EXTENSION && strpos($domain, ".") === false) {
+        $domain .= "." . DEFAULT_EXTENSION;
+    }
 
-  return $domain;
+    return $domain;
 }
 
 function getDataSource()
