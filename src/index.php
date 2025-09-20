@@ -234,6 +234,23 @@ if ($_SERVER["QUERY_STRING"] ?? "") {
       text-size-adjust: 100%; /* 防止字体自动调整 */
     }
 
+    /* 结果页面布局 - 完全对齐输入框和搜索框 */
+    .messages {
+      width: 100%;
+      max-width: none;
+      margin: 0;
+      padding: 0;
+    }
+
+    .message.message-positive,
+    .message.message-negative,
+    .message.message-notice,
+    .message.message-informative {
+      width: 100%;
+      margin: 0;
+      padding: 1rem 0;
+    }
+
     /* 解决图标和布局问题的新增样式 */
     .message-data .message-title {
       display: flex; /* 使用 flexbox 布局 */
@@ -241,10 +258,11 @@ if ($_SERVER["QUERY_STRING"] ?? "") {
       gap: 0.5rem; /* 图标和文字之间的间距 */
       grid-column: 1 / -1;
       margin-bottom: 1rem; /* 减小标题和下方内容的间距 */
-      font-size: 1.1rem; /* 增大字体大小 */
+      font-size: 1.125rem; /* 增大字体大小 */
       font-weight: 600;
       color: #222;
       text-align: left;
+      width: 100%;
     }
 
     /* 调整标题内图标大小，使用em单位自适应 */
@@ -258,6 +276,7 @@ if ($_SERVER["QUERY_STRING"] ?? "") {
       grid-template-columns: auto 1fr;
       gap: 1rem 1.5rem;
       margin-top: 1.5rem;
+      width: 100%;
     }
 
     .checkbox-label {
@@ -280,7 +299,8 @@ if ($_SERVER["QUERY_STRING"] ?? "") {
       display: flex;
       align-items: center;
       gap: 4px;
-      font-size: 1.1rem; /* 增大字体大小 */
+      font-size: 1.125rem; /* 增大字体大小 */
+      margin-bottom: 0.5rem;
     }
     .message-icon-leading {
       display: inline-flex;
@@ -314,13 +334,6 @@ if ($_SERVER["QUERY_STRING"] ?? "") {
       background-color: #ffffff;
     }
 
-    /* 结果页面布局调整 - 利用两侧空间 */
-    .messages {
-      max-width: 100%;
-      margin: 0 auto;
-      padding: 0 1rem;
-    }
-
     /* 原始数据恢复原样样式 */
     .raw-data-whois,
     .raw-data-rdap {
@@ -335,6 +348,7 @@ if ($_SERVER["QUERY_STRING"] ?? "") {
       white-space: pre-wrap; /* 恢复原始换行 */
       overflow-x: auto; /* 防止横向溢出 */
       line-height: 1.4;
+      width: 100%;
     }
 
     /* 改进的复制按钮样式 - 右上角浮动 */
@@ -400,11 +414,11 @@ if ($_SERVER["QUERY_STRING"] ?? "") {
       }
 
       .message-title {
-        font-size: 1rem; /* 小屏调整字体大小 */
+        font-size: 1.125rem; /* 保持字体大小 */
       }
 
       .message-label {
-        font-size: 1rem; /* 小屏调整字体大小 */
+        font-size: 1rem; /* 适当调整字体大小 */
       }
 
       .search-box {
@@ -415,29 +429,43 @@ if ($_SERVER["QUERY_STRING"] ?? "") {
         display: flex;
         flex-wrap: nowrap; /* 强制横排显示 */
         justify-content: space-between;
-        gap: 0.5rem; /* 调整间距 */
-        padding: 0.5rem 0;
+        gap: 1rem; /* 增加间距 */
+        padding: 0.75rem 0; /* 增加上下间距 */
+        width: 100%;
       }
 
       .checkbox {
         flex: 1; /* 平均分配空间 */
-        min-width: 0; /* 允许收缩 */
+        min-width: 0;
+        max-width: none;
+        text-align: center; /* 文字居中对齐 */
       }
 
       .checkbox-label {
-        font-size: 0.9rem; /* 小屏调整字体大小 */
+        font-size: 1rem; /* 保持字体大小 */
         white-space: nowrap; /* 防止文字换行 */
-        overflow: hidden;
-        text-overflow: ellipsis;
+        overflow: visible; /* 确保文字完整显示 */
+        text-overflow: unset; /* 移除省略号 */
+        margin: 0;
+        width: 100%;
       }
 
-      /* 结果页面在小屏上增加宽度利用率 */
+      /* 结果页面在小屏上完全对齐 */
       .messages {
-        padding: 0 0.5rem;
+        padding: 0;
+        margin: 0;
+        width: 100%;
       }
 
       .message-data {
-        gap: 0.75rem 1rem;
+        gap: 0.75rem 1.5rem;
+        width: 100%;
+        padding: 0;
+      }
+
+      .message-value-status,
+      .message-value-name-servers {
+        padding-left: 2.2rem; /* 与图标对齐 */
       }
     }
 
@@ -447,8 +475,35 @@ if ($_SERVER["QUERY_STRING"] ?? "") {
         display: flex;
         flex-wrap: nowrap; /* 强制横排 */
         justify-content: flex-start;
-        gap: 1rem;
+        gap: 1.5rem; /* 增加间距 */
+        padding: 0.75rem 0;
       }
+
+      .checkbox {
+        flex: none; /* 固定宽度 */
+        margin-right: 1rem;
+      }
+
+      .checkbox:last-child {
+        margin-right: 0;
+      }
+    }
+
+    /* 响应式布局 - 与输入框对齐 */
+    header > div {
+      padding: 1rem;
+      max-width: 100%;
+    }
+
+    main {
+      padding: 0 1rem 1rem;
+      max-width: 100%;
+    }
+
+    /* 确保原始数据容器宽度 */
+    .raw-data-container {
+      width: 100%;
+      position: relative;
     }
   </style>
 </head>
@@ -614,7 +669,7 @@ if ($_SERVER["QUERY_STRING"] ?? "") {
                     </span>
                     注册平台
                   </div>
-                  <div>
+                  <div style="padding-left: 2.2rem;">
                     <?php if ($parser->registrarURL): ?>
                       <a href="<?= $parser->registrarURL; ?>" rel="nofollow noopener noreferrer" target="_blank"><?= $parser->registrar; ?></a>
                     <?php else: ?>
@@ -633,7 +688,7 @@ if ($_SERVER["QUERY_STRING"] ?? "") {
                     </span>
                     创建日期
                   </div>
-                  <div>
+                  <div style="padding-left: 2.2rem;">
                     <?php if ($parser->creationDateISO8601 === null): ?>
                       <span><?= $parser->creationDate; ?></span>
                     <?php elseif (str_ends_with($parser->creationDateISO8601, "Z")): ?>
@@ -658,7 +713,7 @@ if ($_SERVER["QUERY_STRING"] ?? "") {
                     </span>
                     到期日期
                   </div>
-                  <div>
+                  <div style="padding-left: 2.2rem;">
                     <?php if ($parser->expirationDateISO8601 === null): ?>
                       <span><?= $parser->expirationDate; ?></span>
                     <?php elseif (str_ends_with($parser->expirationDateISO8601, "Z")): ?>
@@ -682,7 +737,7 @@ if ($_SERVER["QUERY_STRING"] ?? "") {
                     </span>
                     更新日期
                   </div>
-                  <div>
+                  <div style="padding-left: 2.2rem;">
                     <?php if ($parser->updatedDateISO8601 === null): ?>
                       <span><?= $parser->updatedDate; ?></span>
                     <?php elseif (str_ends_with($parser->updatedDateISO8601, "Z")): ?>
@@ -706,7 +761,7 @@ if ($_SERVER["QUERY_STRING"] ?? "") {
                     </span>
                     可用日期
                   </div>
-                  <div>
+                  <div style="padding-left: 2.2rem;">
                     <?php if ($parser->availableDateISO8601 === null): ?>
                       <span><?= $parser->availableDate; ?></span>
                     <?php elseif (str_ends_with($parser->availableDateISO8601, "Z")): ?>
@@ -730,7 +785,7 @@ if ($_SERVER["QUERY_STRING"] ?? "") {
                     </span>
                     域名状态
                   </div>
-                  <div class="message-value-status">
+                  <div class="message-value-status" style="padding-left: 2.2rem;">
                     <?php foreach ($parser->status as $status): ?>
                       <div>
                         <?php if ($status["url"]): ?>
@@ -752,7 +807,7 @@ if ($_SERVER["QUERY_STRING"] ?? "") {
                     </span>
                     NS服务器
                   </div>
-                  <div class="message-value-name-servers">
+                  <div class="message-value-name-servers" style="padding-left: 2.2rem;">
                     <?php foreach ($parser->nameServers as $nameServer): ?>
                       <div>
                         <?= $nameServer; ?>
