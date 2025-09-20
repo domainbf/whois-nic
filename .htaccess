@@ -1,3 +1,4 @@
+# 新 .htaccess 内容
 Options -Indexes
 
 RewriteEngine On
@@ -8,7 +9,19 @@ RewriteEngine On
 # RewriteCond %{HTTP:CF-Visitor} !{"scheme":"https"}
 # RewriteRule (.*) https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
 
-RewriteRule ^$ src/index.php [B,L,QSA]
-RewriteRule ^api/$ src/index.php?json=1 [B,L,QSA]
-RewriteRule ^login$ src/login.php [B,L,QSA]
-RewriteRule ^manifest$ src/manifest.php [B,L,QSA]
+RewriteRule ^$ src/index.php [B,L]
+
+RewriteRule ^api/$ src/index.php?json=1 [B,L]
+
+RewriteRule ^login$ src/login.php [B,L]
+
+RewriteRule ^manifest$ src/manifest.php [B,L]
+
+# 伪静态规则 - 域名查询，只匹配包含点的域名以避免冲突
+RewriteRule ^([a-zA-Z0-9.-]+\.[a-zA-Z0-9.-]+)$ src/index.php?domain=$1 [L,QSA]
+RewriteRule ^([a-zA-Z0-9.-]+\.[a-zA-Z0-9.-]+)/$ src/index.php?domain=$1 [L,QSA]
+
+# 保持原有参数查询支持，对于其他路径
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^.*$ src/index.php [L,QSA]
