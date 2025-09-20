@@ -224,7 +224,7 @@ if ($_SERVER["QUERY_STRING"] ?? "") {
       gap: 0.5rem; /* 图标和文字之间的间距 */
       grid-column: 1 / -1;
       margin-bottom: 1rem; /* 减小标题和下方内容的间距 */
-      font-size: 1.25rem; /* 调整标题字体大小 */
+      font-size: 1rem; /* 统一字体大小 */
       font-weight: 600;
       color: #222;
       text-align: left;
@@ -282,6 +282,15 @@ if ($_SERVER["QUERY_STRING"] ?? "") {
         background: transparent;
         box-shadow: none;
         padding: 0;
+    }
+
+    /* 统一页面背景为白色 */
+    body {
+      background-color: #ffffff;
+    }
+    
+    header, main {
+      background-color: #ffffff;
     }
 
     .raw-data-whois,
