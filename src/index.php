@@ -361,39 +361,18 @@ if ($_SERVER["QUERY_STRING"] ?? "") {
       height: 18px !important;
     }
 
-    /* 修复结果页面布局 - 同一行显示 */
+    /* 修改结果页面布局 - 同一行显示 */
     .message-data {
-      display: grid;
-      grid-template-columns: auto 1fr;
-      gap: 1rem 1.5rem;
-      margin-top: 1.5rem;
-      align-items: start; /* 顶部对齐 */
+      display: block;
+      margin-top: 1rem;
     }
 
-    .message-label {
-      display: flex;
-      align-items: center;
-      gap: 4px;
-      margin-bottom: 0.5rem; /* 标签和内容之间的间距 */
-    }
-
-    .message-icon-leading {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      width: 1.2em;
-      height: 1.2em;
-      flex-shrink: 0;
-    }
-
-    /* 修复域名过长文字错位问题 */
-    .message-data .message-title {
+    .message-title {
       display: flex;
       align-items: center;
       gap: 0.5rem;
-      grid-column: 1 / -1;
       margin-bottom: 1rem;
-      font-size: 1rem;
+      font-size: 1.1rem;
       font-weight: 600;
       color: #222;
       text-align: left;
@@ -401,18 +380,98 @@ if ($_SERVER["QUERY_STRING"] ?? "") {
     }
 
     .message-title a {
-      max-width: 70%;
+      color: #0066cc;
+      text-decoration: none;
       word-break: break-all;
+      max-width: 70%;
       overflow: hidden;
       text-overflow: ellipsis;
+      white-space: nowrap;
       display: inline-block;
-      vertical-align: middle;
+    }
+
+    .message-title a:hover {
+      text-decoration: underline;
     }
 
     .message-title .message-icon {
       width: 1.2em;
       height: 1.2em;
       flex-shrink: 0;
+    }
+
+    /* 新增：同一行显示的message-item样式 */
+    .message-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 0.75rem;
+      margin-bottom: 0.75rem;
+      padding: 0.5rem 0;
+      border-bottom: 1px solid #f0f0f0;
+    }
+
+    .message-item:last-child {
+      border-bottom: none;
+      margin-bottom: 0;
+    }
+
+    .message-label-inline {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-weight: 500;
+      color: #555;
+      min-width: 80px;
+      flex-shrink: 0;
+    }
+
+    .message-label-inline svg {
+      width: 16px;
+      height: 16px;
+      flex-shrink: 0;
+    }
+
+    .message-value {
+      flex: 1;
+      color: #333;
+      line-height: 1.5;
+      word-break: break-word;
+    }
+
+    .message-value-status,
+    .message-value-name-servers {
+      display: flex;
+      flex-direction: column;
+      gap: 0.25rem;
+    }
+
+    .message-value-status div,
+    .message-value-name-servers div {
+      color: #666;
+      font-size: 0.9rem;
+    }
+
+    /* 域名省略显示 - 超过10个字符 */
+    .message-title a {
+      max-width: calc(70vw - 2rem);
+    }
+
+    @media (max-width: 768px) {
+      .message-title a {
+        max-width: calc(100vw - 4rem);
+      }
+      
+      .message-item {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.25rem;
+        padding: 0.75rem 0;
+      }
+      
+      .message-label-inline {
+        min-width: auto;
+        font-size: 0.9rem;
+      }
     }
 
     .checkbox-label {
@@ -447,25 +506,20 @@ if ($_SERVER["QUERY_STRING"] ?? "") {
       background-color: transparent;
     }
 
-    /* 原始数据容器样式 */
-    .raw-data-whois,
-    .raw-data-rdap {
-      background-color: #ffffff;
-      padding: 1.5rem;
-      border-radius: 12px;
-      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    /* 修改原始数据容器布局 - 按钮在右侧 */
+    .raw-data {
       position: relative;
-      margin-bottom: 1rem;
-      white-space: pre-wrap;
-      word-wrap: break-word;
-      font-family: 'Courier New', 'Consolas', monospace;
-      font-size: 14px;
-      line-height: 1.5;
-      overflow-x: auto;
-      min-height: 200px;
+      margin-top: 2rem;
     }
 
-    /* WHOIS/RDAP切换按钮 - 圆角黑色背景 */
+    .raw-data-container {
+      position: relative;
+      margin-bottom: 1rem;
+      border-radius: 12px;
+      overflow: hidden;
+    }
+
+    /* WHOIS/RDAP切换按钮 - 保持原样式 */
     .segmented {
       display: flex;
       background: #ffffff !important;
@@ -474,7 +528,8 @@ if ($_SERVER["QUERY_STRING"] ?? "") {
       margin-bottom: 1rem;
       border: 2px solid #000000 !important;
       box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1) !important;
-      width: fit-content; /* 只占内容宽度 */
+      width: fit-content;
+      align-self: flex-start;
     }
 
     .segmented-item {
@@ -488,8 +543,8 @@ if ($_SERVER["QUERY_STRING"] ?? "") {
       color: #333 !important;
       transition: all 0.2s ease;
       position: relative;
-      border-radius: 25px; /* 每个按钮都有圆角 */
-      min-width: 80px; /* 最小宽度 */
+      border-radius: 25px;
+      min-width: 80px;
     }
 
     .segmented-item:hover {
@@ -500,7 +555,7 @@ if ($_SERVER["QUERY_STRING"] ?? "") {
     .segmented-item-selected {
       background: #000000 !important;
       color: #ffffff !important;
-      border-radius: 25px !important; /* 选中时圆角 */
+      border-radius: 25px !important;
     }
 
     .segmented-item-selected:hover {
@@ -508,72 +563,55 @@ if ($_SERVER["QUERY_STRING"] ?? "") {
       color: #ffffff !important;
     }
 
-    /* 复制按钮样式 */
+    /* 新的复制按钮样式 - 黑色圆角胶囊，右侧固定 */
     .copy-button {
-      position: absolute;
-      top: 12px;
-      right: 12px;
-      background: rgba(255, 255, 255, 0.95);
-      backdrop-filter: blur(10px);
-      border: 1px solid rgba(0, 0, 0, 0.1);
-      border-radius: 6px;
-      padding: 8px 12px;
-      cursor: pointer;
-      font-size: 13px;
-      font-weight: 500;
-      color: #666;
-      transition: all 0.2s ease;
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      z-index: 10;
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
-      opacity: 1 !important;
-      transform: translateY(0) !important;
-      min-width: 70px;
-      justify-content: center;
+      position: absolute !important;
+      top: 12px !important;
+      right: 12px !important;
+      background: #000000 !important;
+      color: #ffffff !important;
+      border: 2px solid #000000 !important;
+      border-radius: 25px !important;
+      padding: 8px 16px !important;
+      cursor: pointer !important;
+      font-size: 13px !important;
+      font-weight: 500 !important;
+      transition: all 0.2s ease !important;
+      display: flex !important;
+      align-items: center !important;
+      gap: 6px !important;
+      z-index: 10 !important;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15) !important;
+      white-space: nowrap !important;
+      min-width: auto !important;
     }
 
-    @media (hover: hover) and (pointer: fine) {
-      .copy-button {
-        opacity: 0;
-        transform: translateY(-4px);
-      }
-
-      .raw-data-whois:hover .copy-button,
-      .raw-data-rdap:hover .copy-button {
-        opacity: 1;
-        transform: translateY(0);
-      }
-
-      .copy-button:hover {
-        background: #fff;
-        border-color: #007bff;
-        color: #007bff;
-        box-shadow: 0 4px 12px rgba(0, 123, 255, 0.2);
-        transform: translateY(-2px);
-      }
+    .copy-button:hover {
+      background: #333333 !important;
+      border-color: #333333 !important;
+      transform: translateY(-1px) !important;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2) !important;
     }
 
     .copy-button:active {
-      transform: translateY(0);
+      transform: translateY(0) !important;
     }
 
     .copy-icon {
-      width: 14px;
-      height: 14px;
-      flex-shrink: 0;
+      width: 14px !important;
+      height: 14px !important;
+      flex-shrink: 0 !important;
     }
 
     .copy-success {
-      color: #28a745 !important;
+      background: #28a745 !important;
       border-color: #28a745 !important;
-      background: rgba(40, 167, 69, 0.1) !important;
-      animation: pulse 0.6s ease-in-out;
+      color: #ffffff !important;
+      animation: pulse 0.6s ease-in-out !important;
     }
 
     .copy-success .copy-icon {
-      fill: #28a745 !important;
+      fill: #ffffff !important;
     }
 
     @keyframes pulse {
@@ -582,13 +620,22 @@ if ($_SERVER["QUERY_STRING"] ?? "") {
       100% { transform: scale(1); }
     }
 
-    .raw-data-container {
+    /* 原始数据容器样式 */
+    .raw-data-whois,
+    .raw-data-rdap {
+      background-color: #ffffff;
+      padding: 3rem 1.5rem 1.5rem 1.5rem !important;
+      border-radius: 12px;
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
       position: relative;
-      min-height: 60px;
-    }
-
-    .raw-data-container.hidden {
-      display: none;
+      margin-bottom: 1rem;
+      white-space: pre-wrap;
+      word-wrap: break-word;
+      font-family: 'Courier New', 'Consolas', monospace;
+      font-size: 14px;
+      line-height: 1.5;
+      overflow-x: auto;
+      min-height: 200px;
     }
 
     .raw-data-rdap code {
@@ -596,6 +643,7 @@ if ($_SERVER["QUERY_STRING"] ?? "") {
       padding: 0;
       border-radius: 0;
       font-family: 'Courier New', 'Consolas', monospace;
+      margin: 0;
     }
 
     .raw-data-rdap .token {
@@ -621,21 +669,22 @@ if ($_SERVER["QUERY_STRING"] ?? "") {
         justify-content: center !important;
       }
 
-      .copy-button {
-        padding: 6px 10px !important;
-        font-size: 12px !important;
-        min-width: 60px !important;
+      .raw-data-whois,
+      .raw-data-rdap {
+        padding: 3rem 1rem 1rem 1rem !important;
+        font-size: 13px !important;
       }
-
+      
+      .copy-button {
+        padding: 6px 12px !important;
+        font-size: 12px !important;
+        top: 8px !important;
+        right: 8px !important;
+      }
+      
       .copy-icon {
         width: 12px !important;
         height: 12px !important;
-      }
-
-      .raw-data-whois,
-      .raw-data-rdap {
-        padding: 1rem !important;
-        font-size: 13px !important;
       }
 
       .segmented-item {
@@ -644,22 +693,17 @@ if ($_SERVER["QUERY_STRING"] ?? "") {
         min-width: 70px !important;
       }
 
-      .message-data {
-        grid-template-columns: 1fr;
+      .message-item {
+        padding: 0.5rem 0;
         gap: 0.5rem;
       }
-
-      .message-label {
-        justify-content: flex-start;
+      
+      .message-label-inline {
+        font-size: 0.875rem;
       }
-
-      /* 移动端结果页面布局优化 */
-      .message-label {
-        margin-bottom: 0.25rem;
-      }
-
-      .message-data > div {
-        margin-bottom: 0.5rem;
+      
+      .message-value {
+        font-size: 0.9rem;
       }
     }
 
@@ -827,175 +871,173 @@ if ($_SERVER["QUERY_STRING"] ?? "") {
                       <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14m0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16" />
                       <path d="m10.97 4.97-.02.022-3.473 4.425-2.093-2.094a.75.75 0 0 0-1.06 1.06L6.97 11.03a.75.75 0 0 0 1.079-.02l3.992-4.99a.75.75 0 0 0-1.071-1.05" />
                     </svg>
-                    <a href="http://<?= $domain; ?>" rel="nofollow noopener noreferrer" target="_blank"><?= $domain; ?></a> 已被注册，查看以下信息吧。
+                    <a href="http://<?= $domain; ?>" rel="nofollow noopener noreferrer" target="_blank" class="domain-link" title="<?= $domain; ?>"><?= $domain; ?></a> 已被注册，查看以下信息吧。
                 </h1>
                 
                 <!-- 注册平台 -->
                 <?php if ($parser->registrar): ?>
-                  <div class="message-label">
-                    <span class="message-icon-leading">
+                  <div class="message-item">
+                    <span class="message-label-inline">
                       <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
                         <path d="M12.5 16a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7m.5-3.5h-1a.5.5 0 0 1 0-1h1a.5.5 0 0 1 0 1m1-1a.5.5 0 0 1 .5-.5v1a.5.5 0 0 1-.5.5h-1a.5.5 0 0 1-.5-.5v-1a.5.5 0 0 1 .5-.5zm-11 5a.5.5 0 0 1-.5-.5V1.5a.5.5 0 0 1 .5-.5h7a.5.5 0 0 1 .5.5V5h-1a.5.5 0 0 0-.5.5v3.5h-1a.5.5 0 0 1-.5-.5V1.5a.5.5 0 0 1 .5-.5h5a.5.5 0 0 1 .5.5V11a.5.5 0 0 1-.5.5h-2a.5.5 0 0 0-.5.5V13a.5.5 0 0 1-.5.5H2a.5.5 0 0 1-.5-.5v-11a.5.5 0 0 1 .5-.5h5a.5.5 0 0 1 .5.5V2.5a.5.5 0 0 0 .5.5h2a.5.5 0 0 0 .5-.5V1.5a.5.5 0 0 1 .5-.5h-7a.5.5 0 0 0-.5.5V13a.5.5 0 0 1-.5.5v2.5a.5.5 0 0 0 .5.5zm10-5a.5.5 0 0 0-.5.5v1a.5.5 0 0 0 .5.5h1a.5.5 0 0 0 .5-.5v-1a.5.5 0 0 0-.5-.5z"/>
                       </svg>
+                      注册平台
                     </span>
-                    注册平台
-                  </div>
-                  <div style="grid-column: 2;">
-                    <?php if ($parser->registrarURL): ?>
-                      <a href="<?= $parser->registrarURL; ?>" rel="nofollow noopener noreferrer" target="_blank"><?= $parser->registrar; ?></a>
-                    <?php else: ?>
-                      <?= $parser->registrar; ?>
-                    <?php endif; ?>
+                    <span class="message-value">
+                      <?php if ($parser->registrarURL): ?>
+                        <a href="<?= $parser->registrarURL; ?>" rel="nofollow noopener noreferrer" target="_blank"><?= $parser->registrar; ?></a>
+                      <?php else: ?>
+                        <?= $parser->registrar; ?>
+                      <?php endif; ?>
+                    </span>
                   </div>
                 <?php endif; ?>
 
                 <!-- 创建日期 -->
                 <?php if ($parser->creationDate): ?>
-                  <div class="message-label">
-                    <span class="message-icon-leading">
+                  <div class="message-item">
+                    <span class="message-label-inline">
                       <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
                         <path d="M4.5 1a.5.5 0 0 0-.5.5v1a.5.5 0 0 0 .5.5h1a.5.5 0 0 0 .5-.5v-1a.5.5 0 0 0-.5-.5h-1zm1 0h3a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-3a.5.5 0 0 1-.5-.5v-1a.5.5 0 0 1 .5-.5zm4.5.5v1a.5.5 0 0 0 .5.5h1a.5.5 0 0 0 .5-.5v-1a.5.5 0 0 0-.5-.5h-1a.5.5 0 0 0-.5.5z"/>
                         <path d="M12 4H4a1 1 0 0 0-1 1v9a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1V5a1 1 0 0 0-1-1zm-8 1h8v9H4V5z"/>
                         <path d="M8.5 8.5v2h-1v-2zm0-2h-1v2h1v-2zm0-2h-1v2h1v-2z"/>
                       </svg>
+                      创建日期
                     </span>
-                    创建日期
-                  </div>
-                  <div style="grid-column: 2;">
-                    <?php if ($parser->creationDateISO8601 === null): ?>
-                      <span><?= $parser->creationDate; ?></span>
-                    <?php elseif (str_ends_with($parser->creationDateISO8601, "Z")): ?>
-                      <span id="creation-date" data-iso8601="<?= $parser->creationDateISO8601; ?>">
+                    <span class="message-value">
+                      <?php if ($parser->creationDateISO8601 === null): ?>
                         <?= $parser->creationDate; ?>
-                      </span>
-                    <?php else: ?>
-                      <span id="creation-date" data-iso8601="<?= $parser->creationDateISO8601; ?>">
-                        <?= $parser->creationDate; ?>
-                      </span>
-                    <?php endif; ?>
+                      <?php elseif (str_ends_with($parser->creationDateISO8601, "Z")): ?>
+                        <span id="creation-date" data-iso8601="<?= $parser->creationDateISO8601; ?>">
+                          <?= $parser->creationDate; ?>
+                        </span>
+                      <?php else: ?>
+                        <span id="creation-date" data-iso8601="<?= $parser->creationDateISO8601; ?>">
+                          <?= $parser->creationDate; ?>
+                        </span>
+                      <?php endif; ?>
+                    </span>
                   </div>
                 <?php endif; ?>
 
                 <!-- 到期日期 -->
                 <?php if ($parser->expirationDate): ?>
-                  <div class="message-label">
-                    <span class="message-icon-leading">
+                  <div class="message-item">
+                    <span class="message-label-inline">
                       <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
                         <path d="M4.5 1a.5.5 0 0 0-.5.5v1a.5.5 0 0 0 .5.5h1a.5.5 0 0 0 .5-.5v-1a.5.5 0 0 0-.5-.5h-1zm1 0h3a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-3a.5.5 0 0 1-.5-.5v-1a.5.5 0 0 1 .5-.5zm4.5.5v1a.5.5 0 0 0 .5.5h1a.5.5 0 0 0 .5-.5v-1a.5.5 0 0 0-.5-.5h-1a.5.5 0 0 0-.5.5z"/>
                         <path d="M12 4H4a1 1 0 0 0-1 1v9a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1V5a1 1 0 0 0-1-1zM4 5h8v9H4V5z"/>
                         <path d="M8.5 8.5v2h-1v-2zm0-2h-1v2h1v-2zm0-2h-1v2h1v-2z"/>
                       </svg>
+                      到期日期
                     </span>
-                    到期日期
-                  </div>
-                  <div style="grid-column: 2;">
-                    <?php if ($parser->expirationDateISO8601 === null): ?>
-                      <span><?= $parser->expirationDate; ?></span>
-                    <?php elseif (str_ends_with($parser->expirationDateISO8601, "Z")): ?>
-                      <span id="expiration-date" data-iso8601="<?= $parser->expirationDateISO8601; ?>">
+                    <span class="message-value">
+                      <?php if ($parser->expirationDateISO8601 === null): ?>
                         <?= $parser->expirationDate; ?>
-                      </span>
-                    <?php else: ?>
-                      <span id="expiration-date" data-iso8601="<?= $parser->expirationDateISO8601; ?>">
-                        <?= $parser->expirationDate; ?>
-                      </span>
-                    <?php endif; ?>
+                      <?php elseif (str_ends_with($parser->expirationDateISO8601, "Z")): ?>
+                        <span id="expiration-date" data-iso8601="<?= $parser->expirationDateISO8601; ?>">
+                          <?= $parser->expirationDate; ?>
+                        </span>
+                      <?php else: ?>
+                        <span id="expiration-date" data-iso8601="<?= $parser->expirationDateISO8601; ?>">
+                          <?= $parser->expirationDate; ?>
+                        </span>
+                      <?php endif; ?>
+                    </span>
                   </div>
                 <?php endif; ?>
 
                 <!-- 更新日期 -->
                 <?php if ($parser->updatedDate): ?>
-                  <div class="message-label">
-                    <span class="message-icon-leading">
+                  <div class="message-item">
+                    <span class="message-label-inline">
                       <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
                         <path d="M4 14a1 1 0 0 1-1-1V1a1 1 0 0 1 1-1h8a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1zm8-1v-1H4v1zm-8-2h8V1H4v10zm-1-3a.5.5 0 0 1 .5-.5h8a.5.5 0 0 1 0 1h-8a.5.5 0 0 1-.5-.5zm0-3a.5.5 0 0 1 .5-.5h8a.5.5 0 0 1 0 1h-8a.5.5 0 0 1-.5-.5z"/>
                         <path d="M8 12a1 1 0 1 1 0-2 1 1 0 0 1 0 2zm0-3a.5.5 0 1 0 0-1 .5.5 0 0 0 0 1z"/>
                       </svg>
+                      更新日期
                     </span>
-                    更新日期
-                  </div>
-                  <div style="grid-column: 2;">
-                    <?php if ($parser->updatedDateISO8601 === null): ?>
-                      <span><?= $parser->updatedDate; ?></span>
-                    <?php elseif (str_ends_with($parser->updatedDateISO8601, "Z")): ?>
-                      <span id="updated-date" data-iso8601="<?= $parser->updatedDateISO8601; ?>">
+                    <span class="message-value">
+                      <?php if ($parser->updatedDateISO8601 === null): ?>
                         <?= $parser->updatedDate; ?>
-                      </span>
-                    <?php else: ?>
-                      <span id="updated-date" data-iso8601="<?= $parser->updatedDateISO8601; ?>">
-                        <?= $parser->updatedDate; ?>
-                      </span>
-                    <?php endif; ?>
+                      <?php elseif (str_ends_with($parser->updatedDateISO8601, "Z")): ?>
+                        <span id="updated-date" data-iso8601="<?= $parser->updatedDateISO8601; ?>">
+                          <?= $parser->updatedDate; ?>
+                        </span>
+                      <?php else: ?>
+                        <span id="updated-date" data-iso8601="<?= $parser->updatedDateISO8601; ?>">
+                          <?= $parser->updatedDate; ?>
+                        </span>
+                      <?php endif; ?>
+                    </span>
                   </div>
                 <?php endif; ?>
 
                 <!-- 可用日期 -->
                 <?php if ($parser->availableDate): ?>
-                  <div class="message-label">
-                    <span class="message-icon-leading">
+                  <div class="message-item">
+                    <span class="message-label-inline">
                       <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
                         <path d="M4 14a1 1 0 0 1-1-1V1a1 1 0 0 1 1-1h8a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1zm8-1v-1H4v1zm-8-2h8V1H4v10zm-1-3a.5.5 0 0 1 .5-.5h8a.5.5 0 0 1 0 1h-8a.5.5 0 0 1-.5-.5zm0-3a.5.5 0 0 1 .5-.5h8a.5.5 0 0 1 0 1h-8a.5.5 0 0 1-.5-.5z"/>
                         <path d="M8 12a1 1 0 1 1 0-2 1 1 0 0 1 0 2zm0-3a.5.5 0 1 0 0-1 .5.5 0 0 0 0 1z"/>
                       </svg>
+                      可用日期
                     </span>
-                    可用日期
-                  </div>
-                  <div style="grid-column: 2;">
-                    <?php if ($parser->availableDateISO8601 === null): ?>
-                      <span><?= $parser->availableDate; ?></span>
-                    <?php elseif (str_ends_with($parser->availableDateISO8601, "Z")): ?>
-                      <span id="available-date" data-iso8601="<?= $parser->availableDateISO8601; ?>">
+                    <span class="message-value">
+                      <?php if ($parser->availableDateISO8601 === null): ?>
                         <?= $parser->availableDate; ?>
-                      </span>
-                    <?php else: ?>
-                      <span id="available-date" data-iso8601="<?= $parser->availableDateISO8601; ?>">
-                        <?= $parser->availableDate; ?>
-                      </span>
-                    <?php endif; ?>
+                      <?php elseif (str_ends_with($parser->availableDateISO8601, "Z")): ?>
+                        <span id="available-date" data-iso8601="<?= $parser->availableDateISO8601; ?>">
+                          <?= $parser->availableDate; ?>
+                        </span>
+                      <?php else: ?>
+                        <span id="available-date" data-iso8601="<?= $parser->availableDateISO8601; ?>">
+                          <?= $parser->availableDate; ?>
+                        </span>
+                      <?php endif; ?>
+                    </span>
                   </div>
                 <?php endif; ?>
 
                 <!-- 域名状态 -->
                 <?php if ($parser->status): ?>
-                  <div class="message-label">
-                    <span class="message-icon-leading">
+                  <div class="message-item">
+                    <span class="message-label-inline">
                       <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
                         <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14m0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16" />
                         <path d="m10.97 4.97-.02.022-3.473 4.425-2.093-2.094a.75.75 0 0 0-1.06 1.06L6.97 11.03a.75.75 0 0 0 1.079-.02l3.992-4.99a.75.75 0 0 0-1.071-1.05" />
                       </svg>
+                      域名状态
                     </span>
-                    域名状态
-                  </div>
-                  <div class="message-value-status" style="grid-column: 2;">
-                    <?php foreach ($parser->status as $status): ?>
-                      <div>
-                        <?php if ($status["url"]): ?>
-                          <a href="<?= $status["url"]; ?>" rel="nofollow noopener noreferrer" target="_blank"><?= $status["text"]; ?></a>
-                        <?php else: ?>
-                          <?= $status["text"]; ?>
-                        <?php endif; ?>
-                      </div>
-                    <?php endforeach; ?>
+                    <span class="message-value-status">
+                      <?php foreach ($parser->status as $status): ?>
+                        <div>
+                          <?php if ($status["url"]): ?>
+                            <a href="<?= $status["url"]; ?>" rel="nofollow noopener noreferrer" target="_blank"><?= $status["text"]; ?></a>
+                          <?php else: ?>
+                            <?= $status["text"]; ?>
+                          <?php endif; ?>
+                        </div>
+                      <?php endforeach; ?>
+                    </span>
                   </div>
                 <?php endif; ?>
 
                 <!-- NS服务器 -->
                 <?php if ($parser->nameServers): ?>
-                  <div class="message-label">
-                    <span class="message-icon-leading">
+                  <div class="message-item">
+                    <span class="message-label-inline">
                       <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
                         <path d="M5.5 10a.5.5 0 0 0-.5.5v1a.5.5 0 0 0 .5.5h5a.5.5 0 0 0 .5-.5v-1a.5.5 0 0 0-.5-.5h-5z"/>
                         <path d="M12.44 1.44a.5.5 0 0 1 .12.55l-2.49 11.55a.5.5 0 0 1-.95.06L7 8.355l-2.043 4.65a.5.5 0 0 1-.95-.06L1.44 2a.5.5 0 0 1 .55-.12L8 4.288l5.44-2.968z"/>
                       </svg>
+                      NS服务器
                     </span>
-                    NS服务器
-                  </div>
-                  <div class="message-value-name-servers" style="grid-column: 2;">
-                    <?php foreach ($parser->nameServers as $nameServer): ?>
-                      <div>
-                        <?= $nameServer; ?>
-                      </div>
-                    <?php endforeach; ?>
+                    <span class="message-value-name-servers">
+                      <?php foreach ($parser->nameServers as $nameServer): ?>
+                        <div><?= $nameServer; ?></div>
+                      <?php endforeach; ?>
+                    </span>
                   </div>
                 <?php endif; ?>
               </div>
@@ -1304,6 +1346,16 @@ if ($_SERVER["QUERY_STRING"] ?? "") {
             }
           }
         });
+      }
+
+      // 处理长域名显示
+      const domainLink = document.querySelector('.domain-link');
+      if (domainLink) {
+        const fullDomain = domainLink.textContent;
+        if (fullDomain.length > 10) {
+          const shortDomain = fullDomain.substring(0, 10) + '…';
+          domainLink.textContent = shortDomain;
+        }
       }
 
       // WHOIS/RDAP 切换功能
