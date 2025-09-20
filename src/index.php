@@ -217,23 +217,41 @@ if ($_SERVER["QUERY_STRING"] ?? "") {
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght,SOFT,WONK@72,600,50,1&display=swap">
   <?= CUSTOM_HEAD ?>
   <style>
+    /* 首页搜索栏背景修改 - 去掉透明化，显示主页方格背景 */
+    body {
+      background-color: #ffffff;
+      background-image: repeating-linear-gradient(0deg, transparent, transparent 19px, #eee 20px), repeating-linear-gradient(90deg, transparent, transparent 19px, #eee 20px);
+      background-size: 20px 20px;
+    }
+
+    .search-box {
+      background: transparent !important;
+      border: none !important;
+      box-shadow: none !important;
+    }
+
+    .search-box .input {
+      background: transparent !important;
+      border: none !important;
+      box-shadow: none !important;
+    }
+
     /* 解决图标和布局问题的新增样式 */
     .message-data .message-title {
-      display: flex; /* 使用 flexbox 布局 */
-      align-items: center; /* 垂直居中对齐 */
-      gap: 0.5rem; /* 图标和文字之间的间距 */
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
       grid-column: 1 / -1;
-      margin-bottom: 1rem; /* 减小标题和下方内容的间距 */
-      font-size: 1rem; /* 统一字体大小 */
+      margin-bottom: 1rem;
+      font-size: 1rem;
       font-weight: 600;
       color: #222;
       text-align: left;
     }
 
-    /* 调整标题内图标大小 */
     .message-title .message-icon {
-        width: 1.2em; /* 调整图标大小 */
-        height: 1.2em; /* 调整图标大小 */
+        width: 1.2em;
+        height: 1.2em;
     }
 
     .message-data {
@@ -270,29 +288,23 @@ if ($_SERVER["QUERY_STRING"] ?? "") {
       height: 1.2em;
     }
     
-    /* 移除背景和侧边栏 */
     .message.message-positive {
         background: transparent;
         border: none;
         box-shadow: none;
         padding: 0;
     }
-    /* 移除 message-positive 内的 data-source 容器的背景和阴影 */
     .message.message-positive .message-data {
         background: transparent;
         box-shadow: none;
         padding: 0;
     }
 
-    /* 统一页面背景为白色 */
-    body {
-      background-color: #ffffff;
-    }
-    
     header, main {
-      background-color: #ffffff;
+      background-color: transparent;
     }
 
+    /* 优化的原始数据容器样式 */
     .raw-data-whois,
     .raw-data-rdap {
       background-color: #ffffff;
@@ -301,62 +313,209 @@ if ($_SERVER["QUERY_STRING"] ?? "") {
       box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
       position: relative;
       margin-bottom: 1rem;
+      overflow: hidden; /* 防止内容溢出影响复制按钮 */
+      transition: all 0.2s ease; /* 添加平滑过渡 */
     }
 
-    /* 改进的复制按钮样式 - 右上角浮动 */
+    .raw-data-whois:hover,
+    .raw-data-rdap:hover {
+      box-shadow: 0 8px 25px -1px rgba(0, 0, 0, 0.15), 0 4px 12px -1px rgba(0, 0, 0, 0.1);
+      transform: translateY(-1px); /* 悬停时轻微上移 */
+    }
+
+    /* 优化的复制按钮样式 */
     .copy-button {
       position: absolute;
       top: 12px;
       right: 12px;
-      background: rgba(255, 255, 255, 0.9);
-      backdrop-filter: blur(10px);
-      border: 1px solid rgba(0, 0, 0, 0.1);
-      border-radius: 6px;
-      padding: 6px 10px;
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(0, 0, 0, 0.08);
+      border-radius: 8px;
+      padding: 8px 12px;
       cursor: pointer;
-      font-size: 12px;
+      font-size: 13px;
       font-weight: 500;
       color: #666;
-      transition: all 0.2s ease;
+      transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
       display: flex;
       align-items: center;
-      gap: 4px;
+      gap: 6px;
       z-index: 10;
       opacity: 0;
-      transform: translateY(-4px);
+      transform: translateY(-8px) scale(0.95);
+      min-width: 68px; /* 固定最小宽度 */
+      justify-content: center;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
     }
 
+    /* 容器悬停时显示按钮 */
     .raw-data-whois:hover .copy-button,
     .raw-data-rdap:hover .copy-button {
       opacity: 1;
-      transform: translateY(0);
+      transform: translateY(0) scale(1);
     }
 
+    /* 按钮悬停效果 */
     .copy-button:hover {
-      background: #fff;
+      background: #ffffff;
       border-color: #007bff;
       color: #007bff;
-      box-shadow: 0 2px 8px rgba(0, 123, 255, 0.15);
+      box-shadow: 0 4px 16px rgba(0, 123, 255, 0.2);
+      transform: translateY(-1px) scale(1.02);
     }
 
+    /* 按钮按下效果 */
     .copy-button:active {
-      transform: translateY(-2px);
+      transform: translateY(0) scale(0.98);
+      transition: all 0.1s ease;
     }
 
+    /* 复制图标样式 */
     .copy-icon {
-      width: 12px;
-      height: 12px;
+      width: 14px;
+      height: 14px;
       flex-shrink: 0;
+      transition: all 0.25s ease;
     }
 
+    /* 复制成功状态 */
     .copy-success {
       color: #28a745 !important;
       border-color: #28a745 !important;
       background: rgba(40, 167, 69, 0.1) !important;
+      box-shadow: 0 4px 16px rgba(40, 167, 69, 0.2) !important;
+      transform: scale(1.05);
     }
 
     .copy-success .copy-icon {
       fill: #28a745 !important;
+      transform: rotate(180deg) scale(1.1); /* 成功时图标旋转并放大 */
+    }
+
+    /* 复制成功文本动画 */
+    .copy-success span {
+      animation: pulse 0.6s ease-in-out;
+    }
+
+    @keyframes pulse {
+      0% {
+        transform: scale(1);
+      }
+      50% {
+        transform: scale(1.05);
+      }
+      100% {
+        transform: scale(1);
+      }
+    }
+
+    /* 按钮加载状态 */
+    .copy-button.loading {
+      opacity: 1 !important;
+      transform: translateY(0) scale(1) !important;
+      pointer-events: none;
+      color: #666 !important;
+      border-color: rgba(0, 0, 0, 0.08) !important;
+    }
+
+    .copy-button.loading .copy-icon {
+      animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+      from {
+        transform: rotate(0deg);
+      }
+      to {
+        transform: rotate(360deg);
+      }
+    }
+
+    .copy-button.loading span {
+      opacity: 0;
+    }
+
+    /* 复制按钮文本渐变效果 */
+    .copy-button span {
+      transition: opacity 0.2s ease;
+      white-space: nowrap;
+    }
+
+    /* 容器内预格式化文本样式优化 */
+    .raw-data-whois,
+    .raw-data-rdap {
+      font-family: 'SF Mono', Monaco, 'Cascadia Code', 'Roboto Mono', Consolas, 'Courier New', monospace;
+      font-size: 13px;
+      line-height: 1.5;
+      white-space: pre-wrap;
+      word-break: break-all;
+      margin: 0;
+      border: 1px solid rgba(0, 0, 0, 0.05);
+    }
+
+    /* RDAP JSON 代码高亮 */
+    .raw-data-rdap code.language-json {
+      background: none;
+      padding: 0;
+      border-radius: 0;
+    }
+
+    /* 分段按钮样式优化 */
+    .segmented {
+      display: flex;
+      gap: 0;
+      background: rgba(0, 0, 0, 0.02);
+      border-radius: 8px;
+      padding: 2px;
+      margin-bottom: 1rem;
+      overflow: hidden;
+    }
+
+    .segmented-item {
+      background: transparent;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 6px;
+      color: #666;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      flex: 1;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .segmented-item::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+      transition: left 0.5s;
+    }
+
+    .segmented-item:hover::before {
+      left: 100%;
+    }
+
+    .segmented-item:hover {
+      background: rgba(0, 123, 255, 0.05);
+      color: #007bff;
+    }
+
+    .segmented-item-selected {
+      background: #007bff;
+      color: white;
+      border-color: #007bff;
+    }
+
+    .segmented-item-selected:hover {
+      background: #0056b3;
+      color: white;
     }
   </style>
 </head>
@@ -733,6 +892,8 @@ if ($_SERVER["QUERY_STRING"] ?? "") {
         </div>
       </section>
     <?php endif; ?>
+    
+    <!-- 数据源切换按钮 -->
     <?php if ($whoisData && $rdapData): ?>
       <section class="data-source">
         <div class="segmented">
@@ -741,28 +902,30 @@ if ($_SERVER["QUERY_STRING"] ?? "") {
         </div>
       </section>
     <?php endif; ?>
+    
+    <!-- 原始数据显示区域 -->
     <?php if ($whoisData || $rdapData): ?>
       <section class="raw-data">
         <?php if ($whoisData): ?>
           <div class="raw-data-container">
-            <button class="copy-button" onclick="copyToClipboard('raw-data-whois')">
+            <button class="copy-button" data-target="raw-data-whois" title="点击复制 WHOIS 数据">
               <svg class="copy-icon" viewBox="0 0 16 16" fill="currentColor">
                 <path d="M4 1a3 3 0 0 0-3 3v10a3 3 0 0 0 3 3h10a3 3 0 0 0 3-3V4a3 3 0 0 0-3-3H4zm2 2a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2V3z"/>
               </svg>
               <span>复制</span>
             </button>
-            <pre class="raw-data-whois" id="raw-data-whois" tabindex="0"><?= $whoisData; ?></pre>
+            <pre class="raw-data-whois" id="raw-data-whois" tabindex="0"><?= htmlspecialchars($whoisData, ENT_QUOTES, 'UTF-8'); ?></pre>
           </div>
         <?php endif; ?>
         <?php if ($rdapData): ?>
           <div class="raw-data-container">
-            <button class="copy-button" onclick="copyToClipboard('raw-data-rdap')">
+            <button class="copy-button" data-target="raw-data-rdap" title="点击复制 RDAP 数据">
               <svg class="copy-icon" viewBox="0 0 16 16" fill="currentColor">
                 <path d="M4 1a3 3 0 0 0-3 3v10a3 3 0 0 0 3 3h10a3 3 0 0 0 3-3V4a3 3 0 0 0-3-3H4zm2 2a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2V3z"/>
               </svg>
               <span>复制</span>
             </button>
-            <pre class="raw-data-rdap" id="raw-data-rdap"><code class="language-json"><?= $rdapData; ?></code></pre>
+            <pre class="raw-data-rdap" id="raw-data-rdap" style="display: none;"><code class="language-json"><?= htmlspecialchars($rdapData, ENT_QUOTES, 'UTF-8'); ?></code></pre>
           </div>
         <?php endif; ?>
       </section>
@@ -774,6 +937,7 @@ if ($_SERVER["QUERY_STRING"] ?? "") {
       <path d="M8 12a.5.5 0 0 0 .5-.5V5.707l2.146 2.147a.5.5 0 0 0 .708-.708l-3-3a.5.5 0 0 0-.708 0l-3 3a.5.5 0 1 0 .708.708L7.5 5.707V11.5a.5.5 0 0 0 .5.5" fill-rule="evenodd" />
     </svg>
   </button>
+  
   <script>
     window.addEventListener("DOMContentLoaded", function() {
       const domainElement = document.getElementById("domain");
@@ -843,8 +1007,63 @@ if ($_SERVER["QUERY_STRING"] ?? "") {
           }
         }
       });
+
+      // 优化的数据源切换功能
+      <?php if ($whoisData && $rdapData): ?>
+        const dataSourceWHOIS = document.getElementById("data-source-whois");
+        const dataSourceRDAP = document.getElementById("data-source-rdap");
+        const rawDataWHOIS = document.getElementById("raw-data-whois");
+        const rawDataRDAP = document.getElementById("raw-data-rdap");
+
+        if (dataSourceWHOIS && dataSourceRDAP && rawDataWHOIS && rawDataRDAP) {
+          // 默认显示WHOIS，隐藏RDAP
+          rawDataWHOIS.style.display = "block";
+          rawDataRDAP.style.display = "none";
+
+          const switchToWHOIS = () => {
+            dataSourceWHOIS.classList.add("segmented-item-selected");
+            dataSourceRDAP.classList.remove("segmented-item-selected");
+            rawDataWHOIS.style.display = "block";
+            rawDataRDAP.style.display = "none";
+          };
+
+          const switchToRDAP = () => {
+            dataSourceWHOIS.classList.remove("segmented-item-selected");
+            dataSourceRDAP.classList.add("segmented-item-selected");
+            rawDataWHOIS.style.display = "none";
+            rawDataRDAP.style.display = "block";
+          };
+
+          dataSourceWHOIS.addEventListener("click", (e) => {
+            e.preventDefault();
+            if (dataSourceWHOIS.classList.contains("segmented-item-selected")) {
+              return;
+            }
+            switchToWHOIS();
+          });
+
+          dataSourceRDAP.addEventListener("click", (e) => {
+            e.preventDefault();
+            if (dataSourceRDAP.classList.contains("segmented-item-selected")) {
+              return;
+            }
+            switchToRDAP();
+          });
+
+          // 键盘导航支持
+          [dataSourceWHOIS, dataSourceRDAP].forEach((button, index) => {
+            button.addEventListener("keydown", (e) => {
+              if (e.key === "Enter" || e.key === " ") {
+                e.preventDefault();
+                index === 0 ? switchToWHOIS() : switchToRDAP();
+              }
+            });
+          });
+        }
+      <?php endif; ?>
     });
   </script>
+
   <?php if ($whoisData || $rdapData): ?>
     <script>
       window.addEventListener("DOMContentLoaded", function() {
@@ -916,6 +1135,8 @@ if ($_SERVER["QUERY_STRING"] ?? "") {
         tippy.setDefaultProps({
           arrow: false,
           offset: [0, 8],
+          theme: 'light',
+          animation: 'scale-subtle'
         });
 
         function updateDateElementTooltip(elementId) {
@@ -966,34 +1187,7 @@ if ($_SERVER["QUERY_STRING"] ?? "") {
         updateSecondsElementTooltip("age", "已经注册");
         updateSecondsElementTooltip("remaining", "距离过期");
 
-        const dataSourceWHOIS = document.getElementById("data-source-whois");
-        const dataSourceRDAP = document.getElementById("data-source-rdap");
-        const rawDataWHOIS = document.getElementById("raw-data-whois");
-        const rawDataRDAP = document.getElementById("raw-data-rdap");
-
-        if (dataSourceWHOIS && dataSourceRDAP) {
-          dataSourceWHOIS.addEventListener("click", () => {
-            if (dataSourceWHOIS.classList.contains("segmented-item-selected")) {
-              return;
-            }
-
-            dataSourceWHOIS.classList.add("segmented-item-selected");
-            rawDataWHOIS.style.display = "block";
-            dataSourceRDAP.classList.remove("segmented-item-selected");
-            rawDataRDAP.style.display = "none";
-          });
-          dataSourceRDAP.addEventListener("click", () => {
-            if (dataSourceRDAP.classList.contains("segmented-item-selected")) {
-              return;
-            }
-
-            dataSourceWHOIS.classList.remove("segmented-item-selected");
-            rawDataWHOIS.style.display = "none";
-            dataSourceRDAP.classList.add("segmented-item-selected");
-            rawDataRDAP.style.display = "block";
-          });
-        }
-
+        // 链接化原始数据
         function linkifyRawData(element) {
           if (element) {
             element.innerHTML = linkifyHtml(element.innerHTML, {
@@ -1006,76 +1200,206 @@ if ($_SERVER["QUERY_STRING"] ?? "") {
           }
         }
 
-        linkifyRawData(rawDataWHOIS);
-        linkifyRawData(rawDataRDAP);
+        const rawDataWHOIS = document.getElementById("raw-data-whois");
+        const rawDataRDAP = document.getElementById("raw-data-rdap");
+        if (rawDataWHOIS) linkifyRawData(rawDataWHOIS);
+        if (rawDataRDAP) linkifyRawData(rawDataRDAP);
       });
 
-      // 优化的复制功能
-      function copyToClipboard(elementId) {
-        const element = document.getElementById(elementId);
-        if (!element) return;
-        
-        const text = element.innerText || element.textContent;
-        const button = event.target.closest('.copy-button');
-        
-        if (!button) return;
-        
-        const originalHTML = button.innerHTML;
-        const originalText = button.innerText;
-        
-        // 复制文本
-        navigator.clipboard.writeText(text).then(() => {
-          // 成功状态
-          button.innerHTML = `
-            <svg class="copy-icon" viewBox="0 0 16 16" fill="currentColor">
-              <path d="M2 13a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11.5a2 2 0 0 1 1.983 1.738l.26 1.262a2 2 0 0 0 1.708 1.352L16 9a2 2 0 0 1 2 2v2a2 2 0 0 1-2 2H2z"/>
-              <path d="M5.854 4.646a.5.5 0 1 1-.708.708L3.5 3.707 2.854 4.414a.5.5 0 1 1-.708-.708L2.293 3l1.048-1.048a.5.5 0 0 1 .708.708L3.5 2.293l.646.647a.5.5 0 1 1-.708.708L3.5 3z"/>
-            </svg>
-            <span>已复制</span>
-          `;
-          button.classList.add('copy-success');
+      // 高度优化的复制功能
+      class CopyManager {
+        constructor() {
+          this.buttons = document.querySelectorAll('.copy-button');
+          this.init();
+        }
+
+        init() {
+          this.buttons.forEach(button => {
+            button.addEventListener('click', (e) => this.handleCopy(e));
+            // 添加键盘支持
+            button.addEventListener('keydown', (e) => {
+              if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                this.handleCopy(e);
+              }
+            });
+          });
+        }
+
+        async handleCopy(event) {
+          const button = event.currentTarget;
+          const targetId = button.dataset.target;
+          const element = document.getElementById(targetId);
           
+          if (!element) {
+            this.showError(button);
+            return;
+          }
+
+          const text = this.getTextContent(element);
+          if (!text) {
+            this.showError(button);
+            return;
+          }
+
+          // 显示加载状态
+          this.setLoadingState(button, true);
+
+          try {
+            // 优先使用现代 Clipboard API
+            if (navigator.clipboard && window.isSecureContext) {
+              await navigator.clipboard.writeText(text);
+              this.showSuccess(button);
+            } else {
+              // 备用方案
+              this.fallbackCopy(text, button);
+            }
+          } catch (err) {
+            console.warn('Clipboard API failed, using fallback:', err);
+            this.fallbackCopy(text, button);
+          }
+
+          // 恢复按钮状态
           setTimeout(() => {
-            button.innerHTML = originalHTML;
-            button.classList.remove('copy-success');
-          }, 1500);
-        }).catch(() => {
-          // 备用复制方法
+            this.setLoadingState(button, false);
+          }, 2000);
+        }
+
+        getTextContent(element) {
+          // 对于 JSON 代码块，获取纯文本内容
+          if (element.querySelector('code')) {
+            return element.querySelector('code').textContent || element.textContent;
+          }
+          return element.textContent || element.innerText;
+        }
+
+        async fallbackCopy(text, button) {
           const textArea = document.createElement('textarea');
           textArea.value = text;
           textArea.style.position = 'fixed';
           textArea.style.left = '-999999px';
           textArea.style.top = '-999999px';
+          textArea.style.opacity = '0';
+          
           document.body.appendChild(textArea);
           textArea.focus();
           textArea.select();
+
           try {
             const successful = document.execCommand('copy');
             if (successful) {
-              button.innerHTML = `
-                <svg class="copy-icon" viewBox="0 0 16 16" fill="currentColor">
-                  <path d="M2 13a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11.5a2 2 0 0 1 1.983 1.738l.26 1.262a2 2 0 0 0 1.708 1.352L16 9a2 2 0 0 1 2 2v2a2 2 0 0 1-2 2H2z"/>
-                  <path d="M5.854 4.646a.5.5 0 1 1-.708.708L3.5 3.707 2.854 4.414a.5.5 0 1 1-.708-.708L2.293 3l1.048-1.048a.5.5 0 0 1 .708.708L3.5 2.293l.646.647a.5.5 0 1 1-.708.708L3.5 3z"/>
-                </svg>
-                <span>已复制</span>
-              `;
-              button.classList.add('copy-success');
-              
-              setTimeout(() => {
-                button.innerHTML = originalHTML;
-                button.classList.remove('copy-success');
-              }, 1500);
+              this.showSuccess(button);
             } else {
-              alert('复制失败，请重试');
+              this.showError(button);
             }
           } catch (err) {
-            alert('复制失败，请重试');
+            this.showError(button);
+          } finally {
+            document.body.removeChild(textArea);
           }
-          document.body.removeChild(textArea);
-        });
+        }
+
+        setLoadingState(button, loading) {
+          if (loading) {
+            button.classList.add('loading');
+            button.innerHTML = `
+              <svg class="copy-icon" viewBox="0 0 16 16" fill="currentColor">
+                <path d="M4 1a3 3 0 0 0-3 3v10a3 3 0 0 0 3 3h10a3 3 0 0 0 3-3V4a3 3 0 0 0-3-3H4zm2 2a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2V3z"/>
+              </svg>
+              <span>复制中...</span>
+            `;
+          } else {
+            button.classList.remove('loading');
+            const originalHTML = button.dataset.originalHTML || `
+              <svg class="copy-icon" viewBox="0 0 16 16" fill="currentColor">
+                <path d="M4 1a3 3 0 0 0-3 3v10a3 3 0 0 0 3 3h10a3 3 0 0 0 3-3V4a3 3 0 0 0-3-3H4zm2 2a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2V3z"/>
+              </svg>
+              <span>复制</span>
+            `;
+            button.innerHTML = originalHTML;
+          }
+        }
+
+        showSuccess(button) {
+          const originalHTML = button.innerHTML;
+          if (!button.dataset.originalHTML) {
+            button.dataset.originalHTML = originalHTML;
+          }
+
+          button.classList.remove('loading');
+          button.classList.add('copy-success');
+          
+          button.innerHTML = `
+            <svg class="copy-icon" viewBox="0 0 16 16" fill="currentColor">
+              <path d="M2 13a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11.5a2 2 0 0 1 1.983 1.738l.26 1.262a2 2 0 0 0 1.708 1.352L16 9a2 2 0 0 1 2 2v2a2 2 0 0 1-2 2H2z"/>
+              <path d="M5.854 4.646a.5.5 0 1 1-.708.708L3.5 3.707 2.854 4.414a.5.5 0 1 1-.708-.708L2.293 3l1.048-1.048a.5.5 0 0 1 .708.708L3.5 2.293l.646.647a.5.5 0 1 1-.708.708L3.5 3z"/>
+            </svg>
+            <span>已复制!</span>
+          `;
+
+          // 成功反馈音效（如果浏览器支持）
+          if (window.speechSynthesis) {
+            const utterance = new SpeechSynthesisUtterance('复制成功');
+            utterance.volume = 0.3;
+            utterance.rate = 1.5;
+            speechSynthesis.speak(utterance);
+          }
+
+          // 自动恢复原状态
+          setTimeout(() => {
+            button.innerHTML = button.dataset.originalHTML;
+            button.classList.remove('copy-success');
+          }, 1800);
+        }
+
+        showError(button) {
+          button.classList.remove('loading');
+          button.classList.add('copy-error');
+          
+          const originalHTML = button.dataset.originalHTML || button.innerHTML;
+          button.innerHTML = `
+            <svg class="copy-icon" viewBox="0 0 16 16" fill="currentColor">
+              <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14m0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16"/>
+              <path d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708"/>
+            </svg>
+            <span>复制失败</span>
+          `;
+
+          setTimeout(() => {
+            button.innerHTML = originalHTML;
+            button.classList.remove('copy-error');
+          }, 2000);
+        }
       }
+
+      // 初始化复制管理器
+      new CopyManager();
+
+      // 添加错误状态样式
+      const style = document.createElement('style');
+      style.textContent = `
+        .copy-error {
+          color: #dc3545 !important;
+          border-color: #dc3545 !important;
+          background: rgba(220, 53, 69, 0.1) !important;
+          box-shadow: 0 4px 16px rgba(220, 53, 69, 0.2) !important;
+          animation: shake 0.5s ease-in-out;
+        }
+        
+        .copy-error .copy-icon {
+          fill: #dc3545 !important;
+        }
+        
+        @keyframes shake {
+          0%, 100% { transform: translateX(0); }
+          25% { transform: translateX(-5px); }
+          75% { transform: translateX(5px); }
+        }
+      `;
+      document.head.appendChild(style);
     </script>
   <?php endif; ?>
+
   <?php if ($fetchPrices): ?>
     <script>
       window.addEventListener("DOMContentLoaded", async () => {
