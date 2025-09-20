@@ -45,7 +45,7 @@ function checkPassword()
     echo json_encode(["code" => 1, "msg" => "Incorrect password.", "data" => null]);
   } else {
     $requestUri = $_SERVER["REQUEST_URI"];
-    if ($requestUri === BASE) {
+    if ($requestUri === BASE || $requestUri === "/") {
       header("Location: " . BASE . "login");
     } else {
       header("Location: " . BASE . "login?redirect=" . urlencode($requestUri));
@@ -55,45 +55,55 @@ function checkPassword()
   die;
 }
 
+// 修改后的 cleanDomain 函数 - Vercel 兼容版
 function cleanDomain()
 {
-  // 从 URL path 中获取域名（伪静态）
-  $pathDomain = '';
-  if (isset($_SERVER['REQUEST_URI'])) {
-    $path = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
-    // 移除开头的斜杠，并检查是否是纯域名格式
-    $path = trim($path, '/');
-    if (!empty($path) && !preg_match('/\.(php|html|css|js|json|xml|txt|png|jpg|jpeg|gif|ico|svg)$/i', $path)) {
-      // 验证是否为合法域名格式
-      if (preg_match('/^[a-zA-Z0-9]([a-zA-Z0-9\-]{0,61}[a-zA-Z0-9])?(\.[a-zA-Z0-9]([a-zA-Z0-9\-]{0,61}[a-zA-Z0-9])?)*$/i', $path)) {
-        $pathDomain = $path;
-      }
+    // 从 URL path 中获取域名（伪静态）
+    $pathDomain = '';
+    if (isset($_SERVER['REQUEST_URI'])) {
+        $requestUri = $_SERVER['REQUEST_URI'];
+        
+        // 移除查询字符串
+        if (strpos($requestUri, '?') !== false) {
+            $requestUri = substr($requestUri, 0, strpos($requestUri, '?'));
+        }
+        
+        // 移除开头的斜杠
+        $path = trim($requestUri, '/');
+        
+        // 检查是否是纯域名格式（不是已知的路由）
+        $knownRoutes = ['api', 'login', 'manifest'];
+        if (!empty($path) && !in_array($path, $knownRoutes)) {
+            // 验证是否为合法域名格式（至少包含一个点）
+            if (preg_match('/^[a-zA-Z0-9]([a-zA-Z0-9\-]{0,61}[a-zA-Z0-9])?(\.[a-zA-Z0-9]([a-zA-Z0-9\-]{0,61}[a-zA-Z0-9])?)+$/i', $path)) {
+                $pathDomain = $path;
+            }
+        }
     }
-  }
 
-  // 从 GET 参数中获取域名（保持向后兼容）
-  $getDomain = $_GET["domain"] ?? "";
+    // 从 GET 参数中获取域名（保持向后兼容）
+    $getDomain = $_GET["domain"] ?? "";
 
-  // 优先使用路径域名，其次使用GET参数
-  $domain = $pathDomain ?: $getDomain;
-  
-  if (empty($domain)) {
-    return '';
-  }
+    // 优先使用路径域名，其次使用GET参数
+    $domain = $pathDomain ?: $getDomain;
+    
+    if (empty($domain)) {
+        return '';
+    }
 
-  $domain = htmlspecialchars($domain, ENT_QUOTES, "UTF-8");
-  $domain = trim(preg_replace(["/\s+/", "/\.{2,}/"], ["", "."], $domain), ".");
+    $domain = htmlspecialchars($domain, ENT_QUOTES, "UTF-8");
+    $domain = trim(preg_replace(["/\s+/", "/\.{2,}/"], ["", "."], $domain), ".");
 
-  $parsedUrl = parse_url($domain);
-  if (!empty($parsedUrl["host"])) {
-    $domain = $parsedUrl["host"];
-  }
+    $parsedUrl = parse_url($domain);
+    if (!empty($parsedUrl["host"])) {
+        $domain = $parsedUrl["host"];
+    }
 
-  if (DEFAULT_EXTENSION && strpos($domain, ".") === false) {
-    $domain .= "." . DEFAULT_EXTENSION;
-  }
+    if (DEFAULT_EXTENSION && strpos($domain, ".") === false) {
+        $domain .= "." . DEFAULT_EXTENSION;
+    }
 
-  return $domain;
+    return $domain;
 }
 
 function getDataSource()
@@ -241,20 +251,22 @@ if ($_SERVER["QUERY_STRING"] ?? "") {
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@72..144,300..900&display=swap">
   <?= CUSTOM_HEAD ?>
   <style>
-    /* 首页搜索栏背景修改 - 去掉透明化，显示主页方格背景（假设主页有方格背景，如果没有，可添加背景样式） */
+    /* 首页搜索栏背景修改 - 胶囊样式 */
     body {
-      background-color: #ffffff; /* 原背景白色，如果需要方格，可以添加 background-image: url('grid-background.png'); 或 CSS 网格 */
-      background-image: repeating-linear-gradient(0deg, transparent, transparent 19px, #eee 20px), repeating-linear-gradient(90deg, transparent, transparent 19px, #eee 20px); /* 示例方格背景 */
-      background-size: 20px 20px; /* 示例方格大小 */
+      background-color: #ffffff;
+      background-image: repeating-linear-gradient(0deg, transparent, transparent 19px, #eee 20px), repeating-linear-gradient(90deg, transparent, transparent 19px, #eee 20px);
+      background-size: 20px 20px;
     }
 
     .search-box {
-      background: transparent !important; /* 去掉透明化，让背景显示主页方格 */
-      border: 2px solid #000000 !important; /* 添加黑色边框 */
-      border-radius: 8px !important;
-      padding: 4px !important;
+      background: #ffffff !important;
+      border: 2px solid #000000 !important;
+      border-radius: 25px !important; /* 胶囊样式 */
+      padding: 2px 4px !important; /* 减小内边距 */
       display: flex !important;
       align-items: center !important;
+      height: 44px !important; /* 固定高度，与按钮对齐 */
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
     }
 
     .search-box .input {
@@ -263,9 +275,11 @@ if ($_SERVER["QUERY_STRING"] ?? "") {
       box-shadow: none !important;
       color: #333 !important;
       font-size: 16px !important;
-      padding: 12px 16px !important;
+      padding: 0 12px !important; /* 调整内边距 */
       flex: 1 !important;
       outline: none !important;
+      height: 36px !important; /* 调整高度 */
+      line-height: 36px !important;
     }
 
     .search-box .input::placeholder {
@@ -280,16 +294,55 @@ if ($_SERVER["QUERY_STRING"] ?? "") {
     .search-box .search-clear {
       background: #f0f0f0 !important;
       border: 1px solid #ddd !important;
-      border-radius: 4px !important;
+      border-radius: 50% !important; /* 圆形清除按钮 */
       padding: 4px !important;
       margin-right: 8px !important;
       cursor: pointer !important;
       transition: all 0.2s ease !important;
+      width: 32px !important;
+      height: 32px !important;
+      display: flex !important;
+      align-items: center !important;
+      justify-content: center !important;
     }
 
     .search-box .search-clear:hover {
       background: #e0e0e0 !important;
       border-color: #999 !important;
+    }
+
+    .search-box .search-clear svg {
+      width: 14px !important;
+      height: 14px !important;
+    }
+
+    /* 搜索按钮样式调整 */
+    .button.search-button {
+      background: #000000 !important;
+      color: #ffffff !important;
+      border: none !important;
+      border-radius: 25px !important; /* 与输入框一致的胶囊样式 */
+      height: 44px !important;
+      padding: 0 20px !important;
+      margin-left: 8px !important;
+      display: flex !important;
+      align-items: center !important;
+      gap: 8px !important;
+      font-size: 16px !important;
+      font-weight: 500 !important;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      transition: all 0.2s ease !important;
+    }
+
+    .button.search-button:hover {
+      background: #333333 !important;
+      transform: translateY(-1px) !important;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15) !important;
+    }
+
+    .button.search-button svg {
+      width: 18px !important;
+      height: 18px !important;
     }
 
     /* 修复域名过长文字错位问题 */
@@ -374,6 +427,7 @@ if ($_SERVER["QUERY_STRING"] ?? "") {
       background-color: transparent; /* 让header和main透明以显示方格背景 */
     }
 
+    /* 原始数据容器样式 */
     .raw-data-whois,
     .raw-data-rdap {
       background-color: #ffffff;
@@ -382,51 +436,109 @@ if ($_SERVER["QUERY_STRING"] ?? "") {
       box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
       position: relative;
       margin-bottom: 1rem;
+      white-space: pre-wrap;
+      word-wrap: break-word;
+      font-family: 'Courier New', 'Consolas', monospace;
+      font-size: 14px;
+      line-height: 1.5;
+      overflow-x: auto;
+      min-height: 200px; /* 确保有足够高度显示按钮 */
     }
 
-    /* 改进的复制按钮样式 - 右上角浮动 */
+    /* 分段控件样式 */
+    .segmented {
+      display: flex;
+      background: #f8f9fa;
+      border-radius: 8px;
+      overflow: hidden;
+      margin-bottom: 1rem;
+      border: 1px solid #e9ecef;
+    }
+
+    .segmented-item {
+      flex: 1;
+      padding: 12px 20px;
+      background: none;
+      border: none;
+      cursor: pointer;
+      font-size: 14px;
+      font-weight: 500;
+      color: #6c757d;
+      transition: all 0.2s ease;
+      position: relative;
+    }
+
+    .segmented-item:hover {
+      color: #495057;
+      background: #e9ecef;
+    }
+
+    .segmented-item-selected {
+      background: #007bff;
+      color: white;
+    }
+
+    .segmented-item-selected:hover {
+      background: #0056b3;
+      color: white;
+    }
+
+    /* 复制按钮样式 - 手机端优化 */
     .copy-button {
       position: absolute;
       top: 12px;
       right: 12px;
-      background: rgba(255, 255, 255, 0.9);
+      background: rgba(255, 255, 255, 0.95);
       backdrop-filter: blur(10px);
       border: 1px solid rgba(0, 0, 0, 0.1);
       border-radius: 6px;
-      padding: 6px 10px;
+      padding: 8px 12px;
       cursor: pointer;
-      font-size: 12px;
+      font-size: 13px;
       font-weight: 500;
       color: #666;
       transition: all 0.2s ease;
       display: flex;
       align-items: center;
-      gap: 4px;
+      gap: 6px;
       z-index: 10;
-      opacity: 0;
-      transform: translateY(-4px);
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+      /* 手机端总是显示 */
+      opacity: 1 !important;
+      transform: translateY(0) !important;
+      min-width: 70px;
+      justify-content: center;
     }
 
-    .raw-data-whois:hover .copy-button,
-    .raw-data-rdap:hover .copy-button {
-      opacity: 1;
-      transform: translateY(0);
-    }
+    /* 桌面端悬停效果 */
+    @media (hover: hover) and (pointer: fine) {
+      .copy-button {
+        opacity: 0;
+        transform: translateY(-4px);
+      }
 
-    .copy-button:hover {
-      background: #fff;
-      border-color: #007bff;
-      color: #007bff;
-      box-shadow: 0 2px 8px rgba(0, 123, 255, 0.15);
+      .raw-data-whois:hover .copy-button,
+      .raw-data-rdap:hover .copy-button {
+        opacity: 1;
+        transform: translateY(0);
+      }
+
+      .copy-button:hover {
+        background: #fff;
+        border-color: #007bff;
+        color: #007bff;
+        box-shadow: 0 4px 12px rgba(0, 123, 255, 0.2);
+        transform: translateY(-2px);
+      }
     }
 
     .copy-button:active {
-      transform: translateY(-2px);
+      transform: translateY(0);
     }
 
     .copy-icon {
-      width: 12px;
-      height: 12px;
+      width: 14px;
+      height: 14px;
       flex-shrink: 0;
     }
 
@@ -434,10 +546,98 @@ if ($_SERVER["QUERY_STRING"] ?? "") {
       color: #28a745 !important;
       border-color: #28a745 !important;
       background: rgba(40, 167, 69, 0.1) !important;
+      animation: pulse 0.6s ease-in-out;
     }
 
     .copy-success .copy-icon {
       fill: #28a745 !important;
+    }
+
+    @keyframes pulse {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.05); }
+      100% { transform: scale(1); }
+    }
+
+    /* 隐藏非活动的数据容器 */
+    .raw-data-container {
+      position: relative;
+      min-height: 60px;
+    }
+
+    .raw-data-container.hidden {
+      display: none;
+    }
+
+    /* RDAP JSON 代码高亮 */
+    .raw-data-rdap code {
+      background: none;
+      padding: 0;
+      border-radius: 0;
+      font-family: 'Courier New', 'Consolas', monospace;
+    }
+
+    .raw-data-rdap .token {
+      font-family: 'Courier New', 'Consolas', monospace;
+    }
+
+    /* 手机端优化 */
+    @media (max-width: 768px) {
+      .search-box {
+        margin-bottom: 12px !important;
+        width: 100% !important;
+      }
+
+      .button.search-button {
+        width: 100% !important;
+        margin-left: 0 !important;
+        margin-top: 8px !important;
+        justify-content: center !important;
+      }
+
+      .copy-button {
+        padding: 6px 10px !important;
+        font-size: 12px !important;
+        min-width: 60px !important;
+      }
+
+      .copy-icon {
+        width: 12px !important;
+        height: 12px !important;
+      }
+
+      .raw-data-whois,
+      .raw-data-rdap {
+        padding: 1rem !important;
+        font-size: 13px !important;
+      }
+
+      .segmented-item {
+        padding: 10px 16px !important;
+        font-size: 13px !important;
+      }
+
+      .message-data {
+        grid-template-columns: 1fr;
+        gap: 0.5rem;
+      }
+
+      .message-label {
+        justify-content: flex-start;
+      }
+    }
+
+    /* 确保原始数据容器有足够的空间显示按钮 */
+    .raw-data-container {
+      min-height: 60px;
+    }
+
+    .search-clear.visible {
+      display: flex !important;
+    }
+
+    .search-clear:not(.visible) {
+      display: none !important;
     }
   </style>
 </head>
@@ -814,36 +1014,59 @@ if ($_SERVER["QUERY_STRING"] ?? "") {
         </div>
       </section>
     <?php endif; ?>
-    <?php if ($whoisData && $rdapData): ?>
-      <section class="data-source">
-        <div class="segmented">
-          <button class="segmented-item segmented-item-selected" id="data-source-whois" type="button">WHOIS</button>
-          <button class="segmented-item" id="data-source-rdap" type="button">RDAP</button>
-        </div>
-      </section>
-    <?php endif; ?>
+    
     <?php if ($whoisData || $rdapData): ?>
       <section class="raw-data">
+        <?php if ($whoisData && $rdapData): ?>
+          <!-- 有WHOIS和RDAP时显示切换按钮 -->
+          <section class="data-source">
+            <div class="segmented">
+              <button class="segmented-item segmented-item-selected" id="data-source-whois" type="button">
+                <span>WHOIS</span>
+              </button>
+              <button class="segmented-item" id="data-source-rdap" type="button">
+                <span>RDAP</span>
+              </button>
+            </div>
+          </section>
+        <?php endif; ?>
+        
+        <!-- 数据容器 -->
         <?php if ($whoisData): ?>
-          <div class="raw-data-container">
-            <button class="copy-button" onclick="copyToClipboard('raw-data-whois')">
+          <div class="raw-data-container" id="whois-container">
+            <button class="copy-button" id="copy-whois" title="复制 WHOIS 数据" aria-label="复制 WHOIS 数据">
               <svg class="copy-icon" viewBox="0 0 16 16" fill="currentColor">
                 <path d="M4 1a3 3 0 0 0-3 3v10a3 3 0 0 0 3 3h10a3 3 0 0 0 3-3V4a3 3 0 0 0-3-3H4zm2 2a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2V3z"/>
               </svg>
               <span>复制</span>
             </button>
-            <pre class="raw-data-whois" id="raw-data-whois" tabindex="0"><?= $whoisData; ?></pre>
+            <pre class="raw-data-whois" id="raw-data-whois" tabindex="0"><?= htmlspecialchars($whoisData, ENT_QUOTES, 'UTF-8'); ?></pre>
           </div>
         <?php endif; ?>
+        
         <?php if ($rdapData): ?>
-          <div class="raw-data-container">
-            <button class="copy-button" onclick="copyToClipboard('raw-data-rdap')">
+          <div class="raw-data-container <?= $whoisData ? 'hidden' : '' ?>" id="rdap-container">
+            <button class="copy-button" id="copy-rdap" title="复制 RDAP 数据" aria-label="复制 RDAP 数据">
               <svg class="copy-icon" viewBox="0 0 16 16" fill="currentColor">
                 <path d="M4 1a3 3 0 0 0-3 3v10a3 3 0 0 0 3 3h10a3 3 0 0 0 3-3V4a3 3 0 0 0-3-3H4zm2 2a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2V3z"/>
               </svg>
               <span>复制</span>
             </button>
-            <pre class="raw-data-rdap" id="raw-data-rdap"><code class="language-json"><?= $rdapData; ?></code></pre>
+            <pre class="raw-data-rdap" id="raw-data-rdap"><code class="language-json"><?= htmlspecialchars($rdapData, ENT_QUOTES, 'UTF-8'); ?></code></pre>
+          </div>
+        <?php endif; ?>
+        
+        <?php if (!$whoisData && !$rdapData): ?>
+          <div class="message message-notice">
+            <div class="message-data">
+              <h2 class="message-title">
+                  <svg width="1em" height="1em" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true" class="message-icon">
+                    <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14m0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16" />
+                    <path d="M5.255 5.786a.237.237 0 0 0 .241.247h.825c.138 0 .248-.113.266-.25.09-.656.54-1.134 1.342-1.134.686 0 1.314.343 1.314 1.168 0 .635-.374.927-.965 1.371-.673.489-1.206 1.06-1.168 1.987l.003.217a.25.25 0 0 0 .25.246h.811a.25.25 0 0 0 .25-.25v-.105c0-.718.273-.927 1.01-1.486.609-.463 1.244-.977 1.244-2.056 0-1.511-1.276-2.241-2.673-2.241-1.267 0-2.655.59-2.75 2.286m1.557 5.763c0 .533.425.927 1.01.927.609 0 1.028-.394 1.028-.927 0-.552-.42-.94-1.029-.94-.584 0-1.009.388-1.009.94" />
+                  </svg>
+                  暂无原始数据可用
+              </h2>
+            </div>
           </div>
         <?php endif; ?>
       </section>
@@ -855,36 +1078,150 @@ if ($_SERVER["QUERY_STRING"] ?? "") {
       <path d="M8 12a.5.5 0 0 0 .5-.5V5.707l2.146 2.147a.5.5 0 0 0 .708-.708l-3-3a.5.5 0 0 0-.708 0l-3 3a.5.5 0 1 0 .708.708L7.5 5.707V11.5a.5.5 0 0 0 .5.5" fill-rule="evenodd" />
     </svg>
   </button>
+  
   <script>
+    // 复制到剪贴板函数 - 增强版
+    function copyToClipboard(elementId) {
+      const element = document.getElementById(elementId);
+      const copyButton = document.querySelector(`[onclick="copyToClipboard('${elementId}')"]`) || 
+                        document.getElementById(elementId.replace('raw-data-', 'copy-'));
+      
+      if (!element) return;
+
+      // 获取要复制的文本
+      let textToCopy = '';
+      if (element.tagName === 'PRE') {
+        textToCopy = element.textContent || element.innerText;
+      } else if (element.querySelector('code')) {
+        textToCopy = element.querySelector('code').textContent || element.querySelector('code').innerText;
+      } else {
+        textToCopy = element.textContent || element.innerText;
+      }
+
+      // 创建临时文本区域
+      const textArea = document.createElement('textarea');
+      textArea.value = textToCopy;
+      textArea.style.position = 'fixed';
+      textArea.style.left = '-999999px';
+      textArea.style.top = '-999999px';
+      textArea.style.opacity = '0';
+      document.body.appendChild(textArea);
+      textArea.focus();
+      textArea.select();
+
+      try {
+        const successful = document.execCommand('copy');
+        if (successful) {
+          showCopySuccess(copyButton);
+        } else {
+          // 使用现代 Clipboard API
+          navigator.clipboard.writeText(textToCopy).then(() => {
+            showCopySuccess(copyButton);
+          }).catch((err) => {
+            console.error('复制失败:', err);
+            showCopyError(copyButton);
+          });
+        }
+      } catch (err) {
+        // 使用现代 Clipboard API 作为备选
+        navigator.clipboard.writeText(textToCopy).then(() => {
+          showCopySuccess(copyButton);
+        }).catch((err) => {
+          console.error('复制失败:', err);
+          showCopyError(copyButton);
+        });
+      } finally {
+        document.body.removeChild(textArea);
+      }
+    }
+
+    function showCopySuccess(copyButton) {
+      if (!copyButton) return;
+      
+      // 添加成功样式
+      copyButton.classList.add('copy-success');
+      const originalText = copyButton.querySelector('span').textContent;
+      const successText = copyButton.querySelector('span');
+      if (successText) {
+        successText.textContent = '已复制!';
+      }
+      
+      // 添加振动反馈（移动端）
+      if (navigator.vibrate) {
+        navigator.vibrate(50);
+      }
+      
+      // 2秒后恢复
+      setTimeout(() => {
+        copyButton.classList.remove('copy-success');
+        if (successText) {
+          successText.textContent = originalText;
+        }
+      }, 2000);
+    }
+
+    function showCopyError(copyButton) {
+      if (!copyButton) return;
+      
+      // 添加错误样式
+      copyButton.style.background = 'rgba(220, 53, 69, 0.1)';
+      copyButton.style.borderColor = '#dc3545';
+      copyButton.style.color = '#dc3545';
+      const originalText = copyButton.querySelector('span').textContent;
+      const errorText = copyButton.querySelector('span');
+      if (errorText) {
+        errorText.textContent = '复制失败';
+      }
+      
+      // 2秒后恢复
+      setTimeout(() => {
+        copyButton.style.background = '';
+        copyButton.style.borderColor = '';
+        copyButton.style.color = '';
+        if (errorText) {
+          errorText.textContent = originalText;
+        }
+      }, 2000);
+    }
+
     window.addEventListener("DOMContentLoaded", function() {
       const domainElement = document.getElementById("domain");
       const domainClearElement = document.getElementById("domain-clear");
 
-      if (domainElement.value) {
+      if (domainElement && domainElement.value) {
         domainClearElement.classList.add("visible");
       }
 
-      domainElement.addEventListener("input", (e) => {
-        if (e.target.value) {
-          domainClearElement.classList.add("visible");
-        } else {
-          domainClearElement.classList.remove("visible");
-        }
-      });
-      domainClearElement.addEventListener("click", () => {
-        domainElement.focus();
-        domainElement.select();
-        if (!document.execCommand("delete", false)) {
-          domainElement.setRangeText("");
-        }
-        domainClearElement.classList.remove("visible");
-      });
+      if (domainElement) {
+        domainElement.addEventListener("input", (e) => {
+          if (e.target.value) {
+            domainClearElement.classList.add("visible");
+          } else {
+            domainClearElement.classList.remove("visible");
+          }
+        });
+      }
+
+      if (domainClearElement) {
+        domainClearElement.addEventListener("click", () => {
+          if (domainElement) {
+            domainElement.focus();
+            domainElement.select();
+            if (!document.execCommand("delete", false)) {
+              domainElement.setRangeText("");
+            }
+            domainClearElement.classList.remove("visible");
+          }
+        });
+      }
 
       const checkboxNames = ["whois", "rdap", "prices"];
       <?php if ($domain): ?>
         checkboxNames.forEach((name) => {
           const checkbox = document.getElementById(`checkbox-${name}`);
-          localStorage.setItem(`checkbox-${name}`, +checkbox.checked);
+          if (checkbox) {
+            localStorage.setItem(`checkbox-${name}`, +checkbox.checked);
+          }
         });
       <?php else: ?>
         const whoisValue = localStorage.getItem("checkbox-whois") || "0";
@@ -892,41 +1229,116 @@ if ($_SERVER["QUERY_STRING"] ?? "") {
 
         checkboxNames.forEach((name) => {
           const checkbox = document.getElementById(`checkbox-${name}`);
-
-          if (!+whoisValue && !+rdapValue && name !== "prices") {
-            checkbox.checked = true;
-          } else {
-            checkbox.checked = localStorage.getItem(`checkbox-${name}`) === "1";
+          if (checkbox) {
+            if (!+whoisValue && !+rdapValue && name !== "prices") {
+              checkbox.checked = true;
+            } else {
+              checkbox.checked = localStorage.getItem(`checkbox-${name}`) === "1";
+            }
           }
         });
       <?php endif; ?>
 
-      document.getElementById("form").addEventListener("submit", () => {
-        document.getElementById("search-icon").classList.add("searching");
-      });
+      const form = document.getElementById("form");
+      const searchIcon = document.getElementById("search-icon");
+      if (form && searchIcon) {
+        form.addEventListener("submit", () => {
+          searchIcon.classList.add("searching");
+        });
+      }
 
       const backToTop = document.getElementById("back-to-top");
-      backToTop.addEventListener("click", () => {
-        window.scrollTo({
-          behavior: "smooth",
-          top: 0,
+      if (backToTop) {
+        backToTop.addEventListener("click", () => {
+          window.scrollTo({
+            behavior: "smooth",
+            top: 0,
+          });
         });
-      });
 
-      window.addEventListener("scroll", () => {
-        if (document.documentElement.scrollTop > 360) {
-          if (!backToTop.classList.contains("visible")) {
-            backToTop.classList.add("visible");
+        window.addEventListener("scroll", () => {
+          if (document.documentElement.scrollTop > 360) {
+            if (!backToTop.classList.contains("visible")) {
+              backToTop.classList.add("visible");
+            }
+          } else {
+            if (backToTop.classList.contains("visible")) {
+              backToTop.classList.remove("visible");
+            }
           }
-        } else {
-          if (backToTop.classList.contains("visible")) {
-            backToTop.classList.remove("visible");
+        });
+      }
+
+      // WHOIS/RDAP 切换功能
+      const dataSourceWHOIS = document.getElementById("data-source-whois");
+      const dataSourceRDAP = document.getElementById("data-source-rdap");
+      const whoisContainer = document.getElementById("whois-container");
+      const rdapContainer = document.getElementById("rdap-container");
+
+      function switchToWHOIS() {
+        if (dataSourceWHOIS) dataSourceWHOIS.classList.add("segmented-item-selected");
+        if (dataSourceRDAP) dataSourceRDAP.classList.remove("segmented-item-selected");
+        if (whoisContainer) whoisContainer.classList.remove("hidden");
+        if (rdapContainer) rdapContainer.classList.add("hidden");
+      }
+
+      function switchToRDAP() {
+        if (dataSourceWHOIS) dataSourceWHOIS.classList.remove("segmented-item-selected");
+        if (dataSourceRDAP) dataSourceRDAP.classList.add("segmented-item-selected");
+        if (whoisContainer) whoisContainer.classList.add("hidden");
+        if (rdapContainer) rdapContainer.classList.remove("hidden");
+      }
+
+      if (dataSourceWHOIS && dataSourceRDAP && whoisContainer && rdapContainer) {
+        dataSourceWHOIS.addEventListener("click", (e) => {
+          e.preventDefault();
+          if (!dataSourceWHOIS.classList.contains("segmented-item-selected")) {
+            switchToWHOIS();
           }
-        }
-      });
+        });
+
+        dataSourceRDAP.addEventListener("click", (e) => {
+          e.preventDefault();
+          if (!dataSourceRDAP.classList.contains("segmented-item-selected")) {
+            switchToRDAP();
+          }
+        });
+      }
+
+      // 复制按钮事件绑定 - 增强版
+      const copyWHOISButton = document.getElementById("copy-whois");
+      const copyRDAPButton = document.getElementById("copy-rdap");
+
+      if (copyWHOISButton) {
+        copyWHOISButton.addEventListener("click", (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          copyToClipboard('raw-data-whois');
+        });
+      }
+
+      if (copyRDAPButton) {
+        copyRDAPButton.addEventListener("click", (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          copyToClipboard('raw-data-rdap');
+        });
+      }
+
+      // 如果只有WHOIS数据，默认显示WHOIS
+      if (whoisContainer && !rdapContainer && dataSourceWHOIS) {
+        whoisContainer.classList.remove("hidden");
+        switchToWHOIS();
+      }
+      // 如果只有RDAP数据，默认显示RDAP
+      else if (rdapContainer && !whoisContainer && dataSourceRDAP) {
+        rdapContainer.classList.remove("hidden");
+        switchToRDAP();
+      }
     });
   </script>
-  <?php if ($whoisData || $rdapData): ?>
+
+  <?php if ($domain): ?>
     <script>
       window.addEventListener("DOMContentLoaded", function() {
         function formatDuration(seconds) {
@@ -994,109 +1406,90 @@ if ($_SERVER["QUERY_STRING"] ?? "") {
     <script src="public/js/prism.js" defer></script>
     <script>
       window.addEventListener("DOMContentLoaded", function() {
-        tippy.setDefaultProps({
-          arrow: false,
-          offset: [0, 8],
-          maxWidth: 200,
-          allowHTML: false,
-          theme: 'light-border',
-          content: (reference) => reference.innerHTML,
-        });
+        if (typeof tippy !== 'undefined') {
+          tippy.setDefaultProps({
+            arrow: false,
+            offset: [0, 8],
+            maxWidth: 200,
+            allowHTML: false,
+            theme: 'light-border',
+            content: (reference) => reference.innerHTML,
+          });
 
-        function updateDateElementTooltip(elementId) {
-          const element = document.getElementById(elementId);
-          if (element) {
-            const iso8601 = element.dataset.iso8601;
-            if (iso8601) {
-              const date = new Date(iso8601);
-              const year = date.getFullYear();
-              const month = String(date.getMonth() + 1).padStart(2, "0");
-              const day = String(date.getDate()).padStart(2, "0");
-              const hours = String(date.getHours()).padStart(2, "0");
-              const minutes = String(date.getMinutes()).padStart(2, "0");
-              const seconds = String(date.getSeconds()).padStart(2, "0");
-              const formattedDateTime = `${year}年${month}月${day}日 ${hours}时${minutes}分${seconds}秒`;
+          function updateDateElementTooltip(elementId) {
+            const element = document.getElementById(elementId);
+            if (element) {
+              const iso8601 = element.dataset.iso8601;
+              if (iso8601) {
+                const date = new Date(iso8601);
+                const year = date.getFullYear();
+                const month = String(date.getMonth() + 1).padStart(2, "0");
+                const day = String(date.getDate()).padStart(2, "0");
+                const hours = String(date.getHours()).padStart(2, "0");
+                const minutes = String(date.getMinutes()).padStart(2, "0");
+                const seconds = String(date.getSeconds()).padStart(2, "0");
+                const formattedDateTime = `${year}年${month}月${day}日 ${hours}时${minutes}分${seconds}秒`;
 
-              tippy(`#${elementId}`, {
-                content: formattedDateTime,
-                placement: "right",
-                appendTo: () => document.body,
-              });
-            }
-          }
-        }
-
-        updateDateElementTooltip("creation-date");
-        updateDateElementTooltip("expiration-date");
-        updateDateElementTooltip("updated-date");
-        updateDateElementTooltip("available-date");
-
-        function updateSecondsElementTooltip(elementId, prefix) {
-          const element = document.getElementById(elementId);
-          if (element) {
-            const seconds = element.dataset.seconds;
-            if (seconds) {
-              let days = seconds / 24 / 60 / 60;
-              days = seconds < 0 ? Math.ceil(days) : Math.floor(days);
-              if (seconds < 0 && days === 0) {
-                days = "-0";
+                tippy(`#${elementId}`, {
+                  content: formattedDateTime,
+                  placement: "right",
+                  appendTo: () => document.body,
+                });
               }
-              tippy(`#${elementId}`, {
-                content: `${prefix}: ${days} 天`,
-                placement: "bottom",
-              });
             }
           }
+
+          updateDateElementTooltip("creation-date");
+          updateDateElementTooltip("expiration-date");
+          updateDateElementTooltip("updated-date");
+          updateDateElementTooltip("available-date");
+
+          function updateSecondsElementTooltip(elementId, prefix) {
+            const element = document.getElementById(elementId);
+            if (element) {
+              const seconds = element.dataset.seconds;
+              if (seconds) {
+                let days = seconds / 24 / 60 / 60;
+                days = seconds < 0 ? Math.ceil(days) : Math.floor(days);
+                if (seconds < 0 && days === 0) {
+                  days = "-0";
+                }
+                tippy(`#${elementId}`, {
+                  content: `${prefix}: ${days} 天`,
+                  placement: "bottom",
+                });
+              }
+            }
+          }
+
+          updateSecondsElementTooltip("age", "已经注册");
+          updateSecondsElementTooltip("remaining", "距离过期");
         }
 
-        updateSecondsElementTooltip("age", "已经注册");
-        updateSecondsElementTooltip("remaining", "距离过期");
-
-        const dataSourceWHOIS = document.getElementById("data-source-whois");
-        const dataSourceRDAP = document.getElementById("data-source-rdap");
+        // Linkify 功能（如果有原始数据）
         const rawDataWHOIS = document.getElementById("raw-data-whois");
         const rawDataRDAP = document.getElementById("raw-data-rdap");
-
-        if (dataSourceWHOIS && dataSourceRDAP) {
-          dataSourceWHOIS.addEventListener("click", () => {
-            if (dataSourceWHOIS.classList.contains("segmented-item-selected")) {
-              return;
+        
+        if (typeof linkifyHtml !== 'undefined') {
+          function linkifyRawData(element) {
+            if (element) {
+              element.innerHTML = linkifyHtml(element.innerHTML, {
+                rel: "nofollow noopener noreferrer",
+                target: "_blank",
+                validate: {
+                  url: (value) => /^https?:\/\//.test(value),
+                },
+              });
             }
-
-            dataSourceWHOIS.classList.add("segmented-item-selected");
-            rawDataWHOIS.style.display = "block";
-            dataSourceRDAP.classList.remove("segmented-item-selected");
-            rawDataRDAP.style.display = "none";
-          });
-          dataSourceRDAP.addEventListener("click", () => {
-            if (dataSourceRDAP.classList.contains("segmented-item-selected")) {
-              return;
-            }
-
-            dataSourceWHOIS.classList.remove("segmented-item-selected");
-            rawDataWHOIS.style.display = "none";
-            dataSourceRDAP.classList.add("segmented-item-selected");
-            rawDataRDAP.style.display = "block";
-          });
-        }
-
-        function linkifyRawData(element) {
-          if (element) {
-            element.innerHTML = linkifyHtml(element.innerHTML, {
-              rel: "nofollow noopener noreferrer",
-              target: "_blank",
-              validate: {
-                url: (value) => /^https?:\/\//.test(value),
-              },
-            });
           }
-        }
 
-        linkifyRawData(rawDataWHOIS);
-        linkifyRawData(rawDataRDAP);
+          linkifyRawData(rawDataWHOIS);
+          linkifyRawData(rawDataRDAP);
+        }
       });
     </script>
   <?php endif; ?>
+
   <?php if ($fetchPrices): ?>
     <script>
       window.addEventListener("DOMContentLoaded", async () => {
@@ -1158,20 +1551,22 @@ if ($_SERVER["QUERY_STRING"] ?? "") {
           setTimeout(() => {
             messagePrice.innerHTML = innerHTML;
 
-            if (isPremium) {
+            if (isPremium && typeof tippy !== 'undefined') {
               tippy("#price-premium", {
                 content: "溢价",
                 placement: "bottom",
               });
             }
-            tippy("#price-register", {
-              content: `¥${registerCNY}`,
-              placement: "bottom"
-            });
-            tippy("#price-renew", {
-              content: `¥${renewCNY}`,
-              placement: "bottom"
-            });
+            if (typeof tippy !== 'undefined') {
+              tippy("#price-register", {
+                content: `¥${registerCNY}`,
+                placement: "bottom"
+              });
+              tippy("#price-renew", {
+                content: `¥${renewCNY}`,
+                placement: "bottom"
+              });
+            }
           }, Math.max(0, 500 - (Date.now() - startTime)));
         } catch {
           setTimeout(() => {
@@ -1181,6 +1576,7 @@ if ($_SERVER["QUERY_STRING"] ?? "") {
       });
     </script>
   <?php endif; ?>
+  
   <?= CUSTOM_SCRIPT ?>
 </body>
 
