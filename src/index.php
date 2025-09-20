@@ -223,21 +223,20 @@ if ($_SERVER["QUERY_STRING"] ?? "") {
   <style>
     /* 解决图标和布局问题的新增样式 */
     .message-data .message-title {
-      display: flex; /* 使用 flexbox 布局 */
-      align-items: center; /* 垂直居中对齐 */
-      gap: 0.5rem; /* 图标和文字之间的间距 */
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
       grid-column: 1 / -1;
-      margin-bottom: 1rem; /* 减小标题和下方内容的间距 */
-      font-size: 1rem; /* 统一字体大小 */
+      margin-bottom: 1rem;
+      font-size: 1rem;
       font-weight: 600;
       color: #222;
       text-align: left;
     }
 
-    /* 调整标题内图标大小 */
     .message-title .message-icon {
-        width: 1.2em; /* 调整图标大小 */
-        height: 1.2em; /* 调整图标大小 */
+        width: 1.2em;
+        height: 1.2em;
     }
 
     .message-data {
@@ -296,7 +295,12 @@ if ($_SERVER["QUERY_STRING"] ?? "") {
     /* 移除顶部的背景，实现透明化 */
     header {
       background-color: transparent;
-      padding-top: 2rem; /* 根据需要调整 */
+      padding-top: 2rem;
+    }
+    
+    /* 修复 .hero-section 和 .message-informative 的背景 */
+    .hero-section {
+      background-color: transparent;
     }
 
     main {
@@ -306,15 +310,15 @@ if ($_SERVER["QUERY_STRING"] ?? "") {
     /* 使输入框背景透明 */
     .search-box {
       background-color: transparent;
-      border: 1px solid #ccc; /* 添加一个细边框来匹配截图的风格 */
-      border-radius: 9999px; /* 使边框变为圆角胶囊状 */
-      padding: 0.5rem 1rem; /* 调整内边距以适应新的设计 */
+      border: 1px solid #ccc;
+      border-radius: 9999px;
+      padding: 0.5rem 1rem;
       display: flex;
       align-items: center;
     }
 
     .input.search-input {
-      background-color: transparent; /* 确保输入框本身背景也透明 */
+      background-color: transparent;
       border: none;
       outline: none;
       width: 100%;
@@ -326,6 +330,20 @@ if ($_SERVER["QUERY_STRING"] ?? "") {
       padding: 1.5rem;
       border-radius: 12px;
       box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    }
+    
+    /* 确保 .message-informative 的背景也是透明的 */
+    .message.message-informative {
+        background: transparent;
+        border: none;
+        box-shadow: none;
+        padding: 0;
+    }
+
+    .message.message-informative .message-data {
+        background: transparent;
+        box-shadow: none;
+        padding: 0;
     }
 
   </style>
