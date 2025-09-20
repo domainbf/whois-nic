@@ -1,7 +1,8 @@
-* {
-  box-sizing: border-box;
-}
-
+/*
+ * {
+ * box-sizing: border-box;
+ * }
+ */
 html {
   scroll-behavior: smooth;
   text-size-adjust: 100%;
@@ -255,7 +256,8 @@ form {
 }
 
 .messages {
-  background: linear-gradient(#e1f9f9 50%, #ffffff 50%);
+  /* 这一行删除了原本的绿色背景 */
+  background: none; 
   margin-bottom: 24px;
   margin-top: -64px;
 }
