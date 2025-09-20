@@ -258,18 +258,20 @@ if ($_SERVER["QUERY_STRING"] ?? "") {
       background-size: 20px 20px;
     }
 
+    /* 修复搜索框长域名撑出问题 - 增强版 */
     .search-box {
       background: #ffffff !important;
       border: 2px solid #000000 !important;
-      border-radius: 25px !important; /* 胶囊样式 */
-      padding: 2px 4px !important; /* 减小内边距 */
+      border-radius: 25px !important;
+      padding: 2px 4px !important;
       display: flex !important;
       align-items: center !important;
-      height: 44px !important; /* 固定高度，与按钮对齐 */
+      height: 44px !important;
       box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-      /* 修复长域名撑出问题 */
-      overflow: hidden !important;
+      /* 强制限制宽度 */
+      width: 100% !important;
       max-width: 100% !important;
+      overflow: hidden !important;
       box-sizing: border-box !important;
     }
 
@@ -279,16 +281,19 @@ if ($_SERVER["QUERY_STRING"] ?? "") {
       box-shadow: none !important;
       color: #333 !important;
       font-size: 16px !important;
-      padding: 0 12px !important; /* 调整内边距 */
+      padding: 0 12px !important;
       flex: 1 !important;
       outline: none !important;
-      height: 36px !important; /* 调整高度 */
+      height: 36px !important;
       line-height: 36px !important;
-      /* 修复长域名撑出问题 */
-      min-width: 0 !important; /* 允许flex子项收缩 */
+      /* 强制显示省略号 */
+      min-width: 0 !important;
+      max-width: 100% !important;
       overflow: hidden !important;
       text-overflow: ellipsis !important;
       white-space: nowrap !important;
+      /* 确保输入框可以被压缩 */
+      flex-shrink: 1 !important;
     }
 
     .search-box .input::placeholder {
@@ -303,7 +308,7 @@ if ($_SERVER["QUERY_STRING"] ?? "") {
     .search-box .search-clear {
       background: #f0f0f0 !important;
       border: 1px solid #ddd !important;
-      border-radius: 50% !important; /* 圆形清除按钮 */
+      border-radius: 50% !important;
       padding: 4px !important;
       margin-right: 8px !important;
       cursor: pointer !important;
@@ -313,7 +318,7 @@ if ($_SERVER["QUERY_STRING"] ?? "") {
       display: flex !important;
       align-items: center !important;
       justify-content: center !important;
-      flex-shrink: 0 !important; /* 清除按钮不收缩 */
+      flex-shrink: 0 !important;
     }
 
     .search-box .search-clear:hover {
@@ -331,7 +336,7 @@ if ($_SERVER["QUERY_STRING"] ?? "") {
       background: #000000 !important;
       color: #ffffff !important;
       border: none !important;
-      border-radius: 25px !important; /* 与输入框一致的胶囊样式 */
+      border-radius: 25px !important;
       height: 44px !important;
       padding: 0 20px !important;
       margin-left: 8px !important;
@@ -342,7 +347,7 @@ if ($_SERVER["QUERY_STRING"] ?? "") {
       font-weight: 500 !important;
       box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
       transition: all 0.2s ease !important;
-      flex-shrink: 0 !important; /* 按钮不收缩 */
+      flex-shrink: 0 !important;
     }
 
     .button.search-button:hover {
@@ -356,40 +361,58 @@ if ($_SERVER["QUERY_STRING"] ?? "") {
       height: 18px !important;
     }
 
-    /* 修复域名过长文字错位问题 */
-    .message-data .message-title {
-      display: flex; /* 使用 flexbox 布局 */
-      align-items: center; /* 垂直居中对齐 */
-      gap: 0.5rem; /* 图标和文字之间的间距 */
-      grid-column: 1 / -1;
-      margin-bottom: 1rem; /* 减小标题和下方内容的间距 */
-      font-size: 1rem; /* 统一字体大小 */
-      font-weight: 600;
-      color: #222;
-      text-align: left;
-      flex-wrap: wrap; /* 允许换行 */
-    }
-
-    .message-title a {
-      max-width: 70%; /* 限制域名链接最大宽度 */
-      word-break: break-all; /* 长域名强制换行 */
-      overflow: hidden; /* 隐藏溢出部分 */
-      text-overflow: ellipsis; /* 用省略号表示溢出 */
-      display: inline-block; /* 允许设置宽度 */
-      vertical-align: middle; /* 垂直对齐 */
-    }
-
-    /* 调整标题内图标大小 */
-    .message-title .message-icon {
-        width: 1.2em; /* 调整图标大小 */
-        height: 1.2em; /* 调整图标大小 */
-    }
-
+    /* 修复结果页面布局 - 同一行显示 */
     .message-data {
       display: grid;
       grid-template-columns: auto 1fr;
       gap: 1rem 1.5rem;
       margin-top: 1.5rem;
+      align-items: start; /* 顶部对齐 */
+    }
+
+    .message-label {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      margin-bottom: 0.5rem; /* 标签和内容之间的间距 */
+    }
+
+    .message-icon-leading {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 1.2em;
+      height: 1.2em;
+      flex-shrink: 0;
+    }
+
+    /* 修复域名过长文字错位问题 */
+    .message-data .message-title {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      grid-column: 1 / -1;
+      margin-bottom: 1rem;
+      font-size: 1rem;
+      font-weight: 600;
+      color: #222;
+      text-align: left;
+      flex-wrap: wrap;
+    }
+
+    .message-title a {
+      max-width: 70%;
+      word-break: break-all;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      display: inline-block;
+      vertical-align: middle;
+    }
+
+    .message-title .message-icon {
+      width: 1.2em;
+      height: 1.2em;
+      flex-shrink: 0;
     }
 
     .checkbox-label {
@@ -405,19 +428,6 @@ if ($_SERVER["QUERY_STRING"] ?? "") {
       height: 18px;
       margin-right: 2px;
     }
-
-    .message-label {
-      display: flex;
-      align-items: center;
-      gap: 4px;
-    }
-    .message-icon-leading {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      width: 1.2em;
-      height: 1.2em;
-    }
     
     /* 移除背景和侧边栏 */
     .message.message-positive {
@@ -426,16 +436,15 @@ if ($_SERVER["QUERY_STRING"] ?? "") {
         box-shadow: none;
         padding: 0;
     }
-    /* 移除 message-positive 内的 data-source 容器的背景和阴影 */
+    
     .message.message-positive .message-data {
         background: transparent;
         box-shadow: none;
         padding: 0;
     }
 
-    /* 统一页面背景为白色，但已修改为方格 */
     header, main {
-      background-color: transparent; /* 让header和main透明以显示方格背景 */
+      background-color: transparent;
     }
 
     /* 原始数据容器样式 */
@@ -453,49 +462,53 @@ if ($_SERVER["QUERY_STRING"] ?? "") {
       font-size: 14px;
       line-height: 1.5;
       overflow-x: auto;
-      min-height: 200px; /* 确保有足够高度显示按钮 */
+      min-height: 200px;
     }
 
-    /* 分段控件样式 - 修改配色符合整体风格 */
+    /* WHOIS/RDAP切换按钮 - 圆角黑色背景 */
     .segmented {
       display: flex;
-      background: #ffffff !important; /* 改为白色背景 */
-      border-radius: 25px !important; /* 胶囊样式 */
+      background: #ffffff !important;
+      border-radius: 25px !important;
       overflow: hidden;
       margin-bottom: 1rem;
-      border: 2px solid #000000 !important; /* 黑色边框 */
-      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1) !important; /* 添加阴影 */
+      border: 2px solid #000000 !important;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1) !important;
+      width: fit-content; /* 只占内容宽度 */
     }
 
     .segmented-item {
       flex: 1;
-      padding: 12px 20px;
-      background: transparent !important; /* 透明背景 */
+      padding: 12px 24px;
+      background: transparent !important;
       border: none !important;
       cursor: pointer;
       font-size: 14px;
       font-weight: 500;
-      color: #333 !important; /* 深灰色文字 */
+      color: #333 !important;
       transition: all 0.2s ease;
       position: relative;
+      border-radius: 25px; /* 每个按钮都有圆角 */
+      min-width: 80px; /* 最小宽度 */
     }
 
     .segmented-item:hover {
-      color: #000000 !important; /* 悬停时黑色 */
-      background: #f0f0f0 !important; /* 浅灰色背景 */
+      color: #000000 !important;
+      background: #f0f0f0 !important;
     }
 
     .segmented-item-selected {
-      background: #000000 !important; /* 选中时黑色背景 */
-      color: #ffffff !important; /* 白色文字 */
+      background: #000000 !important;
+      color: #ffffff !important;
+      border-radius: 25px !important; /* 选中时圆角 */
     }
 
     .segmented-item-selected:hover {
-      background: #333333 !important; /* 悬停时深灰色 */
-      color: #ffffff !important; /* 保持白色文字 */
+      background: #333333 !important;
+      color: #ffffff !important;
     }
 
-    /* 复制按钮样式 - 手机端优化 */
+    /* 复制按钮样式 */
     .copy-button {
       position: absolute;
       top: 12px;
@@ -515,14 +528,12 @@ if ($_SERVER["QUERY_STRING"] ?? "") {
       gap: 6px;
       z-index: 10;
       box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
-      /* 手机端总是显示 */
       opacity: 1 !important;
       transform: translateY(0) !important;
       min-width: 70px;
       justify-content: center;
     }
 
-    /* 桌面端悬停效果 */
     @media (hover: hover) and (pointer: fine) {
       .copy-button {
         opacity: 0;
@@ -571,7 +582,6 @@ if ($_SERVER["QUERY_STRING"] ?? "") {
       100% { transform: scale(1); }
     }
 
-    /* 隐藏非活动的数据容器 */
     .raw-data-container {
       position: relative;
       min-height: 60px;
@@ -581,7 +591,6 @@ if ($_SERVER["QUERY_STRING"] ?? "") {
       display: none;
     }
 
-    /* RDAP JSON 代码高亮 */
     .raw-data-rdap code {
       background: none;
       padding: 0;
@@ -598,6 +607,11 @@ if ($_SERVER["QUERY_STRING"] ?? "") {
       .search-box {
         margin-bottom: 12px !important;
         width: 100% !important;
+      }
+
+      .search-box .input {
+        font-size: 14px !important;
+        padding: 0 8px !important; /* 移动端减少内边距 */
       }
 
       .button.search-button {
@@ -627,6 +641,7 @@ if ($_SERVER["QUERY_STRING"] ?? "") {
       .segmented-item {
         padding: 10px 16px !important;
         font-size: 13px !important;
+        min-width: 70px !important;
       }
 
       .message-data {
@@ -638,13 +653,16 @@ if ($_SERVER["QUERY_STRING"] ?? "") {
         justify-content: flex-start;
       }
 
-      /* 移动端搜索框长域名处理 */
-      .search-box .input {
-        font-size: 14px !important; /* 移动端稍微减小字体 */
+      /* 移动端结果页面布局优化 */
+      .message-label {
+        margin-bottom: 0.25rem;
+      }
+
+      .message-data > div {
+        margin-bottom: 0.5rem;
       }
     }
 
-    /* 确保原始数据容器有足够的空间显示按钮 */
     .raw-data-container {
       min-height: 60px;
     }
@@ -811,6 +829,8 @@ if ($_SERVER["QUERY_STRING"] ?? "") {
                     </svg>
                     <a href="http://<?= $domain; ?>" rel="nofollow noopener noreferrer" target="_blank"><?= $domain; ?></a> 已被注册，查看以下信息吧。
                 </h1>
+                
+                <!-- 注册平台 -->
                 <?php if ($parser->registrar): ?>
                   <div class="message-label">
                     <span class="message-icon-leading">
@@ -820,7 +840,7 @@ if ($_SERVER["QUERY_STRING"] ?? "") {
                     </span>
                     注册平台
                   </div>
-                  <div>
+                  <div style="grid-column: 2;">
                     <?php if ($parser->registrarURL): ?>
                       <a href="<?= $parser->registrarURL; ?>" rel="nofollow noopener noreferrer" target="_blank"><?= $parser->registrar; ?></a>
                     <?php else: ?>
@@ -828,6 +848,8 @@ if ($_SERVER["QUERY_STRING"] ?? "") {
                     <?php endif; ?>
                   </div>
                 <?php endif; ?>
+
+                <!-- 创建日期 -->
                 <?php if ($parser->creationDate): ?>
                   <div class="message-label">
                     <span class="message-icon-leading">
@@ -839,7 +861,7 @@ if ($_SERVER["QUERY_STRING"] ?? "") {
                     </span>
                     创建日期
                   </div>
-                  <div>
+                  <div style="grid-column: 2;">
                     <?php if ($parser->creationDateISO8601 === null): ?>
                       <span><?= $parser->creationDate; ?></span>
                     <?php elseif (str_ends_with($parser->creationDateISO8601, "Z")): ?>
@@ -853,6 +875,8 @@ if ($_SERVER["QUERY_STRING"] ?? "") {
                     <?php endif; ?>
                   </div>
                 <?php endif; ?>
+
+                <!-- 到期日期 -->
                 <?php if ($parser->expirationDate): ?>
                   <div class="message-label">
                     <span class="message-icon-leading">
@@ -864,7 +888,7 @@ if ($_SERVER["QUERY_STRING"] ?? "") {
                     </span>
                     到期日期
                   </div>
-                  <div>
+                  <div style="grid-column: 2;">
                     <?php if ($parser->expirationDateISO8601 === null): ?>
                       <span><?= $parser->expirationDate; ?></span>
                     <?php elseif (str_ends_with($parser->expirationDateISO8601, "Z")): ?>
@@ -878,6 +902,8 @@ if ($_SERVER["QUERY_STRING"] ?? "") {
                     <?php endif; ?>
                   </div>
                 <?php endif; ?>
+
+                <!-- 更新日期 -->
                 <?php if ($parser->updatedDate): ?>
                   <div class="message-label">
                     <span class="message-icon-leading">
@@ -888,7 +914,7 @@ if ($_SERVER["QUERY_STRING"] ?? "") {
                     </span>
                     更新日期
                   </div>
-                  <div>
+                  <div style="grid-column: 2;">
                     <?php if ($parser->updatedDateISO8601 === null): ?>
                       <span><?= $parser->updatedDate; ?></span>
                     <?php elseif (str_ends_with($parser->updatedDateISO8601, "Z")): ?>
@@ -902,6 +928,8 @@ if ($_SERVER["QUERY_STRING"] ?? "") {
                     <?php endif; ?>
                   </div>
                 <?php endif; ?>
+
+                <!-- 可用日期 -->
                 <?php if ($parser->availableDate): ?>
                   <div class="message-label">
                     <span class="message-icon-leading">
@@ -912,7 +940,7 @@ if ($_SERVER["QUERY_STRING"] ?? "") {
                     </span>
                     可用日期
                   </div>
-                  <div>
+                  <div style="grid-column: 2;">
                     <?php if ($parser->availableDateISO8601 === null): ?>
                       <span><?= $parser->availableDate; ?></span>
                     <?php elseif (str_ends_with($parser->availableDateISO8601, "Z")): ?>
@@ -926,6 +954,8 @@ if ($_SERVER["QUERY_STRING"] ?? "") {
                     <?php endif; ?>
                   </div>
                 <?php endif; ?>
+
+                <!-- 域名状态 -->
                 <?php if ($parser->status): ?>
                   <div class="message-label">
                     <span class="message-icon-leading">
@@ -936,7 +966,7 @@ if ($_SERVER["QUERY_STRING"] ?? "") {
                     </span>
                     域名状态
                   </div>
-                  <div class="message-value-status">
+                  <div class="message-value-status" style="grid-column: 2;">
                     <?php foreach ($parser->status as $status): ?>
                       <div>
                         <?php if ($status["url"]): ?>
@@ -948,6 +978,8 @@ if ($_SERVER["QUERY_STRING"] ?? "") {
                     <?php endforeach; ?>
                   </div>
                 <?php endif; ?>
+
+                <!-- NS服务器 -->
                 <?php if ($parser->nameServers): ?>
                   <div class="message-label">
                     <span class="message-icon-leading">
@@ -958,7 +990,7 @@ if ($_SERVER["QUERY_STRING"] ?? "") {
                     </span>
                     NS服务器
                   </div>
-                  <div class="message-value-name-servers">
+                  <div class="message-value-name-servers" style="grid-column: 2;">
                     <?php foreach ($parser->nameServers as $nameServer): ?>
                       <div>
                         <?= $nameServer; ?>
@@ -1035,7 +1067,6 @@ if ($_SERVER["QUERY_STRING"] ?? "") {
     <?php if ($whoisData || $rdapData): ?>
       <section class="raw-data">
         <?php if ($whoisData && $rdapData): ?>
-          <!-- 有WHOIS和RDAP时显示切换按钮 -->
           <section class="data-source">
             <div class="segmented">
               <button class="segmented-item segmented-item-selected" id="data-source-whois" type="button">
@@ -1048,7 +1079,6 @@ if ($_SERVER["QUERY_STRING"] ?? "") {
           </section>
         <?php endif; ?>
         
-        <!-- 数据容器 -->
         <?php if ($whoisData): ?>
           <div class="raw-data-container" id="whois-container">
             <button class="copy-button" id="copy-whois" title="复制 WHOIS 数据" aria-label="复制 WHOIS 数据">
@@ -1097,15 +1127,13 @@ if ($_SERVER["QUERY_STRING"] ?? "") {
   </button>
   
   <script>
-    // 复制到剪贴板函数 - 增强版
+    // 复制到剪贴板函数
     function copyToClipboard(elementId) {
       const element = document.getElementById(elementId);
-      const copyButton = document.querySelector(`[onclick="copyToClipboard('${elementId}')"]`) || 
-                        document.getElementById(elementId.replace('raw-data-', 'copy-'));
+      const copyButton = document.getElementById(elementId.replace('raw-data-', 'copy-'));
       
       if (!element) return;
 
-      // 获取要复制的文本
       let textToCopy = '';
       if (element.tagName === 'PRE') {
         textToCopy = element.textContent || element.innerText;
@@ -1115,7 +1143,6 @@ if ($_SERVER["QUERY_STRING"] ?? "") {
         textToCopy = element.textContent || element.innerText;
       }
 
-      // 创建临时文本区域
       const textArea = document.createElement('textarea');
       textArea.value = textToCopy;
       textArea.style.position = 'fixed';
@@ -1131,7 +1158,6 @@ if ($_SERVER["QUERY_STRING"] ?? "") {
         if (successful) {
           showCopySuccess(copyButton);
         } else {
-          // 使用现代 Clipboard API
           navigator.clipboard.writeText(textToCopy).then(() => {
             showCopySuccess(copyButton);
           }).catch((err) => {
@@ -1140,7 +1166,6 @@ if ($_SERVER["QUERY_STRING"] ?? "") {
           });
         }
       } catch (err) {
-        // 使用现代 Clipboard API 作为备选
         navigator.clipboard.writeText(textToCopy).then(() => {
           showCopySuccess(copyButton);
         }).catch((err) => {
@@ -1155,7 +1180,6 @@ if ($_SERVER["QUERY_STRING"] ?? "") {
     function showCopySuccess(copyButton) {
       if (!copyButton) return;
       
-      // 添加成功样式
       copyButton.classList.add('copy-success');
       const originalText = copyButton.querySelector('span').textContent;
       const successText = copyButton.querySelector('span');
@@ -1163,12 +1187,10 @@ if ($_SERVER["QUERY_STRING"] ?? "") {
         successText.textContent = '已复制!';
       }
       
-      // 添加振动反馈（移动端）
       if (navigator.vibrate) {
         navigator.vibrate(50);
       }
       
-      // 2秒后恢复
       setTimeout(() => {
         copyButton.classList.remove('copy-success');
         if (successText) {
@@ -1180,7 +1202,6 @@ if ($_SERVER["QUERY_STRING"] ?? "") {
     function showCopyError(copyButton) {
       if (!copyButton) return;
       
-      // 添加错误样式
       copyButton.style.background = 'rgba(220, 53, 69, 0.1)';
       copyButton.style.borderColor = '#dc3545';
       copyButton.style.color = '#dc3545';
@@ -1190,7 +1211,6 @@ if ($_SERVER["QUERY_STRING"] ?? "") {
         errorText.textContent = '复制失败';
       }
       
-      // 2秒后恢复
       setTimeout(() => {
         copyButton.style.background = '';
         copyButton.style.borderColor = '';
@@ -1225,7 +1245,7 @@ if ($_SERVER["QUERY_STRING"] ?? "") {
             domainElement.focus();
             domainElement.select();
             if (!document.execCommand("delete", false)) {
-              domainElement.setRangeText("");
+              domainElement.value = "";
             }
             domainClearElement.classList.remove("visible");
           }
@@ -1322,7 +1342,7 @@ if ($_SERVER["QUERY_STRING"] ?? "") {
         });
       }
 
-      // 复制按钮事件绑定 - 增强版
+      // 复制按钮事件绑定
       const copyWHOISButton = document.getElementById("copy-whois");
       const copyRDAPButton = document.getElementById("copy-rdap");
 
@@ -1342,12 +1362,10 @@ if ($_SERVER["QUERY_STRING"] ?? "") {
         });
       }
 
-      // 如果只有WHOIS数据，默认显示WHOIS
       if (whoisContainer && !rdapContainer && dataSourceWHOIS) {
         whoisContainer.classList.remove("hidden");
         switchToWHOIS();
       }
-      // 如果只有RDAP数据，默认显示RDAP
       else if (rdapContainer && !whoisContainer && dataSourceRDAP) {
         rdapContainer.classList.remove("hidden");
         switchToRDAP();
@@ -1483,7 +1501,6 @@ if ($_SERVER["QUERY_STRING"] ?? "") {
           updateSecondsElementTooltip("remaining", "距离过期");
         }
 
-        // Linkify 功能（如果有原始数据）
         const rawDataWHOIS = document.getElementById("raw-data-whois");
         const rawDataRDAP = document.getElementById("raw-data-rdap");
         
