@@ -289,8 +289,31 @@ if ($_SERVER["QUERY_STRING"] ?? "") {
       background-color: #ffffff;
     }
     
-    header, main {
-      background-color: #ffffff;
+    /* 移除顶部的背景，实现透明化 */
+    header {
+      background-color: transparent;
+      padding-top: 2rem; /* 根据需要调整 */
+    }
+
+    main {
+      background-color: transparent;
+    }
+
+    /* 使输入框背景透明 */
+    .search-box {
+      background-color: transparent;
+      border: 1px solid #ccc; /* 添加一个细边框来匹配截图的风格 */
+      border-radius: 9999px; /* 使边框变为圆角胶囊状 */
+      padding: 0.5rem 1rem; /* 调整内边距以适应新的设计 */
+      display: flex;
+      align-items: center;
+    }
+
+    .input.search-input {
+      background-color: transparent; /* 确保输入框本身背景也透明 */
+      border: none;
+      outline: none;
+      width: 100%;
     }
 
     .raw-data-whois,
@@ -300,6 +323,7 @@ if ($_SERVER["QUERY_STRING"] ?? "") {
       border-radius: 12px;
       box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
     }
+
   </style>
 </head>
 
@@ -408,7 +432,7 @@ if ($_SERVER["QUERY_STRING"] ?? "") {
                       <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14m0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16" />
                       <path d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708" />
                     </svg>
-                    '<?= $domain; ?>' 这可不是有效的域名哦。
+                    '<?= $domain; ?>' 这可不是有效的域名哦！
                 </h2>
               </div>
             </div>
@@ -448,13 +472,13 @@ if ($_SERVER["QUERY_STRING"] ?? "") {
           <?php elseif ($parser->registered): ?>
             <div class="message message-positive">
               <div class="message-data">
-                <h1 class="message-title">
+                <h2 class="message-title">
                     <svg width="1em" height="1em" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true" class="message-icon">
                       <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14m0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16" />
                       <path d="m10.97 4.97-.02.022-3.473 4.425-2.093-2.094a.75.75 0 0 0-1.06 1.06L6.97 11.03a.75.75 0 0 0 1.079-.02l3.992-4.99a.75.75 0 0 0-1.071-1.05" />
                     </svg>
                     <a href="http://<?= $domain; ?>" rel="nofollow noopener noreferrer" target="_blank"><?= $domain; ?></a> 已被注册，查看以下信息吧。
-                </h1>
+                </h2>
                 <?php if ($parser->registrar): ?>
                   <div class="message-label">
                     <span class="message-icon-leading">
@@ -819,7 +843,7 @@ if ($_SERVER["QUERY_STRING"] ?? "") {
         if (age) {
             const ageSeconds = age.dataset.seconds;
             if (ageSeconds) {
-                age.querySelector("span").innerText = `已注册：${formatDuration(ageSeconds)}`;
+                age.querySelector("span").innerText = `年限：${formatDuration(ageSeconds)}`;
             }
         }
 
@@ -827,7 +851,7 @@ if ($_SERVER["QUERY_STRING"] ?? "") {
         if (remaining) {
             const remainingSeconds = remaining.dataset.seconds;
             if (remainingSeconds) {
-                remaining.querySelector("span").innerText = `距过期：${formatDuration(remainingSeconds)}`;
+                remaining.querySelector("span").innerText = `剩余：${formatDuration(remainingSeconds)}`;
             }
         }
       });
