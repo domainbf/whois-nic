@@ -45,7 +45,7 @@ function checkPassword()
     echo json_encode(["code" => 1, "msg" => "Incorrect password.", "data" => null]);
   } else {
     $requestUri = $_SERVER["REQUEST_URI"];
-    if ($requestUri === BASE || $requestUri === "/") {
+    if ($requestUri === BASE) {
       header("Location: " . BASE . "login");
     } else {
       header("Location: " . BASE . "login?redirect=" . urlencode($requestUri));
@@ -55,55 +55,21 @@ function checkPassword()
   die;
 }
 
-// 修改后的 cleanDomain 函数 - Vercel 兼容版
 function cleanDomain()
 {
-    // 从 URL path 中获取域名（伪静态）
-    $pathDomain = '';
-    if (isset($_SERVER['REQUEST_URI'])) {
-        $requestUri = $_SERVER['REQUEST_URI'];
-        
-        // 移除查询字符串
-        if (strpos($requestUri, '?') !== false) {
-            $requestUri = substr($requestUri, 0, strpos($requestUri, '?'));
-        }
-        
-        // 移除开头的斜杠
-        $path = trim($requestUri, '/');
-        
-        // 检查是否是纯域名格式（不是已知的路由）
-        $knownRoutes = ['api', 'login', 'manifest'];
-        if (!empty($path) && !in_array($path, $knownRoutes)) {
-            // 验证是否为合法域名格式（至少包含一个点）
-            if (preg_match('/^[a-zA-Z0-9]([a-zA-Z0-9\-]{0,61}[a-zA-Z0-9])?(\.[a-zA-Z0-9]([a-zA-Z0-9\-]{0,61}[a-zA-Z0-9])?)+$/i', $path)) {
-                $pathDomain = $path;
-            }
-        }
-    }
+  $domain = htmlspecialchars($_GET["domain"] ?? "", ENT_QUOTES, "UTF-8");
+  $domain = trim(preg_replace(["/\s+/", "/\.{2,}/"], ["", "."], $domain), ".");
 
-    // 从 GET 参数中获取域名（保持向后兼容）
-    $getDomain = $_GET["domain"] ?? "";
+  $parsedUrl = parse_url($domain);
+  if (!empty($parsedUrl["host"])) {
+    $domain = $parsedUrl["host"];
+  }
 
-    // 优先使用路径域名，其次使用GET参数
-    $domain = $pathDomain ?: $getDomain;
-    
-    if (empty($domain)) {
-        return '';
-    }
+  if (DEFAULT_EXTENSION && strpos($domain, ".") === false) {
+    $domain .= "." . DEFAULT_EXTENSION;
+  }
 
-    $domain = htmlspecialchars($domain, ENT_QUOTES, "UTF-8");
-    $domain = trim(preg_replace(["/\s+/", "/\.{2,}/"], ["", "."], $domain), ".");
-
-    $parsedUrl = parse_url($domain);
-    if (!empty($parsedUrl["host"])) {
-        $domain = $parsedUrl["host"];
-    }
-
-    if (DEFAULT_EXTENSION && strpos($domain, ".") === false) {
-        $domain .= "." . DEFAULT_EXTENSION;
-    }
-
-    return $domain;
+  return $domain;
 }
 
 function getDataSource()
@@ -197,7 +163,7 @@ if ($_SERVER["QUERY_STRING"] ?? "") {
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="theme-color" content="#e1f9f9">
+  <meta name="theme-color" content="#ffffff">
   <meta name="description" content="<?= SITE_DESCRIPTION ?>">
   <meta name="keywords" content="<?= SITE_KEYWORDS ?>">
   <link rel="shortcut icon" href="public/favicon.ico">
@@ -248,145 +214,10 @@ if ($_SERVER["QUERY_STRING"] ?? "") {
   <link rel="stylesheet" href="public/css/json.css">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:wght@300..900&display=swap">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght,SOFT,WONK@72,600,50,1&display=swap">
   <?= CUSTOM_HEAD ?>
   <style>
-    /* 首页搜索栏背景修改 - 胶囊样式 */
-    body {
-      background-color: #ffffff;
-      background-image: repeating-linear-gradient(0deg, transparent, transparent 19px, #eee 20px), repeating-linear-gradient(90deg, transparent, transparent 19px, #eee 20px);
-      background-size: 20px 20px;
-    }
-
-    /* 修复搜索框长域名撑出问题 - 增强版 */
-    .search-box {
-      background: #ffffff !important;
-      border: 2px solid #000000 !important;
-      border-radius: 25px !important;
-      padding: 2px 4px !important;
-      display: flex !important;
-      align-items: center !important;
-      height: 44px !important;
-      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-      /* 强制限制宽度 */
-      width: 100% !important;
-      max-width: 100% !important;
-      overflow: hidden !important;
-      box-sizing: border-box !important;
-    }
-
-    .search-box .input {
-      background: transparent !important;
-      border: none !important;
-      box-shadow: none !important;
-      color: #333 !important;
-      font-size: 16px !important;
-      padding: 0 12px !important;
-      flex: 1 !important;
-      outline: none !important;
-      height: 36px !important;
-      line-height: 36px !important;
-      /* 强制显示省略号 */
-      min-width: 0 !important;
-      max-width: 100% !important;
-      overflow: hidden !important;
-      text-overflow: ellipsis !important;
-      white-space: nowrap !important;
-      /* 确保输入框可以被压缩 */
-      flex-shrink: 1 !important;
-    }
-
-    .search-box .input::placeholder {
-      color: #666 !important;
-      opacity: 1 !important;
-    }
-
-    .search-box .input:focus {
-      outline: none !important;
-    }
-
-    .search-box .search-clear {
-      background: #f0f0f0 !important;
-      border: 1px solid #ddd !important;
-      border-radius: 50% !important;
-      padding: 4px !important;
-      margin-right: 8px !important;
-      cursor: pointer !important;
-      transition: all 0.2s ease !important;
-      width: 32px !important;
-      height: 32px !important;
-      display: flex !important;
-      align-items: center !important;
-      justify-content: center !important;
-      flex-shrink: 0 !important;
-    }
-
-    .search-box .search-clear:hover {
-      background: #e0e0e0 !important;
-      border-color: #999 !important;
-    }
-
-    .search-box .search-clear svg {
-      width: 14px !important;
-      height: 14px !important;
-    }
-
-    /* 搜索按钮样式调整 */
-    .button.search-button {
-      background: #000000 !important;
-      color: #ffffff !important;
-      border: none !important;
-      border-radius: 25px !important;
-      height: 44px !important;
-      padding: 0 20px !important;
-      margin-left: 8px !important;
-      display: flex !important;
-      align-items: center !important;
-      gap: 8px !important;
-      font-size: 16px !important;
-      font-weight: 500 !important;
-      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-      transition: all 0.2s ease !important;
-      flex-shrink: 0 !important;
-    }
-
-    .button.search-button:hover {
-      background: #333333 !important;
-      transform: translateY(-1px) !important;
-      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15) !important;
-    }
-
-    .button.search-button svg {
-      width: 18px !important;
-      height: 18px !important;
-    }
-
-    /* 修改结果页面布局 - 同一行显示 */
-    .message-data {
-      display: grid;
-      grid-template-columns: auto 1fr;
-      gap: 1rem 1.5rem;
-      margin-top: 1.5rem;
-      align-items: start; /* 顶部对齐 */
-    }
-
-    .message-label {
-      display: flex;
-      align-items: center;
-      gap: 4px;
-      margin-bottom: 0.5rem; /* 标签和内容之间的间距 */
-    }
-
-    .message-icon-leading {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      width: 1.2em;
-      height: 1.2em;
-      flex-shrink: 0;
-    }
-
-    /* 修复域名过长文字错位问题 */
+    /* 解决图标和布局问题的新增样式 */
     .message-data .message-title {
       display: flex;
       align-items: center;
@@ -397,22 +228,19 @@ if ($_SERVER["QUERY_STRING"] ?? "") {
       font-weight: 600;
       color: #222;
       text-align: left;
-      flex-wrap: wrap;
     }
 
-    .message-title a {
-      max-width: 70%;
-      word-break: break-all;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      display: inline-block;
-      vertical-align: middle;
-    }
-
+    /* 调整标题内图标大小 */
     .message-title .message-icon {
-      width: 1.2em;
-      height: 1.2em;
-      flex-shrink: 0;
+        width: 1.2em;
+        height: 1.2em;
+    }
+
+    .message-data {
+      display: grid;
+      grid-template-columns: auto 1fr;
+      gap: 1rem 1.5rem;
+      margin-top: 1.5rem;
     }
 
     .checkbox-label {
@@ -428,6 +256,19 @@ if ($_SERVER["QUERY_STRING"] ?? "") {
       height: 18px;
       margin-right: 2px;
     }
+
+    .message-label {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+    .message-icon-leading {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 1.2em;
+      height: 1.2em;
+    }
     
     /* 移除背景和侧边栏 */
     .message.message-positive {
@@ -436,18 +277,22 @@ if ($_SERVER["QUERY_STRING"] ?? "") {
         box-shadow: none;
         padding: 0;
     }
-    
+    /* 移除 message-positive 内的 data-source 容器的背景和阴影 */
     .message.message-positive .message-data {
         background: transparent;
         box-shadow: none;
         padding: 0;
     }
 
+    /* 统一页面背景为白色 */
+    body {
+      background-color: #ffffff;
+    }
+    
     header, main {
-      background-color: transparent;
+      background-color: #ffffff;
     }
 
-    /* 原始数据容器样式 */
     .raw-data-whois,
     .raw-data-rdap {
       background-color: #ffffff;
@@ -456,112 +301,51 @@ if ($_SERVER["QUERY_STRING"] ?? "") {
       box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
       position: relative;
       margin-bottom: 1rem;
-      white-space: pre-wrap;
-      word-wrap: break-word;
-      font-family: 'Courier New', 'Consolas', monospace;
-      font-size: 14px;
-      line-height: 1.5;
-      overflow-x: auto;
-      min-height: 200px;
     }
 
-    /* WHOIS/RDAP切换按钮 - 圆角黑色背景 */
-    .segmented {
-      display: flex;
-      background: #ffffff !important;
-      border-radius: 25px !important;
-      overflow: hidden;
-      margin-bottom: 1rem;
-      border: 2px solid #000000 !important;
-      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1) !important;
-      width: fit-content; /* 只占内容宽度 */
-    }
-
-    .segmented-item {
-      flex: 1;
-      padding: 12px 24px;
-      background: transparent !important;
-      border: none !important;
-      cursor: pointer;
-      font-size: 14px;
-      font-weight: 500;
-      color: #333 !important;
-      transition: all 0.2s ease;
-      position: relative;
-      border-radius: 25px; /* 每个按钮都有圆角 */
-      min-width: 80px; /* 最小宽度 */
-    }
-
-    .segmented-item:hover {
-      color: #000000 !important;
-      background: #f0f0f0 !important;
-    }
-
-    .segmented-item-selected {
-      background: #000000 !important;
-      color: #ffffff !important;
-      border-radius: 25px !important; /* 选中时圆角 */
-    }
-
-    .segmented-item-selected:hover {
-      background: #333333 !important;
-      color: #ffffff !important;
-    }
-
-    /* 复制按钮样式 */
+    /* 改进的复制按钮样式 - 右上角浮动 */
     .copy-button {
       position: absolute;
       top: 12px;
       right: 12px;
-      background: rgba(255, 255, 255, 0.95);
+      background: rgba(255, 255, 255, 0.9);
       backdrop-filter: blur(10px);
       border: 1px solid rgba(0, 0, 0, 0.1);
       border-radius: 6px;
-      padding: 8px 12px;
+      padding: 6px 10px;
       cursor: pointer;
-      font-size: 13px;
+      font-size: 12px;
       font-weight: 500;
       color: #666;
       transition: all 0.2s ease;
       display: flex;
       align-items: center;
-      gap: 6px;
+      gap: 4px;
       z-index: 10;
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
-      opacity: 1 !important;
-      transform: translateY(0) !important;
-      min-width: 70px;
-      justify-content: center;
+      opacity: 0;
+      transform: translateY(-4px);
     }
 
-    @media (hover: hover) and (pointer: fine) {
-      .copy-button {
-        opacity: 0;
-        transform: translateY(-4px);
-      }
-
-      .raw-data-whois:hover .copy-button,
-      .raw-data-rdap:hover .copy-button {
-        opacity: 1;
-        transform: translateY(0);
-      }
-
-      .copy-button:hover {
-        background: #fff;
-        border-color: #007bff;
-        color: #007bff;
-        box-shadow: 0 4px 12px rgba(0, 123, 255, 0.2);
-        transform: translateY(-2px);
-      }
-    }
-
-    .copy-button:active {
+    .raw-data-whois:hover .copy-button,
+    .raw-data-rdap:hover .copy-button {
+      opacity: 1;
       transform: translateY(0);
     }
 
+    .copy-button:hover {
+      background: #fff;
+      border-color: #007bff;
+      color: #007bff;
+      box-shadow: 0 2px 8px rgba(0, 123, 255, 0.15);
+    }
+
+    .copy-button:active {
+      transform: translateY(-2px);
+    }
+
     .copy-icon {
-      width: 14px;
-      height: 14px;
+      width: 12px;
+      height: 12px;
       flex-shrink: 0;
     }
 
@@ -569,110 +353,10 @@ if ($_SERVER["QUERY_STRING"] ?? "") {
       color: #28a745 !important;
       border-color: #28a745 !important;
       background: rgba(40, 167, 69, 0.1) !important;
-      animation: pulse 0.6s ease-in-out;
     }
 
     .copy-success .copy-icon {
       fill: #28a745 !important;
-    }
-
-    @keyframes pulse {
-      0% { transform: scale(1); }
-      50% { transform: scale(1.05); }
-      100% { transform: scale(1); }
-    }
-
-    .raw-data-container {
-      position: relative;
-      min-height: 60px;
-    }
-
-    .raw-data-container.hidden {
-      display: none;
-    }
-
-    .raw-data-rdap code {
-      background: none;
-      padding: 0;
-      border-radius: 0;
-      font-family: 'Courier New', 'Consolas', monospace;
-    }
-
-    .raw-data-rdap .token {
-      font-family: 'Courier New', 'Consolas', monospace;
-    }
-
-    /* 手机端优化 */
-    @media (max-width: 768px) {
-      .search-box {
-        margin-bottom: 12px !important;
-        width: 100% !important;
-      }
-
-      .search-box .input {
-        font-size: 14px !important;
-        padding: 0 8px !important; /* 移动端减少内边距 */
-      }
-
-      .button.search-button {
-        width: 100% !important;
-        margin-left: 0 !important;
-        margin-top: 8px !important;
-        justify-content: center !important;
-      }
-
-      .copy-button {
-        padding: 6px 10px !important;
-        font-size: 12px !important;
-        min-width: 60px !important;
-      }
-
-      .copy-icon {
-        width: 12px !important;
-        height: 12px !important;
-      }
-
-      .raw-data-whois,
-      .raw-data-rdap {
-        padding: 1rem !important;
-        font-size: 13px !important;
-      }
-
-      .segmented-item {
-        padding: 10px 16px !important;
-        font-size: 13px !important;
-        min-width: 70px !important;
-      }
-
-      .message-data {
-        grid-template-columns: 1fr;
-        gap: 0.5rem;
-      }
-
-      .message-label {
-        justify-content: flex-start;
-      }
-
-      /* 移动端结果页面布局优化 */
-      .message-label {
-        margin-bottom: 0.25rem;
-      }
-
-      .message-data > div {
-        margin-bottom: 0.5rem;
-      }
-    }
-
-    .raw-data-container {
-      min-height: 60px;
-    }
-
-    .search-clear.visible {
-      display: flex !important;
-    }
-
-    .search-clear:not(.visible) {
-      display: none !important;
     }
   </style>
 </head>
@@ -829,275 +513,256 @@ if ($_SERVER["QUERY_STRING"] ?? "") {
                     </svg>
                     <a href="http://<?= $domain; ?>" rel="nofollow noopener noreferrer" target="_blank"><?= $domain; ?></a> 已被注册，查看以下信息吧。
                 </h1>
-                
-                <!-- 注册平台 -->
-                <?php if ($parser->registered): ?>
-  <div class="message message-informative">
-    <div class="message-data">
-      <h2 class="message-title">
-        <svg width="1em" height="1em" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true" class="message-icon">
-          <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14m0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16" />
-          <path d="M8 4a.905.905 0 0 0-.9.995l.35 3.507a.552.552 0 0 0 1.1 0l.35-3.507A.905.905 0 0 0 8 4m.002 6a1 1 0 1 0 0 2 1 1 0 0 0 0-2" />
-        </svg>
-        '<?= $domain; ?>' 已注册，查看以下信息。
-      </h2>
-      <div class="message-grid">
-        <!-- 注册平台 -->
-        <?php if ($parser->registrar): ?>
-          <div class="message-label">
-            <span class="message-icon-leading">
-              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
-                <path d="M12.5 16a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7m.5-3.5h-1a.5.5 0 0 1 0-1h1a.5.5 0 0 1 0 1m1-1a.5.5 0 0 1 .5-.5v1a.5.5 0 0 1-.5.5h-1a.5.5 0 0 1-.5-.5v-1a.5.5 0 0 1 .5-.5zm-11 5a.5.5 0 0 1-.5-.5V1.5a.5.5 0 0 1 .5-.5h7a.5.5 0 0 1 .5.5V5h-1a.5.5 0 0 0-.5.5v3.5h-1a.5.5 0 0 1-.5-.5V1.5a.5.5 0 0 1 .5-.5h5a.5.5 0 0 1 .5.5V11a.5.5 0 0 1-.5.5h-2a.5.5 0 0 0-.5.5V13a.5.5 0 0 1-.5.5H2a.5.5 0 0 1-.5-.5v-11a.5.5 0 0 1 .5-.5h5a.5.5 0 0 1 .5.5V2.5a.5.5 0 0 0 .5.5h2a.5.5 0 0 0 .5-.5V1.5a.5.5 0 0 1 .5-.5h-7a.5.5 0 0 0-.5.5V13a.5.5 0 0 1-.5.5v2.5a.5.5 0 0 0 .5.5zm10-5a.5.5 0 0 0-.5.5v1a.5.5 0 0 0 .5.5h1a.5.5 0 0 0 .5-.5v-1a.5.5 0 0 0-.5-.5z"/>
-              </svg>
-            </span>
-            注册平台
-          </div>
-          <div style="grid-column: 2;">
-            <?php if ($parser->registrarURL): ?>
-              <a href="<?= $parser->registrarURL; ?>" rel="nofollow noopener noreferrer" target="_blank"><?= $parser->registrar; ?></a>
-            <?php else: ?>
-              <?= $parser->registrar; ?>
-            <?php endif; ?>
-          </div>
-        <?php endif; ?>
-
-        <!-- 创建日期 -->
-        <?php if ($parser->creationDate): ?>
-          <div class="message-label">
-            <span class="message-icon-leading">
-              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
-                <path d="M4.5 1a.5.5 0 0 0-.5.5v1a.5.5 0 0 0 .5.5h1a.5.5 0 0 0 .5-.5v-1a.5.5 0 0 0-.5-.5h-1zm1 0h3a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-3a.5.5 0 0 1-.5-.5v-1a.5.5 0 0 1 .5-.5zm4.5.5v1a.5.5 0 0 0 .5.5h1a.5.5 0 0 0 .5-.5v-1a.5.5 0 0 0-.5-.5h-1a.5.5 0 0 0-.5.5z"/>
-                <path d="M12 4H4a1 1 0 0 0-1 1v9a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1V5a1 1 0 0 0-1-1zm-8 1h8v9H4V5z"/>
-                <path d="M8.5 8.5v2h-1v-2zm0-2h-1v2h1v-2zm0-2h-1v2h1v-2z"/>
-              </svg>
-            </span>
-            创建日期
-          </div>
-          <div style="grid-column: 2;">
-            <?php if ($parser->creationDateISO8601 === null): ?>
-              <span><?= $parser->creationDate; ?></span>
-            <?php elseif (str_ends_with($parser->creationDateISO8601, "Z")): ?>
-              <span id="creation-date" data-iso8601="<?= $parser->creationDateISO8601; ?>">
-                <?= $parser->creationDate; ?>
-              </span>
-            <?php else: ?>
-              <span id="creation-date" data-iso8601="<?= $parser->creationDateISO8601; ?>">
-                <?= $parser->creationDate; ?>
-              </span>
-            <?php endif; ?>
-          </div>
-        <?php endif; ?>
-
-        <!-- 到期日期 -->
-        <?php if ($parser->expirationDate): ?>
-          <div class="message-label">
-            <span class="message-icon-leading">
-              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
-                <path d="M4.5 1a.5.5 0 0 0-.5.5v1a.5.5 0 0 0 .5.5h1a.5.5 0 0 0 .5-.5v-1a.5.5 0 0 0-.5-.5h-1zm1 0h3a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-3a.5.5 0 0 1-.5-.5v-1a.5.5 0 0 1 .5-.5zm4.5.5v1a.5.5 0 0 0 .5.5h1a.5.5 0 0 0 .5-.5v-1a.5.5 0 0 0-.5-.5h-1a.5.5 0 0 0-.5.5z"/>
-                <path d="M12 4H4a1 1 0 0 0-1 1v9a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1V5a1 1 0 0 0-1-1zM4 5h8v9H4V5z"/>
-                <path d="M8.5 8.5v2h-1v-2zm0-2h-1v2h1v-2zm0-2h-1v2h1v-2z"/>
-              </svg>
-            </span>
-            到期日期
-          </div>
-          <div style="grid-column: 2;">
-            <?php if ($parser->expirationDateISO8601 === null): ?>
-              <span><?= $parser->expirationDate; ?></span>
-            <?php elseif (str_ends_with($parser->expirationDateISO8601, "Z")): ?>
-              <span id="expiration-date" data-iso8601="<?= $parser->expirationDateISO8601; ?>">
-                <?= $parser->expirationDate; ?>
-              </span>
-            <?php else: ?>
-              <span id="expiration-date" data-iso8601="<?= $parser->expirationDateISO8601; ?>">
-                <?= $parser->expirationDate; ?>
-              </span>
-            <?php endif; ?>
-          </div>
-        <?php endif; ?>
-
-        <!-- 更新日期 -->
-        <?php if ($parser->updatedDate): ?>
-          <div class="message-label">
-            <span class="message-icon-leading">
-              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
-                <path d="M4 14a1 1 0 0 1-1-1V1a1 1 0 0 1 1-1h8a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1zm8-1v-1H4v1zm-8-2h8V1H4v10zm-1-3a.5.5 0 0 1 .5-.5h8a.5.5 0 0 1 0 1h-8a.5.5 0 0 1-.5-.5zm0-3a.5.5 0 0 1 .5-.5h8a.5.5 0 0 1 0 1h-8a.5.5 0 0 1-.5-.5z"/>
-                <path d="M8 12a1 1 0 1 1 0-2 1 1 0 0 1 0 2zm0-3a.5.5 0 1 0 0-1 .5.5 0 0 0 0 1z"/>
-              </svg>
-            </span>
-            更新日期
-          </div>
-          <div style="grid-column: 2;">
-            <?php if ($parser->updatedDateISO8601 === null): ?>
-              <span><?= $parser->updatedDate; ?></span>
-            <?php elseif (str_ends_with($parser->updatedDateISO8601, "Z")): ?>
-              <span id="updated-date" data-iso8601="<?= $parser->updatedDateISO8601; ?>">
-                <?= $parser->updatedDate; ?>
-              </span>
-            <?php else: ?>
-              <span id="updated-date" data-iso8601="<?= $parser->updatedDateISO8601; ?>">
-                <?= $parser->updatedDate; ?>
-              </span>
-            <?php endif; ?>
-          </div>
-        <?php endif; ?>
-
-        <!-- 域名状态 -->
-        <?php if ($parser->status): ?>
-          <div class="message-label">
-            <span class="message-icon-leading">
-              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
-                <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14m0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16" />
-                <path d="m10.97 4.97-.02.022-3.473 4.425-2.093-2.094a.75.75 0 0 0-1.06 1.06L6.97 11.03a.75.75 0 0 0 1.079-.02l3.992-4.99a.75.75 0 0 0-1.071-1.05" />
-              </svg>
-            </span>
-            域名状态
-          </div>
-          <div class="message-value-status" style="grid-column: 2;">
-            <?php foreach ($parser->status as $status): ?>
-              <div>
-                <?php if ($status["url"]): ?>
-                  <a href="<?= $status["url"]; ?>" rel="nofollow noopener noreferrer" target="_blank"><?= $status["text"]; ?></a>
-                <?php else: ?>
-                  <?= $status["text"]; ?>
+                <?php if ($parser->registrar): ?>
+                  <div class="message-label">
+                    <span class="message-icon-leading">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                        <path d="M12.5 16a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7m.5-3.5h-1a.5.5 0 0 1 0-1h1a.5.5 0 0 1 0 1m1-1a.5.5 0 0 1 .5-.5v1a.5.5 0 0 1-.5.5h-1a.5.5 0 0 1-.5-.5v-1a.5.5 0 0 1 .5-.5zm-11 5a.5.5 0 0 1-.5-.5V1.5a.5.5 0 0 1 .5-.5h7a.5.5 0 0 1 .5.5V5h-1a.5.5 0 0 0-.5.5v3.5h-1a.5.5 0 0 1-.5-.5V1.5a.5.5 0 0 1 .5-.5h5a.5.5 0 0 1 .5.5V11a.5.5 0 0 1-.5.5h-2a.5.5 0 0 0-.5.5V13a.5.5 0 0 1-.5.5H2a.5.5 0 0 1-.5-.5v-11a.5.5 0 0 1 .5-.5h5a.5.5 0 0 1 .5.5V2.5a.5.5 0 0 0 .5.5h2a.5.5 0 0 0 .5-.5V1.5a.5.5 0 0 1 .5-.5h-7a.5.5 0 0 0-.5.5V13a.5.5 0 0 1-.5.5v2.5a.5.5 0 0 0 .5.5zm10-5a.5.5 0 0 0-.5.5v1a.5.5 0 0 0 .5.5h1a.5.5 0 0 0 .5-.5v-1a.5.5 0 0 0-.5-.5z"/>
+                      </svg>
+                    </span>
+                    注册平台
+                  </div>
+                  <div>
+                    <?php if ($parser->registrarURL): ?>
+                      <a href="<?= $parser->registrarURL; ?>" rel="nofollow noopener noreferrer" target="_blank"><?= $parser->registrar; ?></a>
+                    <?php else: ?>
+                      <?= $parser->registrar; ?>
+                    <?php endif; ?>
+                  </div>
+                <?php endif; ?>
+                <?php if ($parser->creationDate): ?>
+                  <div class="message-label">
+                    <span class="message-icon-leading">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                        <path d="M4.5 1a.5.5 0 0 0-.5.5v1a.5.5 0 0 0 .5.5h1a.5.5 0 0 0 .5-.5v-1a.5.5 0 0 0-.5-.5h-1zm1 0h3a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-3a.5.5 0 0 1-.5-.5v-1a.5.5 0 0 1 .5-.5zm4.5.5v1a.5.5 0 0 0 .5.5h1a.5.5 0 0 0 .5-.5v-1a.5.5 0 0 0-.5-.5h-1a.5.5 0 0 0-.5.5z"/>
+                        <path d="M12 4H4a1 1 0 0 0-1 1v9a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1V5a1 1 0 0 0-1-1zm-8 1h8v9H4V5z"/>
+                        <path d="M8.5 8.5v2h-1v-2zm0-2h-1v2h1v-2zm0-2h-1v2h1v-2z"/>
+                      </svg>
+                    </span>
+                    创建日期
+                  </div>
+                  <div>
+                    <?php if ($parser->creationDateISO8601 === null): ?>
+                      <span><?= $parser->creationDate; ?></span>
+                    <?php elseif (str_ends_with($parser->creationDateISO8601, "Z")): ?>
+                      <span id="creation-date" data-iso8601="<?= $parser->creationDateISO8601; ?>">
+                        <?= $parser->creationDate; ?>
+                      </span>
+                    <?php else: ?>
+                      <span id="creation-date" data-iso8601="<?= $parser->creationDateISO8601; ?>">
+                        <?= $parser->creationDate; ?>
+                      </span>
+                    <?php endif; ?>
+                  </div>
+                <?php endif; ?>
+                <?php if ($parser->expirationDate): ?>
+                  <div class="message-label">
+                    <span class="message-icon-leading">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                        <path d="M4.5 1a.5.5 0 0 0-.5.5v1a.5.5 0 0 0 .5.5h1a.5.5 0 0 0 .5-.5v-1a.5.5 0 0 0-.5-.5h-1zm1 0h3a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-3a.5.5 0 0 1-.5-.5v-1a.5.5 0 0 1 .5-.5zm4.5.5v1a.5.5 0 0 0 .5.5h1a.5.5 0 0 0 .5-.5v-1a.5.5 0 0 0-.5-.5h-1a.5.5 0 0 0-.5.5z"/>
+                        <path d="M12 4H4a1 1 0 0 0-1 1v9a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1V5a1 1 0 0 0-1-1zM4 5h8v9H4V5z"/>
+                        <path d="M8.5 8.5v2h-1v-2zm0-2h-1v2h1v-2zm0-2h-1v2h1v-2z"/>
+                      </svg>
+                    </span>
+                    到期日期
+                  </div>
+                  <div>
+                    <?php if ($parser->expirationDateISO8601 === null): ?>
+                      <span><?= $parser->expirationDate; ?></span>
+                    <?php elseif (str_ends_with($parser->expirationDateISO8601, "Z")): ?>
+                      <span id="expiration-date" data-iso8601="<?= $parser->expirationDateISO8601; ?>">
+                        <?= $parser->expirationDate; ?>
+                      </span>
+                    <?php else: ?>
+                      <span id="expiration-date" data-iso8601="<?= $parser->expirationDateISO8601; ?>">
+                        <?= $parser->expirationDate; ?>
+                      </span>
+                    <?php endif; ?>
+                  </div>
+                <?php endif; ?>
+                <?php if ($parser->updatedDate): ?>
+                  <div class="message-label">
+                    <span class="message-icon-leading">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                        <path d="M4 14a1 1 0 0 1-1-1V1a1 1 0 0 1 1-1h8a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1zm8-1v-1H4v1zm-8-2h8V1H4v10zm-1-3a.5.5 0 0 1 .5-.5h8a.5.5 0 0 1 0 1h-8a.5.5 0 0 1-.5-.5zm0-3a.5.5 0 0 1 .5-.5h8a.5.5 0 0 1 0 1h-8a.5.5 0 0 1-.5-.5z"/>
+                        <path d="M8 12a1 1 0 1 1 0-2 1 1 0 0 1 0 2zm0-3a.5.5 0 1 0 0-1 .5.5 0 0 0 0 1z"/>
+                      </svg>
+                    </span>
+                    更新日期
+                  </div>
+                  <div>
+                    <?php if ($parser->updatedDateISO8601 === null): ?>
+                      <span><?= $parser->updatedDate; ?></span>
+                    <?php elseif (str_ends_with($parser->updatedDateISO8601, "Z")): ?>
+                      <span id="updated-date" data-iso8601="<?= $parser->updatedDateISO8601; ?>">
+                        <?= $parser->updatedDate; ?>
+                      </span>
+                    <?php else: ?>
+                      <span id="updated-date" data-iso8601="<?= $parser->updatedDateISO8601; ?>">
+                        <?= $parser->updatedDate; ?>
+                      </span>
+                    <?php endif; ?>
+                  </div>
+                <?php endif; ?>
+                <?php if ($parser->availableDate): ?>
+                  <div class="message-label">
+                    <span class="message-icon-leading">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                        <path d="M4 14a1 1 0 0 1-1-1V1a1 1 0 0 1 1-1h8a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1zm8-1v-1H4v1zm-8-2h8V1H4v10zm-1-3a.5.5 0 0 1 .5-.5h8a.5.5 0 0 1 0 1h-8a.5.5 0 0 1-.5-.5zm0-3a.5.5 0 0 1 .5-.5h8a.5.5 0 0 1 0 1h-8a.5.5 0 0 1-.5-.5z"/>
+                        <path d="M8 12a1 1 0 1 1 0-2 1 1 0 0 1 0 2zm0-3a.5.5 0 1 0 0-1 .5.5 0 0 0 0 1z"/>
+                      </svg>
+                    </span>
+                    可用日期
+                  </div>
+                  <div>
+                    <?php if ($parser->availableDateISO8601 === null): ?>
+                      <span><?= $parser->availableDate; ?></span>
+                    <?php elseif (str_ends_with($parser->availableDateISO8601, "Z")): ?>
+                      <span id="available-date" data-iso8601="<?= $parser->availableDateISO8601; ?>">
+                        <?= $parser->availableDate; ?>
+                      </span>
+                    <?php else: ?>
+                      <span id="available-date" data-iso8601="<?= $parser->availableDateISO8601; ?>">
+                        <?= $parser->availableDate; ?>
+                      </span>
+                    <?php endif; ?>
+                  </div>
+                <?php endif; ?>
+                <?php if ($parser->status): ?>
+                  <div class="message-label">
+                    <span class="message-icon-leading">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                        <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14m0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16" />
+                        <path d="m10.97 4.97-.02.022-3.473 4.425-2.093-2.094a.75.75 0 0 0-1.06 1.06L6.97 11.03a.75.75 0 0 0 1.079-.02l3.992-4.99a.75.75 0 0 0-1.071-1.05" />
+                      </svg>
+                    </span>
+                    域名状态
+                  </div>
+                  <div class="message-value-status">
+                    <?php foreach ($parser->status as $status): ?>
+                      <div>
+                        <?php if ($status["url"]): ?>
+                          <a href="<?= $status["url"]; ?>" rel="nofollow noopener noreferrer" target="_blank"><?= $status["text"]; ?></a>
+                        <?php else: ?>
+                          <?= $status["text"]; ?>
+                        <?php endif; ?>
+                      </div>
+                    <?php endforeach; ?>
+                  </div>
+                <?php endif; ?>
+                <?php if ($parser->nameServers): ?>
+                  <div class="message-label">
+                    <span class="message-icon-leading">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                        <path d="M5.5 10a.5.5 0 0 0-.5.5v1a.5.5 0 0 0 .5.5h5a.5.5 0 0 0 .5-.5v-1a.5.5 0 0 0-.5-.5h-5z"/>
+                        <path d="M12.44 1.44a.5.5 0 0 1 .12.55l-2.49 11.55a.5.5 0 0 1-.95.06L7 8.355l-2.043 4.65a.5.5 0 0 1-.95-.06L1.44 2a.5.5 0 0 1 .55-.12L8 4.288l5.44-2.968z"/>
+                      </svg>
+                    </span>
+                    NS服务器
+                  </div>
+                  <div class="message-value-name-servers">
+                    <?php foreach ($parser->nameServers as $nameServer): ?>
+                      <div>
+                        <?= $nameServer; ?>
+                      </div>
+                    <?php endforeach; ?>
+                  </div>
                 <?php endif; ?>
               </div>
-            <?php endforeach; ?>
-          </div>
-        <?php endif; ?>
-
-        <!-- NS服务器 -->
-        <?php if ($parser->nameServers): ?>
-          <div class="message-label">
-            <span class="message-icon-leading">
-              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
-                <path d="M5.5 10a.5.5 0 0 0-.5.5v1a.5.5 0 0 0 .5.5h5a.5.5 0 0 0 .5-.5v-1a.5.5 0 0 0-.5-.5h-5z"/>
-                <path d="M12.44 1.44a.5.5 0 0 1 .12.55l-2.49 11.55a.5.5 0 0 1-.95.06L7 8.355l-2.043 4.65a.5.5 0 0 1-.95-.06L1.44 2a.5.5 0 0 1 .55-.12L8 4.288l5.44-2.968z"/>
-              </svg>
-            </span>
-            NS服务器
-          </div>
-          <div class="message-value-name-servers" style="grid-column: 2;">
-            <?php foreach ($parser->nameServers as $nameServer): ?>
-              <div>
-                <?= $nameServer; ?>
+              <?php if ($fetchPrices): ?>
+                <div class="message-price" id="message-price">
+                  <div class="skeleton"></div>
+                </div>
+              <?php endif; ?>
+              <?php if ($parser->age || $parser->remaining || $parser->pendingDelete || $parser->gracePeriod || $parser->redemptionPeriod): ?>
+                <div class="message-tags">
+                  <?php if ($parser->age): ?>
+                    <button class="message-tag message-tag-gray" id="age" data-seconds="<?= $parser->ageSeconds; ?>">
+                      <svg width="1em" height="1em" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true">
+                        <path d="M8 3.5a.5.5 0 0 0-1 0V9a.5.5 0 0 0 .252.434l3.5 2a.5.5 0 0 0 .496-.868L8 8.71z" />
+                        <path d="M8 16A8 8 0 1 0 8 0a8 8 0 0 0 0 16m7-8A7 7 0 1 1 1 8a7 7 0 0 1 14 0" />
+                      </svg>
+                      <span>已经注册：<?= $parser->age; ?></span>
+                    </button>
+                  <?php endif; ?>
+                  <?php if ($parser->remaining): ?>
+                    <button class="message-tag message-tag-gray" id="remaining" data-seconds="<?= $parser->remainingSeconds; ?>">
+                      <svg width="1em" height="1em" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true">
+                        <path d="M2 1.5a.5.5 0 0 1 .5-.5h11a.5.5 0 0 1 0 1h-1v1a4.5 4.5 0 0 1-2.557 4.06c-.29.139-.443.377-.443.59v.7c0 .213.154.451.443.59A4.5 4.5 0 0 1 12.5 13v1h1a.5.5 0 0 1 0 1h-11a.5.5 0 1 1 0-1h1v-1a4.5 4.5 0 0 1 2.557-4.06c.29-.139.443-.377.443-.59v-.7c0-.213-.154-.451-.443-.59A4.5 4.5 0 0 1 3.5 3V2h-1a.5.5 0 0 1-.5-.5m2.5.5v1a3.5 3.5 0 0 0 1.989 3.158c.533.256 1.011.791 1.011 1.491v.702c0 .7-.478 1.235-1.011 1.491A3.5 3.5 0 0 0 4.5 13v1h7v-1a3.5 3.5 0 0 0-1.989-3.158C8.978 9.586 8.5 9.052 8.5 8.351v-.702c0-.7.478-1.235 1.011-1.491A3.5 3.5 0 0 0 11.5 3V2z" />
+                      </svg>
+                      <span>距离过期：<?= $parser->remaining; ?></span>
+                    </button>
+                  <?php endif; ?>
+                  <?php if ($parser->ageSeconds && $parser->ageSeconds < 7 * 24 * 60 * 60): ?>
+                    <span class="message-tag message-tag-green">新注册</span>
+                  <?php endif; ?>
+                  <?php if (($parser->remainingSeconds ?? -1) >= 0 && $parser->remainingSeconds < 7 * 24 * 60 * 60): ?>
+                    <span class="message-tag message-tag-yellow">即将过期</span>
+                  <?php endif; ?>
+                  <?php if ($parser->pendingDelete): ?>
+                    <span class="message-tag message-tag-red">待删除</span>
+                  <?php elseif ($parser->remainingSeconds < 0): ?>
+                    <span class="message-tag message-tag-red">已过期</span>
+                  <?php endif; ?>
+                  <?php if ($parser->gracePeriod): ?>
+                    <span class="message-tag message-tag-yellow">宽限期</span>
+                  <?php elseif ($parser->redemptionPeriod): ?>
+                    <span class="message-tag message-tag-blue">赎回期</span>
+                  <?php endif; ?>
+                </div>
+              <?php endif; ?>
+            </div>
+          <?php else: ?>
+            <div class="message message-informative">
+              <div class="message-data">
+                <h2 class="message-title">
+                    <svg width="1em" height="1em" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true" class="message-icon">
+                      <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14m0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16" />
+                      <path d="m8.93 6.588-2.29.287-.082.38.45.083c.294.07.352.176.288.469l-.738 3.468c-.194.897.105 1.319.808 1.319.545 0 1.178-.252 1.465-.598l.088-.416c-.2.176-.492.246-.686.246-.275 0-.375-.193-.304-.533zM9 4.5a1 1 0 1 1-2 0 1 1 0 0 1 2 0" />
+                    </svg>
+                    '<?= $domain; ?>' 这个域名似乎尚未注册，去申请试试吧。
+                </h2>
+                <?php if ($fetchPrices): ?>
+                  <div class="message-price" id="message-price">
+                    <div class="skeleton"></div>
+                  </div>
+                <?php endif; ?>
               </div>
-            <?php endforeach; ?>
-          </div>
-        <?php endif; ?>
-      </div>
-      <?php if ($fetchPrices): ?>
-        <div class="message-price" id="message-price">
-          <div class="skeleton"></div>
-        </div>
-      <?php endif; ?>
-      <?php if ($parser->age || $parser->remaining || $parser->pendingDelete || $parser->gracePeriod || $parser->redemptionPeriod): ?>
-        <div class="message-tags">
-          <?php if ($parser->age): ?>
-            <div class="message-tag message-tag-gray" id="age" data-seconds="<?= $parser->ageSeconds; ?>">
-              <svg width="1em" height="1em" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true">
-                <path d="M8 3.5a.5.5 0 0 0-1 0V9a.5.5 0 0 0 .252.434l3.5 2a.5.5 0 0 0 .496-.868L8 8.71z" />
-                <path d="M8 16A8 8 0 1 0 8 0a8 8 0 0 0 0 16m7-8A7 7 0 1 1 1 8a7 7 0 0 1 14 0" />
-              </svg>
-              <span>已经注册：<?= $parser->age; ?></span>
             </div>
           <?php endif; ?>
-          <?php if ($parser->remaining): ?>
-            <div class="message-tag message-tag-gray" id="remaining" data-seconds="<?= $parser->remainingSeconds; ?>">
-              <svg width="1em" height="1em" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true">
-                <path d="M2 1.5a.5.5 0 0 1 .5-.5h11a.5.5 0 0 1 0 1h-1v1a4.5 4.5 0 0 1-2.557 4.06c-.29.139-.443.377-.443.59v.7c0 .213.154.451.443.59A4.5 4.5 0 0 1 12.5 13v1h1a.5.5 0 0 1 0 1h-11a.5.5 0 1 1 0-1h1v-1a4.5 4.5 0 0 1 2.557-4.06c.29-.139.443-.377.443-.59v-.7c0-.213-.154-.451-.443-.59A4.5 4.5 0 0 1 3.5 3V2h-1a.5.5 0 0 1-.5-.5m2.5.5v1a3.5 3.5 0 0 0 1.989 3.158c.533.256 1.011.791 1.011 1.491v.702c0 .7-.478 1.235-1.011 1.491A3.5 3.5 0 0 0 4.5 13v1h7v-1a3.5 3.5 0 0 0-1.989-3.158C8.978 9.586 8.5 9.052 8.5 8.351v-.702c0-.7.478-1.235 1.011-1.491A3.5 3.5 0 0 0 11.5 3V2z" />
-              </svg>
-              <span>距离过期：<?= $parser->remaining; ?></span>
-            </div>
-          <?php endif; ?>
-          <?php if ($parser->ageSeconds && $parser->ageSeconds < 7 * 24 * 60 * 60): ?>
-            <span class="message-tag message-tag-green">新注册</span>
-          <?php endif; ?>
-          <?php if (($parser->remainingSeconds ?? -1) >= 0 && $parser->remainingSeconds < 7 * 24 * 60 * 60): ?>
-            <span class="message-tag message-tag-yellow">即将过期</span>
-          <?php endif; ?>
-          <?php if ($parser->pendingDelete): ?>
-            <span class="message-tag message-tag-red">待删除</span>
-          <?php elseif ($parser->remainingSeconds < 0): ?>
-            <span class="message-tag message-tag-red">已过期</span>
-          <?php endif; ?>
-          <?php if ($parser->gracePeriod): ?>
-            <span class="message-tag message-tag-yellow">宽限期</span>
-          <?php elseif ($parser->redemptionPeriod): ?>
-            <span class="message-tag message-tag-blue">赎回期</span>
-          <?php endif; ?>
         </div>
-      <?php endif; ?>
-    </div>
-  </div>
-<?php else: ?>
-  <div class="message message-informative">
-    <div class="message-data">
-      <h2 class="message-title">
-        <svg width="1em" height="1em" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true" class="message-icon">
-          <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14m0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16" />
-          <path d="m8.93 6.588-2.29.287-.082.38.45.083c.294.07.352.176.288.469l-.738 3.468c-.194.897.105 1.319.808 1.319.545 0 1.178-.252 1.465-.598l.088-.416c-.2.176-.492.246-.686.246-.275 0-.375-.193-.304-.533zM9 4.5a1 1 0 1 1-2 0 1 1 0 0 1 2 0" />
-        </svg>
-        '<?= $domain; ?>' 这个域名似乎尚未注册，去申请试试吧。
-      </h2>
-      <?php if ($fetchPrices): ?>
-        <div class="message-price" id="message-price">
-          <div class="skeleton"></div>
+      </section>
+    <?php endif; ?>
+    <?php if ($whoisData && $rdapData): ?>
+      <section class="data-source">
+        <div class="segmented">
+          <button class="segmented-item segmented-item-selected" id="data-source-whois" type="button">WHOIS</button>
+          <button class="segmented-item" id="data-source-rdap" type="button">RDAP</button>
         </div>
-      <?php endif; ?>
-    </div>
-  </div>
-<?php endif; ?>
-    
+      </section>
+    <?php endif; ?>
     <?php if ($whoisData || $rdapData): ?>
       <section class="raw-data">
-        <?php if ($whoisData && $rdapData): ?>
-          <section class="data-source">
-            <div class="segmented">
-              <button class="segmented-item segmented-item-selected" id="data-source-whois" type="button">
-                <span>WHOIS</span>
-              </button>
-              <button class="segmented-item" id="data-source-rdap" type="button">
-                <span>RDAP</span>
-              </button>
-            </div>
-          </section>
-        <?php endif; ?>
-        
         <?php if ($whoisData): ?>
           <div class="raw-data-container" id="whois-container">
-            <button class="copy-button" id="copy-whois" title="复制 WHOIS 数据" aria-label="复制 WHOIS 数据">
+            <button class="copy-button" onclick="copyToClipboard('raw-data-whois')">
               <svg class="copy-icon" viewBox="0 0 16 16" fill="currentColor">
                 <path d="M4 1a3 3 0 0 0-3 3v10a3 3 0 0 0 3 3h10a3 3 0 0 0 3-3V4a3 3 0 0 0-3-3H4zm2 2a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2V3z"/>
               </svg>
               <span>复制</span>
             </button>
-            <pre class="raw-data-whois" id="raw-data-whois" tabindex="0"><?= htmlspecialchars($whoisData, ENT_QUOTES, 'UTF-8'); ?></pre>
+            <pre class="raw-data-whois" id="raw-data-whois" tabindex="0"><?= $whoisData; ?></pre>
           </div>
         <?php endif; ?>
-        
         <?php if ($rdapData): ?>
-          <div class="raw-data-container <?= $whoisData ? 'hidden' : '' ?>" id="rdap-container">
-            <button class="copy-button" id="copy-rdap" title="复制 RDAP 数据" aria-label="复制 RDAP 数据">
+          <div class="raw-data-container" id="rdap-container" style="display:none;">
+            <button class="copy-button" onclick="copyToClipboard('raw-data-rdap')">
               <svg class="copy-icon" viewBox="0 0 16 16" fill="currentColor">
                 <path d="M4 1a3 3 0 0 0-3 3v10a3 3 0 0 0 3 3h10a3 3 0 0 0 3-3V4a3 3 0 0 0-3-3H4zm2 2a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2V3z"/>
               </svg>
               <span>复制</span>
             </button>
-            <pre class="raw-data-rdap" id="raw-data-rdap"><code class="language-json"><?= htmlspecialchars($rdapData, ENT_QUOTES, 'UTF-8'); ?></code></pre>
-          </div>
-        <?php endif; ?>
-        
-        <?php if (!$whoisData && !$rdapData): ?>
-          <div class="message message-notice">
-            <div class="message-data">
-              <h2 class="message-title">
-                  <svg width="1em" height="1em" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true" class="message-icon">
-                    <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14m0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16" />
-                    <path d="M5.255 5.786a.237.237 0 0 0 .241.247h.825c.138 0 .248-.113.266-.25.09-.656.54-1.134 1.342-1.134.686 0 1.314.343 1.314 1.168 0 .635-.374.927-.965 1.371-.673.489-1.206 1.06-1.168 1.987l.003.217a.25.25 0 0 0 .25.246h.811a.25.25 0 0 0 .25-.25v-.105c0-.718.273-.927 1.01-1.486.609-.463 1.244-.977 1.244-2.056 0-1.511-1.276-2.241-2.673-2.241-1.267 0-2.655.59-2.75 2.286m1.557 5.763c0 .533.425.927 1.01.927.609 0 1.028-.394 1.028-.927 0-.552-.42-.94-1.029-.94-.584 0-1.009.388-1.009.94" />
-                  </svg>
-                  暂无原始数据可用
-              </h2>
-            </div>
+            <pre class="raw-data-rdap" id="raw-data-rdap"><code class="language-json"><?= $rdapData; ?></code></pre>
           </div>
         <?php endif; ?>
       </section>
@@ -1109,140 +774,36 @@ if ($_SERVER["QUERY_STRING"] ?? "") {
       <path d="M8 12a.5.5 0 0 0 .5-.5V5.707l2.146 2.147a.5.5 0 0 0 .708-.708l-3-3a.5.5 0 0 0-.708 0l-3 3a.5.5 0 1 0 .708.708L7.5 5.707V11.5a.5.5 0 0 0 .5.5" fill-rule="evenodd" />
     </svg>
   </button>
-  
   <script>
-    // 复制到剪贴板函数
-    function copyToClipboard(elementId) {
-      const element = document.getElementById(elementId);
-      const copyButton = document.getElementById(elementId.replace('raw-data-', 'copy-'));
-      
-      if (!element) return;
-
-      let textToCopy = '';
-      if (element.tagName === 'PRE') {
-        textToCopy = element.textContent || element.innerText;
-      } else if (element.querySelector('code')) {
-        textToCopy = element.querySelector('code').textContent || element.querySelector('code').innerText;
-      } else {
-        textToCopy = element.textContent || element.innerText;
-      }
-
-      const textArea = document.createElement('textarea');
-      textArea.value = textToCopy;
-      textArea.style.position = 'fixed';
-      textArea.style.left = '-999999px';
-      textArea.style.top = '-999999px';
-      textArea.style.opacity = '0';
-      document.body.appendChild(textArea);
-      textArea.focus();
-      textArea.select();
-
-      try {
-        const successful = document.execCommand('copy');
-        if (successful) {
-          showCopySuccess(copyButton);
-        } else {
-          navigator.clipboard.writeText(textToCopy).then(() => {
-            showCopySuccess(copyButton);
-          }).catch((err) => {
-            console.error('复制失败:', err);
-            showCopyError(copyButton);
-          });
-        }
-      } catch (err) {
-        navigator.clipboard.writeText(textToCopy).then(() => {
-          showCopySuccess(copyButton);
-        }).catch((err) => {
-          console.error('复制失败:', err);
-          showCopyError(copyButton);
-        });
-      } finally {
-        document.body.removeChild(textArea);
-      }
-    }
-
-    function showCopySuccess(copyButton) {
-      if (!copyButton) return;
-      
-      copyButton.classList.add('copy-success');
-      const originalText = copyButton.querySelector('span').textContent;
-      const successText = copyButton.querySelector('span');
-      if (successText) {
-        successText.textContent = '已复制!';
-      }
-      
-      if (navigator.vibrate) {
-        navigator.vibrate(50);
-      }
-      
-      setTimeout(() => {
-        copyButton.classList.remove('copy-success');
-        if (successText) {
-          successText.textContent = originalText;
-        }
-      }, 2000);
-    }
-
-    function showCopyError(copyButton) {
-      if (!copyButton) return;
-      
-      copyButton.style.background = 'rgba(220, 53, 69, 0.1)';
-      copyButton.style.borderColor = '#dc3545';
-      copyButton.style.color = '#dc3545';
-      const originalText = copyButton.querySelector('span').textContent;
-      const errorText = copyButton.querySelector('span');
-      if (errorText) {
-        errorText.textContent = '复制失败';
-      }
-      
-      setTimeout(() => {
-        copyButton.style.background = '';
-        copyButton.style.borderColor = '';
-        copyButton.style.color = '';
-        if (errorText) {
-          errorText.textContent = originalText;
-        }
-      }, 2000);
-    }
-
     window.addEventListener("DOMContentLoaded", function() {
       const domainElement = document.getElementById("domain");
       const domainClearElement = document.getElementById("domain-clear");
 
-      if (domainElement && domainElement.value) {
+      if (domainElement.value) {
         domainClearElement.classList.add("visible");
       }
 
-      if (domainElement) {
-        domainElement.addEventListener("input", (e) => {
-          if (e.target.value) {
-            domainClearElement.classList.add("visible");
-          } else {
-            domainClearElement.classList.remove("visible");
-          }
-        });
-      }
-
-      if (domainClearElement) {
-        domainClearElement.addEventListener("click", () => {
-          if (domainElement) {
-            domainElement.focus();
-            domainElement.select();
-            if (!document.execCommand("delete", false)) {
-              domainElement.value = "";
-            }
-            domainClearElement.classList.remove("visible");
-          }
-        });
-      }
+      domainElement.addEventListener("input", (e) => {
+        if (e.target.value) {
+          domainClearElement.classList.add("visible");
+        } else {
+          domainClearElement.classList.remove("visible");
+        }
+      });
+      domainClearElement.addEventListener("click", () => {
+        domainElement.focus();
+        domainElement.select();
+        if (!document.execCommand("delete", false)) {
+          domainElement.setRangeText("");
+        }
+        domainClearElement.classList.remove("visible");
+      });
 
       const checkboxNames = ["whois", "rdap", "prices"];
       <?php if ($domain): ?>
         checkboxNames.forEach((name) => {
           const checkbox = document.getElementById(`checkbox-${name}`);
-          if (checkbox) {
-            localStorage.setItem(`checkbox-${name}`, +checkbox.checked);
-          }
+          localStorage.setItem(`checkbox-${name}`, +checkbox.checked);
         });
       <?php else: ?>
         const whoisValue = localStorage.getItem("checkbox-whois") || "0";
@@ -1250,114 +811,41 @@ if ($_SERVER["QUERY_STRING"] ?? "") {
 
         checkboxNames.forEach((name) => {
           const checkbox = document.getElementById(`checkbox-${name}`);
-          if (checkbox) {
-            if (!+whoisValue && !+rdapValue && name !== "prices") {
-              checkbox.checked = true;
-            } else {
-              checkbox.checked = localStorage.getItem(`checkbox-${name}`) === "1";
-            }
+
+          if (!+whoisValue && !+rdapValue && name !== "prices") {
+            checkbox.checked = true;
+          } else {
+            checkbox.checked = localStorage.getItem(`checkbox-${name}`) === "1";
           }
         });
       <?php endif; ?>
 
-      const form = document.getElementById("form");
-      const searchIcon = document.getElementById("search-icon");
-      if (form && searchIcon) {
-        form.addEventListener("submit", () => {
-          searchIcon.classList.add("searching");
-        });
-      }
+      document.getElementById("form").addEventListener("submit", () => {
+        document.getElementById("search-icon").classList.add("searching");
+      });
 
       const backToTop = document.getElementById("back-to-top");
-      if (backToTop) {
-        backToTop.addEventListener("click", () => {
-          window.scrollTo({
-            behavior: "smooth",
-            top: 0,
-          });
+      backToTop.addEventListener("click", () => {
+        window.scrollTo({
+          behavior: "smooth",
+          top: 0,
         });
+      });
 
-        window.addEventListener("scroll", () => {
-          if (document.documentElement.scrollTop > 360) {
-            if (!backToTop.classList.contains("visible")) {
-              backToTop.classList.add("visible");
-            }
-          } else {
-            if (backToTop.classList.contains("visible")) {
-              backToTop.classList.remove("visible");
-            }
+      window.addEventListener("scroll", () => {
+        if (document.documentElement.scrollTop > 360) {
+          if (!backToTop.classList.contains("visible")) {
+            backToTop.classList.add("visible");
           }
-        });
-      }
-
-      // WHOIS/RDAP 切换功能
-      const dataSourceWHOIS = document.getElementById("data-source-whois");
-      const dataSourceRDAP = document.getElementById("data-source-rdap");
-      const whoisContainer = document.getElementById("whois-container");
-      const rdapContainer = document.getElementById("rdap-container");
-
-      function switchToWHOIS() {
-        if (dataSourceWHOIS) dataSourceWHOIS.classList.add("segmented-item-selected");
-        if (dataSourceRDAP) dataSourceRDAP.classList.remove("segmented-item-selected");
-        if (whoisContainer) whoisContainer.classList.remove("hidden");
-        if (rdapContainer) rdapContainer.classList.add("hidden");
-      }
-
-      function switchToRDAP() {
-        if (dataSourceWHOIS) dataSourceWHOIS.classList.remove("segmented-item-selected");
-        if (dataSourceRDAP) dataSourceRDAP.classList.add("segmented-item-selected");
-        if (whoisContainer) whoisContainer.classList.add("hidden");
-        if (rdapContainer) rdapContainer.classList.remove("hidden");
-      }
-
-      if (dataSourceWHOIS && dataSourceRDAP && whoisContainer && rdapContainer) {
-        dataSourceWHOIS.addEventListener("click", (e) => {
-          e.preventDefault();
-          if (!dataSourceWHOIS.classList.contains("segmented-item-selected")) {
-            switchToWHOIS();
+        } else {
+          if (backToTop.classList.contains("visible")) {
+            backToTop.classList.remove("visible");
           }
-        });
-
-        dataSourceRDAP.addEventListener("click", (e) => {
-          e.preventDefault();
-          if (!dataSourceRDAP.classList.contains("segmented-item-selected")) {
-            switchToRDAP();
-          }
-        });
-      }
-
-      // 复制按钮事件绑定
-      const copyWHOISButton = document.getElementById("copy-whois");
-      const copyRDAPButton = document.getElementById("copy-rdap");
-
-      if (copyWHOISButton) {
-        copyWHOISButton.addEventListener("click", (e) => {
-          e.preventDefault();
-          e.stopPropagation();
-          copyToClipboard('raw-data-whois');
-        });
-      }
-
-      if (copyRDAPButton) {
-        copyRDAPButton.addEventListener("click", (e) => {
-          e.preventDefault();
-          e.stopPropagation();
-          copyToClipboard('raw-data-rdap');
-        });
-      }
-
-      if (whoisContainer && !rdapContainer && dataSourceWHOIS) {
-        whoisContainer.classList.remove("hidden");
-        switchToWHOIS();
-      }
-      else if (rdapContainer && !whoisContainer && dataSourceRDAP) {
-        rdapContainer.classList.remove("hidden");
-        switchToRDAP();
-      }
+        }
+      });
     });
   </script>
-
-  <?php if ($domain): ?>
+  <?php if ($whoisData || $rdapData): ?>
     <script>
       window.addEventListener("DOMContentLoaded", function() {
         function formatDuration(seconds) {
@@ -1425,89 +913,161 @@ if ($_SERVER["QUERY_STRING"] ?? "") {
     <script src="public/js/prism.js" defer></script>
     <script>
       window.addEventListener("DOMContentLoaded", function() {
-        if (typeof tippy !== 'undefined') {
-          tippy.setDefaultProps({
-            arrow: false,
-            offset: [0, 8],
-            maxWidth: 200,
-            allowHTML: false,
-            theme: 'light-border',
-            content: (reference) => reference.innerHTML,
-          });
+        tippy.setDefaultProps({
+          arrow: false,
+          offset: [0, 8],
+        });
 
-          function updateDateElementTooltip(elementId) {
-            const element = document.getElementById(elementId);
-            if (element) {
-              const iso8601 = element.dataset.iso8601;
-              if (iso8601) {
-                const date = new Date(iso8601);
-                const year = date.getFullYear();
-                const month = String(date.getMonth() + 1).padStart(2, "0");
-                const day = String(date.getDate()).padStart(2, "0");
-                const hours = String(date.getHours()).padStart(2, "0");
-                const minutes = String(date.getMinutes()).padStart(2, "0");
-                const seconds = String(date.getSeconds()).padStart(2, "0");
-                const formattedDateTime = `${year}年${month}月${day}日 ${hours}时${minutes}分${seconds}秒`;
+        function updateDateElementTooltip(elementId) {
+          const element = document.getElementById(elementId);
+          if (element) {
+            const iso8601 = element.dataset.iso8601;
+            if (iso8601) {
+              const date = new Date(iso8601);
+              const year = date.getFullYear();
+              const month = String(date.getMonth() + 1).padStart(2, "0");
+              const day = String(date.getDate()).padStart(2, "0");
+              const hours = String(date.getHours()).padStart(2, "0");
+              const minutes = String(date.getMinutes()).padStart(2, "0");
+              const seconds = String(date.getSeconds()).padStart(2, "0");
+              const formattedDateTime = `${year}年${month}月${day}日 ${hours}时${minutes}分${seconds}秒`;
 
-                tippy(`#${elementId}`, {
-                  content: formattedDateTime,
-                  placement: "right",
-                  appendTo: () => document.body,
-                });
-              }
-            }
-          }
-
-          updateDateElementTooltip("creation-date");
-          updateDateElementTooltip("expiration-date");
-          updateDateElementTooltip("updated-date");
-          updateDateElementTooltip("available-date");
-
-          function updateSecondsElementTooltip(elementId, prefix) {
-            const element = document.getElementById(elementId);
-            if (element) {
-              const seconds = element.dataset.seconds;
-              if (seconds) {
-                let days = seconds / 24 / 60 / 60;
-                days = seconds < 0 ? Math.ceil(days) : Math.floor(days);
-                if (seconds < 0 && days === 0) {
-                  days = "-0";
-                }
-                tippy(`#${elementId}`, {
-                  content: `${prefix}: ${days} 天`,
-                  placement: "bottom",
-                });
-              }
-            }
-          }
-
-          updateSecondsElementTooltip("age", "已经注册");
-          updateSecondsElementTooltip("remaining", "距离过期");
-        }
-
-        const rawDataWHOIS = document.getElementById("raw-data-whois");
-        const rawDataRDAP = document.getElementById("raw-data-rdap");
-        
-        if (typeof linkifyHtml !== 'undefined') {
-          function linkifyRawData(element) {
-            if (element) {
-              element.innerHTML = linkifyHtml(element.innerHTML, {
-                rel: "nofollow noopener noreferrer",
-                target: "_blank",
-                validate: {
-                  url: (value) => /^https?:\/\//.test(value),
-                },
+              tippy(`#${elementId}`, {
+                content: formattedDateTime,
+                placement: "right",
               });
             }
           }
-
-          linkifyRawData(rawDataWHOIS);
-          linkifyRawData(rawDataRDAP);
         }
+
+        updateDateElementTooltip("creation-date");
+        updateDateElementTooltip("expiration-date");
+        updateDateElementTooltip("updated-date");
+        updateDateElementTooltip("available-date");
+
+        function updateSecondsElementTooltip(elementId, prefix) {
+          const element = document.getElementById(elementId);
+          if (element) {
+            const seconds = element.dataset.seconds;
+            if (seconds) {
+              let days = seconds / 24 / 60 / 60;
+              days = seconds < 0 ? Math.ceil(days) : Math.floor(days);
+              if (seconds < 0 && days === 0) {
+                days = "-0";
+              }
+              tippy(`#${elementId}`, {
+                content: `${prefix}: ${days} 天`,
+                placement: "bottom",
+              });
+            }
+          }
+        }
+
+        updateSecondsElementTooltip("age", "已经注册");
+        updateSecondsElementTooltip("remaining", "距离过期");
+
+        const dataSourceWHOIS = document.getElementById("data-source-whois");
+        const dataSourceRDAP = document.getElementById("data-source-rdap");
+        const rawDataWHOIS = document.getElementById("whois-container");
+        const rawDataRDAP = document.getElementById("rdap-container");
+        
+        <?php if ($whoisData && $rdapData): ?>
+          dataSourceWHOIS.addEventListener("click", () => {
+            dataSourceWHOIS.classList.add("segmented-item-selected");
+            rawDataWHOIS.style.display = "block";
+            dataSourceRDAP.classList.remove("segmented-item-selected");
+            rawDataRDAP.style.display = "none";
+          });
+          dataSourceRDAP.addEventListener("click", () => {
+            dataSourceWHOIS.classList.remove("segmented-item-selected");
+            rawDataWHOIS.style.display = "none";
+            dataSourceRDAP.classList.add("segmented-item-selected");
+            rawDataRDAP.style.display = "block";
+          });
+        <?php endif; ?>
+
+        function linkifyRawData(element) {
+          if (element) {
+            element.innerHTML = linkifyHtml(element.innerHTML, {
+              rel: "nofollow noopener noreferrer",
+              target: "_blank",
+              validate: {
+                url: (value) => /^https?:\/\//.test(value),
+              },
+            });
+          }
+        }
+
+        linkifyRawData(document.getElementById("raw-data-whois"));
+        linkifyRawData(document.getElementById("raw-data-rdap"));
       });
+
+      // 优化的复制功能
+      function copyToClipboard(elementId) {
+        const element = document.getElementById(elementId);
+        if (!element) return;
+        
+        const text = element.innerText || element.textContent;
+        const button = event.target.closest('.copy-button');
+        
+        if (!button) return;
+        
+        const originalHTML = button.innerHTML;
+        const originalText = button.innerText;
+        
+        // 复制文本
+        navigator.clipboard.writeText(text).then(() => {
+          // 成功状态
+          button.innerHTML = `
+            <svg class="copy-icon" viewBox="0 0 16 16" fill="currentColor">
+              <path d="M2 13a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11.5a2 2 0 0 1 1.983 1.738l.26 1.262a2 2 0 0 0 1.708 1.352L16 9a2 2 0 0 1 2 2v2a2 2 0 0 1-2 2H2z"/>
+              <path d="M5.854 4.646a.5.5 0 1 1-.708.708L3.5 3.707 2.854 4.414a.5.5 0 1 1-.708-.708L2.293 3l1.048-1.048a.5.5 0 0 1 .708.708L3.5 2.293l.646.647a.5.5 0 1 1-.708.708L3.5 3z"/>
+            </svg>
+            <span>已复制</span>
+          `;
+          button.classList.add('copy-success');
+          
+          setTimeout(() => {
+            button.innerHTML = originalHTML;
+            button.classList.remove('copy-success');
+          }, 1500);
+        }).catch(() => {
+          // 备用复制方法
+          const textArea = document.createElement('textarea');
+          textArea.value = text;
+          textArea.style.position = 'fixed';
+          textArea.style.left = '-999999px';
+          textArea.style.top = '-999999px';
+          document.body.appendChild(textArea);
+          textArea.focus();
+          textArea.select();
+          try {
+            const successful = document.execCommand('copy');
+            if (successful) {
+              button.innerHTML = `
+                <svg class="copy-icon" viewBox="0 0 16 16" fill="currentColor">
+                  <path d="M2 13a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11.5a2 2 0 0 1 1.983 1.738l.26 1.262a2 2 0 0 0 1.708 1.352L16 9a2 2 0 0 1 2 2v2a2 2 0 0 1-2 2H2z"/>
+                  <path d="M5.854 4.646a.5.5 0 1 1-.708.708L3.5 3.707 2.854 4.414a.5.5 0 1 1-.708-.708L2.293 3l1.048-1.048a.5.5 0 0 1 .708.708L3.5 2.293l.646.647a.5.5 0 1 1-.708.708L3.5 3z"/>
+                </svg>
+                <span>已复制</span>
+              `;
+              button.classList.add('copy-success');
+              
+              setTimeout(() => {
+                button.innerHTML = originalHTML;
+                button.classList.remove('copy-success');
+              }, 1500);
+            } else {
+              alert('复制失败，请重试');
+            }
+          } catch (err) {
+            alert('复制失败，请重试');
+          }
+          document.body.removeChild(textArea);
+        });
+      }
     </script>
   <?php endif; ?>
-
   <?php if ($fetchPrices): ?>
     <script>
       window.addEventListener("DOMContentLoaded", async () => {
@@ -1569,22 +1129,20 @@ if ($_SERVER["QUERY_STRING"] ?? "") {
           setTimeout(() => {
             messagePrice.innerHTML = innerHTML;
 
-            if (isPremium && typeof tippy !== 'undefined') {
+            if (isPremium) {
               tippy("#price-premium", {
                 content: "溢价",
                 placement: "bottom",
               });
             }
-            if (typeof tippy !== 'undefined') {
-              tippy("#price-register", {
-                content: `¥${registerCNY}`,
-                placement: "bottom"
-              });
-              tippy("#price-renew", {
-                content: `¥${renewCNY}`,
-                placement: "bottom"
-              });
-            }
+            tippy("#price-register", {
+              content: `¥${registerCNY}`,
+              placement: "bottom"
+            });
+            tippy("#price-renew", {
+              content: `¥${renewCNY}`,
+              placement: "bottom"
+            });
           }, Math.max(0, 500 - (Date.now() - startTime)));
         } catch {
           setTimeout(() => {
@@ -1594,7 +1152,6 @@ if ($_SERVER["QUERY_STRING"] ?? "") {
       });
     </script>
   <?php endif; ?>
-  
   <?= CUSTOM_SCRIPT ?>
 </body>
 
