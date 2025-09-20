@@ -221,7 +221,73 @@ if ($_SERVER["QUERY_STRING"] ?? "") {
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght,SOFT,WONK@72,600,50,1&display=swap">
   <?= CUSTOM_HEAD ?>
   <style>
-    /* 解决图标和布局问题的新增样式 */
+    /* 修复搜索框和背景的问题 */
+    
+    /* 统一页面背景为白色 */
+    body {
+      background-color: #ffffff;
+    }
+    
+    /* 移除顶部的背景，实现透明化 */
+    header {
+      background-color: transparent;
+      padding-top: 2rem;
+    }
+    
+    /* 修复 .hero-section 和 .message-informative 的背景 */
+    .hero-section {
+      background-color: transparent;
+    }
+
+    main {
+      background-color: transparent;
+    }
+
+    /* 确保搜索框是胶囊状 */
+    .search-box {
+      background-color: transparent;
+      border: 1px solid #ccc;
+      border-radius: 9999px; /* This is the key change for the capsule shape */
+      padding: 0.5rem 1rem;
+      display: flex;
+      align-items: center;
+    }
+
+    .input.search-input {
+      background-color: transparent;
+      border: none;
+      outline: none;
+      width: 100%;
+    }
+
+    /* 修复绿色背景删除不彻底的问题 */
+    .message.message-positive {
+        background: transparent;
+        border: none;
+        box-shadow: none;
+        padding: 0;
+    }
+    /* 移除 message-positive 内的 data-source 容器的背景和阴影 */
+    .message.message-positive .message-data {
+        background: transparent;
+        box-shadow: none;
+        padding: 0;
+    }
+
+    /* 确保 .message-informative 的背景也是透明的 */
+    .message.message-informative {
+        background: transparent;
+        border: none;
+        box-shadow: none;
+        padding: 0;
+    }
+
+    .message.message-informative .message-data {
+        background: transparent;
+        box-shadow: none;
+        padding: 0;
+    }
+    /* 解决图标和布局问题的新增样式 (These were already in your code, keeping them for completeness)*/
     .message-data .message-title {
       display: flex;
       align-items: center;
@@ -272,57 +338,6 @@ if ($_SERVER["QUERY_STRING"] ?? "") {
       width: 1.2em;
       height: 1.2em;
     }
-    
-    /* 移除背景和侧边栏 */
-    .message.message-positive {
-        background: transparent;
-        border: none;
-        box-shadow: none;
-        padding: 0;
-    }
-    /* 移除 message-positive 内的 data-source 容器的背景和阴影 */
-    .message.message-positive .message-data {
-        background: transparent;
-        box-shadow: none;
-        padding: 0;
-    }
-
-    /* 统一页面背景为白色 */
-    body {
-      background-color: #ffffff;
-    }
-    
-    /* 移除顶部的背景，实现透明化 */
-    header {
-      background-color: transparent;
-      padding-top: 2rem;
-    }
-    
-    /* 修复 .hero-section 和 .message-informative 的背景 */
-    .hero-section {
-      background-color: transparent;
-    }
-
-    main {
-      background-color: transparent;
-    }
-
-    /* 使输入框背景透明 */
-    .search-box {
-      background-color: transparent;
-      border: 1px solid #ccc;
-      border-radius: 9999px;
-      padding: 0.5rem 1rem;
-      display: flex;
-      align-items: center;
-    }
-
-    .input.search-input {
-      background-color: transparent;
-      border: none;
-      outline: none;
-      width: 100%;
-    }
 
     .raw-data-whois,
     .raw-data-rdap {
@@ -331,21 +346,6 @@ if ($_SERVER["QUERY_STRING"] ?? "") {
       border-radius: 12px;
       box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
     }
-    
-    /* 确保 .message-informative 的背景也是透明的 */
-    .message.message-informative {
-        background: transparent;
-        border: none;
-        box-shadow: none;
-        padding: 0;
-    }
-
-    .message.message-informative .message-data {
-        background: transparent;
-        box-shadow: none;
-        padding: 0;
-    }
-
   </style>
 </head>
 
