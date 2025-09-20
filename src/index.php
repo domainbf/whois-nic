@@ -120,7 +120,7 @@ if ($domain) {
     }
   } catch (Exception $e) {
     if ($e instanceof SyntaxError || $e instanceof UnableToResolveDomain) {
-      $error = "'$domain' 请输入有效域名哦！";
+      $error = "'$domain' is not a valid domain";
     } else {
       $error = $e->getMessage();
     }
@@ -133,7 +133,7 @@ if ($domain) {
     if ($error) {
       $value = ["code" => 1, "msg" => $error, "data" => null];
     } else {
-      $value = ["code" => 0, "msg" => "查询成功", "data" => $parser];
+      $value = ["code" => 0, "msg" => "Query successful", "data" => $parser];
     }
 
     $json = json_encode($value, JSON_UNESCAPED_UNICODE);
@@ -228,7 +228,7 @@ if ($_SERVER["QUERY_STRING"] ?? "") {
       background: transparent !important;
       border: 2px solid #000000 !important;
       border-radius: 8px !important;
-      padding: 2px !important;
+      padding: 4px !important;
       display: flex !important;
       align-items: center !important;
     }
@@ -239,10 +239,9 @@ if ($_SERVER["QUERY_STRING"] ?? "") {
       box-shadow: none !important;
       color: #333 !important;
       font-size: 16px !important;
-      padding: 8px 12px !important;
+      padding: 12px 16px !important;
       flex: 1 !important;
       outline: none !important;
-      height: 30px !important;
     }
 
     .search-box .input::placeholder {
@@ -267,14 +266,6 @@ if ($_SERVER["QUERY_STRING"] ?? "") {
     .search-box .search-clear:hover {
       background: #e0e0e0 !important;
       border-color: #999 !important;
-    }
-
-    /* 查询按钮对齐 */
-    .search-button {
-      height: 36px !important;
-      display: flex !important;
-      align-items: center !important;
-      margin-left: 8px !important;
     }
 
     /* 修复域名过长文字错位问题 - 增强版 */
@@ -392,29 +383,28 @@ if ($_SERVER["QUERY_STRING"] ?? "") {
       background-color: transparent;
     }
 
-    /* 简化的复制按钮样式 - 统一设计 */
     .raw-data-whois,
     .raw-data-rdap {
-      background-color: transparent;
+      background-color: #ffffff;
       padding: 1.5rem;
       border-radius: 12px;
-      box-shadow: none;
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
       position: relative;
       margin-bottom: 1rem;
+      /* 确保内容区域不被按钮覆盖 */
+      margin-top: 50px; /* 为按钮留出空间 */
     }
 
-    /* 统一复制按钮容器 */
-    .raw-data-header {
-      position: sticky;
-      top: 12px;
-      z-index: 10;
-      margin-bottom: 1rem;
-      display: flex;
-      justify-content: flex-end;
-      padding-bottom: 0.5rem;
+    /* 修复的复制按钮样式 - 完全重写，确保可见性 */
+    .raw-data-container {
+      position: relative;
+      width: 100%;
     }
 
     .copy-button {
+      position: sticky;
+      top: 12px;
+      right: 12px;
       background: rgba(255, 255, 255, 0.95);
       backdrop-filter: blur(10px);
       border: 1px solid rgba(0, 0, 0, 0.15);
@@ -428,13 +418,54 @@ if ($_SERVER["QUERY_STRING"] ?? "") {
       display: flex !important;
       align-items: center;
       gap: 6px;
+      z-index: 100 !important; /* 提高z-index确保在最上层 */
       box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+      /* 始终显示，不再使用opacity隐藏 */
       opacity: 1 !important;
+      transform: none !important;
       box-sizing: border-box;
       min-width: 70px;
       justify-content: center;
+      /* 防止按钮被滚动条覆盖 */
+      margin-right: 10px;
     }
 
+    /* 移动端优化 */
+    @media (max-width: 768px) {
+      .copy-button {
+        top: 8px;
+        right: 8px;
+        padding: 6px 10px;
+        font-size: 11px;
+        min-width: 60px;
+        margin-right: 5px;
+      }
+      
+      .raw-data-whois,
+      .raw-data-rdap {
+        margin-top: 45px;
+        padding: 1rem;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .copy-button {
+        top: 6px;
+        right: 6px;
+        padding: 5px 8px;
+        font-size: 10px;
+        min-width: 55px;
+        margin-right: 3px;
+      }
+      
+      .raw-data-whois,
+      .raw-data-rdap {
+        margin-top: 40px;
+        padding: 0.75rem;
+      }
+    }
+
+    /* 按钮悬停效果 */
     .copy-button:hover {
       background: #fff !important;
       border-color: #007bff !important;
@@ -464,10 +495,10 @@ if ($_SERVER["QUERY_STRING"] ?? "") {
       fill: #28a745 !important;
     }
 
-    /* 原始数据容器 */
-    .raw-data-container {
-      position: relative;
-      width: 100%;
+    /* 确保pre元素不会覆盖按钮区域 */
+    .raw-data-whois,
+    .raw-data-rdap {
+      margin-top: 0 !important; /* 重置margin-top，由容器控制 */
     }
 
     .raw-data-container pre {
@@ -475,90 +506,6 @@ if ($_SERVER["QUERY_STRING"] ?? "") {
       padding: 0 !important;
       width: 100%;
       box-sizing: border-box;
-      background: transparent;
-      border: none;
-      font-family: 'Courier New', monospace;
-      font-size: 14px;
-      line-height: 1.5;
-      white-space: pre-wrap;
-      word-wrap: break-word;
-    }
-
-    /* 移动端优化 */
-    @media (max-width: 768px) {
-      .copy-button {
-        top: 8px;
-        right: 8px;
-        padding: 6px 10px;
-        font-size: 11px;
-        min-width: 60px;
-      }
-      
-      .raw-data-whois,
-      .raw-data-rdap {
-        padding: 1rem;
-      }
-      
-      .raw-data-header {
-        top: 8px;
-      }
-    }
-
-    @media (max-width: 480px) {
-      .copy-button {
-        padding: 5px 8px;
-        font-size: 10px;
-        min-width: 55px;
-      }
-      
-      .raw-data-whois,
-      .raw-data-rdap {
-        padding: 0.75rem;
-      }
-      
-      .raw-data-header {
-        top: 6px;
-      }
-    }
-
-    /* 标签页样式 */
-    .data-source {
-      margin: 2rem 0 1rem 0;
-    }
-    
-    .segmented {
-      display: flex;
-      background: #f8f9fa;
-      border-radius: 8px;
-      overflow: hidden;
-      margin-bottom: 1rem;
-    }
-    
-    .segmented-item {
-      flex: 1;
-      padding: 12px 20px;
-      background: none;
-      border: none;
-      cursor: pointer;
-      font-size: 14px;
-      font-weight: 500;
-      color: #666;
-      transition: all 0.2s ease;
-    }
-    
-    .segmented-item:hover {
-      background: #e9ecef;
-      color: #333;
-    }
-    
-    .segmented-item-selected {
-      background: #007bff;
-      color: white;
-    }
-    
-    /* 隐藏非活动的数据 */
-    .raw-data-rdap {
-      display: none;
     }
   </style>
 </head>
@@ -947,28 +894,23 @@ if ($_SERVER["QUERY_STRING"] ?? "") {
       <section class="raw-data">
         <?php if ($whoisData): ?>
           <div class="raw-data-container">
-            <div class="raw-data-header">
-              <button class="copy-button" onclick="copyToClipboard('raw-data-whois')" title="复制WHOIS数据">
-                <svg class="copy-icon" viewBox="0 0 16 16" fill="currentColor">
-                  <path d="M4 1a3 3 0 0 0-3 3v10a3 3 0 0 0 3 3h10a3 3 0 0 0 3-3V4a3 3 0 0 0-3-3H4zm2 2a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2V3z"/>
-                </svg>
-                <span>复制</span>
-              </button>
-            </div>
-            <pre class="raw-data-whois" id="raw-data-whois"><?= htmlspecialchars($whoisData, ENT_QUOTES, 'UTF-8'); ?></pre>
+            <button class="copy-button" onclick="copyToClipboard('raw-data-whois')" title="复制WHOIS数据">
+              <svg class="copy-icon" viewBox="0 0 16 16" fill="currentColor">
+                <path d="M4 1a3 3 0 0 0-3 3v10a3 3 0 0 0 3 3h10a3 3 0 0 0 3-3V4a3 3 0 0 0-3-3H4zm2 2a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2V3z"/>
+              </svg>
+              <span>复制</span>
+            </button>
+            <pre class="raw-data-whois" id="raw-data-whois" tabindex="0"><?= htmlspecialchars($whoisData, ENT_QUOTES, 'UTF-8'); ?></pre>
           </div>
         <?php endif; ?>
-        
         <?php if ($rdapData): ?>
           <div class="raw-data-container">
-            <div class="raw-data-header">
-              <button class="copy-button" onclick="copyToClipboard('raw-data-rdap')" title="复制RDAP数据">
-                <svg class="copy-icon" viewBox="0 0 16 16" fill="currentColor">
-                  <path d="M4 1a3 3 0 0 0-3 3v10a3 3 0 0 0 3 3h10a3 3 0 0 0 3-3V4a3 3 0 0 0-3-3H4zm2 2a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2V3z"/>
-                </svg>
-                <span>复制</span>
-              </button>
-            </div>
+            <button class="copy-button" onclick="copyToClipboard('raw-data-rdap')" title="复制RDAP数据">
+              <svg class="copy-icon" viewBox="0 0 16 16" fill="currentColor">
+                <path d="M4 1a3 3 0 0 0-3 3v10a3 3 0 0 0 3 3h10a3 3 0 0 0 3-3V4a3 3 0 0 0-3-3H4zm2 2a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2V3z"/>
+              </svg>
+              <span>复制</span>
+            </button>
             <pre class="raw-data-rdap" id="raw-data-rdap"><code class="language-json"><?= htmlspecialchars($rdapData, ENT_QUOTES, 'UTF-8'); ?></code></pre>
           </div>
         <?php endif; ?>
@@ -1128,8 +1070,8 @@ if ($_SERVER["QUERY_STRING"] ?? "") {
         });
 
         tippy.setDefaultProps({
-          arrow: false;
-          offset: [0, 8];
+          arrow: false,
+          offset: [0, 8],
           maxWidth: 200,
           allowHTML: false,
           theme: 'light-border',
@@ -1190,25 +1132,24 @@ if ($_SERVER["QUERY_STRING"] ?? "") {
         const rawDataWHOIS = document.getElementById("raw-data-whois");
         const rawDataRDAP = document.getElementById("raw-data-rdap");
 
-        if (dataSourceWHOIS && dataSourceRDAP) {
+        if (dataSourceWHOIS && dataSourceRDAP && rawDataWHOIS && rawDataRDAP) {
           dataSourceWHOIS.addEventListener("click", () => {
             if (dataSourceWHOIS.classList.contains("segmented-item-selected")) {
               return;
             }
-
             dataSourceWHOIS.classList.add("segmented-item-selected");
-            rawDataWHOIS.style.display = "block";
             dataSourceRDAP.classList.remove("segmented-item-selected");
+            rawDataWHOIS.style.display = "block";
             rawDataRDAP.style.display = "none";
           });
+          
           dataSourceRDAP.addEventListener("click", () => {
             if (dataSourceRDAP.classList.contains("segmented-item-selected")) {
               return;
             }
-
             dataSourceWHOIS.classList.remove("segmented-item-selected");
-            rawDataWHOIS.style.display = "none";
             dataSourceRDAP.classList.add("segmented-item-selected");
+            rawDataWHOIS.style.display = "none";
             rawDataRDAP.style.display = "block";
           });
         }
