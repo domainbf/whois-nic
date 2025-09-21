@@ -114,8 +114,8 @@ form {
   align-items: center;
   border: 2px solid #000000;
   border-radius: 24px;
-  /* 移除固定高度，让内容撑开容器 */
   padding: 6px;
+  height: 48px;
 }
 
 /* 搜索框输入样式 */
