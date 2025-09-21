@@ -260,687 +260,215 @@ if ($_SERVER["QUERY_STRING"] ?? "") {
     /* 首页搜索栏背景修改 - 去掉透明化，显示主页方格背景 */
     body {
       background-color: #ffffff;
-      color: #1f1f1f;
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans",
-        Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji";
-      font-size: 14px;
-      font-weight: 400;
-      line-height: 1.4286;
-      margin: 0;
-      position: relative;
-      z-index: 0;
+      background-image: repeating-linear-gradient(0deg, transparent, transparent 19px, #eee 20px), repeating-linear-gradient(90deg, transparent, transparent 19px, #eee 20px);
+      background-size: 20px 20px;
     }
 
-/* 网格背景 */
-body::before {
-  content: "";
-  position: fixed;
-  left: 0;
-  top: 0;
-  width: 100vw;
-  height: 100vh;
-  z-index: -1;
-  pointer-events: none;
-  background-image:
-    linear-gradient(to right, #eaeaea 1px, transparent 1px),
-    linear-gradient(to bottom, #eaeaea 1px, transparent 1px);
-  background-size: 40px 40px;
-  background-color: #ffffff;
-  opacity: 1;
-}
-
-/* 通用的内容容器，实现居中和最大宽度 */
-.container {
-    width: 100%;
-    padding-left: 16px;
-    padding-right: 16px;
-    margin: 0 auto;
-    box-sizing: border-box;
-}
-
-/* 中等屏幕下的最大宽度，如平板 */
-@media (min-width: 600px) {
-    .container {
-        max-width: 768px;
+    .search-box {
+      background: transparent !important;
+      border: 2px solid #000000 !important;
+      border-radius: 9999px !important;
+      padding: 2px 4px !important;
+      display: flex !important;
+      align-items: center !important;
+      height: 42px !important;
     }
-}
 
-/* 大屏幕下的最大宽度，如桌面 */
-@media (min-width: 992px) {
-    .container {
-        max-width: 960px;
+    .search-box .input {
+      background: transparent !important;
+      border: none !important;
+      box-shadow: none !important;
+      color: #333 !important;
+      font-size: 16px !important;
+      padding: 0 12px !important;
+      flex: 1 !important;
+      outline: none !important;
+      height: 36px !important;
+      border-radius: 9999px !important;
+      margin: 0 -2px !important;
     }
-}
 
-/* header区域无任何背景色，直接显示body网格 */
-header {
-  height: 364px;
-  padding-bottom: 32px;
-  padding-top: 32px;
-}
+    .search-box .input::placeholder {
+      color: #666 !important;
+      opacity: 1 !important;
+    }
+
+    .search-box .input:focus {
+      outline: none !important;
+    }
+
+    .search-box .search-clear {
+      background: #f0f0f0 !important;
+      border: 1px solid #ddd !important;
+      border-radius: 50% !important;
+      padding: 2px !important;
+      margin: 0 4px !important;
+      cursor: pointer !important;
+      transition: all 0.2s ease !important;
+      width: 32px !important;
+      height: 32px !important;
+      display: flex !important;
+      align-items: center !important;
+      justify-content: center !important;
+    }
+
+    .search-box .search-clear:hover {
+      background: #e0e0e0 !important;
+      border-color: #999 !important;
+    }
+
+    .search-box .search-clear svg {
+      width: 14px !important;
+      height: 14px !important;
+    }
+
+    /* 修复域名过长文字错位问题 - 增强版 */
+    .message-data .message-title {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      grid-column: 1 / -1;
+      margin-bottom: 1rem;
+      font-size: 1rem;
+      font-weight: 600;
+      color: #222;
+      text-align: left;
+      flex-wrap: wrap;
+      max-width: 100%;
+      overflow: hidden;
+      word-break: break-word;
+    }
+
+    .message-title a {
+      flex: 1;
+      min-width: 0;
+      max-width: 100%;
+      word-break: break-all;
+      overflow-wrap: break-word;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      display: inline-block;
+      vertical-align: middle;
+    }
+
+    /* 移动端进一步优化 */
+    @media (max-width: 768px) {
+      .message-data .message-title {
+        font-size: 0.9rem;
+        gap: 0.25rem;
+        margin-bottom: 0.75rem;
+      }
+      
+      .message-title a {
+        font-size: 0.9rem;
+        max-width: 85%;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .message-data .message-title {
+        font-size: 0.85rem;
+        gap: 0.2rem;
+      }
+      
+      .message-title a {
+        font-size: 0.85rem;
+        max-width: 80%;
+      }
+    }
+
+    /* 调整标题内图标大小 */
+    .message-title .message-icon {
+        width: 1.2em;
+        height: 1.2em;
+        flex-shrink: 0;
+    }
+
+    .message-data {
+      display: grid;
+      grid-template-columns: auto 1fr;
+      gap: 1rem 1.5rem;
+      margin-top: 1.5rem;
+    }
 
-header > div {
-  align-items: center;
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-  height: 100%;
-  justify-content: center;
-  margin-left: auto;
-  margin-right: auto;
-  max-width: 640px;
-}
-
-h1 {
-  font-family: "Fraunces", -apple-system, BlinkMacSystemFont, "Segoe UI",
-    "Noto Sans", Helvetica, Arial, sans-serif, "Apple Color Emoji",
-    "Segoe UI Emoji";
-  font-size: 48px;
-  line-height: 1.1667;
-  margin: 0 0 16px;
-  text-align: center;
-  text-wrap: balance;
-}
-
-h1 a {
-  text-decoration: none;
-}
-
-form {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  width: 100%;
-}
-
-.search-box {
-  position: relative;
-}
-
-/* 搜索框无背景色，只显示边框和内容 */
-.search-input {
-  background: none;
-  border: 2px solid #19cccc;
-  border-radius: 8px;
-  color: inherit;
-  font-family: inherit;
-  font-size: 16px;
-  height: 48px;
-  line-height: 1.5;
-  outline: 3px solid transparent;
-  outline-offset: 0;
-  padding: 8px 36px 8px 16px;
-  transition: border-color 190ms ease, outline-color 190ms ease;
-  width: 100%;
-}
-
-.search-input::placeholder {
-  color: #757575;
-}
-
-.search-input:focus {
-  border: 2px solid #19cccc;
-}
-
-.search-input:hover {
-  border: 2px solid #19cccc;
-}
-
-/* 关闭按钮（清除按钮）样式保持原始不变 */
-.search-clear {
-  font-size: 28px;
-  opacity: 0;
-  position: absolute;
-  right: 8px;
-  top: 50%;
-  transform: translateY(-50%);
-  visibility: hidden;
-}
-
-.search-clear:hover {
-  color: #2e2e2e;
-}
-
-.search-clear:active {
-  color: #454545;
-}
-
-.search-button {
-  background-color: #1f1f1f;
-  color: #ffffff;
-  font-size: 16px;
-  font-weight: 600;
-  gap: 8px;
-  height: 48px;
-  line-height: 1.5;
-  padding-left: 16px;
-  padding-right: 16px;
-}
-
-.search-button:hover {
-  background-color: #2e2e2e;
-}
-
-.search-button:active {
-  background-color: #454545;
-}
-
-.search-button > svg {
-  font-size: 20px;
-}
-
-.searching {
-  animation: searching 1900ms infinite ease-in-out;
-}
-
-@keyframes searching {
-  0% {
-    transform: rotate(0deg) translateX(4px) rotate(0deg);
-  }
-
-  100% {
-    transform: rotate(360deg) translateX(4px) rotate(-360deg);
-  }
-}
-
-.checkboxes {
-  display: flex;
-  gap: 8px;
-}
-
-.checkbox {
-  display: flex;
-  gap: 8px;
-  position: relative;
-}
-
-.checkbox-trigger {
-  height: 20px;
-  margin: 0;
-  opacity: 0;
-  width: 20px;
-  z-index: 9;
-}
-
-.checkbox-trigger:hover,
-.checkbox-label:hover {
-  cursor: pointer;
-}
-
-.checkbox-label::before {
-  background-color: #ffffff;
-  border: 1px solid #1f1f1f;
-  border-radius: 4px;
-  box-sizing: border-box;
-  content: "";
-  outline: 3px solid transparent;
-  transition: all 190ms ease;
-}
-
-.checkbox-label::before,
-.checkbox-icon-wrapper {
-  height: 20px;
-  left: 0;
-  position: absolute;
-  top: 0;
-  width: 20px;
-}
-
-.checkbox-icon-wrapper {
-  align-items: center;
-  display: flex;
-  justify-content: center;
-}
-
-.checkbox-icon-checkmark {
-  display: none;
-  fill: #139a9a;
-  width: 12px;
-}
-
-.checkbox:hover .checkbox-label::before {
-  background-color: #e1f9f9;
-}
-
-.checkbox-trigger:focus + .checkbox-label::before {
-  outline-color: #5ee8e8;
-}
-
-.checkbox-trigger:focus:not(:focus-visible) + .checkbox-label::before {
-  outline-color: transparent;
-}
-
-.checkbox-trigger:focus-visible + .checkbox-label::before {
-  outline-color: #5ee8e8;
-}
-
-.checkbox-trigger:checked + .checkbox-label::before {
-  border-color: #139a9a;
-}
-
-.checkbox-trigger:checked ~ .checkbox-icon-wrapper .checkbox-icon-checkmark {
-  display: block;
-}
-
-.messages {
-  background: none;
-  margin-bottom: 24px;
-  margin-top: -64px;
-}
-
-.messages > div {
-  margin-left: auto;
-  margin-right: auto;
-  max-width: 640px;
-}
-
-.message {
-  background-color: #ffffff;
-  border-radius: 4px;
-  box-shadow: 0 4px 6px -2px rgba(0, 0, 0, 0.05),
-    0 12px 16px -4px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.06),
-    0 4px 8px -2px rgba(0, 0, 0, 0.1);
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-  justify-content: center;
-  min-height: 64px;
-  padding: 16px;
-  padding-left: 12px;
-  word-wrap: break-word;
-}
-
-.message-positive {
-  border-left: 4px solid #31f2b2;
-}
-
-.message-negative {
-  border-left: 4px solid #ff7e75;
-}
-
-.message-informative {
-  border-left: 4px solid #53b1fd;
-}
-
-.message-notice {
-  border-left: 4px solid #fdb021;
-}
-
-.message-header {
-  align-items: center;
-  display: flex;
-  gap: 8px;
-}
-
-.message-icon {
-  flex: 0 0 auto;
-  font-size: 16px;
-}
-
-.message-positive .message-icon {
-  color: #27916e;
-}
-
-.message-negative .message-icon {
-  color: #ce4036;
-}
-
-.message-informative .message-icon {
-  color: #175cd3;
-}
-
-.message-notice .message-icon {
-  color: #ee7620;
-}
-
-.message-title {
-  font-size: 14px;
-  font-weight: 600;
-  margin: 0;
-  min-width: 0;
-}
-
-.message-price {
-  display: flex;
-  gap: 6px 8px;
-  flex-wrap: wrap;
-  margin-left: 24px;
-}
-
-.skeleton {
-  animation: skeleton-loading;
-  animation-duration: 1s;
-  animation-iteration-count: infinite;
-  background-color: #f3f4f6;
-  border-radius: 4px;
-  height: 24px;
-  mask-image: linear-gradient(75deg, #000000 30%, rgba(0, 0, 0, 0.65) 80%);
-  mask-size: 200%;
-  width: 250px;
-}
-
-@keyframes skeleton-loading {
-  0% {
-    mask-position: 200%;
-  }
-
-  100% {
-    mask-position: 0%;
-  }
-}
-
-.message-data {
-  align-items: center;
-  display: grid;
-  gap: 12px 8px;
-  grid-template-columns: max-content auto;
-  margin-left: 24px;
-}
-
-.message-data button {
-  border-radius: 0;
-  cursor: text;
-  outline-offset: 4px;
-  user-select: text;
-  -moz-user-select: text;
-  -webkit-user-select: text;
-}
-
-.message-label {
-  color: #757575;
-}
-
-.message-value-status > div,
-.message-value-name-servers > div {
-  position: relative;
-}
-
-.message-value-name-servers > div {
-  word-break: break-all;
-}
-
-.message-tags {
-  display: flex;
-  gap: 6px 8px;
-  flex-wrap: wrap;
-  margin-left: 24px;
-}
-
-.message-tag {
-  align-items: center;
-  border-radius: 4px;
-  display: flex;
-  font-size: 12px;
-  font-weight: 500;
-  gap: 4px;
-  line-height: 24px;
-  padding: 0 6px;
-}
-
-button.message-tag {
-  cursor: default;
-}
-
-button.message-tag > span {
-  cursor: text;
-  user-select: text;
-  -moz-user-select: text;
-  -webkit-user-select: text;
-}
-
-.message-tag-gray {
-  background-color: #f3f4f6;
-  color: #4a5565;
-}
-
-.message-tag-red {
-  background-color: #ffe2e2;
-  color: #c10007;
-}
-
-.message-tag-yellow {
-  background-color: #fef9c2;
-  color: #894b00;
-}
-
-.message-tag-green {
-  background-color: #dcfce7;
-  color: #008236;
-}
-
-.message-tag-blue {
-  background-color: #dbeafe;
-  color: #1447e6;
-}
-
-.message-tag-indigo {
-  background-color: #e0e7ff;
-  color: #432dd7;
-}
-
-.message-tag-purple {
-  background-color: #f3e8ff;
-  color: #8200db;
-}
-
-.message-tag-pink {
-  background-color: #fce7f3;
-  color: #c6005c;
-}
-
-.data-source {
-  text-align: center;
-}
-
-.data-source + .raw-data {
-  margin-top: 24px;
-}
-
-.segmented {
-  background-color: #f5f5f5;
-  border-radius: 6px;
-  display: inline-flex;
-  gap: 4px;
-  padding: 2px;
-}
-
-.segmented-item {
-  font-weight: 500;
-  line-height: 28px;
-  outline: 2px solid transparent;
-  padding: 0 10px;
-}
-
-.segmented-item-selected {
-  background-color: #ffffff;
-  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.03),
-    0 1px 6px -1px rgba(0, 0, 0, 0.02), 0 2px 4px 0 rgba(0, 0, 0, 0.02);
-}
-
-.raw-data {
-  margin-left: auto;
-  margin-right: auto;
-  margin-top: 48px;
-  max-width: 1000px;
-  padding-left: 20px;
-  padding-right: 20px;
-}
-
-.raw-data-whois,
-.raw-data-rdap {
-  border: 1px solid #2e2e2e;
-  border-radius: 8px;
-  font-family: ui-monospace, "Menlo", "Monaco", "Consolas", "Liberation Mono",
-    "Courier New", monospace;
-  font-size: 16px;
-  line-height: 1.5;
-  outline: 3px solid transparent;
-  overflow: auto;
-  padding: 16px;
-  transition: outline-color 190ms ease;
-}
-
-.raw-data-whois + .raw-data-rdap {
-  display: none;
-}
-
-code {
-  font-family: inherit;
-}
-
-code a {
-  color: inherit;
-}
-
-footer {
-  align-items: center;
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  margin-bottom: 48px;
-  margin-left: auto;
-  margin-right: auto;
-  margin-top: 48px;
-  max-width: 1200px;
-  padding-left: 20px;
-  padding-right: 20px;
-}
-
-.back-to-top {
-  background-color: #139a9a;
-  bottom: 40px;
-  box-shadow: 0 4px 6px -2px rgba(0, 0, 0, 0.05),
-    0 12px 16px -4px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.06),
-    0 4px 8px -2px rgba(0, 0, 0, 0.1);
-  color: #ffffff;
-  font-size: 28px;
-  opacity: 0;
-  padding: 4px;
-  position: fixed;
-  right: 24px;
-  visibility: hidden;
-}
-
-.visible {
-  opacity: 1;
-  visibility: visible;
-}
-
-/* 移动端优化 */
-@media (max-width: 768px) {
-  header {
-    height: unset;
-  }
-
-  /* 原来的 header > div 样式已经被更通用的 .container 类取代 */
-  header > div {
-    padding-left: 16px;
-    padding-right: 16px;
-  }
-
-  h1 {
-    font-size: 36px;
-    line-height: 1.2222;
-  }
-
-  .messages {
-    margin-top: unset;
-  }
-
-  .messages > div {
-    padding-left: 16px;
-    padding-right: 16px;
-  }
-
-  .message {
-    min-height: unset;
-  }
-
-  .raw-data {
-    margin-top: 32px;
-    padding-left: 16px;
-    padding-right: 16px;
-  }
-
-  .raw-data-whois,
-  .raw-data-rdap {
-    font-size: 14px;
-    line-height: 1.4286;
-  }
-
-  footer {
-    margin-bottom: 32px;
-    margin-top: 32px;
-    padding-left: 16px;
-    padding-right: 16px;
-  }
-}
-
-@media (max-width: 640px) {
-  .search-button > span {
-    border: 0 !important;
-    clip: rect(0, 0, 0, 0) !important;
-    height: 1px !important;
-    margin: -1px !important;
-    overflow: hidden !important;
-    padding: 0 !important;
-    position: absolute !important;
-    white-space: nowrap !important;
-    width: 1px !important;
-  }
-
-  .message-value-status > div:not(:only-child):after,
-  .message-value-name-servers > div:not(:only-child)::after {
-    background-image: url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2Fsvg%22%20width%3D%2216%22%20height%3D%2216%22%20viewBox%3D%220%200%2016%2016%22%20fill%3D%22%23757575%22%3E%3Cpath%20d%3D%22M14.5%201.5a.5.5%200%200%201%20.5.5v4.8a2.5%202.5%200%200%201-2.5%202.5H2.707l3.347%203.346a.5.5%200%200%201-.708.708l-4.2-4.2a.5.5%200%200%201%200-.708l4-4a.5.5%200%201%201%20.708.708L2.707%208.3H12.5A1.5%201.5%200%200%200%2014%206.8V2a.5.5%200%200%201%20.5-.5%22%20fill-rule%3D%22evenodd%22%2F%3E%3C%2Fsvg%3E");
-    background-size: cover;
-    bottom: 5px;
-    content: "";
-    display: inline-block;
-    height: 8px;
-    margin-left: 2px;
-    position: absolute;
-    width: 8px;
-  }
-}
-
-@media not screen and (hover: none) and (pointer: coarse) {
-  html {
-    scrollbar-color: rgba(0, 0, 0, 0.5) transparent;
-  }
-
-  ::-webkit-scrollbar {
-    background-color: transparent;
-    height: 10px;
-    width: 10px;
-  }
-
-  ::-webkit-scrollbar-thumb {
-    background-clip: content-box;
-    background-color: rgba(0, 0, 0, 0.5);
-    border-radius: 8px;
-    border: 2px solid transparent;
-  }
-}
-
-.tippy-box {
-  background-color: #1f1f1f;
-  font-size: 12px;
-  font-weight: 500;
-}
-
-.tippy-content {
-  padding: 4px 8px;
-}
-/* 解决微信内字体放大导致价格换行的问题 */
-.checkbox-label {
-    white-space: nowrap;
-}
-
-@media (max-width: 640px) {
     .checkbox-label {
-        font-size: 14px; /* 在小屏幕上，将字体大小设置为14像素 */
+      display: flex;
+      align-items: center;
+      gap: 4px;
     }
-}这个里面有输入框大小相关的设置吗？
+    .checkbox-leading-icon {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 18px;
+      height: 18px;
+      margin-right: 2px;
+    }
+
+    .message-label {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+    .message-icon-leading {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 1.2em;
+      height: 1.2em;
+    }
+    
+    /* 移除背景和侧边栏 */
+    .message.message-positive {
+        background: transparent;
+        border: none;
+        box-shadow: none;
+        padding: 0;
+    }
+    .message.message-positive .message-data {
+        background: transparent;
+        box-shadow: none;
+        padding: 0;
+    }
+
+    /* 统一页面背景为白色，但已修改为方格 */
+    header, main {
+      background-color: transparent;
+    }
+
+    .raw-data-whois,
+    .raw-data-rdap {
+      background-color: #ffffff;
+      padding: 1.5rem;
+      border-radius: 12px;
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+      position: relative;
+      margin-bottom: 1rem;
+      margin-top: 0;
+    }
+
+    /* 移动端优化 */
+    @media (max-width: 768px) {
+      .raw-data-whois,
+      .raw-data-rdap {
+        padding: 1rem;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .raw-data-whois,
+      .raw-data-rdap {
+        padding: 0.75rem;
+      }
+    }
+
+    .raw-data-container pre {
+      margin: 0 !important;
+      padding: 0 !important;
+      width: 100%;
+      box-sizing: border-box;
+    }
   </style>
 </head>
 
@@ -955,74 +483,86 @@ footer {
         <?php endif; ?>
       </h1>
       <form action="<?= BASE; ?>" id="form" method="get">
-  <div class="search-box">
-    <input autocapitalize="off" autocomplete="domain" autocorrect="off" <?= $domain ? "" : "autofocus"; ?> class="search-input" id="domain" inputmode="url" name="domain" placeholder="示例：NIC.RW" required type="text" value="<?= htmlspecialchars($domain ?? '', ENT_QUOTES, 'UTF-8'); ?>">
-    <button class="search-clear" id="domain-clear" type="button" aria-label="Clear">
-      <svg width="1em" height="1em" viewBox="0 0 16 16" fill="currentColor">
-        <path d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708" />
-      </svg>
-    </button>
-  </div>
-  <button class="search-button" type="submit">
-    <svg width="1em" height="1em" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true" id="search-icon">
-      <path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001q.044.06.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1 1 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0" />
-    </svg>
-    <span>查询</span>
-  </button>
-</form>
-<div class="checkboxes">
-  <div class="checkbox">
-    <input <?= in_array("whois", $dataSource, true) ? "checked" : "" ?> class="checkbox-trigger" id="checkbox-whois" name="whois" type="checkbox" value="1">
-    <label class="checkbox-label" for="checkbox-whois">
-      <span class="checkbox-leading-icon">
-        <svg width="18" height="18" viewBox="0 0 18 18" aria-hidden="true">
-          <circle cx="9" cy="9" r="9" fill="#222"/>
-          <text x="9" y="13" text-anchor="middle" fill="#fff" font-size="12" font-family="Arial" font-weight="bold">W</text>
-        </svg>
-      </span>
-      WHOIS
-    </label>
-    <div class="checkbox-icon-wrapper">
-      <svg class="checkbox-icon checkbox-icon-checkmark" width="50" height="39.69" viewBox="0 0 50 39.69" aria-hidden="true">
-        <path d="M43.68 0L16.74 27.051 6.319 16.63l-6.32 6.32 16.742 16.74L50 6.32z" />
-      </svg>
-    </div>
-  </div>
-  <div class="checkbox">
-    <input <?= in_array("rdap", $dataSource, true) ? "checked" : "" ?> class="checkbox-trigger" id="checkbox-rdap" name="rdap" type="checkbox" value="1">
-    <label class="checkbox-label" for="checkbox-rdap">
-      <span class="checkbox-leading-icon">
-        <svg width="18" height="18" viewBox="0 0 18 18" aria-hidden="true">
-          <circle cx="9" cy="9" r="9" fill="#222"/>
-          <text x="9" y="13" text-anchor="middle" fill="#fff" font-size="12" font-family="Arial" font-weight="bold">R</text>
-        </svg>
-      </span>
-      RDAP
-    </label>
-    <div class="checkbox-icon-wrapper">
-      <svg class="checkbox-icon checkbox-icon-checkmark" width="50" height="39.69" viewBox="0 0 50 39.69" aria-hidden="true">
-        <path d="M43.68 0L16.74 27.051 6.319 16.63l-6.32 6.32 16.742 16.74L50 6.32z" />
-      </svg>
-    </div>
-  </div>
-  <div class="checkbox">
-    <input <?= $fetchPrices ? "checked" : "" ?> class="checkbox-trigger" id="checkbox-prices" name="prices" type="checkbox" value="1">
-    <label class="checkbox-label" for="checkbox-prices">
-      <span class="checkbox-leading-icon">
-        <svg width="18" height="18" viewBox="0 0 18 18" aria-hidden="true">
-          <circle cx="9" cy="9" r="9" fill="#222"/>
-          <text x="9" y="13" text-anchor="middle" fill="#fff" font-size="12" font-family="Arial" font-weight="bold">$</text>
-        </svg>
-      </span>
-      价格
-    </label>
-    <div class="checkbox-icon-wrapper">
-      <svg class="checkbox-icon checkbox-icon-checkmark" width="50" height="39.69" viewBox="0 0 50 39.69" aria-hidden="true">
-        <path d="M43.68 0L16.74 27.051 6.319 16.63l-6.32 6.32 16.742 16.74L50 6.32z" />
-      </svg>
-    </div>
-  </div>
-</div>
+        <div class="search-box">
+          <input
+            autocapitalize="off"
+            autocomplete="domain"
+            autocorrect="off"
+            <?= $domain ? "" : "autofocus"; ?>
+            class="input search-input"
+            id="domain"
+            inputmode="url"
+            name="domain"
+            placeholder="示例：NIC.RW"
+            required
+            type="text"
+            value="<?= htmlspecialchars($domain ?? '', ENT_QUOTES, 'UTF-8'); ?>">
+          <button class="search-clear" id="domain-clear" type="button" aria-label="Clear">
+            <svg width="1em" height="1em" viewBox="0 0 16 16" fill="currentColor">
+              <path d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708" />
+            </svg>
+          </button>
+        </div>
+        <button class="button search-button">
+          <svg width="1em" height="1em" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true" id="search-icon">
+            <path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001q.044.06.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1 1 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0" />
+          </svg>
+          <span>查询</span>
+        </button>
+        <div class="checkboxes">
+          <div class="checkbox">
+            <input <?= in_array("whois", $dataSource, true) ? "checked" : "" ?> class="checkbox-trigger" id="checkbox-whois" name="whois" type="checkbox" value="1">
+            <label class="checkbox-label" for="checkbox-whois">
+              <span class="checkbox-leading-icon">
+                <svg width="18" height="18" viewBox="0 0 18 18" aria-hidden="true">
+                  <circle cx="9" cy="9" r="9" fill="#222"/>
+                  <text x="9" y="13" text-anchor="middle" fill="#fff" font-size="12" font-family="Arial" font-weight="bold">W</text>
+                </svg>
+              </span>
+              WHOIS
+            </label>
+            <div class="checkbox-icon-wrapper">
+              <svg class="checkbox-icon checkbox-icon-checkmark" width="50" height="39.69" viewBox="0 0 50 39.69" aria-hidden="true">
+                <path d="M43.68 0L16.74 27.051 6.319 16.63l-6.32 6.32 16.742 16.74L50 6.32z" />
+              </svg>
+            </div>
+          </div>
+          <div class="checkbox">
+            <input <?= in_array("rdap", $dataSource, true) ? "checked" : "" ?> class="checkbox-trigger" id="checkbox-rdap" name="rdap" type="checkbox" value="1">
+            <label class="checkbox-label" for="checkbox-rdap">
+              <span class="checkbox-leading-icon">
+                <svg width="18" height="18" viewBox="0 0 18 18" aria-hidden="true">
+                  <circle cx="9" cy="9" r="9" fill="#222"/>
+                  <text x="9" y="13" text-anchor="middle" fill="#fff" font-size="12" font-family="Arial" font-weight="bold">R</text>
+                </svg>
+              </span>
+              RDAP
+            </label>
+            <div class="checkbox-icon-wrapper">
+              <svg class="checkbox-icon checkbox-icon-checkmark" width="50" height="39.69" viewBox="0 0 50 39.69" aria-hidden="true">
+                <path d="M43.68 0L16.74 27.051 6.319 16.63l-6.32 6.32 16.742 16.74L50 6.32z" />
+              </svg>
+            </div>
+          </div>
+          <div class="checkbox">
+            <input <?= $fetchPrices ? "checked" : "" ?> class="checkbox-trigger" id="checkbox-prices" name="prices" type="checkbox" value="1">
+            <label class="checkbox-label" for="checkbox-prices">
+              <span class="checkbox-leading-icon">
+                <svg width="18" height="18" viewBox="0 0 18 18" aria-hidden="true">
+                  <circle cx="9" cy="9" r="9" fill="#222"/>
+                  <text x="9" y="13" text-anchor="middle" fill="#fff" font-size="12" font-family="Arial" font-weight="bold">$</text>
+                </svg>
+              </span>
+              价格
+            </label>
+            <div class="checkbox-icon-wrapper">
+              <svg class="checkbox-icon checkbox-icon-checkmark" width="50" height="39.69" viewBox="0 0 50 39.69" aria-hidden="true">
+                <path d="M43.68 0L16.74 27.051 6.319 16.63l-6.32 6.32 16.742 16.74L50 6.32z" />
+              </svg>
+            </div>
+          </div>
+        </div>
+      </form>
     </div>
   </header>
   <main>
