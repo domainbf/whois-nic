@@ -258,228 +258,299 @@ if ($_SERVER["QUERY_STRING"] ?? "") {
   <?= CUSTOM_HEAD ?>
   <style>
     /* 首页搜索栏背景修改 - 去掉透明化，显示主页方格背景 */
-body {
-  background-color: #ffffff;
-  background-image: repeating-linear-gradient(0deg, transparent, transparent 19px, #eee 20px), repeating-linear-gradient(90deg, transparent, transparent 19px, #eee 20px);
-  background-size: 20px 20px;
-}
+    body {
+      background-color: #ffffff;
+      background-image: repeating-linear-gradient(0deg, transparent, transparent 19px, #eee 20px), repeating-linear-gradient(90deg, transparent, transparent 19px, #eee 20px);
+      background-size: 20px 20px;
+    }
 
-/* 搜索框修改 - 胶囊形状 */
-.search-box {
-  background: transparent;
-  border: 2px solid #000000;
-  border-radius: 24px; /* 胶囊形状的圆角 */
-  padding: 6px;
-  display: flex;
-  align-items: center;
-  height: 48px; /* 确保高度统一 */
-}
+    .search-box {
+      background: transparent !important;
+      border: 2px solid #000000 !important;
+      border-radius: 8px !important;
+      padding: 4px !important;
+      display: flex !important;
+      align-items: center !important;
+    }
 
-.search-box .search-input {
-  background: transparent;
-  border: none;
-  box-shadow: none;
-  color: #333;
-  font-size: 16px;
-  padding: 0 16px; /* 调整内边距以适应胶囊形状 */
-  flex: 1;
-  outline: none;
-  border-radius: 24px; /* 与 .search-box 一致 */
-  height: 100%; /* 填充父容器高度 */
-}
+    .search-box .input {
+      background: transparent !important;
+      border: none !important;
+      box-shadow: none !important;
+      color: #333 !important;
+      font-size: 16px !important;
+      padding: 12px 16px !important;
+      flex: 1 !important;
+      outline: none !important;
+    }
 
-.search-box .search-input::placeholder {
-  color: #666 !important;
-  opacity: 1 !important;
-}
+    .search-box .input::placeholder {
+      color: #666 !important;
+      opacity: 1 !important;
+    }
 
-.search-box .search-input:focus {
-  outline: none !important;
-}
+    .search-box .input:focus {
+      outline: none !important;
+    }
 
-.search-box .search-clear {
-  background: #f0f0f0;
-  border: 1px solid #ddd;
-  border-radius: 50%; /* 圆形清除按钮 */
-  padding: 4px;
-  margin-right: 8px;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  width: 28px;
-  height: 28px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
+    .search-box .search-clear {
+      background: #f0f0f0 !important;
+      border: 1px solid #ddd !important;
+      border-radius: 4px !important;
+      padding: 4px !important;
+      margin-right: 8px !important;
+      cursor: pointer !important;
+      transition: all 0.2s ease !important;
+    }
 
-.search-box .search-clear:hover {
-  background: #e0e0e0;
-  border-color: #999;
-}
+    .search-box .search-clear:hover {
+      background: #e0e0e0 !important;
+      border-color: #999 !important;
+    }
 
-.search-box .search-button {
-  background-color: #1f1f1f;
-  color: #ffffff;
-  font-size: 16px;
-  font-weight: 600;
-  padding: 4px 12px;
-  border-radius: 24px; /* 胶囊形状按钮 */
-  height: 36px; /* 与输入框高度一致 */
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
+    /* 修复域名过长文字错位问题 - 增强版 */
+    .message-data .message-title {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      grid-column: 1 / -1;
+      margin-bottom: 1rem;
+      font-size: 1rem;
+      font-weight: 600;
+      color: #222;
+      text-align: left;
+      flex-wrap: wrap;
+      max-width: 100%;
+      overflow: hidden;
+      word-break: break-word;
+    }
 
-/* 修复域名过长文字错位问题 - 增强版 */
-.message-data .message-title {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  grid-column: 1 / -1;
-  margin-bottom: 1rem;
-  font-size: 1rem;
-  font-weight: 600;
-  color: #222;
-  text-align: left;
-  flex-wrap: wrap;
-  max-width: 100%;
-  overflow: hidden;
-  word-break: break-word;
-}
+    .message-title a {
+      flex: 1;
+      min-width: 0;
+      max-width: 100%;
+      word-break: break-all;
+      overflow-wrap: break-word;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      display: inline-block;
+      vertical-align: middle;
+    }
 
-.message-title a {
-  flex: 1;
-  min-width: 0;
-  max-width: 100%;
-  word-break: break-all;
-  overflow-wrap: break-word;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  display: inline-block;
-  vertical-align: middle;
-}
+    /* 移动端进一步优化 */
+    @media (max-width: 768px) {
+      .message-data .message-title {
+        font-size: 0.9rem;
+        gap: 0.25rem;
+        margin-bottom: 0.75rem;
+      }
+      
+      .message-title a {
+        font-size: 0.9rem;
+        max-width: 85%;
+      }
+    }
 
-/* 移动端进一步优化 */
-@media (max-width: 768px) {
-  .message-data .message-title {
-    font-size: 0.9rem;
-    gap: 0.25rem;
-    margin-bottom: 0.75rem;
-  }
-  
-  .message-title a {
-    font-size: 0.9rem;
-    max-width: 85%;
-  }
-}
+    @media (max-width: 480px) {
+      .message-data .message-title {
+        font-size: 0.85rem;
+        gap: 0.2rem;
+      }
+      
+      .message-title a {
+        font-size: 0.85rem;
+        max-width: 80%;
+      }
+    }
 
-@media (max-width: 480px) {
-  .message-data .message-title {
-    font-size: 0.85rem;
-    gap: 0.2rem;
-  }
-  
-  .message-title a {
-    font-size: 0.85rem;
-    max-width: 80%;
-  }
-}
+    /* 调整标题内图标大小 */
+    .message-title .message-icon {
+        width: 1.2em;
+        height: 1.2em;
+        flex-shrink: 0;
+    }
 
-/* 调整标题内图标大小 */
-.message-title .message-icon {
-  width: 1.2em;
-  height: 1.2em;
-  flex-shrink: 0;
-}
+    .message-data {
+      display: grid;
+      grid-template-columns: auto 1fr;
+      gap: 1rem 1.5rem;
+      margin-top: 1.5rem;
+    }
 
-.message-data {
-  display: grid;
-  grid-template-columns: auto 1fr;
-  gap: 1rem 1.5rem;
-  margin-top: 1.5rem;
-}
+    .checkbox-label {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+    .checkbox-leading-icon {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 18px;
+      height: 18px;
+      margin-right: 2px;
+    }
 
-.checkbox-label {
-  display: flex;
-  align-items: center;
-  gap: 4px;
-}
+    .message-label {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+    .message-icon-leading {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 1.2em;
+      height: 1.2em;
+    }
+    
+    /* 移除背景和侧边栏 */
+    .message.message-positive {
+        background: transparent;
+        border: none;
+        box-shadow: none;
+        padding: 0;
+    }
+    .message.message-positive .message-data {
+        background: transparent;
+        box-shadow: none;
+        padding: 0;
+    }
 
-.checkbox-leading-icon {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 18px;
-  height: 18px;
-  margin-right: 2px;
-}
+    /* 统一页面背景为白色，但已修改为方格 */
+    header, main {
+      background-color: transparent;
+    }
 
-.message-label {
-  display: flex;
-  align-items: center;
-  gap: 4px;
-}
+    .raw-data-whois,
+    .raw-data-rdap {
+      background-color: #ffffff;
+      padding: 1.5rem;
+      border-radius: 12px;
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+      position: relative;
+      margin-bottom: 1rem;
+      margin-top: 0;
+    }
 
-.message-icon-leading {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 1.2em;
-  height: 1.2em;
-}
+    /* 移动端优化 */
+    @media (max-width: 768px) {
+      .raw-data-whois,
+      .raw-data-rdap {
+        padding: 1rem;
+      }
+    }
 
-/* 移除背景和侧边栏 */
-.message.message-positive {
-  background: transparent;
-  border: none;
-  box-shadow: none;
-  padding: 0;
-}
+    @media (max-width: 480px) {
+      .raw-data-whois,
+      .raw-data-rdap {
+        padding: 0.75rem;
+      }
+    }
 
-.message.message-positive .message-data {
-  background: transparent;
-  box-shadow: none;
-  padding: 0;
-}
+    .raw-data-container pre {
+      margin: 0 !important;
+      padding: 0 !important;
+      width: 100%;
+      box-sizing: border-box;
+    }
+  </style>
+</head>
 
-/* 统一页面背景为白色，但已修改为方格 */
-header, main {
-  background-color: transparent;
-}
-
-.raw-data-whois,
-.raw-data-rdap {
-  background-color: #ffffff;
-  padding: 1.5rem;
-  border-radius: 12px;
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-  position: relative;
-  margin-bottom: 1rem;
-  margin-top: 0;
-}
-
-/* 移动端优化 */
-@media (max-width: 768px) {
-  .raw-data-whois,
-  .raw-data-rdap {
-    padding: 1rem;
-  }
-}
-
-@media (max-width: 480px) {
-  .raw-data-whois,
-  .raw-data-rdap {
-    padding: 0.75rem;
-  }
-}
-
-.raw-data-container pre {
-  margin: 0 !important;
-  padding: 0 !important;
-  width: 100%;
-  box-sizing: border-box;
-}
+<body>
+  <header>
+    <div>
+      <h1>
+        <?php if ($domain): ?>
+          <a href="<?= BASE; ?>"><?= SITE_TITLE ?></a>
+        <?php else: ?>
+          <?= SITE_TITLE ?>
+        <?php endif; ?>
+      </h1>
+      <form action="<?= BASE; ?>" id="form" method="get">
+        <div class="search-box">
+          <input
+            autocapitalize="off"
+            autocomplete="domain"
+            autocorrect="off"
+            <?= $domain ? "" : "autofocus"; ?>
+            class="input search-input"
+            id="domain"
+            inputmode="url"
+            name="domain"
+            placeholder="示例：NIC.RW"
+            required
+            type="text"
+            value="<?= htmlspecialchars($domain ?? '', ENT_QUOTES, 'UTF-8'); ?>">
+          <button class="search-clear" id="domain-clear" type="button" aria-label="Clear">
+            <svg width="1em" height="1em" viewBox="0 0 16 16" fill="currentColor">
+              <path d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708" />
+            </svg>
+          </button>
+        </div>
+        <button class="button search-button">
+          <svg width="1em" height="1em" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true" id="search-icon">
+            <path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001q.044.06.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1 1 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0" />
+          </svg>
+          <span>查询</span>
+        </button>
+        <div class="checkboxes">
+          <div class="checkbox">
+            <input <?= in_array("whois", $dataSource, true) ? "checked" : "" ?> class="checkbox-trigger" id="checkbox-whois" name="whois" type="checkbox" value="1">
+            <label class="checkbox-label" for="checkbox-whois">
+              <span class="checkbox-leading-icon">
+                <svg width="18" height="18" viewBox="0 0 18 18" aria-hidden="true">
+                  <circle cx="9" cy="9" r="9" fill="#222"/>
+                  <text x="9" y="13" text-anchor="middle" fill="#fff" font-size="12" font-family="Arial" font-weight="bold">W</text>
+                </svg>
+              </span>
+              WHOIS
+            </label>
+            <div class="checkbox-icon-wrapper">
+              <svg class="checkbox-icon checkbox-icon-checkmark" width="50" height="39.69" viewBox="0 0 50 39.69" aria-hidden="true">
+                <path d="M43.68 0L16.74 27.051 6.319 16.63l-6.32 6.32 16.742 16.74L50 6.32z" />
+              </svg>
+            </div>
+          </div>
+          <div class="checkbox">
+            <input <?= in_array("rdap", $dataSource, true) ? "checked" : "" ?> class="checkbox-trigger" id="checkbox-rdap" name="rdap" type="checkbox" value="1">
+            <label class="checkbox-label" for="checkbox-rdap">
+              <span class="checkbox-leading-icon">
+                <svg width="18" height="18" viewBox="0 0 18 18" aria-hidden="true">
+                  <circle cx="9" cy="9" r="9" fill="#222"/>
+                  <text x="9" y="13" text-anchor="middle" fill="#fff" font-size="12" font-family="Arial" font-weight="bold">R</text>
+                </svg>
+              </span>
+              RDAP
+            </label>
+            <div class="checkbox-icon-wrapper">
+              <svg class="checkbox-icon checkbox-icon-checkmark" width="50" height="39.69" viewBox="0 0 50 39.69" aria-hidden="true">
+                <path d="M43.68 0L16.74 27.051 6.319 16.63l-6.32 6.32 16.742 16.74L50 6.32z" />
+              </svg>
+            </div>
+          </div>
+          <div class="checkbox">
+            <input <?= $fetchPrices ? "checked" : "" ?> class="checkbox-trigger" id="checkbox-prices" name="prices" type="checkbox" value="1">
+            <label class="checkbox-label" for="checkbox-prices">
+              <span class="checkbox-leading-icon">
+                <svg width="18" height="18" viewBox="0 0 18 18" aria-hidden="true">
+                  <circle cx="9" cy="9" r="9" fill="#222"/>
+                  <text x="9" y="13" text-anchor="middle" fill="#fff" font-size="12" font-family="Arial" font-weight="bold">$</text>
+                </svg>
+              </span>
+              价格
+            </label>
+            <div class="checkbox-icon-wrapper">
+              <svg class="checkbox-icon checkbox-icon-checkmark" width="50" height="39.69" viewBox="0 0 50 39.69" aria-hidden="true">
+                <path d="M43.68 0L16.74 27.051 6.319 16.63l-6.32 6.32 16.742 16.74L50 6.32z" />
+              </svg>
+            </div>
+          </div>
+        </div>
+      </form>
+    </div>
+  </header>
   <main>
     <?php if ($domain): ?>
       <section class="messages">
