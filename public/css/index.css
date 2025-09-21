@@ -113,33 +113,7 @@ form {
 }
 
 /* 搜索框无背景色，只显示边框和内容 */
-.search-input {
-  background: none;
-  border: 2px solid #19cccc;
-  border-radius: 8px;
-  color: inherit;
-  font-family: inherit;
-  font-size: 16px;
-  height: 48px;
-  line-height: 1.5;
-  outline: 3px solid transparent;
-  outline-offset: 0;
-  padding: 8px 36px 8px 16px;
-  transition: border-color 190ms ease, outline-color 190ms ease;
-  width: 100%;
-}
 
-.search-input::placeholder {
-  color: #757575;
-}
-
-.search-input:focus {
-  border: 2px solid #19cccc;
-}
-
-.search-input:hover {
-  border: 2px solid #19cccc;
-}
 
 /* 关闭按钮（清除按钮）样式保持原始不变 */
 .search-clear {
