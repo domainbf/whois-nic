@@ -264,6 +264,13 @@ if ($_SERVER["QUERY_STRING"] ?? "") {
       background-size: 20px 20px;
     }
 
+    .search-container {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 16px;
+    }
+
     .search-box {
       background: transparent !important;
       border: 2px solid #000000 !important;
@@ -272,6 +279,8 @@ if ($_SERVER["QUERY_STRING"] ?? "") {
       display: flex !important;
       align-items: center !important;
       height: 42px !important;
+      flex: 1;
+      max-width: 300px;
     }
 
     .search-box .input {
@@ -322,6 +331,14 @@ if ($_SERVER["QUERY_STRING"] ?? "") {
       height: 14px !important;
     }
 
+    .search-button {
+      height: 42px !important;
+      border-radius: 9999px !important;
+      padding: 0 16px !important;
+      white-space: nowrap !important;
+      min-width: 80px !important;
+    }
+
     /* 修复域名过长文字错位问题 - 增强版 */
     .message-data .message-title {
       display: flex;
@@ -363,6 +380,21 @@ if ($_SERVER["QUERY_STRING"] ?? "") {
       .message-title a {
         font-size: 0.9rem;
         max-width: 85%;
+      }
+
+      .search-container {
+        flex-direction: column;
+        gap: 8px;
+      }
+
+      .search-box {
+        max-width: none;
+        width: 100%;
+      }
+
+      .search-button {
+        width: 100%;
+        min-width: auto;
       }
     }
 
@@ -482,7 +514,7 @@ if ($_SERVER["QUERY_STRING"] ?? "") {
           <?= SITE_TITLE ?>
         <?php endif; ?>
       </h1>
-      <form action="<?= BASE; ?>" id="form" method="get">
+      <form action="<?= BASE; ?>" id="form" method="get" class="search-container">
         <div class="search-box">
           <input
             autocapitalize="off"
