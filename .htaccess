@@ -2,29 +2,25 @@ Options -Indexes
 
 RewriteEngine On
 
-# Uncomment the four lines below to enable force https.
+# 强制 HTTPS（可选，根据需要取消注释）
 # RewriteCond %{HTTP:X-Forwarded-Proto} !https
 # RewriteCond %{HTTPS} off
 # RewriteCond %{HTTP:CF-Visitor} !{"scheme":"https"}
 # RewriteRule (.*) https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
 
 # 基础路由
-RewriteRule ^$ src/index.php [B,L]
-RewriteRule ^api/$ src/index.php?json=1 [B,L]
-RewriteRule ^login$ src/login.php [B,L]
-RewriteRule ^manifest$ src/manifest.php [B,L]
+RewriteRule ^$ index.php [L]
+RewriteRule ^api/?$ index.php?json=1 [L,QSA]
+RewriteRule ^login/?$ login.php [L]
+RewriteRule ^manifest/?$ manifest.php [L]
 
-# 改进的域名查询规则 - 更灵活的域名匹配
-# 匹配顶级域名、二级域名、三级域名等
-RewriteCond %{REQUEST_URI} ^/([^/]+)(/?)$
-RewriteCond %{REQUEST_URI} !^/(api|login|manifest)/
-RewriteRule ^([a-zA-Z0-9]([a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(\.[a-zA-Z0-9]([a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)+)(/?)$ src/index.php?domain=$1 [L,QSA]
+# 域名查询规则 - 支持 /example.com 和 /example.com/ 格式
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^([a-zA-Z0-9]([a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(\.[a-zA-Z0-9]([a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)+)/?$ index.php?domain=$1 [L,QSA]
 
-# 保持原有参数查询支持 - 仅处理真实文件/目录不存在的情况
+# 其他参数查询支持
 RewriteCond %{REQUEST_FILENAME} !-f
 RewriteCond %{REQUEST_FILENAME} !-d
 RewriteCond %{REQUEST_URI} !^/(api|login|manifest)/
-RewriteRule ^(.*)$ src/index.php [L,QSA]
-
-# 调试日志（可选，生产环境请删除）
-# LogLevel alert rewrite:trace3
+RewriteRule ^(.*)$ index.php [L,QSA]
