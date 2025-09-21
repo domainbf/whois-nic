@@ -265,28 +265,36 @@ if ($_SERVER["QUERY_STRING"] ?? "") {
     }
 /* 搜索框修改 */
     .search-box {
-  background: transparent !important;
-  border: 2px solid #000000 !important;
-  border-radius: 8px !important;
-  /* This padding now controls the overall height */
-  padding: 6px !important;
-  display: flex !important;
-  align-items: center !important;
+  background: transparent;
+  border: 2px solid #000000;
+  border-radius: 8px;
+  /* 使用这个 padding 来控制整体高度 */
+  padding: 6px;
+  display: flex;
+  align-items: center;
 }
 
 .search-box .input {
-  background: transparent !important;
-  border: none !important;
-  box-shadow: none !important;
-  color: #333 !important;
-  font-size: 16px !important;
-  /* Set vertical padding to 0 */
-  padding: 0 12px !important;
-  flex: 1 !important;
-  outline: none !important;
+  background: transparent;
+  border: none;
+  box-shadow: none;
+  color: #333;
+  font-size: 16px;
+  /* 移除所有 padding，让父元素控制高度 */
+  padding: 0;
+  flex: 1;
+  outline: none;
 }
 
+/* 确保清除按钮和搜索按钮也对齐 */
+.search-box .search-clear {
+  padding: 4px;
+  margin-right: 8px;
+}
 
+.search-box .search-button {
+  padding: 4px 12px;
+}
 
     .search-box .input::placeholder {
       color: #666 !important;
