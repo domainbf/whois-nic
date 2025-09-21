@@ -455,6 +455,21 @@ if ($_SERVER["QUERY_STRING"] ?? "") {
       width: 100%;
       box-sizing: border-box;
     }
+
+    /* 修复 WHOIS 和 RDAP 选项错位 */
+    .checkboxes {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-top: 10px;
+    }
+
+    @media (max-width: 480px) {
+      .checkboxes {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+    }
   </style>
 </head>
 
@@ -976,11 +991,9 @@ if ($_SERVER["QUERY_STRING"] ?? "") {
             const iso8601 = element.dataset.iso8601;
             if (iso8601) {
               const date = new Date(iso8601);
-              const year = date.getFullYear();
-              const month = String(date.getMonth() + 1).padStart(2, "0");
-              const day = String(date.getDate()).padStart(2, "0");
-
-              element.innerText = `${year}年${month}月${day}日`;
+              const hours = String(date.getHours()).padStart(2, "0"); // 只保留小时
+              const minutes = String(date.getMinutes()).padStart(2, "0"); // 只保留分钟
+              element.innerText = `${hours}:${minutes}`; // 仅显示时:分
             }
           }
         }
