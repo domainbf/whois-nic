@@ -263,13 +263,13 @@ if ($_SERVER["QUERY_STRING"] ?? "") {
       background-image: repeating-linear-gradient(0deg, transparent, transparent 19px, #eee 20px), repeating-linear-gradient(90deg, transparent, transparent 19px, #eee 20px);
       background-size: 20px 20px;
     }
-
+/* 搜索框修改 */
     .search-box {
   background: transparent !important;
   border: 2px solid #000000 !important;
   border-radius: 8px !important;
-  /* Lower this value to make the bar shorter */
-  padding: 8px !important;
+  /* This padding now controls the overall height */
+  padding: 6px !important;
   display: flex !important;
   align-items: center !important;
 }
@@ -280,11 +280,12 @@ if ($_SERVER["QUERY_STRING"] ?? "") {
   box-shadow: none !important;
   color: #333 !important;
   font-size: 16px !important;
-  /* 修改这里，移除内部填充 */
-  padding: 0 !important;
+  /* Set vertical padding to 0 */
+  padding: 0 12px !important;
   flex: 1 !important;
   outline: none !important;
 }
+
 
 
     .search-box .input::placeholder {
