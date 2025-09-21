@@ -36,7 +36,7 @@ body::before {
   height: 100vh;
   z-index: -1;
   pointer-events: none;
-  background-image: 
+  background-image:
     linear-gradient(to right, #eaeaea 1px, transparent 1px),
     linear-gradient(to bottom, #eaeaea 1px, transparent 1px);
   background-size: 40px 40px;
@@ -44,9 +44,31 @@ body::before {
   opacity: 1;
 }
 
+/* 通用的内容容器，实现居中和最大宽度 */
+.container {
+    width: 100%;
+    padding-left: 16px;
+    padding-right: 16px;
+    margin: 0 auto;
+    box-sizing: border-box;
+}
+
+/* 中等屏幕下的最大宽度，如平板 */
+@media (min-width: 600px) {
+    .container {
+        max-width: 768px;
+    }
+}
+
+/* 大屏幕下的最大宽度，如桌面 */
+@media (min-width: 992px) {
+    .container {
+        max-width: 960px;
+    }
+}
+
 /* header区域无任何背景色，直接显示body网格 */
 header {
-  /* background-color: #e1f9f9;  <-- 删除 */
   height: 364px;
   padding-bottom: 32px;
   padding-top: 32px;
@@ -256,8 +278,7 @@ form {
 }
 
 .messages {
-  /* 这一行删除了原本的绿色背景 */
-  background: none; 
+  background: none;
   margin-bottom: 24px;
   margin-top: -64px;
 }
@@ -560,11 +581,13 @@ footer {
   visibility: visible;
 }
 
+/* 移动端优化 */
 @media (max-width: 768px) {
   header {
     height: unset;
   }
 
+  /* 原来的 header > div 样式已经被更通用的 .container 类取代 */
   header > div {
     padding-left: 16px;
     padding-right: 16px;
