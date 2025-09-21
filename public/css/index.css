@@ -46,25 +46,25 @@ body::before {
 
 /* 通用的内容容器，实现居中和最大宽度 */
 .container {
-    width: 100%;
-    padding-left: 16px;
-    padding-right: 16px;
-    margin: 0 auto;
-    box-sizing: border-box;
+  width: 100%;
+  padding-left: 16px;
+  padding-right: 16px;
+  margin: 0 auto;
+  box-sizing: border-box;
 }
 
 /* 中等屏幕下的最大宽度，如平板 */
 @media (min-width: 600px) {
-    .container {
-        max-width: 768px;
-    }
+  .container {
+    max-width: 768px;
+  }
 }
 
 /* 大屏幕下的最大宽度，如桌面 */
 @media (min-width: 992px) {
-    .container {
-        max-width: 960px;
-    }
+  .container {
+    max-width: 960px;
+  }
 }
 
 /* header区域无任何背景色，直接显示body网格 */
@@ -104,29 +104,33 @@ h1 a {
 form {
   display: grid;
   gap: 8px;
-  grid-template-columns: auto min-content;
+  grid-template-columns: auto;
   width: 100%;
 }
 
 .search-box {
   position: relative;
+  display: flex;
+  align-items: center;
+  border: 2px solid #000000;
+  border-radius: 24px;
+  padding: 6px;
+  height: 48px;
 }
 
-/* 搜索框无背景色，只显示边框和内容 */
+/* 搜索框输入样式 */
 .search-input {
-  background: none;
-  border: 2px solid #19cccc;
-  border-radius: 8px;
+  background: transparent;
+  border: none;
+  border-radius: 24px;
   color: inherit;
   font-family: inherit;
   font-size: 16px;
-  height: 48px;
   line-height: 1.5;
-  outline: 3px solid transparent;
-  outline-offset: 0;
-  padding: 8px 36px 8px 16px;
-  transition: border-color 190ms ease, outline-color 190ms ease;
-  width: 100%;
+  outline: none;
+  padding: 0 16px;
+  flex: 1;
+  height: 100%;
 }
 
 .search-input::placeholder {
@@ -134,30 +138,39 @@ form {
 }
 
 .search-input:focus {
-  border: 2px solid #19cccc;
+  outline: none;
 }
 
 .search-input:hover {
-  border: 2px solid #19cccc;
+  border: none;
 }
 
-/* 关闭按钮（清除按钮）样式保持原始不变 */
+/* 关闭按钮（清除按钮）样式 */
 .search-clear {
-  font-size: 28px;
+  background: #f0f0f0;
+  border: 1px solid #ddd;
+  border-radius: 50%;
+  padding: 4px;
+  margin-right: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   opacity: 0;
-  position: absolute;
-  right: 8px;
-  top: 50%;
-  transform: translateY(-50%);
   visibility: hidden;
 }
 
 .search-clear:hover {
-  color: #2e2e2e;
+  background: #e0e0e0;
+  border-color: #999;
 }
 
-.search-clear:active {
-  color: #454545;
+.search-clear.visible {
+  opacity: 1;
+  visibility: visible;
 }
 
 .search-button {
@@ -165,11 +178,12 @@ form {
   color: #ffffff;
   font-size: 16px;
   font-weight: 600;
+  border-radius: 24px;
+  padding: 4px 12px;
+  height: 36px;
+  display: flex;
+  align-items: center;
   gap: 8px;
-  height: 48px;
-  line-height: 1.5;
-  padding-left: 16px;
-  padding-right: 16px;
 }
 
 .search-button:hover {
@@ -192,7 +206,6 @@ form {
   0% {
     transform: rotate(0deg) translateX(4px) rotate(0deg);
   }
-
   100% {
     transform: rotate(360deg) translateX(4px) rotate(-360deg);
   }
@@ -378,7 +391,6 @@ form {
   0% {
     mask-position: 200%;
   }
-
   100% {
     mask-position: 0%;
   }
@@ -587,7 +599,6 @@ footer {
     height: unset;
   }
 
-  /* 原来的 header > div 样式已经被更通用的 .container 类取代 */
   header > div {
     padding-left: 16px;
     padding-right: 16px;
@@ -686,13 +697,14 @@ footer {
 .tippy-content {
   padding: 4px 8px;
 }
+
 /* 解决微信内字体放大导致价格换行的问题 */
 .checkbox-label {
-    white-space: nowrap;
+  white-space: nowrap;
 }
 
 @media (max-width: 640px) {
-    .checkbox-label {
-        font-size: 14px; /* 在小屏幕上，将字体大小设置为14像素 */
-    }
+  .checkbox-label {
+    font-size: 14px; /* 在小屏幕上，将字体大小设置为14像素 */
+  }
 }
