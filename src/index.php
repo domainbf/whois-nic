@@ -431,114 +431,22 @@ if ($_SERVER["QUERY_STRING"] ?? "") {
       box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
       position: relative;
       margin-bottom: 1rem;
-      /* 确保内容区域不被按钮覆盖 */
-      margin-top: 50px; /* 为按钮留出空间 */
-    }
-
-    /* 修复的复制按钮样式 - 完全重写，确保可见性 */
-    .raw-data-container {
-      position: relative;
-      width: 100%;
-    }
-
-    .copy-button {
-      position: sticky;
-      top: 12px;
-      right: 12px;
-      background: rgba(255, 255, 255, 0.95);
-      backdrop-filter: blur(10px);
-      border: 1px solid rgba(0, 0, 0, 0.15);
-      border-radius: 6px;
-      padding: 8px 12px;
-      cursor: pointer;
-      font-size: 12px;
-      font-weight: 500;
-      color: #666;
-      transition: all 0.2s ease;
-      display: flex !important;
-      align-items: center;
-      gap: 6px;
-      z-index: 100 !important; /* 提高z-index确保在最上层 */
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-      /* 始终显示，不再使用opacity隐藏 */
-      opacity: 1 !important;
-      transform: none !important;
-      box-sizing: border-box;
-      min-width: 70px;
-      justify-content: center;
-      /* 防止按钮被滚动条覆盖 */
-      margin-right: 10px;
+      margin-top: 0;
     }
 
     /* 移动端优化 */
     @media (max-width: 768px) {
-      .copy-button {
-        top: 8px;
-        right: 8px;
-        padding: 6px 10px;
-        font-size: 11px;
-        min-width: 60px;
-        margin-right: 5px;
-      }
-      
       .raw-data-whois,
       .raw-data-rdap {
-        margin-top: 45px;
         padding: 1rem;
       }
     }
 
     @media (max-width: 480px) {
-      .copy-button {
-        top: 6px;
-        right: 6px;
-        padding: 5px 8px;
-        font-size: 10px;
-        min-width: 55px;
-        margin-right: 3px;
-      }
-      
       .raw-data-whois,
       .raw-data-rdap {
-        margin-top: 40px;
         padding: 0.75rem;
       }
-    }
-
-    /* 按钮悬停效果 */
-    .copy-button:hover {
-      background: #fff !important;
-      border-color: #007bff !important;
-      color: #007bff !important;
-      box-shadow: 0 4px 12px rgba(0, 123, 255, 0.2);
-      transform: translateY(-1px);
-    }
-
-    .copy-button:active {
-      transform: translateY(0);
-    }
-
-    .copy-icon {
-      width: 12px;
-      height: 12px;
-      flex-shrink: 0;
-    }
-
-    .copy-success {
-      color: #28a745 !important;
-      border-color: #28a745 !important;
-      background: rgba(40, 167, 69, 0.15) !important;
-      box-shadow: 0 2px 8px rgba(40, 167, 69, 0.2) !important;
-    }
-
-    .copy-success .copy-icon {
-      fill: #28a745 !important;
-    }
-
-    /* 确保pre元素不会覆盖按钮区域 */
-    .raw-data-whois,
-    .raw-data-rdap {
-      margin-top: 0 !important; /* 重置margin-top，由容器控制 */
     }
 
     .raw-data-container pre {
@@ -934,23 +842,11 @@ if ($_SERVER["QUERY_STRING"] ?? "") {
       <section class="raw-data">
         <?php if ($whoisData): ?>
           <div class="raw-data-container">
-            <button class="copy-button" onclick="copyToClipboard('raw-data-whois')" title="复制WHOIS数据">
-              <svg class="copy-icon" viewBox="0 0 16 16" fill="currentColor">
-                <path d="M4 1a3 3 0 0 0-3 3v10a3 3 0 0 0 3 3h10a3 3 0 0 0 3-3V4a3 3 0 0 0-3-3H4zm2 2a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2V3z"/>
-              </svg>
-              <span>复制</span>
-            </button>
             <pre class="raw-data-whois" id="raw-data-whois" tabindex="0"><?= htmlspecialchars($whoisData, ENT_QUOTES, 'UTF-8'); ?></pre>
           </div>
         <?php endif; ?>
         <?php if ($rdapData): ?>
           <div class="raw-data-container">
-            <button class="copy-button" onclick="copyToClipboard('raw-data-rdap')" title="复制RDAP数据">
-              <svg class="copy-icon" viewBox="0 0 16 16" fill="currentColor">
-                <path d="M4 1a3 3 0 0 0-3 3v10a3 3 0 0 0 3 3h10a3 3 0 0 0 3-3V4a3 3 0 0 0-3-3H4zm2 2a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2V3z"/>
-              </svg>
-              <span>复制</span>
-            </button>
             <pre class="raw-data-rdap" id="raw-data-rdap"><code class="language-json"><?= htmlspecialchars($rdapData, ENT_QUOTES, 'UTF-8'); ?></code></pre>
           </div>
         <?php endif; ?>
@@ -1118,13 +1014,6 @@ if ($_SERVER["QUERY_STRING"] ?? "") {
     <script src="public/js/prism.js" defer></script>
     <script>
       window.addEventListener("DOMContentLoaded", function() {
-        // 确保复制按钮可见
-        const copyButtons = document.querySelectorAll('.copy-button');
-        copyButtons.forEach(button => {
-          button.style.opacity = '1';
-          button.style.transform = 'none';
-        });
-
         if (typeof tippy !== 'undefined') {
           tippy.setDefaultProps({
             arrow: false,
@@ -1231,88 +1120,6 @@ if ($_SERVER["QUERY_STRING"] ?? "") {
         if (rawDataWHOIS) linkifyRawData(rawDataWHOIS);
         if (rawDataRDAP) linkifyRawData(rawDataRDAP);
       });
-
-      // 优化的复制功能 - 修复版
-      function copyToClipboard(elementId) {
-        const element = document.getElementById(elementId);
-        if (!element) {
-          console.error('Element not found:', elementId);
-          return;
-        }
-        
-        const text = element.innerText || element.textContent;
-        const button = event ? event.target.closest('.copy-button') : document.querySelector(`[onclick="copyToClipboard('${elementId}')"]`);
-        
-        if (!button) {
-          console.error('Button not found for element:', elementId);
-          return;
-        }
-        
-        const originalHTML = button.innerHTML;
-        
-        // 复制文本
-        if (navigator.clipboard && navigator.clipboard.writeText) {
-          navigator.clipboard.writeText(text).then(() => {
-            showCopySuccess(button, originalHTML);
-          }).catch(() => {
-            fallbackCopy(text, button, originalHTML);
-          });
-        } else {
-          fallbackCopy(text, button, originalHTML);
-        }
-      }
-
-      function showCopySuccess(button, originalHTML) {
-        button.innerHTML = `
-          <svg class="copy-icon" viewBox="0 0 16 16" fill="currentColor">
-            <path d="M2 13a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11.5a2 2 0 0 1 1.983 1.738l.26 1.262a2 2 0 0 0 1.708 1.352L16 9a2 2 0 0 1 2 2v2a2 2 0 0 1-2 2H2z"/>
-            <path d="M5.854 4.646a.5.5 0 1 1-.708.708L3.5 3.707 2.854 4.414a.5.5 0 1 1-.708-.708L2.293 3l1.048-1.048a.5.5 0 0 1 .708.708L3.5 2.293l.646.647a.5.5 0 1 1-.708.708L3.5 3z"/>
-          </svg>
-          <span>已复制</span>
-        `;
-        button.classList.add('copy-success');
-        
-        setTimeout(() => {
-          button.innerHTML = originalHTML;
-          button.classList.remove('copy-success');
-        }, 2000);
-      }
-
-      function fallbackCopy(text, button, originalHTML) {
-        const textArea = document.createElement('textarea');
-        textArea.value = text;
-        textArea.style.position = 'fixed';
-        textArea.style.left = '-999999px';
-        textArea.style.top = '-999999px';
-        textArea.style.opacity = '0';
-        document.body.appendChild(textArea);
-        textArea.focus();
-        textArea.select();
-        
-        try {
-          const successful = document.execCommand('copy');
-          if (successful) {
-            showCopySuccess(button, originalHTML);
-          } else {
-            alert('复制失败，请手动选择内容复制');
-            selectText(textArea);
-          }
-        } catch (err) {
-          console.error('Copy failed:', err);
-          alert('复制失败，请手动选择内容复制');
-          selectText(textArea);
-        }
-        
-        document.body.removeChild(textArea);
-      }
-
-      function selectText(textArea) {
-        textArea.select();
-        // 给用户一点时间看到选中的文本
-        setTimeout(() => {
-          textArea.blur();
-        }, 100);
-      }
     </script>
   <?php endif; ?>
   <?php if ($fetchPrices): ?>
