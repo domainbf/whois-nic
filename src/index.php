@@ -1,200 +1,3 @@
-<?php
-// 路由解析和调试
-session_start();
-
-// 调试日志（生产环境可删除）
-error_log("=== NEW REQUEST ===");
-error_log("URI: " . ($_SERVER['REQUEST_URI'] ?? ''));
-error_log("QUERY: " . ($_SERVER['QUERY_STRING'] ?? ''));
-error_log("SCRIPT_NAME: " . ($_SERVER['SCRIPT_NAME'] ?? ''));
-
-// 解析域名参数
-$domain = null;
-
-// 方法1：从GET参数获取
-if (isset($_GET['domain']) && !empty(trim($_GET['domain']))) {
-    $domain = trim($_GET['domain']);
-    error_log("从GET参数获取域名: " . $domain);
-}
-
-// 方法2：从伪静态URL解析（如果GET参数为空）
-if (!$domain && isset($_SERVER['REQUEST_URI'])) {
-    // 匹配 /domain.com 格式
-    if (preg_match('#^/([^/]+?)(?:\?|/|$)#', $_SERVER['REQUEST_URI'], $matches)) {
-        $potentialDomain = $matches[1];
-        // 验证是否是域名格式
-        if (preg_match('/^[a-zA-Z0-9]([a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(\.[a-zA-Z0-9]([a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)+$/', $potentialDomain)) {
-            $domain = $potentialDomain;
-            $_GET['domain'] = $domain;
-            error_log("从URL路径解析域名: " . $domain);
-        }
-    }
-}
-
-error_log("最终使用的域名: " . ($domain ?? '无'));
-
-if ($_SERVER["REQUEST_METHOD"] !== "GET") {
-  http_response_code(405);
-  header("Allow: GET");
-  die("Method not allowed");
-}
-
-require_once __DIR__ . "/../config/config.php";
-require_once __DIR__ . "/../vendor/autoload.php";
-
-spl_autoload_register(function ($class) {
-  if (str_starts_with($class, "Parser")) {
-    require_once "Parsers/$class.php";
-  } else {
-    require_once "$class.php";
-  }
-});
-
-use Pdp\SyntaxError;
-use Pdp\UnableToResolveDomain;
-
-function checkPassword()
-{
-  if (!SITE_PASSWORD) {
-    return;
-  }
-
-  $password = $_COOKIE["password"] ?? null;
-  if ($password === hash("sha256", SITE_PASSWORD)) {
-    return;
-  }
-
-  $authorization = $_SERVER["HTTP_AUTHORIZATION"] ?? null;
-  $bearerPrefix = "Bearer ";
-  if ($authorization && str_starts_with($authorization, $bearerPrefix)) {
-    $hash = substr($authorization, strlen($bearerPrefix));
-    if ($hash === hash("sha256", SITE_PASSWORD)) {
-      return;
-    }
-  }
-
-  if (filter_var($_GET["json"] ?? 0, FILTER_VALIDATE_BOOL)) {
-    header("Access-Control-Allow-Origin: *");
-    header("Content-Type: application/json");
-    echo json_encode(["code" => 1, "msg" => "Incorrect password.", "data" => null]);
-  } else {
-    $requestUri = $_SERVER["REQUEST_URI"];
-    if ($requestUri === BASE) {
-      header("Location: " . BASE . "login");
-    } else {
-      header("Location: " . BASE . "login?redirect=" . urlencode($requestUri));
-    }
-  }
-
-  die;
-}
-
-// 修改后的 cleanDomain 函数
-function cleanDomain($inputDomain = null)
-{
-    $domain = $inputDomain ?: ($_GET["domain"] ?? "");
-    if (empty($domain)) {
-        return "";
-    }
-    
-    $domain = htmlspecialchars($domain, ENT_QUOTES, "UTF-8");
-    $domain = trim(preg_replace(["/\s+/", "/\.{2,}/"], ["", "."], $domain), ".");
-
-    $parsedUrl = parse_url($domain);
-    if (!empty($parsedUrl["host"])) {
-      $domain = $parsedUrl["host"];
-    }
-
-    if (DEFAULT_EXTENSION && strpos($domain, ".") === false) {
-      $domain .= "." . DEFAULT_EXTENSION;
-    }
-
-    return $domain;
-}
-
-function getDataSource()
-{
-  $whois = filter_var($_GET["whois"] ?? 0, FILTER_VALIDATE_BOOL);
-  $rdap = filter_var($_GET["rdap"] ?? 0, FILTER_VALIDATE_BOOL);
-
-  if (!$whois && !$rdap) {
-    $whois = $rdap = true;
-  }
-
-  $dataSource = [];
-
-  if ($whois) {
-    $dataSource[] = "whois";
-  }
-  if ($rdap) {
-    $dataSource[] = "rdap";
-  }
-
-  return $dataSource;
-}
-
-checkPassword();
-
-$domain = cleanDomain($domain);
-
-$dataSource = [];
-$fetchPrices = false;
-$whoisData = null;
-$rdapData = null;
-$parser = new Parser("");
-$error = null;
-
-if ($domain) {
-  $dataSource = getDataSource();
-  $fetchPrices = filter_var($_GET["prices"] ?? 0, FILTER_VALIDATE_BOOL);
-
-  try {
-    $lookup = new Lookup($domain, $dataSource);
-    $domain = $lookup->domain;
-    $whoisData = $lookup->whoisData;
-    $rdapData = $lookup->rdapData;
-    $parser = $lookup->parser;
-
-    if ($lookup->extension === "iana") {
-      $fetchPrices = false;
-    }
-  } catch (Exception $e) {
-    if ($e instanceof SyntaxError || $e instanceof UnableToResolveDomain) {
-      $error = "'$domain' is not a valid domain";
-    } else {
-      $error = $e->getMessage();
-    }
-  }
-
-  if (filter_var($_GET["json"] ?? 0, FILTER_VALIDATE_BOOL)) {
-    header("Access-Control-Allow-Origin: *");
-    header("Content-Type: application/json");
-
-    if ($error) {
-      $value = ["code" => 1, "msg" => $error, "data" => null];
-    } else {
-      $value = ["code" => 0, "msg" => "Query successful", "data" => $parser];
-    }
-
-    $json = json_encode($value, JSON_UNESCAPED_UNICODE);
-
-    if ($json === false) {
-      $value = ["code" => 1, "msg" => json_last_error_msg(), "data" => null];
-      echo json_encode($value, JSON_UNESCAPED_UNICODE);
-    } else {
-      echo $json;
-    }
-
-    die;
-  }
-}
-
-$manifestHref = "manifest";
-if ($_SERVER["QUERY_STRING"] ?? "") {
-  $manifestHref .= "?" . htmlspecialchars($_SERVER["QUERY_STRING"], ENT_QUOTES, "UTF-8");
-}
-?>
-
 <!DOCTYPE html>
 <html lang="en-US">
 
@@ -454,21 +257,6 @@ if ($_SERVER["QUERY_STRING"] ?? "") {
       padding: 0 !important;
       width: 100%;
       box-sizing: border-box;
-    }
-
-    /* 修复 WHOIS 和 RDAP 选项错位 */
-    .checkboxes {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      margin-top: 10px;
-    }
-
-    @media (max-width: 480px) {
-      .checkboxes {
-        flex-direction: column;
-        align-items: flex-start;
-      }
     }
   </style>
 </head>
@@ -991,9 +779,11 @@ if ($_SERVER["QUERY_STRING"] ?? "") {
             const iso8601 = element.dataset.iso8601;
             if (iso8601) {
               const date = new Date(iso8601);
-              const hours = String(date.getHours()).padStart(2, "0"); // 只保留小时
-              const minutes = String(date.getMinutes()).padStart(2, "0"); // 只保留分钟
-              element.innerText = `${hours}:${minutes}`; // 仅显示时:分
+              const year = date.getFullYear();
+              const month = String(date.getMonth() + 1).padStart(2, "0");
+              const day = String(date.getDate()).padStart(2, "0");
+
+              element.innerText = `${year}年${month}月${day}日`;
             }
           }
         }
@@ -1044,19 +834,36 @@ if ($_SERVER["QUERY_STRING"] ?? "") {
             const iso8601 = element.dataset.iso8601;
             if (iso8601) {
               const date = new Date(iso8601);
-              const year = date.getFullYear();
-              const month = String(date.getMonth() + 1).padStart(2, "0");
-              const day = String(date.getDate()).padStart(2, "0");
               const hours = String(date.getHours()).padStart(2, "0");
               const minutes = String(date.getMinutes()).padStart(2, "0");
               const seconds = String(date.getSeconds()).padStart(2, "0");
-              const formattedDateTime = `${year}年${month}月${day}日 ${hours}时${minutes}分${seconds}秒`;
+              const formattedTime = `${hours}时${minutes}分${seconds}秒`;
 
               if (typeof tippy !== 'undefined') {
                 tippy(`#${elementId}`, {
-                  content: formattedDateTime,
+                  content: formattedTime,
                   placement: "right",
                   appendTo: () => document.body,
+                  maxWidth: "none",
+                  interactive: true,
+                  offset: [0, 8],
+                  theme: 'light-border',
+                  popperOptions: {
+                    modifiers: [
+                      {
+                        name: 'preventOverflow',
+                        options: {
+                          boundary: document.body,
+                        },
+                      },
+                      {
+                        name: 'flip',
+                        options: {
+                          fallbackPlacements: ['top', 'bottom', 'left'],
+                        },
+                      },
+                    ],
+                  },
                 });
               }
             }
