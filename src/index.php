@@ -264,36 +264,68 @@ if ($_SERVER["QUERY_STRING"] ?? "") {
       background-size: 20px 20px;
     }
 /* 搜索框修改 */
-    .search-box {
+    form {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+}
+
+.search-box {
+  flex: 1;
   background: transparent;
   border: 2px solid #000000;
-  border-radius: 8px;
-  /* 使用这个 padding 来控制整体高度 */
+  border-radius: 24px;
   padding: 6px;
   display: flex;
   align-items: center;
+  height: 48px;
 }
 
-.search-box .input {
+.search-input {
   background: transparent;
   border: none;
   box-shadow: none;
   color: #333;
   font-size: 16px;
-  /* 移除所有 padding，让父元素控制高度 */
-  padding: 0;
+  padding: 0 16px;
   flex: 1;
   outline: none;
+  border-radius: 24px;
+  height: 100%;
 }
 
-/* 确保清除按钮和搜索按钮也对齐 */
-.search-box .search-clear {
+.search-clear {
+  background: #f0f0f0;
+  border: 1px solid #ddd;
+  border-radius: 50%;
   padding: 4px;
   margin-right: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
-.search-box .search-button {
+.search-clear:hover {
+  background: #e0e0e0;
+  border-color: #999;
+}
+
+.search-button {
+  background-color: #1f1f1f;
+  color: #ffffff;
+  font-size: 16px;
+  font-weight: 600;
   padding: 4px 12px;
+  border-radius: 24px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }
 
     .search-box .input::placeholder {
