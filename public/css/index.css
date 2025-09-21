@@ -26,22 +26,11 @@ body {
   z-index: 0;
 }
 
-/* 网格背景 */
-body::before {
-  content: "";
-  position: fixed;
-  left: 0;
-  top: 0;
-  width: 100vw;
-  height: 100vh;
-  z-index: -1;
-  pointer-events: none;
-  background-image:
-    linear-gradient(to right, #eaeaea 1px, transparent 1px),
-    linear-gradient(to bottom, #eaeaea 1px, transparent 1px);
-  background-size: 40px 40px;
+/* 页面背景 */
+body {
   background-color: #ffffff;
-  opacity: 1;
+  background-image: repeating-linear-gradient(0deg, transparent, transparent 19px, #eee 20px), repeating-linear-gradient(90deg, transparent, transparent 19px, #eee 20px);
+  background-size: 20px 20px;
 }
 
 /* 通用的内容容器，实现居中和最大宽度 */
@@ -67,7 +56,6 @@ body::before {
     }
 }
 
-/* header区域无任何背景色，直接显示body网格 */
 header {
   height: 364px;
   padding-bottom: 32px;
@@ -108,8 +96,38 @@ form {
   width: 100%;
 }
 
+/* 搜索框容器 */
 .search-box {
+  background: transparent;
+  border: 2px solid #000000;
+  border-radius: 8px;
+  padding: 4px;
+  display: flex;
+  align-items: center;
   position: relative;
+}
+
+/* 输入框 */
+.search-box .input {
+  background: transparent;
+  border: none;
+  box-shadow: none;
+  color: #333;
+  font-size: 16px;
+  padding: 16px 20px; /* 增大了 padding，从而增加高度和宽度 */
+  flex: 1;
+  outline: none;
+}
+
+/* 输入框的 placeholder */
+.search-box .input::placeholder {
+  color: #666;
+  opacity: 1;
+}
+
+/* 输入框聚焦时 */
+.search-box .input:focus {
+  outline: none;
 }
 
 /* 搜索框无背景色，只显示边框和内容 */
@@ -141,8 +159,15 @@ form {
   border: 2px solid #19cccc;
 }
 
-/* 关闭按钮（清除按钮）样式保持原始不变 */
+/* 清除按钮 */
 .search-clear {
+  background: #f0f0f0;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  padding: 4px;
+  margin-right: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
   font-size: 28px;
   opacity: 0;
   position: absolute;
@@ -153,11 +178,13 @@ form {
 }
 
 .search-clear:hover {
+  background: #e0e0e0;
+  border-color: #999;
   color: #2e2e2e;
 }
 
 .search-clear:active {
-  color: #454545;
+  background-color: #454545;
 }
 
 .search-button {
@@ -220,6 +247,13 @@ form {
 .checkbox-trigger:hover,
 .checkbox-label:hover {
   cursor: pointer;
+}
+
+.checkbox-label {
+    white-space: nowrap; /* 修复微信内文字换行问题 */
+    display: flex;
+    align-items: center;
+    gap: 4px;
 }
 
 .checkbox-label::before {
@@ -305,8 +339,17 @@ form {
   word-wrap: break-word;
 }
 
-.message-positive {
-  border-left: 4px solid #31f2b2;
+/* 移除背景和侧边栏 */
+.message.message-positive {
+  background: transparent;
+  border: none;
+  box-shadow: none;
+  padding: 0;
+}
+.message.message-positive .message-data {
+    background: transparent;
+    box-shadow: none;
+    padding: 0;
 }
 
 .message-negative {
@@ -353,6 +396,32 @@ form {
   font-weight: 600;
   margin: 0;
   min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  grid-column: 1 / -1;
+  margin-bottom: 1rem;
+  font-size: 1rem;
+  font-weight: 600;
+  color: #222;
+  text-align: left;
+  flex-wrap: wrap;
+  max-width: 100%;
+  overflow: hidden;
+  word-break: break-word;
+}
+
+.message-title a {
+  flex: 1;
+  min-width: 0;
+  max-width: 100%;
+  word-break: break-all;
+  overflow-wrap: break-word;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  display: inline-block;
+  vertical-align: middle;
 }
 
 .message-price {
@@ -390,6 +459,7 @@ form {
   gap: 12px 8px;
   grid-template-columns: max-content auto;
   margin-left: 24px;
+  margin-top: 1.5rem;
 }
 
 .message-data button {
@@ -403,6 +473,9 @@ form {
 
 .message-label {
   color: #757575;
+  display: flex;
+  align-items: center;
+  gap: 4px;
 }
 
 .message-value-status > div,
@@ -535,6 +608,18 @@ button.message-tag > span {
   transition: outline-color 190ms ease;
 }
 
+/* 整合自 index.php 的样式 */
+.raw-data-whois,
+.raw-data-rdap {
+  background-color: #ffffff;
+  padding: 1.5rem;
+  border-radius: 12px;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  position: relative;
+  margin-bottom: 1rem;
+  margin-top: 0;
+}
+
 .raw-data-whois + .raw-data-rdap {
   display: none;
 }
@@ -587,7 +672,6 @@ footer {
     height: unset;
   }
 
-  /* 原来的 header > div 样式已经被更通用的 .container 类取代 */
   header > div {
     padding-left: 16px;
     padding-right: 16px;
@@ -629,6 +713,23 @@ footer {
     padding-left: 16px;
     padding-right: 16px;
   }
+
+  /* 整合自 index.php 的样式 */
+  .message-data .message-title {
+    font-size: 0.9rem;
+    gap: 0.25rem;
+    margin-bottom: 0.75rem;
+  }
+  
+  .message-title a {
+    font-size: 0.9rem;
+    max-width: 85%;
+  }
+
+  .raw-data-whois,
+  .raw-data-rdap {
+    padding: 1rem;
+  }
 }
 
 @media (max-width: 640px) {
@@ -643,6 +744,20 @@ footer {
     white-space: nowrap !important;
     width: 1px !important;
   }
+  
+  /* 整合自 index.php 的样式 */
+  .message-title a {
+    flex: 1;
+    min-width: 0;
+    max-width: 100%;
+    word-break: break-all;
+    overflow-wrap: break-word;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    display: inline-block;
+    vertical-align: middle;
+  }
 
   .message-value-status > div:not(:only-child):after,
   .message-value-name-servers > div:not(:only-child)::after {
@@ -655,6 +770,24 @@ footer {
     margin-left: 2px;
     position: absolute;
     width: 8px;
+  }
+}
+
+@media (max-width: 480px) {
+  /* 整合自 index.php 的样式 */
+  .message-data .message-title {
+    font-size: 0.85rem;
+    gap: 0.2rem;
+  }
+  
+  .message-title a {
+    font-size: 0.85rem;
+    max-width: 80%;
+  }
+
+  .raw-data-whois,
+  .raw-data-rdap {
+    padding: 0.75rem;
   }
 }
 
@@ -677,6 +810,36 @@ footer {
   }
 }
 
+/* 整合自 index.php 的样式 */
+.checkbox-leading-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  margin-right: 2px;
+}
+
+.message-icon-leading {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.2em;
+  height: 1.2em;
+}
+.message-title .message-icon {
+    width: 1.2em;
+    height: 1.2em;
+    flex-shrink: 0;
+}
+
+.raw-data-container pre {
+  margin: 0 !important;
+  padding: 0 !important;
+  width: 100%;
+  box-sizing: border-box;
+}
+
 .tippy-box {
   background-color: #1f1f1f;
   font-size: 12px;
@@ -685,14 +848,4 @@ footer {
 
 .tippy-content {
   padding: 4px 8px;
-}
-/* 解决微信内字体放大导致价格换行的问题 */
-.checkbox-label {
-    white-space: nowrap;
-}
-
-@media (max-width: 640px) {
-    .checkbox-label {
-        font-size: 14px; /* 在小屏幕上，将字体大小设置为14像素 */
-    }
 }
