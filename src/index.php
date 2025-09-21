@@ -1069,7 +1069,7 @@ if ($_SERVER["QUERY_STRING"] ?? "") {
               if (typeof tippy !== 'undefined') {
                 tippy(`#${elementId}`, {
                   content: `${prefix}: ${days} 天`,
-                  placement: "bottom",
+                  placement: "right",
                 });
               }
             }
