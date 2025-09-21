@@ -1,8 +1,42 @@
 <?php
+// 路由解析和调试
+session_start();
+
+// 调试日志（生产环境可删除）
+error_log("=== NEW REQUEST ===");
+error_log("URI: " . ($_SERVER['REQUEST_URI'] ?? ''));
+error_log("QUERY: " . ($_SERVER['QUERY_STRING'] ?? ''));
+error_log("SCRIPT_NAME: " . ($_SERVER['SCRIPT_NAME'] ?? ''));
+
+// 解析域名参数
+$domain = null;
+
+// 方法1：从GET参数获取
+if (isset($_GET['domain']) && !empty(trim($_GET['domain']))) {
+    $domain = trim($_GET['domain']);
+    error_log("从GET参数获取域名: " . $domain);
+}
+
+// 方法2：从伪静态URL解析（如果GET参数为空）
+if (!$domain && isset($_SERVER['REQUEST_URI'])) {
+    // 匹配 /domain.com 格式
+    if (preg_match('#^/([^/]+?)(?:\?|/|$)#', $_SERVER['REQUEST_URI'], $matches)) {
+        $potentialDomain = $matches[1];
+        // 验证是否是域名格式
+        if (preg_match('/^[a-zA-Z0-9]([a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(\.[a-zA-Z0-9]([a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)+$/', $potentialDomain)) {
+            $domain = $potentialDomain;
+            $_GET['domain'] = $domain;
+            error_log("从URL路径解析域名: " . $domain);
+        }
+    }
+}
+
+error_log("最终使用的域名: " . ($domain ?? '无'));
+
 if ($_SERVER["REQUEST_METHOD"] !== "GET") {
   http_response_code(405);
   header("Allow: GET");
-  die;
+  die("Method not allowed");
 }
 
 require_once __DIR__ . "/../config/config.php";
@@ -55,21 +89,27 @@ function checkPassword()
   die;
 }
 
-function cleanDomain()
+// 修改后的 cleanDomain 函数
+function cleanDomain($inputDomain = null)
 {
-  $domain = htmlspecialchars($_GET["domain"] ?? "", ENT_QUOTES, "UTF-8");
-  $domain = trim(preg_replace(["/\s+/", "/\.{2,}/"], ["", "."], $domain), ".");
+    $domain = $inputDomain ?: ($_GET["domain"] ?? "");
+    if (empty($domain)) {
+        return "";
+    }
+    
+    $domain = htmlspecialchars($domain, ENT_QUOTES, "UTF-8");
+    $domain = trim(preg_replace(["/\s+/", "/\.{2,}/"], ["", "."], $domain), ".");
 
-  $parsedUrl = parse_url($domain);
-  if (!empty($parsedUrl["host"])) {
-    $domain = $parsedUrl["host"];
-  }
+    $parsedUrl = parse_url($domain);
+    if (!empty($parsedUrl["host"])) {
+      $domain = $parsedUrl["host"];
+    }
 
-  if (DEFAULT_EXTENSION && strpos($domain, ".") === false) {
-    $domain .= "." . DEFAULT_EXTENSION;
-  }
+    if (DEFAULT_EXTENSION && strpos($domain, ".") === false) {
+      $domain .= "." . DEFAULT_EXTENSION;
+    }
 
-  return $domain;
+    return $domain;
 }
 
 function getDataSource()
@@ -95,7 +135,7 @@ function getDataSource()
 
 checkPassword();
 
-$domain = cleanDomain();
+$domain = cleanDomain($domain);
 
 $dataSource = [];
 $fetchPrices = false;
@@ -214,7 +254,7 @@ if ($_SERVER["QUERY_STRING"] ?? "") {
   <link rel="stylesheet" href="public/css/json.css">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@72..144,300..900&display=swap">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:wght@300;400;500;600;700;900&display=swap">
   <?= CUSTOM_HEAD ?>
   <style>
     /* 首页搜索栏背景修改 - 去掉透明化，显示主页方格背景 */
@@ -520,7 +560,7 @@ if ($_SERVER["QUERY_STRING"] ?? "") {
           <?= SITE_TITLE ?>
         <?php endif; ?>
       </h1>
-      <form action="" id="form" method="get">
+      <form action="<?= BASE; ?>" id="form" method="get">
         <div class="search-box">
           <input
             autocapitalize="off"
@@ -534,7 +574,7 @@ if ($_SERVER["QUERY_STRING"] ?? "") {
             placeholder="示例：NIC.RW"
             required
             type="text"
-            value="<?= $domain; ?>">
+            value="<?= htmlspecialchars($domain ?? '', ENT_QUOTES, 'UTF-8'); ?>">
           <button class="search-clear" id="domain-clear" type="button" aria-label="Clear">
             <svg width="1em" height="1em" viewBox="0 0 16 16" fill="currentColor">
               <path d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708" />
@@ -615,7 +655,7 @@ if ($_SERVER["QUERY_STRING"] ?? "") {
                       <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14m0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16" />
                       <path d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708" />
                     </svg>
-                    '<?= $domain; ?>' 这可不是有效的域名哦。
+                    '<?= htmlspecialchars($domain, ENT_QUOTES, 'UTF-8'); ?>' 这可不是有效的域名哦。
                 </h2>
               </div>
             </div>
@@ -627,7 +667,7 @@ if ($_SERVER["QUERY_STRING"] ?? "") {
                       <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14m0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16" />
                       <path d="M5.255 5.786a.237.237 0 0 0 .241.247h.825c.138 0 .248-.113.266-.25.09-.656.54-1.134 1.342-1.134.686 0 1.314.343 1.314 1.168 0 .635-.374.927-.965 1.371-.673.489-1.206 1.06-1.168 1.987l.003.217a.25.25 0 0 0 .25.246h.811a.25.25 0 0 0 .25-.25v-.105c0-.718.273-.927 1.01-1.486.609-.463 1.244-.977 1.244-2.056 0-1.511-1.276-2.241-2.673-2.241-1.267 0-2.655.59-2.75 2.286m1.557 5.763c0 .533.425.927 1.01.927.609 0 1.028-.394 1.028-.927 0-.552-.42-.94-1.029-.94-.584 0-1.009.388-1.009.94" />
                     </svg>
-                    '<?= $domain; ?>' 暂无信息，请稍后重试。
+                    '<?= htmlspecialchars($domain, ENT_QUOTES, 'UTF-8'); ?>' 暂无信息，请稍后重试。
                 </h2>
                 <?php if ($fetchPrices): ?>
                   <div class="message-price" id="message-price">
@@ -643,7 +683,7 @@ if ($_SERVER["QUERY_STRING"] ?? "") {
                     <svg width="1em" height="1em" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true" class="message-icon">
                       <path d="M15 8a6.97 6.97 0 0 0-1.71-4.584l-9.874 9.875A7 7 0 0 0 15 8M2.71 12.584l9.874-9.875a7 7 0 0 0-9.874 9.874ZM16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0" />
                     </svg>
-                    '<?= $domain; ?>' 该死，这个域名已被保留了。
+                    '<?= htmlspecialchars($domain, ENT_QUOTES, 'UTF-8'); ?>' 该死，这个域名已被保留了。
                 </h2>
                 <?php if ($fetchPrices): ?>
                   <div class="message-price" id="message-price">
@@ -660,7 +700,7 @@ if ($_SERVER["QUERY_STRING"] ?? "") {
                       <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14m0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16" />
                       <path d="m10.97 4.97-.02.022-3.473 4.425-2.093-2.094a.75.75 0 0 0-1.06 1.06L6.97 11.03a.75.75 0 0 0 1.079-.02l3.992-4.99a.75.75 0 0 0-1.071-1.05" />
                     </svg>
-                    <a href="http://<?= $domain; ?>" rel="nofollow noopener noreferrer" target="_blank"><?= $domain; ?></a> 已被注册，查看以下信息吧。
+                    <a href="http://<?= htmlspecialchars($domain, ENT_QUOTES, 'UTF-8'); ?>" rel="nofollow noopener noreferrer" target="_blank"><?= htmlspecialchars($domain, ENT_QUOTES, 'UTF-8'); ?></a> 已被注册，查看以下信息吧。
                 </h1>
                 <?php if ($parser->registrar): ?>
                   <div class="message-label">
@@ -673,9 +713,9 @@ if ($_SERVER["QUERY_STRING"] ?? "") {
                   </div>
                   <div>
                     <?php if ($parser->registrarURL): ?>
-                      <a href="<?= $parser->registrarURL; ?>" rel="nofollow noopener noreferrer" target="_blank"><?= $parser->registrar; ?></a>
+                      <a href="<?= htmlspecialchars($parser->registrarURL, ENT_QUOTES, 'UTF-8'); ?>" rel="nofollow noopener noreferrer" target="_blank"><?= htmlspecialchars($parser->registrar, ENT_QUOTES, 'UTF-8'); ?></a>
                     <?php else: ?>
-                      <?= $parser->registrar; ?>
+                      <?= htmlspecialchars($parser->registrar, ENT_QUOTES, 'UTF-8'); ?>
                     <?php endif; ?>
                   </div>
                 <?php endif; ?>
@@ -692,14 +732,14 @@ if ($_SERVER["QUERY_STRING"] ?? "") {
                   </div>
                   <div>
                     <?php if ($parser->creationDateISO8601 === null): ?>
-                      <span><?= $parser->creationDate; ?></span>
+                      <span><?= htmlspecialchars($parser->creationDate, ENT_QUOTES, 'UTF-8'); ?></span>
                     <?php elseif (str_ends_with($parser->creationDateISO8601, "Z")): ?>
-                      <span id="creation-date" data-iso8601="<?= $parser->creationDateISO8601; ?>">
-                        <?= $parser->creationDate; ?>
+                      <span id="creation-date" data-iso8601="<?= htmlspecialchars($parser->creationDateISO8601, ENT_QUOTES, 'UTF-8'); ?>">
+                        <?= htmlspecialchars($parser->creationDate, ENT_QUOTES, 'UTF-8'); ?>
                       </span>
                     <?php else: ?>
-                      <span id="creation-date" data-iso8601="<?= $parser->creationDateISO8601; ?>">
-                        <?= $parser->creationDate; ?>
+                      <span id="creation-date" data-iso8601="<?= htmlspecialchars($parser->creationDateISO8601, ENT_QUOTES, 'UTF-8'); ?>">
+                        <?= htmlspecialchars($parser->creationDate, ENT_QUOTES, 'UTF-8'); ?>
                       </span>
                     <?php endif; ?>
                   </div>
@@ -717,14 +757,14 @@ if ($_SERVER["QUERY_STRING"] ?? "") {
                   </div>
                   <div>
                     <?php if ($parser->expirationDateISO8601 === null): ?>
-                      <span><?= $parser->expirationDate; ?></span>
+                      <span><?= htmlspecialchars($parser->expirationDate, ENT_QUOTES, 'UTF-8'); ?></span>
                     <?php elseif (str_ends_with($parser->expirationDateISO8601, "Z")): ?>
-                      <span id="expiration-date" data-iso8601="<?= $parser->expirationDateISO8601; ?>">
-                        <?= $parser->expirationDate; ?>
+                      <span id="expiration-date" data-iso8601="<?= htmlspecialchars($parser->expirationDateISO8601, ENT_QUOTES, 'UTF-8'); ?>">
+                        <?= htmlspecialchars($parser->expirationDate, ENT_QUOTES, 'UTF-8'); ?>
                       </span>
                     <?php else: ?>
-                      <span id="expiration-date" data-iso8601="<?= $parser->expirationDateISO8601; ?>">
-                        <?= $parser->expirationDate; ?>
+                      <span id="expiration-date" data-iso8601="<?= htmlspecialchars($parser->expirationDateISO8601, ENT_QUOTES, 'UTF-8'); ?>">
+                        <?= htmlspecialchars($parser->expirationDate, ENT_QUOTES, 'UTF-8'); ?>
                       </span>
                     <?php endif; ?>
                   </div>
@@ -741,14 +781,14 @@ if ($_SERVER["QUERY_STRING"] ?? "") {
                   </div>
                   <div>
                     <?php if ($parser->updatedDateISO8601 === null): ?>
-                      <span><?= $parser->updatedDate; ?></span>
+                      <span><?= htmlspecialchars($parser->updatedDate, ENT_QUOTES, 'UTF-8'); ?></span>
                     <?php elseif (str_ends_with($parser->updatedDateISO8601, "Z")): ?>
-                      <span id="updated-date" data-iso8601="<?= $parser->updatedDateISO8601; ?>">
-                        <?= $parser->updatedDate; ?>
+                      <span id="updated-date" data-iso8601="<?= htmlspecialchars($parser->updatedDateISO8601, ENT_QUOTES, 'UTF-8'); ?>">
+                        <?= htmlspecialchars($parser->updatedDate, ENT_QUOTES, 'UTF-8'); ?>
                       </span>
                     <?php else: ?>
-                      <span id="updated-date" data-iso8601="<?= $parser->updatedDateISO8601; ?>">
-                        <?= $parser->updatedDate; ?>
+                      <span id="updated-date" data-iso8601="<?= htmlspecialchars($parser->updatedDateISO8601, ENT_QUOTES, 'UTF-8'); ?>">
+                        <?= htmlspecialchars($parser->updatedDate, ENT_QUOTES, 'UTF-8'); ?>
                       </span>
                     <?php endif; ?>
                   </div>
@@ -765,14 +805,14 @@ if ($_SERVER["QUERY_STRING"] ?? "") {
                   </div>
                   <div>
                     <?php if ($parser->availableDateISO8601 === null): ?>
-                      <span><?= $parser->availableDate; ?></span>
+                      <span><?= htmlspecialchars($parser->availableDate, ENT_QUOTES, 'UTF-8'); ?></span>
                     <?php elseif (str_ends_with($parser->availableDateISO8601, "Z")): ?>
-                      <span id="available-date" data-iso8601="<?= $parser->availableDateISO8601; ?>">
-                        <?= $parser->availableDate; ?>
+                      <span id="available-date" data-iso8601="<?= htmlspecialchars($parser->availableDateISO8601, ENT_QUOTES, 'UTF-8'); ?>">
+                        <?= htmlspecialchars($parser->availableDate, ENT_QUOTES, 'UTF-8'); ?>
                       </span>
                     <?php else: ?>
-                      <span id="available-date" data-iso8601="<?= $parser->availableDateISO8601; ?>">
-                        <?= $parser->availableDate; ?>
+                      <span id="available-date" data-iso8601="<?= htmlspecialchars($parser->availableDateISO8601, ENT_QUOTES, 'UTF-8'); ?>">
+                        <?= htmlspecialchars($parser->availableDate, ENT_QUOTES, 'UTF-8'); ?>
                       </span>
                     <?php endif; ?>
                   </div>
@@ -791,9 +831,9 @@ if ($_SERVER["QUERY_STRING"] ?? "") {
                     <?php foreach ($parser->status as $status): ?>
                       <div>
                         <?php if ($status["url"]): ?>
-                          <a href="<?= $status["url"]; ?>" rel="nofollow noopener noreferrer" target="_blank"><?= $status["text"]; ?></a>
+                          <a href="<?= htmlspecialchars($status["url"], ENT_QUOTES, 'UTF-8'); ?>" rel="nofollow noopener noreferrer" target="_blank"><?= htmlspecialchars($status["text"], ENT_QUOTES, 'UTF-8'); ?></a>
                         <?php else: ?>
-                          <?= $status["text"]; ?>
+                          <?= htmlspecialchars($status["text"], ENT_QUOTES, 'UTF-8'); ?>
                         <?php endif; ?>
                       </div>
                     <?php endforeach; ?>
@@ -812,7 +852,7 @@ if ($_SERVER["QUERY_STRING"] ?? "") {
                   <div class="message-value-name-servers">
                     <?php foreach ($parser->nameServers as $nameServer): ?>
                       <div>
-                        <?= $nameServer; ?>
+                        <?= htmlspecialchars($nameServer, ENT_QUOTES, 'UTF-8'); ?>
                       </div>
                     <?php endforeach; ?>
                   </div>
@@ -831,7 +871,7 @@ if ($_SERVER["QUERY_STRING"] ?? "") {
                         <path d="M8 3.5a.5.5 0 0 0-1 0V9a.5.5 0 0 0 .252.434l3.5 2a.5.5 0 0 0 .496-.868L8 8.71z" />
                         <path d="M8 16A8 8 0 1 0 8 0a8 8 0 0 0 0 16m7-8A7 7 0 1 1 1 8a7 7 0 0 1 14 0" />
                       </svg>
-                      <span>已经注册：<?= $parser->age; ?></span>
+                      <span>已经注册：<?= htmlspecialchars($parser->age, ENT_QUOTES, 'UTF-8'); ?></span>
                     </button>
                   <?php endif; ?>
                   <?php if ($parser->remaining): ?>
@@ -839,7 +879,7 @@ if ($_SERVER["QUERY_STRING"] ?? "") {
                       <svg width="1em" height="1em" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true">
                         <path d="M2 1.5a.5.5 0 0 1 .5-.5h11a.5.5 0 0 1 0 1h-1v1a4.5 4.5 0 0 1-2.557 4.06c-.29.139-.443.377-.443.59v.7c0 .213.154.451.443.59A4.5 4.5 0 0 1 12.5 13v1h1a.5.5 0 0 1 0 1h-11a.5.5 0 1 1 0-1h1v-1a4.5 4.5 0 0 1 2.557-4.06c.29-.139.443-.377.443-.59v-.7c0-.213-.154-.451-.443-.59A4.5 4.5 0 0 1 3.5 3V2h-1a.5.5 0 0 1-.5-.5m2.5.5v1a3.5 3.5 0 0 0 1.989 3.158c.533.256 1.011.791 1.011 1.491v.702c0 .7-.478 1.235-1.011 1.491A3.5 3.5 0 0 0 4.5 13v1h7v-1a3.5 3.5 0 0 0-1.989-3.158C8.978 9.586 8.5 9.052 8.5 8.351v-.702c0-.7.478-1.235 1.011-1.491A3.5 3.5 0 0 0 11.5 3V2z" />
                       </svg>
-                      <span>距离过期：<?= $parser->remaining; ?></span>
+                      <span>距离过期：<?= htmlspecialchars($parser->remaining, ENT_QUOTES, 'UTF-8'); ?></span>
                     </button>
                   <?php endif; ?>
                   <?php if ($parser->ageSeconds && $parser->ageSeconds < 7 * 24 * 60 * 60): ?>
@@ -869,7 +909,7 @@ if ($_SERVER["QUERY_STRING"] ?? "") {
                       <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14m0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16" />
                       <path d="m8.93 6.588-2.29.287-.082.38.45.083c.294.07.352.176.288.469l-.738 3.468c-.194.897.105 1.319.808 1.319.545 0 1.178-.252 1.465-.598l.088-.416c-.2.176-.492.246-.686.246-.275 0-.375-.193-.304-.533zM9 4.5a1 1 0 1 1-2 0 1 1 0 0 1 2 0" />
                     </svg>
-                    '<?= $domain; ?>' 这个域名似乎尚未注册，去申请试试吧。
+                    '<?= htmlspecialchars($domain, ENT_QUOTES, 'UTF-8'); ?>' 这个域名似乎尚未注册，去申请试试吧。
                 </h2>
                 <?php if ($fetchPrices): ?>
                   <div class="message-price" id="message-price">
@@ -928,31 +968,40 @@ if ($_SERVER["QUERY_STRING"] ?? "") {
       const domainElement = document.getElementById("domain");
       const domainClearElement = document.getElementById("domain-clear");
 
-      if (domainElement.value) {
+      if (domainElement && domainElement.value) {
         domainClearElement.classList.add("visible");
       }
 
-      domainElement.addEventListener("input", (e) => {
-        if (e.target.value) {
-          domainClearElement.classList.add("visible");
-        } else {
-          domainClearElement.classList.remove("visible");
-        }
-      });
-      domainClearElement.addEventListener("click", () => {
-        domainElement.focus();
-        domainElement.select();
-        if (!document.execCommand("delete", false)) {
-          domainElement.setRangeText("");
-        }
-        domainClearElement.classList.remove("visible");
-      });
+      if (domainElement) {
+        domainElement.addEventListener("input", (e) => {
+          if (e.target.value) {
+            domainClearElement.classList.add("visible");
+          } else {
+            domainClearElement.classList.remove("visible");
+          }
+        });
+      }
+
+      if (domainClearElement) {
+        domainClearElement.addEventListener("click", () => {
+          if (domainElement) {
+            domainElement.focus();
+            domainElement.select();
+            if (!document.execCommand("delete", false)) {
+              domainElement.setRangeText("");
+            }
+            domainClearElement.classList.remove("visible");
+          }
+        });
+      }
 
       const checkboxNames = ["whois", "rdap", "prices"];
       <?php if ($domain): ?>
         checkboxNames.forEach((name) => {
           const checkbox = document.getElementById(`checkbox-${name}`);
-          localStorage.setItem(`checkbox-${name}`, +checkbox.checked);
+          if (checkbox) {
+            localStorage.setItem(`checkbox-${name}`, +checkbox.checked);
+          }
         });
       <?php else: ?>
         const whoisValue = localStorage.getItem("checkbox-whois") || "0";
@@ -960,38 +1009,45 @@ if ($_SERVER["QUERY_STRING"] ?? "") {
 
         checkboxNames.forEach((name) => {
           const checkbox = document.getElementById(`checkbox-${name}`);
-
-          if (!+whoisValue && !+rdapValue && name !== "prices") {
-            checkbox.checked = true;
-          } else {
-            checkbox.checked = localStorage.getItem(`checkbox-${name}`) === "1";
+          if (checkbox) {
+            if (!+whoisValue && !+rdapValue && name !== "prices") {
+              checkbox.checked = true;
+            } else {
+              checkbox.checked = localStorage.getItem(`checkbox-${name}`) === "1";
+            }
           }
         });
       <?php endif; ?>
 
-      document.getElementById("form").addEventListener("submit", () => {
-        document.getElementById("search-icon").classList.add("searching");
-      });
+      const form = document.getElementById("form");
+      const searchIcon = document.getElementById("search-icon");
+      if (form && searchIcon) {
+        form.addEventListener("submit", () => {
+          searchIcon.classList.add("searching");
+        });
+      }
 
       const backToTop = document.getElementById("back-to-top");
-      backToTop.addEventListener("click", () => {
-        window.scrollTo({
-          behavior: "smooth",
-          top: 0,
+      if (backToTop) {
+        backToTop.addEventListener("click", () => {
+          window.scrollTo({
+            behavior: "smooth",
+            top: 0,
+          });
         });
-      });
 
-      window.addEventListener("scroll", () => {
-        if (document.documentElement.scrollTop > 360) {
-          if (!backToTop.classList.contains("visible")) {
-            backToTop.classList.add("visible");
+        window.addEventListener("scroll", () => {
+          if (document.documentElement.scrollTop > 360) {
+            if (!backToTop.classList.contains("visible")) {
+              backToTop.classList.add("visible");
+            }
+          } else {
+            if (backToTop.classList.contains("visible")) {
+              backToTop.classList.remove("visible");
+            }
           }
-        } else {
-          if (backToTop.classList.contains("visible")) {
-            backToTop.classList.remove("visible");
-          }
-        }
-      });
+        });
+      }
     });
   </script>
   <?php if ($whoisData || $rdapData): ?>
@@ -1069,14 +1125,16 @@ if ($_SERVER["QUERY_STRING"] ?? "") {
           button.style.transform = 'none';
         });
 
-        tippy.setDefaultProps({
-          arrow: false,
-          offset: [0, 8],
-          maxWidth: 200,
-          allowHTML: false,
-          theme: 'light-border',
-          content: (reference) => reference.innerHTML,
-        });
+        if (typeof tippy !== 'undefined') {
+          tippy.setDefaultProps({
+            arrow: false,
+            offset: [0, 8],
+            maxWidth: 200,
+            allowHTML: false,
+            theme: 'light-border',
+            content: (reference) => reference.innerHTML,
+          });
+        }
 
         function updateDateElementTooltip(elementId) {
           const element = document.getElementById(elementId);
@@ -1092,11 +1150,13 @@ if ($_SERVER["QUERY_STRING"] ?? "") {
               const seconds = String(date.getSeconds()).padStart(2, "0");
               const formattedDateTime = `${year}年${month}月${day}日 ${hours}时${minutes}分${seconds}秒`;
 
-              tippy(`#${elementId}`, {
-                content: formattedDateTime,
-                placement: "right",
-                appendTo: () => document.body,
-              });
+              if (typeof tippy !== 'undefined') {
+                tippy(`#${elementId}`, {
+                  content: formattedDateTime,
+                  placement: "right",
+                  appendTo: () => document.body,
+                });
+              }
             }
           }
         }
@@ -1116,10 +1176,12 @@ if ($_SERVER["QUERY_STRING"] ?? "") {
               if (seconds < 0 && days === 0) {
                 days = "-0";
               }
-              tippy(`#${elementId}`, {
-                content: `${prefix}: ${days} 天`,
-                placement: "bottom",
-              });
+              if (typeof tippy !== 'undefined') {
+                tippy(`#${elementId}`, {
+                  content: `${prefix}: ${days} 天`,
+                  placement: "bottom",
+                });
+              }
             }
           }
         }
@@ -1155,7 +1217,7 @@ if ($_SERVER["QUERY_STRING"] ?? "") {
         }
 
         function linkifyRawData(element) {
-          if (element) {
+          if (element && typeof linkifyHtml !== 'undefined') {
             element.innerHTML = linkifyHtml(element.innerHTML, {
               rel: "nofollow noopener noreferrer",
               target: "_blank",
@@ -1265,7 +1327,7 @@ if ($_SERVER["QUERY_STRING"] ?? "") {
         const startTime = Date.now();
 
         try {
-          const response = await fetch("https://api.tian.hu/whois.php?domain=<?= $domain; ?>&action=checkPrice");
+          const response = await fetch("https://api.tian.hu/whois.php?domain=<?= urlencode($domain); ?>&action=checkPrice");
 
           if (!response.ok) {
             throw new Error();
@@ -1314,20 +1376,22 @@ if ($_SERVER["QUERY_STRING"] ?? "") {
           setTimeout(() => {
             messagePrice.innerHTML = innerHTML;
 
-            if (isPremium) {
+            if (isPremium && typeof tippy !== 'undefined') {
               tippy("#price-premium", {
                 content: "溢价",
                 placement: "bottom",
               });
             }
-            tippy("#price-register", {
-              content: `¥${registerCNY}`,
-              placement: "bottom"
-            });
-            tippy("#price-renew", {
-              content: `¥${renewCNY}`,
-              placement: "bottom"
-            });
+            if (typeof tippy !== 'undefined') {
+              tippy("#price-register", {
+                content: `¥${registerCNY}`,
+                placement: "bottom"
+              });
+              tippy("#price-renew", {
+                content: `¥${renewCNY}`,
+                placement: "bottom"
+              });
+            }
           }, Math.max(0, 500 - (Date.now() - startTime)));
         } catch {
           setTimeout(() => {
