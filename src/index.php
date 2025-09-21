@@ -1037,7 +1037,8 @@ if ($_SERVER["QUERY_STRING"] ?? "") {
               const hours = String(date.getHours()).padStart(2, "0");
               const minutes = String(date.getMinutes()).padStart(2, "0");
               const seconds = String(date.getSeconds()).padStart(2, "0");
-              const formattedDateTime = `${year}年${month}月${day}日 ${hours}时${minutes}分${seconds}秒`;
+              const formattedDateTime = `${hours}时${minutes}分${seconds}秒`;
+
 
               if (typeof tippy !== 'undefined') {
                 tippy(`#${elementId}`, {
