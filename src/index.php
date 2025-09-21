@@ -265,24 +265,27 @@ if ($_SERVER["QUERY_STRING"] ?? "") {
     }
 
     .search-box {
-      background: transparent !important;
-      border: 2px solid #000000 !important;
-      border-radius: 8px !important;
-      padding: 4px !important;
-      display: flex !important;
-      align-items: center !important;
-    }
+  background: transparent !important;
+  border: 2px solid #000000 !important;
+  border-radius: 8px !important;
+  /* 修改这里，增加整体高度 */
+  padding: 10px !important;
+  display: flex !important;
+  align-items: center !important;
+}
 
-    .search-box .input {
-      background: transparent !important;
-      border: none !important;
-      box-shadow: none !important;
-      color: #333 !important;
-      font-size: 16px !important;
-      padding: 8px 12px !important;
-      flex: 1 !important;
-      outline: none !important;
-    }
+.search-box .input {
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  color: #333 !important;
+  font-size: 16px !important;
+  /* 修改这里，移除内部填充 */
+  padding: 0 !important;
+  flex: 1 !important;
+  outline: none !important;
+}
+
 
     .search-box .input::placeholder {
       color: #666 !important;
