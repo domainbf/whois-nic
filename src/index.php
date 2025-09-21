@@ -279,7 +279,7 @@ if ($_SERVER["QUERY_STRING"] ?? "") {
       box-shadow: none !important;
       color: #333 !important;
       font-size: 16px !important;
-      padding: 10px 16px !important;
+      padding: 8px 12px !important;
       flex: 1 !important;
       outline: none !important;
     }
