@@ -686,3 +686,13 @@ footer {
 .tippy-content {
   padding: 4px 8px;
 }
+/* 解决微信内字体放大导致价格换行的问题 */
+.checkbox-label {
+    white-space: nowrap;
+}
+
+@media (max-width: 640px) {
+    .checkbox-label {
+        font-size: 14px; /* 在小屏幕上，将字体大小设置为14像素 */
+    }
+}
