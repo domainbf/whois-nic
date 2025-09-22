@@ -350,29 +350,29 @@ if ($_SERVER["QUERY_STRING"] ?? "") {
     }
 
     /* 新的CSS代码，用于修复超长域名换行问题 */
-    .message-data .message-title {
-        display: flex;
-        align-items: flex-start; /* 保持图标和多行文字的顶部对齐 */
-        gap: 0.5rem;
-        grid-column: 1 / -1;
-        margin-bottom: 1rem;
-        font-size: 1rem;
-        font-weight: 600;
-        color: #222;
-        text-align: left;
-        flex-wrap: wrap; /* 允许项目换行 */
-        max-width: 100%;
-        word-break: break-word; /* 允许在长单词内部换行 */
-    }
+.message-data .message-title {
+    display: flex;
+    align-items: flex-start; /* 保持图标和多行文字的顶部对齐 */
+    gap: 0.5rem;
+    grid-column: 1 / -1;
+    margin-bottom: 1rem;
+    font-size: 1rem;
+    font-weight: 600;
+    color: #222;
+    text-align: left;
+    flex-wrap: wrap; /* 允许项目换行 */
+    max-width: 100%;
+    word-break: break-word; /* 允许在长单词内部换行 */
+}
 
-    .message-title a {
-        flex-grow: 1; /* 允许链接扩展以占据可用空间 */
-        flex-shrink: 1; /* 允许链接收缩 */
-        min-width: 0;
-        /* 移除之前的单行截断属性，如 text-overflow 和 white-space */
-        word-break: break-all; /* 在任何地方都可断开，防止溢出 */
-        overflow-wrap: break-word; /* 兼容性更好 */
-    }
+.message-title a {
+    flex-grow: 1; /* 允许链接扩展以占据可用空间 */
+    flex-shrink: 1; /* 允许链接收缩 */
+    min-width: 0;
+    /* 移除之前的单行截断属性，如 text-overflow 和 white-space */
+    word-break: break-all; /* 在任何地方都可断开，防止溢出 */
+    overflow-wrap: break-word; /* 兼容性更好 */
+}
 
 
     /* 移动端优化 - 保持水平布局 */
@@ -414,6 +414,13 @@ if ($_SERVER["QUERY_STRING"] ?? "") {
             font-size: 0.9rem;
             max-width: 85%;
         }
+        
+        .domain-info-box {
+            /* 关键修改：在手机端居中显示 */
+            max-width: 90%;
+            margin-left: auto;
+            margin-right: auto;
+        }
     }
 
     @media (max-width: 480px) {
@@ -449,8 +456,7 @@ if ($_SERVER["QUERY_STRING"] ?? "") {
         height: 1.2em;
         flex-shrink: 0;
     }
-    
-    /* 恢复正常的grid布局，这是解决错位的核心 */
+
     .message-data {
         display: grid;
         grid-template-columns: auto 1fr;
@@ -559,14 +565,33 @@ if ($_SERVER["QUERY_STRING"] ?? "") {
         margin: 0;
     }
 
+    /* 新增的CSS样式 */
+    .domain-info-box {
+        background-color: #fff;
+        border: 2px solid #000;
+        border-radius: 10px;
+        padding: 12px 16px;
+        margin-top: 20px;
+        margin-bottom: 20px;
+        font-weight: bold;
+        font-size: 1.1em;
+        max-width: fit-content; /* 关键修改：边框只包住内容 */
+        margin-left: auto; /* 关键修改：居中 */
+        margin-right: auto; /* 关键修改：居中 */
+    }
+
+    .domain-info-box p {
+        margin: 0;
+        text-align: center; /* 确保文字在盒子内居中 */
+    }
+
     /* --- 新增或修改的CSS --- */
     /* 将.message-title改为flex布局，并调整子元素的对齐方式
        以实现 "图标 + 域名 + 结果" 的横向排列
     */
-    /* 移除 display: block; 恢复 grid 布局 */
-    /* .message-data {
-        display: block;
-    } */
+    .message-data {
+        display: block; /* 覆盖之前的grid布局 */
+    }
 
     .message-data .message-title {
         display: flex; /* 使用flexbox布局 */
@@ -716,6 +741,27 @@ if ($_SERVER["QUERY_STRING"] ?? "") {
           </div>
         </div>
       </form>
+      <?php
+        $resultMessage = null;
+        if ($domain) {
+            if ($error) {
+                $resultMessage = "这个域名无效。";
+            } elseif ($parser->unknown) {
+                $resultMessage = "未找到该域名的信息。";
+            } elseif ($parser->reserved) {
+                $resultMessage = "该域名已被保留。";
+            } elseif ($parser->registered) {
+                $resultMessage = "域名已注册。";
+            } else {
+                $resultMessage = "该域名未被注册，可以注册。";
+            }
+        }
+      ?>
+      <?php if ($domain && $resultMessage): ?>
+        <div class="domain-info-box">
+          <p><?= $resultMessage; ?></p>
+        </div>
+      <?php endif; ?>
     </div>
   </header>
   <main>
