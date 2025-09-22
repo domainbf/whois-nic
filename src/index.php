@@ -556,6 +556,18 @@ if ($_SERVER["QUERY_STRING"] ?? "") {
     .result-box p {
         margin: 0;
     }
+    /* 新增的CSS样式 */
+    .domain-info-box {
+      background-color: #fff;
+      border: 2px solid #000;
+      border-radius: 10px;
+      padding: 12px 16px;
+      margin-top: 20px;
+      margin-bottom: 20px;
+      text-align: center;
+      font-weight: bold;
+      font-size: 1.1em;
+    }
 
     /* 移动端优化 */
     @media (max-width: 768px) {
@@ -669,24 +681,22 @@ if ($_SERVER["QUERY_STRING"] ?? "") {
 
         if ($domain) {
             if ($error) {
-                $resultMessage = "'". htmlspecialchars($domain, ENT_QUOTES, 'UTF-8') . "' 这可不是有效的域名哦。";
+                $resultMessage = "这可不是有效的域名哦。";
             } elseif ($parser->unknown) {
-                $resultMessage = "'". htmlspecialchars($domain, ENT_QUOTES, 'UTF-8') . "' 暂无信息，请稍后重试。";
+                $resultMessage = "暂无信息，请稍后重试。";
             } elseif ($parser->reserved) {
-                $resultMessage = "'". htmlspecialchars($domain, ENT_QUOTES, 'UTF-8') . "' 该死，这个域名已被保留了。";
+                $resultMessage = "该死，这个域名已被保留了。";
             } elseif ($parser->registered) {
-                $resultMessage = "'". htmlspecialchars($domain, ENT_QUOTES, 'UTF-8') . "' 已被注册，查看以下信息吧。";
+                $resultMessage = "已被注册，查看以下信息吧。";
             } else {
-                $resultMessage = "'". htmlspecialchars($domain, ENT_QUOTES, 'UTF-8') . "' 这个域名似乎尚未注册，去申请试试吧。";
+                $resultMessage = "这个域名似乎尚未注册，去申请试试吧。";
             }
         }
     ?>
     <?php if ($domain && $resultMessage): ?>
-      <section class="result-summary">
-        <div class="result-box">
-          <p><?= $resultMessage; ?></p>
-        </div>
-      </section>
+      <div class="domain-info-box">
+        <p><?= htmlspecialchars($domain, ENT_QUOTES, 'UTF-8'); ?>：<?= $resultMessage; ?></p>
+      </div>
     <?php endif; ?>
     <?php if ($parser->registered): ?>
       <section class="messages">
