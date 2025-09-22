@@ -648,6 +648,15 @@ if ($_SERVER["QUERY_STRING"] ?? "") {
             margin-top: 8px; /* 在移动端，如果换行，增加一些上边距 */
         }
     }
+
+    /* 新增或修改: 调整结果页面间距 */
+    main {
+        padding-top: 20px; /* 减少 main 区域顶部的空间 */
+    }
+
+    header {
+        margin-bottom: 20px; /* 减少 header 下方的空间 */
+    }
   </style>
 </head>
 
@@ -744,7 +753,10 @@ if ($_SERVER["QUERY_STRING"] ?? "") {
           </div>
         </div>
       </form>
-      <?php
+    </div>
+  </header>
+  <main>
+    <?php
         $resultMessage = null;
         if ($domain) {
             if ($error) {
@@ -759,15 +771,12 @@ if ($_SERVER["QUERY_STRING"] ?? "") {
                 $resultMessage = "该域名未被注册，可以注册。";
             }
         }
-      ?>
-      <?php if ($domain && $resultMessage): ?>
+    ?>
+    <?php if ($domain && $resultMessage): ?>
         <div class="domain-info-box">
           <p><?= $resultMessage; ?></p>
         </div>
-      <?php endif; ?>
-    </div>
-  </header>
-  <main>
+    <?php endif; ?>
     <?php if ($parser->registered): ?>
       <section class="messages">
         <div>
