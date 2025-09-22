@@ -759,11 +759,7 @@ if ($_SERVER["QUERY_STRING"] ?? "") {
             }
         }
       ?>
-      <?php if ($domain && $resultMessage): ?>
-        <div class="domain-info-box">
-          <p><?= $resultMessage; ?></p>
-        </div>
-      <?php endif; ?>
+      
     </div>
   </header>
   <main>
