@@ -681,21 +681,21 @@ if ($_SERVER["QUERY_STRING"] ?? "") {
 
         if ($domain) {
             if ($error) {
-                $resultMessage = "这可不是有效的域名哦。";
+                $resultMessage = "这个域名无效。"; // Changed text
             } elseif ($parser->unknown) {
-                $resultMessage = "暂无信息，请稍后重试。";
+                $resultMessage = "未找到该域名的信息。"; // Changed text
             } elseif ($parser->reserved) {
-                $resultMessage = "该死，这个域名已被保留了。";
+                $resultMessage = "该域名已被保留。"; // Changed text
             } elseif ($parser->registered) {
-                $resultMessage = "已被注册，查看以下信息吧。";
+                $resultMessage = "域名已注册。"; // Changed text
             } else {
-                $resultMessage = "这个域名似乎尚未注册，去申请试试吧。";
+                $resultMessage = "该域名未被注册，可以注册。"; // Changed text
             }
         }
     ?>
     <?php if ($domain && $resultMessage): ?>
       <div class="domain-info-box">
-        <p><?= htmlspecialchars($domain, ENT_QUOTES, 'UTF-8'); ?>：<?= $resultMessage; ?></p>
+        <p><?= $resultMessage; ?></p>
       </div>
     <?php endif; ?>
     <?php if ($parser->registered): ?>
