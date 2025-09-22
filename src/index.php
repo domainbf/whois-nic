@@ -269,7 +269,7 @@ if ($_SERVER["QUERY_STRING"] ?? "") {
         display: flex;
         align-items: center;
         gap: 8px;
-        margin-bottom: 16px; /* 增加与下方选项的间距 */
+        margin-bottom: 8px; /* 缩减与下方选项的间距 */
         justify-content: center; /* 新增: 让搜索框和按钮居中 */
     }
 
@@ -382,6 +382,7 @@ if ($_SERVER["QUERY_STRING"] ?? "") {
             align-items: center !important;
             gap: 8px !important;
             flex-wrap: wrap; /* 如果空间不够就换行 */
+            margin-bottom: 6px; /* 缩减移动端间距 */
         }
 
         .search-box {
@@ -571,9 +572,9 @@ if ($_SERVER["QUERY_STRING"] ?? "") {
         background-color: #fff;
         border: 2px solid #000;
         border-radius: 10px;
-        padding: 12px 16px;
-        margin-top: 20px;
-        margin-bottom: 20px;
+        padding: 8px 16px; /* 缩减垂直内边距 */
+        margin-top: 10px; /* 缩减顶部外边距 */
+        margin-bottom: 15px; /* 缩减底部外边距 */
         font-weight: bold;
         font-size: 1.1em;
         max-width: fit-content; /* 关键修改：边框只包住内容 */
