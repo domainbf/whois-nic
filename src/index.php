@@ -893,24 +893,45 @@ if ($_SERVER["QUERY_STRING"] ?? "") {
                 </div>
               <?php endif; ?>
             </div>
-          <?php else: ?>
-            <div class="message">
-    <div class="message-data">
-        <h2 class="message-title">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 640" fill="currentColor" aria-hidden="true" class="message-icon">
-                <path d="M320 80C452.5 80 560 187.5 560 320C560 452.5 452.5 560 320 560C187.5 560 80 452.5 80 320C80 187.5 187.5 80 320 80zM320 576C461.4 576 576 461.4 576 320C576 178.6 461.4 64 320 64C178.6 64 64 178.6 64 320C64 461.4 178.6 576 320 576zM256 272C256 263.2 248.8 256 240 256C231.2 256 224 263.2 224 272C224 280.8 231.2 288 240 288C248.8 288 256 280.8 256 272zM400 288C408.8 288 416 280.8 416 272C416 263.2 408.8 256 400 256C391.2 256 384 263.2 384 272C384 280.8 391.2 288 400 288zM259.3 378.2C264.6 385.8 269.9 393.5 273.9 401.3C277.9 409.1 280 416.2 280 422.3C280 445.7 261.7 463.9 240 463.9C218.3 463.9 200 445.7 200 422.3C200 416.1 202.1 409.1 206.1 401.3C210.1 393.5 215.4 385.8 220.7 378.2C226.7 369.6 233.2 361.2 240 353.2C246.8 361.2 253.2 369.6 259.3 378.2zM229 341.4C221.4 350.2 214.3 359.5 207.6 369C197.1 384.1 184 403 184 422.4C184 454.2 209.1 480 240 480C270.9 480 296 454.2 296 422.4C296 403 282.9 384.1 272.4 369C265.7 359.4 258.6 350.2 251 341.4C245 334.4 235.1 334.4 229.1 341.4zM352 400C382.6 400 409.6 415.6 425.3 439.3C427.7 443 432.7 444 436.4 441.5C440.1 439 441.1 434.1 438.6 430.4C420 402.4 388.1 383.9 351.9 383.9C346.6 383.9 341.5 384.3 336.4 385C338.4 390 340 395.2 341.3 400.5C344.8 400.1 348.3 399.9 351.9 399.9z"/>
-            </svg>
-            '<?= htmlspecialchars($domain, ENT_QUOTES, 'UTF-8'); ?>' 这个域名似乎尚未注册，去申请试试吧。
-        </h2>
-        <?php if ($fetchPrices): ?>
-        <div class="message-price" id="message-price">
-            <div class="skeleton"></div>
-        </div>
-        <?php endif; ?>
-    </div>
-</div>
+          <style>
+/* 新增的 CSS 样式 */
+.message-top {
+  display: flex; /* 使用 Flexbox 布局 */
+  align-items: center; /* 垂直居中对齐 */
+  justify-content: center; /* 水平居中对齐 */
+  gap: 8px; /* 在图标和域名之间添加间距 */
+  margin-bottom: 8px; /* 在顶部容器和下方文字之间添加间距 */
+}
+.message-content {
+  text-align: center; /* 将文字内容居中对齐 */
+  /* 你可以根据需要添加更多样式，比如字体大小、颜色等 */
+}
+</style>
 
-          <?php endif; ?>
+<?php else: ?>
+  <div class="message message-informative">
+    <div class="message-data">
+      <div class="message-top">
+        <svg width="1em" height="1em" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true" class="message-icon">
+          <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14m0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16" />
+          <path d="m8.93 6.588-2.29.287-.082.38.45.083c.294.07.352.176.288.469l-.738 3.468c-.194.897.105 1.319.808 1.319.545 0 1.178-.252 1.465-.598l.088-.416c-.2.176-.492.246-.686.246-.275 0-.375-.193-.304-.533zM9 4.5a1 1 0 1 1-2 0 1 1 0 0 1 2 0" />
+        </svg>
+        <span>'<?= htmlspecialchars($domain, ENT_QUOTES, 'UTF-8'); ?>'</span>
+      </div>
+
+      <div class="message-content">
+        这个域名似乎尚未注册，去申请试试吧。
+      </div>
+
+      <?php if ($fetchPrices): ?>
+        <div class="message-price" id="message-price">
+          <div class="skeleton"></div>
+        </div>
+      <?php endif; ?>
+    </div>
+  </div>
+<?php endif; ?>
+
         </div>
       </section>
     <?php endif; ?>
