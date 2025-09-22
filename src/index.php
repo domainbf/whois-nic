@@ -350,29 +350,29 @@ if ($_SERVER["QUERY_STRING"] ?? "") {
     }
 
     /* 新的CSS代码，用于修复超长域名换行问题 */
-.message-data .message-title {
-    display: flex;
-    align-items: flex-start; /* 保持图标和多行文字的顶部对齐 */
-    gap: 0.5rem;
-    grid-column: 1 / -1;
-    margin-bottom: 1rem;
-    font-size: 1rem;
-    font-weight: 600;
-    color: #222;
-    text-align: left;
-    flex-wrap: wrap; /* 允许项目换行 */
-    max-width: 100%;
-    word-break: break-word; /* 允许在长单词内部换行 */
-}
+    .message-data .message-title {
+        display: flex;
+        align-items: flex-start; /* 保持图标和多行文字的顶部对齐 */
+        gap: 0.5rem;
+        grid-column: 1 / -1;
+        margin-bottom: 1rem;
+        font-size: 1rem;
+        font-weight: 600;
+        color: #222;
+        text-align: left;
+        flex-wrap: wrap; /* 允许项目换行 */
+        max-width: 100%;
+        word-break: break-word; /* 允许在长单词内部换行 */
+    }
 
-.message-title a {
-    flex-grow: 1; /* 允许链接扩展以占据可用空间 */
-    flex-shrink: 1; /* 允许链接收缩 */
-    min-width: 0;
-    /* 移除之前的单行截断属性，如 text-overflow 和 white-space */
-    word-break: break-all; /* 在任何地方都可断开，防止溢出 */
-    overflow-wrap: break-word; /* 兼容性更好 */
-}
+    .message-title a {
+        flex-grow: 1; /* 允许链接扩展以占据可用空间 */
+        flex-shrink: 1; /* 允许链接收缩 */
+        min-width: 0;
+        /* 移除之前的单行截断属性，如 text-overflow 和 white-space */
+        word-break: break-all; /* 在任何地方都可断开，防止溢出 */
+        overflow-wrap: break-word; /* 兼容性更好 */
+    }
 
 
     /* 移动端优化 - 保持水平布局 */
@@ -456,7 +456,8 @@ if ($_SERVER["QUERY_STRING"] ?? "") {
         height: 1.2em;
         flex-shrink: 0;
     }
-
+    
+    /* 恢复正常的grid布局，这是解决错位的核心 */
     .message-data {
         display: grid;
         grid-template-columns: auto 1fr;
@@ -589,9 +590,10 @@ if ($_SERVER["QUERY_STRING"] ?? "") {
     /* 将.message-title改为flex布局，并调整子元素的对齐方式
        以实现 "图标 + 域名 + 结果" 的横向排列
     */
-    .message-data {
-        display: block; /* 覆盖之前的grid布局 */
-    }
+    /* 移除 display: block; 恢复 grid 布局 */
+    /* .message-data {
+        display: block;
+    } */
 
     .message-data .message-title {
         display: flex; /* 使用flexbox布局 */
@@ -776,7 +778,6 @@ if ($_SERVER["QUERY_STRING"] ?? "") {
                     <path d="m10.97 4.97-.02.022-3.473 4.425-2.093-2.094a.75.75 0 0 0-1.06 1.06L6.97 11.03a.75.75 0 0 0 1.079-.02l3.992-4.99a.75.75 0 0 0-1.071-1.05" />
                   </svg>
                   <a href="http://<?= htmlspecialchars($domain, ENT_QUOTES, 'UTF-8'); ?>" rel="nofollow noopener noreferrer" target="_blank"><?= htmlspecialchars($domain, ENT_QUOTES, 'UTF-8'); ?></a>
-                  <span class="domain-status-message">域名已注册</span>
               </h1>
               <?php if ($parser->registrar): ?>
                 <div class="message-label">
