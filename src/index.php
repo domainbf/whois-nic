@@ -378,8 +378,35 @@ if ($_SERVER["QUERY_STRING"] ?? "") {
         vertical-align: middle;
     }
 
-    /* 移动端进一步优化 */
+    /* 移动端优化 - 保持水平布局 */
     @media (max-width: 768px) {
+        .search-and-button-container {
+            flex-direction: row !important; /* 保持水平布局 */
+            align-items: center !important;
+            gap: 8px !important;
+            flex-wrap: wrap; /* 如果空间不够就换行 */
+        }
+
+        .search-box {
+            max-width: calc(100% - 88px); /* 留出按钮空间 */
+            flex: 1;
+            min-width: 200px; /* 最小宽度 */
+        }
+
+        .search-button {
+            width: auto !important;
+            min-width: 80px !important;
+            flex-shrink: 0; /* 按钮不压缩 */
+            font-size: 14px; /* 稍微小一点 */
+            padding: 0 12px; /* 稍微小一点内边距 */
+        }
+
+        .checkboxes {
+            margin-top: 8px;
+            gap: 8px;
+            justify-content: center; /* 保持居中 */
+        }
+
         .message-data .message-title {
             font-size: 0.9rem;
             gap: 0.25rem;
@@ -390,34 +417,24 @@ if ($_SERVER["QUERY_STRING"] ?? "") {
             font-size: 0.9rem;
             max-width: 85%;
         }
-
-        /* 移动端搜索框和按钮改为垂直布局 */
-        .search-and-button-container {
-            flex-direction: column;
-            align-items: stretch;
-            gap: 12px;
-        }
-
-        .search-box {
-            max-width: 100%; /* 在小屏幕上占据全部宽度 */
-            flex: 1;
-        }
-
-        .search-button {
-            width: 100%;
-            min-width: auto;
-            font-size: 16px;
-            padding: 0 16px;
-        }
-
-        .checkboxes {
-            margin-top: 8px;
-            gap: 8px;
-            justify-content: flex-start; /* 左对齐选项 */
-        }
     }
 
     @media (max-width: 480px) {
+        .search-and-button-container {
+            gap: 6px !important;
+        }
+
+        .search-box {
+            max-width: calc(100% - 76px); /* 更小的按钮 */
+            min-width: 160px;
+        }
+
+        .search-button {
+            min-width: 70px !important;
+            font-size: 13px;
+            padding: 0 10px;
+        }
+
         .message-data .message-title {
             font-size: 0.85rem;
             gap: 0.2rem;
