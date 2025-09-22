@@ -556,17 +556,25 @@ if ($_SERVER["QUERY_STRING"] ?? "") {
     .result-box p {
         margin: 0;
     }
+
     /* 新增的CSS样式 */
     .domain-info-box {
-      background-color: #fff;
-      border: 2px solid #000;
-      border-radius: 10px;
-      padding: 12px 16px;
-      margin-top: 20px;
-      margin-bottom: 20px;
-      text-align: center;
-      font-weight: bold;
-      font-size: 1.1em;
+        background-color: #fff;
+        border: 2px solid #000;
+        border-radius: 10px;
+        padding: 12px 16px;
+        margin-top: 20px;
+        margin-bottom: 20px;
+        font-weight: bold;
+        font-size: 1.1em;
+        max-width: fit-content; /* 关键修改：边框只包住内容 */
+        margin-left: auto; /* 关键修改：居中 */
+        margin-right: auto; /* 关键修改：居中 */
+    }
+
+    .domain-info-box p {
+        margin: 0;
+        text-align: center; /* 确保文字在盒子内居中 */
     }
 
     /* 移动端优化 */
@@ -574,6 +582,12 @@ if ($_SERVER["QUERY_STRING"] ?? "") {
         .result-box {
             padding: 1rem 1.5rem;
             font-size: 1rem;
+        }
+
+        .domain-info-box {
+            padding: 8px 12px;
+            font-size: 1em;
+            max-width: 90%; /* 在移动端允许盒子更宽一点 */
         }
     }
   </style>
