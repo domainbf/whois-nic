@@ -17,7 +17,7 @@ A simple WHOIS domain lookup website with strong TLD compatibility.
   </tr>
 </table>
 
-[Live Demo](https://whois.233333.best)
+[Live Demo](https://whois.nic.bn)
 
 ## Features
 
