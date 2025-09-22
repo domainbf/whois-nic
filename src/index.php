@@ -383,18 +383,25 @@ if ($_SERVER["QUERY_STRING"] ?? "") {
       }
 
       .search-container {
-        flex-direction: column;
+        flex-direction: row;
         gap: 8px;
+        align-items: center;
       }
 
       .search-box {
-        max-width: none;
-        width: 100%;
+        max-width: 200px;
+        flex: 1;
       }
 
       .search-button {
-        width: 100%;
-        min-width: auto;
+        flex-shrink: 0;
+        min-width: 70px;
+        font-size: 14px;
+        padding: 0 12px;
+      }
+
+      .checkboxes {
+        margin-top: 8px;
       }
     }
 
@@ -407,6 +414,16 @@ if ($_SERVER["QUERY_STRING"] ?? "") {
       .message-title a {
         font-size: 0.85rem;
         max-width: 80%;
+      }
+
+      .search-box {
+        max-width: 150px;
+      }
+
+      .search-button {
+        min-width: 60px;
+        font-size: 13px;
+        padding: 0 10px;
       }
     }
 
