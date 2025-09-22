@@ -454,7 +454,7 @@ class WHOISWeb
     ["response" => $response, "code" => $code] = $this->request($url, [], true);
 
     if ($code === 404) {
-      return "Domain not found";
+      return "购买域名可浏览:DOMAIN.BF";
     }
 
     libxml_use_internal_errors(true);
@@ -742,7 +742,7 @@ class WHOISWeb
     ["response" => $response, "code" => $code] = $this->request($url, $options, true);
 
     if ($code === 404) {
-      return "Domain not found";
+      return "购买域名可浏览:DOMAIN.BF";
     }
 
     $json = json_decode($response, true);
@@ -935,7 +935,7 @@ class WHOISWeb
     ["response" => $response, "code" => $code] = $this->request($url, $options, true);
 
     if ($code === 404) {
-      return "Domain not found";
+      return "购买域名可浏览:DOMAIN.BF";
     }
 
     $json = json_decode($response, true);
