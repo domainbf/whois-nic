@@ -270,6 +270,7 @@ if ($_SERVER["QUERY_STRING"] ?? "") {
         align-items: center;
         gap: 8px;
         margin-bottom: 16px; /* 增加与下方选项的间距 */
+        justify-content: center; /* 新增: 让搜索框和按钮居中 */
     }
 
     .search-box {
@@ -412,6 +413,13 @@ if ($_SERVER["QUERY_STRING"] ?? "") {
         .message-title a {
             font-size: 0.9rem;
             max-width: 85%;
+        }
+        
+        .domain-info-box {
+            /* 关键修改：在手机端居中显示 */
+            max-width: 90%;
+            margin-left: auto;
+            margin-right: auto;
         }
     }
 
@@ -576,20 +584,6 @@ if ($_SERVER["QUERY_STRING"] ?? "") {
         margin: 0;
         text-align: center; /* 确保文字在盒子内居中 */
     }
-
-    /* 移动端优化 */
-    @media (max-width: 768px) {
-        .result-box {
-            padding: 1rem 1.5rem;
-            font-size: 1rem;
-        }
-
-        .domain-info-box {
-            padding: 8px 12px;
-            font-size: 1em;
-            max-width: 90%; /* 在移动端允许盒子更宽一点 */
-        }
-    }
   </style>
 </head>
 
@@ -686,32 +680,30 @@ if ($_SERVER["QUERY_STRING"] ?? "") {
           </div>
         </div>
       </form>
+      <?php
+        $resultMessage = null;
+        if ($domain) {
+            if ($error) {
+                $resultMessage = "这个域名无效。";
+            } elseif ($parser->unknown) {
+                $resultMessage = "未找到该域名的信息。";
+            } elseif ($parser->reserved) {
+                $resultMessage = "该域名已被保留。";
+            } elseif ($parser->registered) {
+                $resultMessage = "域名已注册。";
+            } else {
+                $resultMessage = "该域名未被注册，可以注册。";
+            }
+        }
+      ?>
+      <?php if ($domain && $resultMessage): ?>
+        <div class="domain-info-box">
+          <p><?= $resultMessage; ?></p>
+        </div>
+      <?php endif; ?>
     </div>
   </header>
   <main>
-    <?php
-        // 初始化提示信息变量
-        $resultMessage = null;
-
-        if ($domain) {
-            if ($error) {
-                $resultMessage = "这个域名无效。"; // Changed text
-            } elseif ($parser->unknown) {
-                $resultMessage = "未找到该域名的信息。"; // Changed text
-            } elseif ($parser->reserved) {
-                $resultMessage = "该域名已被保留。"; // Changed text
-            } elseif ($parser->registered) {
-                $resultMessage = "域名已注册。"; // Changed text
-            } else {
-                $resultMessage = "该域名未被注册，可以注册。"; // Changed text
-            }
-        }
-    ?>
-    <?php if ($domain && $resultMessage): ?>
-      <div class="domain-info-box">
-        <p><?= $resultMessage; ?></p>
-      </div>
-    <?php endif; ?>
     <?php if ($parser->registered): ?>
       <section class="messages">
         <div>
