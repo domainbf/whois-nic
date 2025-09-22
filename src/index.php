@@ -348,35 +348,31 @@ if ($_SERVER["QUERY_STRING"] ?? "") {
         flex-wrap: wrap;
     }
 
-    /* 修复域名过长文字错位问题 - 增强版 */
-    .message-data .message-title {
-        display: flex;
-        align-items: center;
-        gap: 0.5rem;
-        grid-column: 1 / -1;
-        margin-bottom: 1rem;
-        font-size: 1rem;
-        font-weight: 600;
-        color: #222;
-        text-align: left;
-        flex-wrap: wrap;
-        max-width: 100%;
-        overflow: hidden;
-        word-break: break-word;
-    }
+    /* 新的CSS代码，用于修复超长域名换行问题 */
+.message-data .message-title {
+    display: flex;
+    align-items: flex-start; /* 保持图标和多行文字的顶部对齐 */
+    gap: 0.5rem;
+    grid-column: 1 / -1;
+    margin-bottom: 1rem;
+    font-size: 1rem;
+    font-weight: 600;
+    color: #222;
+    text-align: left;
+    flex-wrap: wrap; /* 允许项目换行 */
+    max-width: 100%;
+    word-break: break-word; /* 允许在长单词内部换行 */
+}
 
-    .message-title a {
-        flex: 1;
-        min-width: 0;
-        max-width: 100%;
-        word-break: break-all;
-        overflow-wrap: break-word;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        white-space: nowrap;
-        display: inline-block;
-        vertical-align: middle;
-    }
+.message-title a {
+    flex-grow: 1; /* 允许链接扩展以占据可用空间 */
+    flex-shrink: 1; /* 允许链接收缩 */
+    min-width: 0;
+    /* 移除之前的单行截断属性，如 text-overflow 和 white-space */
+    word-break: break-all; /* 在任何地方都可断开，防止溢出 */
+    overflow-wrap: break-word; /* 兼容性更好 */
+}
+
 
     /* 移动端优化 - 保持水平布局 */
     @media (max-width: 768px) {
