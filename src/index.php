@@ -414,13 +414,6 @@ if ($_SERVER["QUERY_STRING"] ?? "") {
             font-size: 0.9rem;
             max-width: 85%;
         }
-        
-        .domain-info-box {
-            /* 关键修改：在手机端居中显示 */
-            max-width: 90%;
-            margin-left: auto;
-            margin-right: auto;
-        }
     }
 
     @media (max-width: 480px) {
@@ -564,26 +557,6 @@ if ($_SERVER["QUERY_STRING"] ?? "") {
 
     .result-box p {
         margin: 0;
-    }
-
-    /* 新增的CSS样式 */
-    .domain-info-box {
-        background-color: #fff;
-        border: 2px solid #000;
-        border-radius: 10px;
-        padding: 12px 16px;
-        margin-top: 20px;
-        margin-bottom: 20px;
-        font-weight: bold;
-        font-size: 1.1em;
-        max-width: fit-content; /* 关键修改：边框只包住内容 */
-        margin-left: auto; /* 关键修改：居中 */
-        margin-right: auto; /* 关键修改：居中 */
-    }
-
-    .domain-info-box p {
-        margin: 0;
-        text-align: center; /* 确保文字在盒子内居中 */
     }
 
     /* --- 新增或修改的CSS --- */
@@ -743,23 +716,6 @@ if ($_SERVER["QUERY_STRING"] ?? "") {
           </div>
         </div>
       </form>
-      <?php
-        $resultMessage = null;
-        if ($domain) {
-            if ($error) {
-                $resultMessage = "这个域名无效。";
-            } elseif ($parser->unknown) {
-                $resultMessage = "未找到该域名的信息。";
-            } elseif ($parser->reserved) {
-                $resultMessage = "该域名已被保留。";
-            } elseif ($parser->registered) {
-                $resultMessage = "域名已注册。";
-            } else {
-                $resultMessage = "该域名未被注册，可以注册。";
-            }
-        }
-      ?>
-      
     </div>
   </header>
   <main>
