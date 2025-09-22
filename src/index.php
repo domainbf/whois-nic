@@ -23,7 +23,7 @@ if (!$domain && isset($_SERVER['REQUEST_URI'])) {
     if (preg_match('#^/([^/]+?)(?:\?|/|$)#', $_SERVER['REQUEST_URI'], $matches)) {
         $potentialDomain = $matches[1];
         // 验证是否是域名格式
-        if (preg_match('/^[a-zA-Z0-9]([a-zA-Z0-9-]{0,61}[a-zA-9])?(\.[a-zA-Z0-9]([a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)+$/', $potentialDomain)) {
+        if (preg_match('/^[a-zA-Z0-9]([a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(\.[a-zA-Z0-9]([a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)+$/', $potentialDomain)) {
             $domain = $potentialDomain;
             $_GET['domain'] = $domain;
             error_log("从URL路径解析域名: " . $domain);
@@ -567,126 +567,57 @@ if ($_SERVER["QUERY_STRING"] ?? "") {
         margin: 0;
     }
 
-    /* -------------------- START OF MODIFIED CSS -------------------- */
-    /*
-     * 这里是根据你的要求修改的CSS代码，
-     * 旨在压缩顶部空白和结果页信息
-     */
-
-    /* 优化顶部 header 和 main 的间距 */
-    header {
-        padding-top: 15px; /* 减小顶部内边距 */
-        padding-bottom: 15px;
-        margin-bottom: 15px; /* 减小底部外边距 */
-    }
-    
-    main {
-        padding-top: 15px; /* 减小 main 区域顶部的空间 */
-    }
-
-    /* 优化搜索框和按钮的间距 */
-    .search-and-button-container {
-        margin-bottom: 6px; /* 进一步缩减与下方选项的间距 */
-    }
-
-    /* 优化结果提示框的间距 */
+    /* 新增的CSS样式 */
     .domain-info-box {
-        padding: 6px 14px; /* 减小内边距 */
-        margin-top: 8px; /* 减小顶部外边距 */
-        margin-bottom: 12px; /* 减小底部外边距 */
-        font-size: 1em; /* 减小字体大小 */
-        max-width: fit-content;
-        margin-left: auto;
-        margin-right: auto;
-    }
-    
-    /* 调整核心信息布局，使其更紧凑 */
-    .message-data {
-        display: grid;
-        grid-template-columns: auto 1fr;
-        gap: 0.75rem 1rem; /* 压缩行间距和列间距 */
-        margin-top: 1rem; /* 减小顶部外边距 */
+        background-color: #fff;
+        border: 2px solid #000;
+        border-radius: 10px;
+        padding: 8px 16px; /* 缩减垂直内边距 */
+        margin-top: 10px; /* 缩减顶部外边距 */
+        margin-bottom: 15px; /* 缩减底部外边距 */
+        font-weight: bold;
+        font-size: 1.1em;
+        max-width: fit-content; /* 关键修改：边框只包住内容 */
+        margin-left: auto; /* 关键修改：居中 */
+        margin-right: auto; /* 关键修改：居中 */
     }
 
-    /* 调整域名标题的字体大小和间距 */
+    .domain-info-box p {
+        margin: 0;
+        text-align: center; /* 确保文字在盒子内居中 */
+    }
+
+    /* --- 新增或修改的CSS --- */
+    /* 将.message-title改为flex布局，并调整子元素的对齐方式
+       以实现 "图标 + 域名 + 结果" 的横向排列
+    */
+    /* 移除 display: block; 恢复 grid 布局 */
+    /* .message-data {
+        display: block;
+    } */
+
     .message-data .message-title {
-        display: flex;
-        align-items: center;
-        gap: 0.5rem; /* 减小图标和域名之间的间距 */
-        margin-bottom: 0.75rem; /* 减小底部外边距 */
-        font-size: 1.1rem; /* 减小字体大小 */
-        flex-wrap: nowrap;
+        display: flex; /* 使用flexbox布局 */
+        align-items: center; /* 垂直居中对齐 */
+        gap: 0.75rem; /* 增加图标和域名之间的间距 */
+        margin-bottom: 1rem;
+        font-size: 1.2rem; /* 调整字体大小 */
+        font-weight: 600;
+        color: #222;
+        flex-wrap: nowrap; /* 不换行，保持单行显示 */
         max-width: 100%;
-        word-break: normal;
+        word-break: normal; /* 恢复默认的单词换行，不强制在每个字符处断开 */
         text-align: left;
     }
 
     .message-title a {
-        flex-grow: 0;
-        flex-shrink: 1;
+        flex-grow: 0; /* 不允许链接扩展 */
+        flex-shrink: 1; /* 允许收缩 */
         min-width: 0;
         word-break: break-all;
         overflow-wrap: break-word;
-        font-size: 1.3em; /* 减小域名字体大小 */
+        font-size: 1.5em; /* 调整域名字体大小 */
     }
-
-    /* 调整标签和值的字体大小 */
-    .message-label, .message-value-status, .message-value-name-servers {
-        font-size: 0.95em; /* 统一调整字体大小 */
-    }
-
-    /* 调整信息标签（如已注册、即将过期）的间距 */
-    .message-tags {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 6px; /* 减小标签之间的间距 */
-        margin-top: 0.75rem; /* 减小顶部外边距 */
-        justify-content: center;
-    }
-
-    /* 移动端进一步优化 */
-    @media (max-width: 768px) {
-        header {
-            padding-top: 10px;
-            padding-bottom: 10px;
-            margin-bottom: 10px;
-        }
-
-        main {
-            padding-top: 10px;
-        }
-
-        .domain-info-box {
-            padding: 5px 12px;
-            margin-top: 6px;
-            margin-bottom: 10px;
-        }
-        
-        .message-data {
-            gap: 0.5rem 0.75rem; /* 进一步压缩移动端间距 */
-            margin-top: 0.75rem;
-        }
-        
-        .message-data .message-title {
-            gap: 0.25rem;
-            margin-bottom: 0.5rem;
-            font-size: 0.9rem;
-        }
-
-        .message-title a {
-            font-size: 1.1em;
-        }
-
-        .message-label, .message-value-status, .message-value-name-servers {
-            font-size: 0.9em;
-        }
-
-        .message-tags {
-            gap: 4px; /* 移动端标签间距更小 */
-        }
-    }
-    
-    /* -------------------- END OF MODIFIED CSS -------------------- */
 
     /* 新增的样式：用于包裹结果提示信息 */
     .domain-status-message {
@@ -700,13 +631,22 @@ if ($_SERVER["QUERY_STRING"] ?? "") {
         flex-shrink: 0; /* 防止该元素被压缩 */
     }
 
-    /* 新增或修改: 调整结果页面间距 */
-    main {
-        padding-top: 20px; /* 减少 main 区域顶部的空间 */
-    }
+    /* 移动端优化 */
+    @media (max-width: 768px) {
+        .message-data .message-title {
+            flex-wrap: wrap; /* 在移动端允许换行 */
+            gap: 0.5rem;
+            font-size: 1rem;
+        }
 
-    header {
-        margin-bottom: 20px; /* 减少 header 下方的空间 */
+        .message-title a {
+            font-size: 1.2em; /* 移动端域名字体大小 */
+            flex-grow: 1; /* 允许在移动端扩展 */
+        }
+
+        .domain-status-message {
+            margin-top: 8px; /* 在移动端，如果换行，增加一些上边距 */
+        }
     }
   </style>
 </head>
@@ -804,10 +744,7 @@ if ($_SERVER["QUERY_STRING"] ?? "") {
           </div>
         </div>
       </form>
-    </div>
-  </header>
-  <main>
-    <?php
+      <?php
         $resultMessage = null;
         if ($domain) {
             if ($error) {
@@ -822,12 +759,15 @@ if ($_SERVER["QUERY_STRING"] ?? "") {
                 $resultMessage = "该域名未被注册，可以注册。";
             }
         }
-    ?>
-    <?php if ($domain && $resultMessage): ?>
+      ?>
+      <?php if ($domain && $resultMessage): ?>
         <div class="domain-info-box">
           <p><?= $resultMessage; ?></p>
         </div>
-    <?php endif; ?>
+      <?php endif; ?>
+    </div>
+  </header>
+  <main>
     <?php if ($parser->registered): ?>
       <section class="messages">
         <div>
