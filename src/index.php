@@ -584,6 +584,67 @@ if ($_SERVER["QUERY_STRING"] ?? "") {
         margin: 0;
         text-align: center; /* 确保文字在盒子内居中 */
     }
+
+    /* --- 新增或修改的CSS --- */
+    /* 将.message-title改为flex布局，并调整子元素的对齐方式
+       以实现 "图标 + 域名 + 结果" 的横向排列
+    */
+    .message-data {
+        display: block; /* 覆盖之前的grid布局 */
+    }
+
+    .message-data .message-title {
+        display: flex; /* 使用flexbox布局 */
+        align-items: center; /* 垂直居中对齐 */
+        gap: 0.75rem; /* 增加图标和域名之间的间距 */
+        margin-bottom: 1rem;
+        font-size: 1.2rem; /* 调整字体大小 */
+        font-weight: 600;
+        color: #222;
+        flex-wrap: nowrap; /* 不换行，保持单行显示 */
+        max-width: 100%;
+        word-break: normal; /* 恢复默认的单词换行，不强制在每个字符处断开 */
+        text-align: left;
+    }
+
+    .message-title a {
+        flex-grow: 0; /* 不允许链接扩展 */
+        flex-shrink: 1; /* 允许收缩 */
+        min-width: 0;
+        word-break: break-all;
+        overflow-wrap: break-word;
+        font-size: 1.5em; /* 调整域名字体大小 */
+    }
+
+    /* 新增的样式：用于包裹结果提示信息 */
+    .domain-status-message {
+        background-color: #28a745;
+        color: #fff;
+        padding: 4px 12px;
+        border-radius: 20px;
+        font-size: 0.8rem;
+        font-weight: bold;
+        white-space: nowrap; /* 确保文字不换行 */
+        flex-shrink: 0; /* 防止该元素被压缩 */
+    }
+
+    /* 移动端优化 */
+    @media (max-width: 768px) {
+        .message-data .message-title {
+            flex-wrap: wrap; /* 在移动端允许换行 */
+            gap: 0.5rem;
+            font-size: 1rem;
+        }
+
+        .message-title a {
+            font-size: 1.2em; /* 移动端域名字体大小 */
+            flex-grow: 1; /* 允许在移动端扩展 */
+        }
+
+        .domain-status-message {
+            margin-top: 8px; /* 在移动端，如果换行，增加一些上边距 */
+        }
+    }
   </style>
 </head>
 
@@ -715,6 +776,7 @@ if ($_SERVER["QUERY_STRING"] ?? "") {
                     <path d="m10.97 4.97-.02.022-3.473 4.425-2.093-2.094a.75.75 0 0 0-1.06 1.06L6.97 11.03a.75.75 0 0 0 1.079-.02l3.992-4.99a.75.75 0 0 0-1.071-1.05" />
                   </svg>
                   <a href="http://<?= htmlspecialchars($domain, ENT_QUOTES, 'UTF-8'); ?>" rel="nofollow noopener noreferrer" target="_blank"><?= htmlspecialchars($domain, ENT_QUOTES, 'UTF-8'); ?></a>
+                  <span class="domain-status-message">域名已注册</span>
               </h1>
               <?php if ($parser->registrar): ?>
                 <div class="message-label">
