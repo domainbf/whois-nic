@@ -193,6 +193,37 @@ $manifestHref = "manifest";
 if ($_SERVER["QUERY_STRING"] ?? "") {
   $manifestHref .= "?" . htmlspecialchars($_SERVER["QUERY_STRING"], ENT_QUOTES, "UTF-8");
 }
+
+// === 新增：动态生成分享元数据 ===
+$currentUrl = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? "https" : "http") . "://$_SERVER[HTTP_HOST]$_SERVER[REQUEST_URI]";
+$shareImage = BASE . "public/images/logo.png"; // 默认缩略图
+
+if ($domain) {
+    if ($error) {
+        $shareTitle = "$domain | 无效域名查询";
+        $shareDescription = "查询的域名 '$domain' 是无效的。请尝试其他域名。";
+    } elseif ($parser->unknown || $parser->reserved) {
+        $shareTitle = "$domain | 未找到或保留";
+        $shareDescription = "未找到域名 '$domain' 的信息，或该域名已被注册局保留。";
+    } elseif ($parser->registered) {
+        $shareTitle = "$domain | 已注册";
+        $descriptionParts = [
+            "域名 '$domain' 已被注册。",
+            $parser->registrar ? "注册商: " . $parser->registrar : null,
+            $parser->creationDate ? "注册日期: " . $parser->creationDate : null,
+            $parser->expirationDate ? "到期日期: " . $parser->expirationDate : null
+        ];
+        $shareDescription = implode(" | ", array_filter($descriptionParts));
+    } else { // 域名未注册
+        $shareTitle = "$domain | 可注册";
+        $shareDescription = "域名 '$domain' 未被注册，可以尝试去注册。";
+        // 针对未注册域名可以换一个更吸引人的图片
+        $shareImage = BASE . "public/images/available_domain.png"; 
+    }
+} else {
+    $shareTitle = SITE_TITLE;
+    $shareDescription = SITE_DESCRIPTION;
+}
 ?>
 
 <!DOCTYPE html>
@@ -206,6 +237,18 @@ if ($_SERVER["QUERY_STRING"] ?? "") {
   <meta name="theme-color" content="#e1f9f9">
   <meta name="description" content="<?= SITE_DESCRIPTION ?>">
   <meta name="keywords" content="<?= SITE_KEYWORDS ?>">
+  
+  <meta property="og:title" content="<?= htmlspecialchars($shareTitle, ENT_QUOTES, 'UTF-8'); ?>">
+  <meta property="og:description" content="<?= htmlspecialchars($shareDescription, ENT_QUOTES, 'UTF-8'); ?>">
+  <meta property="og:image" content="<?= htmlspecialchars($shareImage, ENT_QUOTES, 'UTF-8'); ?>">
+  <meta property="og:url" content="<?= htmlspecialchars($currentUrl, ENT_QUOTES, 'UTF-8'); ?>">
+  <meta property="og:type" content="website">
+
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="<?= htmlspecialchars($shareTitle, ENT_QUOTES, 'UTF-8'); ?>">
+  <meta name="twitter:description" content="<?= htmlspecialchars($shareDescription, ENT_QUOTES, 'UTF-8'); ?>">
+  <meta name="twitter:image" content="<?= htmlspecialchars($shareImage, ENT_QUOTES, 'UTF-8'); ?>">
+  
   <link rel="shortcut icon" href="public/favicon.ico">
   <link rel="icon" href="public/images/favicon.svg" type="image/svg+xml">
   <link rel="apple-touch-icon" href="public/images/apple-icon-180.png">
