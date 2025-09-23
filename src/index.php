@@ -567,7 +567,16 @@ if ($_SERVER["QUERY_STRING"] ?? "") {
         margin: 0;
     }
 
-    /* 新增的CSS样式 */
+    /* 新增的CSS样式 - 隐藏已注册状态的黑色背景框 */
+    .domain-info-box.registered-status {
+        display: none;
+    }
+
+    /* 保留其他状态的黑色背景框 */
+    .domain-info-box:not(.registered-status) {
+        display: block;
+    }
+
     .domain-info-box {
         background-color: #fff;
         border: 2px solid #000;
@@ -647,11 +656,6 @@ if ($_SERVER["QUERY_STRING"] ?? "") {
         .domain-status-message {
             margin-top: 8px; /* 在移动端，如果换行，增加一些上边距 */
         }
-    }
-
-    /* 确保 RDAP 默认隐藏 */
-    .raw-data-rdap {
-        display: none;
     }
   </style>
 </head>
@@ -753,22 +757,28 @@ if ($_SERVER["QUERY_STRING"] ?? "") {
         $resultMessage = null;
         if ($domain) {
             if ($error) {
-                $resultMessage = "这个域名无效。";
+                $resultMessage = "😂查询的这个域名是无效的哦。";
             } elseif ($parser->unknown) {
-                $resultMessage = "未找到该域名的信息。";
+                $resultMessage = "🫣未找到该域名的信息。";
             } elseif ($parser->reserved) {
-                $resultMessage = "该域名已被保留。";
+                $resultMessage = "🤬该死的注册局，把这个域名保留了。";
             } elseif ($parser->registered) {
                 $resultMessage = "域名已注册。";
             } else {
-                $resultMessage = "该域名未被注册，可以注册。";
+                $resultMessage = "😁该域名未被注册，可以尝试去注册。";
             }
         }
       ?>
       <?php if ($domain && $resultMessage): ?>
-        <div class="domain-info-box">
-          <p><?= $resultMessage; ?></p>
-        </div>
+        <?php if ($parser->registered): ?>
+          <div class="domain-info-box registered-status">
+            <p><?= $resultMessage; ?></p>
+          </div>
+        <?php else: ?>
+          <div class="domain-info-box">
+            <p><?= $resultMessage; ?></p>
+          </div>
+        <?php endif; ?>
       <?php endif; ?>
     </div>
   </header>
@@ -784,6 +794,7 @@ if ($_SERVER["QUERY_STRING"] ?? "") {
                     <path d="m10.97 4.97-.02.022-3.473 4.425-2.093-2.094a.75.75 0 0 0-1.06 1.06L6.97 11.03a.75.75 0 0 0 1.079-.02l3.992-4.99a.75.75 0 0 0-1.071-1.05" />
                   </svg>
                   <a href="http://<?= htmlspecialchars($domain, ENT_QUOTES, 'UTF-8'); ?>" rel="nofollow noopener noreferrer" target="_blank"><?= htmlspecialchars($domain, ENT_QUOTES, 'UTF-8'); ?></a>
+                  <span class="domain-status-message">域名已注册</span>
               </h1>
               <?php if ($parser->registrar): ?>
                 <div class="message-label">
@@ -1001,12 +1012,12 @@ if ($_SERVER["QUERY_STRING"] ?? "") {
     <?php if ($whoisData || $rdapData): ?>
       <section class="raw-data">
         <?php if ($whoisData): ?>
-          <div class="raw-data-container" id="raw-data-whois-container">
+          <div class="raw-data-container">
             <pre class="raw-data-whois" id="raw-data-whois" tabindex="0"><?= htmlspecialchars($whoisData, ENT_QUOTES, 'UTF-8'); ?></pre>
           </div>
         <?php endif; ?>
         <?php if ($rdapData): ?>
-          <div class="raw-data-container" id="raw-data-rdap-container" style="display: none;">
+          <div class="raw-data-container">
             <pre class="raw-data-rdap" id="raw-data-rdap"><code class="language-json"><?= htmlspecialchars($rdapData, ENT_QUOTES, 'UTF-8'); ?></code></pre>
           </div>
         <?php endif; ?>
@@ -1241,18 +1252,18 @@ if ($_SERVER["QUERY_STRING"] ?? "") {
 
         const dataSourceWHOIS = document.getElementById("data-source-whois");
         const dataSourceRDAP = document.getElementById("data-source-rdap");
-        const rawDataWHOISContainer = document.getElementById("raw-data-whois-container");
-        const rawDataRDAPContainer = document.getElementById("raw-data-rdap-container");
+        const rawDataWHOIS = document.getElementById("raw-data-whois");
+        const rawDataRDAP = document.getElementById("raw-data-rdap");
 
-        if (dataSourceWHOIS && dataSourceRDAP && rawDataWHOISContainer && rawDataRDAPContainer) {
+        if (dataSourceWHOIS && dataSourceRDAP && rawDataWHOIS && rawDataRDAP) {
           dataSourceWHOIS.addEventListener("click", () => {
             if (dataSourceWHOIS.classList.contains("segmented-item-selected")) {
               return;
             }
             dataSourceWHOIS.classList.add("segmented-item-selected");
             dataSourceRDAP.classList.remove("segmented-item-selected");
-            rawDataWHOISContainer.style.display = "block";
-            rawDataRDAPContainer.style.display = "none";
+            rawDataWHOIS.style.display = "block";
+            rawDataRDAP.style.display = "none";
           });
 
           dataSourceRDAP.addEventListener("click", () => {
@@ -1261,8 +1272,8 @@ if ($_SERVER["QUERY_STRING"] ?? "") {
             }
             dataSourceWHOIS.classList.remove("segmented-item-selected");
             dataSourceRDAP.classList.add("segmented-item-selected");
-            rawDataWHOISContainer.style.display = "none";
-            rawDataRDAPContainer.style.display = "block";
+            rawDataWHOIS.style.display = "none";
+            rawDataRDAP.style.display = "block";
           });
         }
 
@@ -1278,8 +1289,6 @@ if ($_SERVER["QUERY_STRING"] ?? "") {
           }
         }
 
-        const rawDataWHOIS = document.getElementById("raw-data-whois");
-        const rawDataRDAP = document.getElementById("raw-data-rdap");
         if (rawDataWHOIS) linkifyRawData(rawDataWHOIS);
         if (rawDataRDAP) linkifyRawData(rawDataRDAP);
       });
