@@ -567,7 +567,16 @@ if ($_SERVER["QUERY_STRING"] ?? "") {
         margin: 0;
     }
 
-    /* 新增的CSS样式 */
+    /* 新增的CSS样式 - 隐藏已注册状态的黑色背景框 */
+    .domain-info-box.registered-status {
+        display: none;
+    }
+
+    /* 保留其他状态的黑色背景框 */
+    .domain-info-box:not(.registered-status) {
+        display: block;
+    }
+
     .domain-info-box {
         background-color: #fff;
         border: 2px solid #000;
@@ -748,22 +757,28 @@ if ($_SERVER["QUERY_STRING"] ?? "") {
         $resultMessage = null;
         if ($domain) {
             if ($error) {
-                $resultMessage = "这个域名无效。";
+                $resultMessage = "😂查询的这个域名是无效的哦。";
             } elseif ($parser->unknown) {
-                $resultMessage = "未找到该域名的信息。";
+                $resultMessage = "🫣未找到该域名的信息。";
             } elseif ($parser->reserved) {
-                $resultMessage = "该域名已被保留。";
+                $resultMessage = "🤬该死的注册局，把这个域名保留了。";
             } elseif ($parser->registered) {
                 $resultMessage = "域名已注册。";
             } else {
-                $resultMessage = "该域名未被注册，可以注册。";
+                $resultMessage = "😁该域名未被注册，可以尝试去注册。";
             }
         }
       ?>
       <?php if ($domain && $resultMessage): ?>
-        <div class="domain-info-box">
-          <p><?= $resultMessage; ?></p>
-        </div>
+        <?php if ($parser->registered): ?>
+          <div class="domain-info-box registered-status">
+            <p><?= $resultMessage; ?></p>
+          </div>
+        <?php else: ?>
+          <div class="domain-info-box">
+            <p><?= $resultMessage; ?></p>
+          </div>
+        <?php endif; ?>
       <?php endif; ?>
     </div>
   </header>
