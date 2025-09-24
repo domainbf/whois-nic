@@ -121,7 +121,7 @@
         </div>
         
         <div class="host-info">
-            Domain List:  <a href="https://www.hello.sn/domain" rel="noopener" target="_blank"><img src="public/images/logo.png" alt="Logo" style="vertical-align: middle; width: 24px; height: 24px;"> Click to view</a>
+            域名列表： <a href="https://www.hello.sn/domain" rel="noopener" target="_blank"><img src="public/images/logo.png" alt="Logo" style="vertical-align: middle; width: 24px; height: 24px;"> 点击查看</a>
         </div>
         
         <div class="copyright">
