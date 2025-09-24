@@ -332,10 +332,12 @@ if ($domain) {
     .search-box:focus-within {
         border-color: #007bff !important; /* 输入时边框颜色变化 */
         box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.25) !important; /* 输入时添加阴影 */
+        transform: scale(1.02); /* 输入时轻微放大 */
     }
 
     .search-box.has-input {
         background: #f8f9fa !important; /* 有输入时背景变化 */
+        border-color: #28a745 !important; /* 有输入时边框绿色 */
     }
 
     .search-box .input {
@@ -356,6 +358,11 @@ if ($domain) {
     .search-box .input::placeholder {
         color: #666 !important;
         opacity: 1 !important;
+        transition: opacity 0.3s ease;
+    }
+
+    .search-box:focus-within .input::placeholder {
+        opacity: 0.5; /* 焦点时 placeholder 淡化 */
     }
 
     .search-box .input:focus {
@@ -377,7 +384,7 @@ if ($domain) {
         justify-content: center !important;
         opacity: 0; /* 默认隐藏 */
         transform: scale(0.8); /* 默认缩小 */
-        transition: opacity 0.3s ease, transform 0.3s ease; /* 平滑显示 */
+        transition: opacity 0.3s ease, transform 0.3s ease, background 0.2s ease; /* 平滑显示 */
     }
 
     .search-box .search-clear.visible {
@@ -388,6 +395,7 @@ if ($domain) {
     .search-box .search-clear:hover {
         background: #e0e0e0 !important;
         border-color: #999 !important;
+        transform: scale(1.1); /* hover 放大 */
     }
 
     .search-box .search-clear svg {
@@ -401,11 +409,16 @@ if ($domain) {
         padding: 0 16px !important;
         white-space: nowrap !important;
         min-width: 80px !important;
-        transition: background-color 0.3s ease; /* 新增: 按钮过渡 */
+        transition: background-color 0.3s ease, transform 0.2s ease; /* 新增: 按钮过渡 */
     }
 
     .search-button:hover {
         background-color: #0056b3 !important; /*  hover 效果 */
+        transform: translateY(-2px); /* hover 轻微上移 */
+    }
+
+    .search-button:active {
+        transform: translateY(0); /* active 时恢复 */
     }
 
     /* 选项容器 */
@@ -733,6 +746,27 @@ if ($domain) {
             margin-top: 8px; /* 在移动端，如果换行，增加一些上边距 */
         }
     }
+
+    /* 新增域名状态标签样式 */
+    .message-tag-long-term {
+        background-color: #6f42c1; /* 紫色 for 长期注册 */
+        color: white;
+    }
+
+    .message-tag-veteran {
+        background-color: #fd7e14; /* 橙色 for 资深域名 */
+        color: white;
+    }
+
+    .message-tag-expiring-soon {
+        background-color: #ffc107; /* 黄色 for 即将过期 */
+        color: black;
+    }
+
+    .message-tag-expired {
+        background-color: #dc3545; /* 红色 for 已过期 */
+        color: white;
+    }
   </style>
 </head>
 
@@ -1056,15 +1090,21 @@ if ($domain) {
                   </button>
                 <?php endif; ?>
                 <?php if ($parser->ageSeconds && $parser->ageSeconds > 0 && $parser->ageSeconds < 60 * 24 * 60 * 60): ?>
-                  <span class="message-tag message-tag-green">新注册</span>
+                  <span class="message-tag message-tag-green">新注册 (0-60天)</span>
+                <?php endif; ?>
+                <?php if ($parser->ageSeconds && $parser->ageSeconds >= 60 * 24 * 60 * 60 && $parser->ageSeconds < 365 * 24 * 60 * 60 * 5): ?>
+                  <span class="message-tag message-tag-long-term">长期注册 (60天-5年)</span>
+                <?php endif; ?>
+                <?php if ($parser->ageSeconds && $parser->ageSeconds >= 365 * 24 * 60 * 60 * 5): ?>
+                  <span class="message-tag message-tag-veteran">资深域名 (5年以上)</span>
                 <?php endif; ?>
                 <?php if (($parser->remainingSeconds ?? -1) >= 0 && $parser->remainingSeconds < 7 * 24 * 60 * 60): ?>
-                  <span class="message-tag message-tag-yellow">即将过期</span>
+                  <span class="message-tag message-tag-expiring-soon">即将过期 (0-7天)</span>
                 <?php endif; ?>
                 <?php if ($parser->pendingDelete): ?>
                   <span class="message-tag message-tag-red">待删除</span>
                 <?php elseif ($parser->remainingSeconds < 0): ?>
-                  <span class="message-tag message-tag-red">已过期</span>
+                  <span class="message-tag message-tag-expired">已过期</span>
                 <?php endif; ?>
                 <?php if ($parser->gracePeriod): ?>
                   <span class="message-tag message-tag-yellow">宽限期</span>
