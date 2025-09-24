@@ -1178,9 +1178,7 @@ if ($domain) {
           if (years > 0) formatted.push(`${years}年`);
           if (months > 0) formatted.push(`${months}个月`);
           if (days > 0) formatted.push(`${days}天`);
-          if (hours > 0) formatted.push(`${hours}时`);
-          if (minutes > 0) formatted.push(`${minutes}分`);
-          if (seconds > 0) formatted.push(`${seconds}秒`);
+          
           return formatted.join("");
         }
 
