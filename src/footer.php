@@ -121,7 +121,7 @@
         </div>
         
         <div class="host-info">
-            Domain List:  <a href="https://www.hello.sn/domain" rel="noopener" target="_blank">Click to view</a>
+            Domain List:  <a href="https://www.hello.sn/domain" rel="noopener" target="_blank"><img src="public/images/logo.png" alt="Logo" style="vertical-align: middle; width: 24px; height: 24px;"> Click to view</a>
         </div>
         
         <div class="copyright">
