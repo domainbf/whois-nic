@@ -326,17 +326,6 @@ if ($domain) {
         height: 42px !important;
         flex: 1; /* 让搜索框占据可用空间 */
         max-width: 480px; /* 保持适中的长度 */
-        transition: all 0.3s ease; /* 新增: 平滑过渡效果 */
-    }
-
-    .search-box:focus-within {
-        border-color: #007bff !important; /* 输入时边框颜色变化 */
-        box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.25) !important; /* 输入时添加阴影 */
-    }
-
-    .search-box.has-input {
-        background: #f8f9fa !important; /* 有输入时背景变化 */
-        border-color: #28a745 !important; /* 有输入时边框绿色 */
     }
 
     .search-box .input {
@@ -351,7 +340,6 @@ if ($domain) {
         height: 36px !important;
         border-radius: 9999px !important;
         margin: 0 -2px !important;
-        transition: all 0.3s ease; /* 新增: 平滑过渡 */
     }
 
     .search-box .input::placeholder {
@@ -360,7 +348,7 @@ if ($domain) {
     }
 
     .search-box .input:focus {
-        color: #000 !important; /* 焦点时文字颜色加深 */
+        outline: none !important;
     }
 
     .search-box .search-clear {
@@ -376,14 +364,6 @@ if ($domain) {
         display: flex !important;
         align-items: center !important;
         justify-content: center !important;
-        opacity: 0; /* 默认隐藏 */
-        transform: scale(0.8); /* 默认缩小 */
-        transition: opacity 0.3s ease, transform 0.3s ease; /* 平滑显示 */
-    }
-
-    .search-box .search-clear.visible {
-        opacity: 1;
-        transform: scale(1);
     }
 
     .search-box .search-clear:hover {
@@ -584,15 +564,6 @@ if ($domain) {
         margin-bottom: 1rem;
         margin-top: 0;
     }
-    /* 核心修复：初始隐藏RDAP数据 */
-    .raw-data-rdap {
-        display: none;
-    }
-    /* 修复：当只有RDAP数据时显示 */
-    .raw-data-whois:only-child + .raw-data-rdap,
-    .raw-data-rdap:only-child {
-        display: block;
-    }
 
     /* 移动端优化 */
     @media (max-width: 768px) {
@@ -728,82 +699,6 @@ if ($domain) {
         .domain-status-message {
             margin-top: 8px; /* 在移动端，如果换行，增加一些上边距 */
         }
-    }
-
-    /* 新增域名状态标签样式 */
-    .message-tag {
-        padding: 4px 12px;
-        border-radius: 20px;
-        font-size: 0.8rem;
-        font-weight: bold;
-        white-space: nowrap;
-    }
-
-    .message-tag-new {
-        background-color: #28a745; /* 绿色 for 新注册 */
-        color: #fff;
-    }
-
-    .message-tag-active {
-        background-color: #17a2b8; /* 青色 for 活跃域名 */
-        color: #fff;
-    }
-
-    .message-tag-long-term {
-        background-color: #6f42c1; /* 紫色 for 长期注册 */
-        color: #fff;
-    }
-
-    .message-tag-veteran {
-        background-color: #fd7e14; /* 橙色 for 资深域名 */
-        color: #fff;
-    }
-
-    .message-tag-expiring-soon {
-        background-color: #ffc107; /* 黄色 for 即将过期 */
-        color: #000;
-    }
-
-    .message-tag-expired {
-        background-color: #dc3545; /* 红色 for 已过期 */
-        color: #fff;
-    }
-
-    .message-tag-pending-delete {
-        background-color: #6c757d; /* 灰色 for 待删除 */
-        color: #fff;
-    }
-
-    .message-tag-grace {
-        background-color: #ffc107; /* 黄色 for 宽限期 */
-        color: #000;
-    }
-
-    .message-tag-redemption {
-        background-color: #fd7e14; /* 橙色 for 赎回期 */
-        color: #fff;
-    }
-
-    .message-tag-premium {
-        background-color: #6f42c1; /* 紫色 for 溢价域名 */
-        color: #fff;
-    }
-
-    .message-tag-restricted {
-        background-color: #dc3545; /* 红色 for 限制注册 */
-        color: #fff;
-    }
-
-    .message-tag-client-hold {
-        background-color: #6c757d; /* 灰色 for 客户端持有 */
-        color: #fff;
-    }
-
-    .message-tags {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 8px;
-        margin-top: 1rem;
     }
   </style>
 </head>
@@ -1127,31 +1022,21 @@ if ($domain) {
                     <span>距离过期：<?= htmlspecialchars($parser->remaining, ENT_QUOTES, 'UTF-8'); ?></span>
                   </button>
                 <?php endif; ?>
-                <?php if ($parser->ageSeconds && $parser->ageSeconds > 0 && $parser->ageSeconds < 60 * 24 * 60 * 60): ?>
-                  <span class="message-tag message-tag-new">新注册</span>
-                <?php endif; ?>
-                <?php if ($parser->ageSeconds && $parser->ageSeconds >= 60 * 24 * 60 * 60 && $parser->ageSeconds < 365 * 24 * 60 * 60): ?>
-                  <span class="message-tag message-tag-active">活跃域名</span>
-                <?php endif; ?>
-                <?php if ($parser->ageSeconds && $parser->ageSeconds >= 365 * 24 * 60 * 60 && $parser->ageSeconds < 5 * 365 * 24 * 60 * 60): ?>
-                  <span class="message-tag message-tag-long-term">长期注册</span>
-                <?php endif; ?>
-                <?php if ($parser->ageSeconds && $parser->ageSeconds >= 5 * 365 * 24 * 60 * 60): ?>
-                  <span class="message-tag message-tag-veteran">资深域名</span>
+                <?php if ($parser->ageSeconds && $parser->ageSeconds < 7 * 24 * 60 * 60): ?>
+                  <span class="message-tag message-tag-green">新注册</span>
                 <?php endif; ?>
                 <?php if (($parser->remainingSeconds ?? -1) >= 0 && $parser->remainingSeconds < 7 * 24 * 60 * 60): ?>
-                  <span class="message-tag message-tag-expiring-soon">即将过期</span>
+                  <span class="message-tag message-tag-yellow">即将过期</span>
                 <?php endif; ?>
                 <?php if ($parser->pendingDelete): ?>
-                  <span class="message-tag message-tag-pending-delete">待删除</span>
+                  <span class="message-tag message-tag-red">待删除</span>
                 <?php elseif ($parser->remainingSeconds < 0): ?>
-                  <span class="message-tag message-tag-expired">已过期</span>
+                  <span class="message-tag message-tag-red">已过期</span>
                 <?php endif; ?>
                 <?php if ($parser->gracePeriod): ?>
-                  <span class="message-tag message-tag-grace">宽限期</span>
-                <?php endif; ?>
-                <?php if ($parser->redemptionPeriod): ?>
-                  <span class="message-tag message-tag-redemption">赎回期</span>
+                  <span class="message-tag message-tag-yellow">宽限期</span>
+                <?php elseif ($parser->redemptionPeriod): ?>
+                  <span class="message-tag message-tag-blue">赎回期</span>
                 <?php endif; ?>
               </div>
             <?php endif; ?>
@@ -1176,7 +1061,7 @@ if ($domain) {
         <?php endif; ?>
         <?php if ($rdapData): ?>
           <div class="raw-data-container">
-            <pre class="raw-data-rdap" id="raw-data-rdap" style="<?= $whoisData ? 'display: none;' : ''; ?>"><code class="language-json"><?= htmlspecialchars($rdapData, ENT_QUOTES, 'UTF-8'); ?></code></pre>
+            <pre class="raw-data-rdap" id="raw-data-rdap"><code class="language-json"><?= htmlspecialchars($rdapData, ENT_QUOTES, 'UTF-8'); ?></code></pre>
           </div>
         <?php endif; ?>
       </section>
@@ -1192,21 +1077,17 @@ if ($domain) {
     window.addEventListener("DOMContentLoaded", function() {
       const domainElement = document.getElementById("domain");
       const domainClearElement = document.getElementById("domain-clear");
-      const searchBox = document.querySelector(".search-box");
 
       if (domainElement && domainElement.value) {
         domainClearElement.classList.add("visible");
-        searchBox.classList.add("has-input");
       }
 
       if (domainElement) {
         domainElement.addEventListener("input", (e) => {
           if (e.target.value) {
             domainClearElement.classList.add("visible");
-            searchBox.classList.add("has-input");
           } else {
             domainClearElement.classList.remove("visible");
-            searchBox.classList.remove("has-input");
           }
         });
       }
@@ -1220,7 +1101,6 @@ if ($domain) {
               domainElement.setRangeText("");
             }
             domainClearElement.classList.remove("visible");
-            searchBox.classList.remove("has-input");
           }
         });
       }
