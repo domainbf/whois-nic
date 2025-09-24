@@ -564,6 +564,15 @@ if ($domain) {
         margin-bottom: 1rem;
         margin-top: 0;
     }
+    /* 核心修复：初始隐藏RDAP数据 */
+    .raw-data-rdap {
+        display: none;
+    }
+    /* 修复：当只有RDAP数据时显示 */
+    .raw-data-whois:only-child + .raw-data-rdap,
+    .raw-data-rdap:only-child {
+        display: block;
+    }
 
     /* 移动端优化 */
     @media (max-width: 768px) {
@@ -1061,7 +1070,7 @@ if ($domain) {
         <?php endif; ?>
         <?php if ($rdapData): ?>
           <div class="raw-data-container">
-            <pre class="raw-data-rdap" id="raw-data-rdap"><code class="language-json"><?= htmlspecialchars($rdapData, ENT_QUOTES, 'UTF-8'); ?></code></pre>
+            <pre class="raw-data-rdap" id="raw-data-rdap" style="<?= $whoisData ? 'display: none;' : ''; ?>"><code class="language-json"><?= htmlspecialchars($rdapData, ENT_QUOTES, 'UTF-8'); ?></code></pre>
           </div>
         <?php endif; ?>
       </section>
