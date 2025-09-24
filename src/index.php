@@ -713,7 +713,7 @@ if ($domain) {
           <?= SITE_TITLE ?>
         <?php endif; ?>
       </h1>
-      <form action="<?= BASE; ?>" id="form" method="get">
+      <form action="<?= BASE; ?>" id="form" method="get" onsubmit="return false;">
         <div class="search-and-button-container">
             <div class="search-box">
                 <input
