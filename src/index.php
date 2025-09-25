@@ -667,6 +667,34 @@ if ($domain) {
         word-break: normal; /* 恢复默认的单词换行，不强制在每个字符处断开 */
         text-align: left;
     }
+    
+    .domain-info-box.success {
+        background-color: #fff;
+        border: 2px solid #000;
+        border-radius: 10px;
+        padding: 8px 16px;
+        margin-top: 10px;
+        margin-bottom: 15px;
+        font-weight: bold;
+        font-size: 1.1em;
+        max-width: fit-content;
+        margin-left: auto;
+        margin-right: auto;
+        display: flex; /* 让内容在内部水平居中 */
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem; /* 调整域名和提示之间的间距 */
+    }
+    
+    .domain-info-box.success a {
+        text-decoration: none;
+        color: inherit;
+    }
+    
+    .domain-info-box.success p {
+        margin: 0;
+        text-align: center;
+    }
 
     .message-title a {
         flex-grow: 0; /* 不允许链接扩展 */
@@ -823,7 +851,7 @@ if ($domain) {
             }
         }
       ?>
-      <?php if ($domain && $resultMessage): ?>
+      <?php if ($domain && ($error || $parser->unknown || $parser->reserved || !$parser->registered)): ?>
         <div class="domain-info-box">
           <a href="http://<?= htmlspecialchars($domain, ENT_QUOTES, 'UTF-8'); ?>" rel="nofollow noopener noreferrer" target="_blank">
             <p style="margin-bottom: 5px; font-size: 1.2em;"><?= htmlspecialchars($domain, ENT_QUOTES, 'UTF-8'); ?></p>
@@ -834,6 +862,16 @@ if ($domain) {
     </div>
   </header>
   <main>
+    <?php if ($domain && $parser->registered): ?>
+        <section class="messages">
+            <div class="domain-info-box success">
+              <a href="http://<?= htmlspecialchars($domain, ENT_QUOTES, 'UTF-8'); ?>" rel="nofollow noopener noreferrer" target="_blank">
+                <p><?= htmlspecialchars($domain, ENT_QUOTES, 'UTF-8'); ?></p>
+              </a>
+              <p>域名已注册</p>
+            </div>
+        </section>
+    <?php endif; ?>
     <?php if ($parser->registered): ?>
       <section class="messages">
         <div>
@@ -845,7 +883,6 @@ if ($domain) {
                     <path d="m10.97 4.97-.02.022-3.473 4.425-2.093-2.094a.75.75 0 0 0-1.06 1.06L6.97 11.03a.75.75 0 0 0 1.079-.02l3.992-4.99a.75.75 0 0 0-1.071-1.05" />
                   </svg>
                   <a href="http://<?= htmlspecialchars($domain, ENT_QUOTES, 'UTF-8'); ?>" rel="nofollow noopener noreferrer" target="_blank"><?= htmlspecialchars($domain, ENT_QUOTES, 'UTF-8'); ?></a>
-                  <span class="domain-status-message">域名已注册</span>
               </h1>
               <?php if ($parser->registrar): ?>
                 <div class="message-label">
