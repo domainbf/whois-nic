@@ -564,7 +564,10 @@ if ($domain) {
         margin-bottom: 1rem;
         margin-top: 0;
     }
-
+      /* 默认隐藏 RDAP 数据 */
+    .raw-data-rdap {
+        display: none;
+    }
     /* 移动端优化 */
     @media (max-width: 768px) {
         .raw-data-whois,
