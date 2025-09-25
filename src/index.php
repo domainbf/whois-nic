@@ -139,7 +139,6 @@ $domain = cleanDomain($domain);
 
 $dataSource = [];
 $fetchPrices = false;
-$fetchBeiAn = false;
 $whoisData = null;
 $rdapData = null;
 $parser = new Parser("");
@@ -148,7 +147,6 @@ $error = null;
 if ($domain) {
   $dataSource = getDataSource();
   $fetchPrices = filter_var($_GET["prices"] ?? 0, FILTER_VALIDATE_BOOL);
-  $fetchBeiAn = filter_var($_GET["beian"] ?? 0, FILTER_VALIDATE_BOOL);
 
   try {
     $lookup = new Lookup($domain, $dataSource);
@@ -220,7 +218,7 @@ if ($domain) {
         $shareTitle = "$domain | 可注册";
         $shareDescription = "域名 '$domain' 未被注册，可以尝试去注册。";
         // 针对未注册域名可以换一个更吸引人的图片
-        $shareImage = BASE . "public/images/available_domain.png";
+        $shareImage = BASE . "public/images/available_domain.png"; 
     }
 } else {
     $shareTitle = SITE_TITLE;
@@ -239,7 +237,7 @@ if ($domain) {
   <meta name="theme-color" content="#e1f9f9">
   <meta name="description" content="<?= SITE_DESCRIPTION ?>">
   <meta name="keywords" content="<?= SITE_KEYWORDS ?>">
-
+  
   <meta property="og:title" content="<?= htmlspecialchars($shareTitle, ENT_QUOTES, 'UTF-8'); ?>">
   <meta property="og:description" content="<?= htmlspecialchars($shareDescription, ENT_QUOTES, 'UTF-8'); ?>">
   <meta property="og:image" content="<?= htmlspecialchars($shareImage, ENT_QUOTES, 'UTF-8'); ?>">
@@ -250,7 +248,7 @@ if ($domain) {
   <meta name="twitter:title" content="<?= htmlspecialchars($shareTitle, ENT_QUOTES, 'UTF-8'); ?>">
   <meta name="twitter:description" content="<?= htmlspecialchars($shareDescription, ENT_QUOTES, 'UTF-8'); ?>">
   <meta name="twitter:image" content="<?= htmlspecialchars($shareImage, ENT_QUOTES, 'UTF-8'); ?>">
-
+  
   <link rel="shortcut icon" href="public/favicon.ico">
   <link rel="icon" href="public/images/favicon.svg" type="image/svg+xml">
   <link rel="apple-touch-icon" href="public/images/apple-icon-180.png">
@@ -314,7 +312,8 @@ if ($domain) {
         display: flex;
         align-items: center;
         gap: 8px;
-        justify-content: center; /* 让搜索框和按钮居中 */
+        margin-bottom: 8px; /* 缩减与下方选项的间距 */
+        justify-content: center; /* 新增: 让搜索框和按钮居中 */
     }
 
     .search-box {
@@ -326,6 +325,7 @@ if ($domain) {
         align-items: center !important;
         height: 42px !important;
         flex: 1; /* 让搜索框占据可用空间 */
+        max-width: 480px; /* 保持适中的长度 */
     }
 
     .search-box .input {
@@ -390,16 +390,42 @@ if ($domain) {
         justify-content: center;
         gap: 16px;
         flex-wrap: wrap;
-        margin-top: 8px; /* 增加顶部间距 */
     }
-    
+
+    /* 新的CSS代码，用于修复超长域名换行问题 */
+    .message-data .message-title {
+        display: flex;
+        align-items: flex-start; /* 保持图标和多行文字的顶部对齐 */
+        gap: 0.5rem;
+        grid-column: 1 / -1;
+        margin-bottom: 1rem;
+        font-size: 1rem;
+        font-weight: 600;
+        color: #222;
+        text-align: left;
+        flex-wrap: wrap; /* 允许项目换行 */
+        max-width: 100%;
+        word-break: break-word; /* 允许在长单词内部换行 */
+    }
+
+    .message-title a {
+        flex-grow: 1; /* 允许链接扩展以占据可用空间 */
+        flex-shrink: 1; /* 允许链接收缩 */
+        min-width: 0;
+        /* 移除之前的单行截断属性，如 text-overflow 和 white-space */
+        word-break: break-all; /* 在任何地方都可断开，防止溢出 */
+        overflow-wrap: break-word; /* 兼容性更好 */
+    }
+
+
     /* 移动端优化 - 保持水平布局 */
     @media (max-width: 768px) {
         .search-and-button-container {
             flex-direction: row !important; /* 保持水平布局 */
             align-items: center !important;
             gap: 8px !important;
-            flex-wrap: wrap;
+            flex-wrap: wrap; /* 如果空间不够就换行 */
+            margin-bottom: 6px; /* 缩减移动端间距 */
         }
 
         .search-box {
@@ -421,6 +447,24 @@ if ($domain) {
             gap: 8px;
             justify-content: center; /* 保持居中 */
         }
+
+        .message-data .message-title {
+            font-size: 0.9rem;
+            gap: 0.25rem;
+            margin-bottom: 0.75rem;
+        }
+
+        .message-title a {
+            font-size: 0.9rem;
+            max-width: 85%;
+        }
+        
+        .domain-info-box {
+            /* 关键修改：在手机端居中显示 */
+            max-width: 90%;
+            margin-left: auto;
+            margin-right: auto;
+        }
     }
 
     @media (max-width: 480px) {
@@ -437,6 +481,223 @@ if ($domain) {
             min-width: 70px !important;
             font-size: 13px;
             padding: 0 10px;
+        }
+
+        .message-data .message-title {
+            font-size: 0.85rem;
+            gap: 0.2rem;
+        }
+
+        .message-title a {
+            font-size: 0.85rem;
+            max-width: 80%;
+        }
+    }
+
+    /* 调整标题内图标大小 */
+    .message-title .message-icon {
+        width: 1.2em;
+        height: 1.2em;
+        flex-shrink: 0;
+    }
+    
+    /* 恢复正常的grid布局，这是解决错位的核心 */
+    .message-data {
+        display: grid;
+        grid-template-columns: auto 1fr;
+        gap: 1rem 1.5rem;
+        margin-top: 1.5rem;
+    }
+
+    .checkbox-label {
+        display: flex;
+        align-items: center;
+        gap: 4px;
+    }
+    .checkbox-leading-icon {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 18px;
+        height: 18px;
+        margin-right: 2px;
+    }
+
+    .message-label {
+        display: flex;
+        align-items: center;
+        gap: 4px;
+    }
+    .message-icon-leading {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 1.2em;
+        height: 1.2em;
+    }
+
+    /* 移除背景和侧边栏 */
+    .message.message-positive {
+        background: transparent;
+        border: none;
+        box-shadow: none;
+        padding: 0;
+    }
+    .message.message-positive .message-data {
+        background: transparent;
+        box-shadow: none;
+        padding: 0;
+    }
+
+    /* 统一页面背景为白色，但已修改为方格 */
+    header, main {
+        background-color: transparent;
+    }
+
+    .raw-data-whois,
+    .raw-data-rdap {
+        background-color: #ffffff;
+        padding: 1.5rem;
+        border-radius: 12px;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        position: relative;
+        margin-bottom: 1rem;
+        margin-top: 0;
+    }
+
+    /* 移动端优化 */
+    @media (max-width: 768px) {
+        .raw-data-whois,
+        .raw-data-rdap {
+            padding: 1rem;
+        }
+    }
+
+    @media (max-width: 480px) {
+        .raw-data-whois,
+        .raw-data-rdap {
+            padding: 0.75rem;
+        }
+    }
+
+    .raw-data-container pre {
+        margin: 0 !important;
+        padding: 0 !important;
+        width: 100%;
+        box-sizing: border-box;
+    }
+
+    /* 新增的提示背景框样式 */
+    .result-summary {
+        display: flex;
+        justify-content: center;
+        margin-top: 1.5rem;
+        margin-bottom: 2rem;
+    }
+
+    .result-box {
+        background-color: #ffffff; /* 白色背景 */
+        padding: 1.5rem 2rem; /* 内边距 */
+        border-radius: 12px; /* 圆角 */
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06); /* 阴影 */
+        font-size: 1.1rem; /* 字体大小 */
+        font-weight: 600; /* 字体粗细 */
+        text-align: center; /* 文字居中 */
+        max-width: 800px; /* 最大宽度 */
+    }
+
+    .result-box p {
+        margin: 0;
+    }
+
+    /* 新增的CSS样式 - 隐藏已注册状态的黑色背景框 */
+    .domain-info-box.registered-status {
+        display: none;
+    }
+
+    /* 保留其他状态的黑色背景框 */
+    .domain-info-box:not(.registered-status) {
+        display: block;
+    }
+
+    .domain-info-box {
+        background-color: #fff;
+        border: 2px solid #000;
+        border-radius: 10px;
+        padding: 8px 16px; /* 缩减垂直内边距 */
+        margin-top: 10px; /* 缩减顶部外边距 */
+        margin-bottom: 15px; /* 缩减底部外边距 */
+        font-weight: bold;
+        font-size: 1.1em;
+        max-width: fit-content; /* 关键修改：边框只包住内容 */
+        margin-left: auto; /* 关键修改：居中 */
+        margin-right: auto; /* 关键修改：居中 */
+    }
+
+    .domain-info-box p {
+        margin: 0;
+        text-align: center; /* 确保文字在盒子内居中 */
+    }
+
+    /* --- 新增或修改的CSS --- */
+    /* 将.message-title改为flex布局，并调整子元素的对齐方式
+       以实现 "图标 + 域名 + 结果" 的横向排列
+    */
+    /* 移除 display: block; 恢复 grid 布局 */
+    /* .message-data {
+        display: block;
+    } */
+
+    .message-data .message-title {
+        display: flex; /* 使用flexbox布局 */
+        align-items: center; /* 垂直居中对齐 */
+        gap: 0.75rem; /* 增加图标和域名之间的间距 */
+        margin-bottom: 1rem;
+        font-size: 1.2rem; /* 调整字体大小 */
+        font-weight: 600;
+        color: #222;
+        flex-wrap: nowrap; /* 不换行，保持单行显示 */
+        max-width: 100%;
+        word-break: normal; /* 恢复默认的单词换行，不强制在每个字符处断开 */
+        text-align: left;
+    }
+
+    .message-title a {
+        flex-grow: 0; /* 不允许链接扩展 */
+        flex-shrink: 1; /* 允许收缩 */
+        min-width: 0;
+        word-break: break-all;
+        overflow-wrap: break-word;
+        font-size: 1.5em; /* 调整域名字体大小 */
+    }
+
+    /* 新增的样式：用于包裹结果提示信息 */
+    .domain-status-message {
+        background-color: #28a745;
+        color: #fff;
+        padding: 4px 12px;
+        border-radius: 20px;
+        font-size: 0.8rem;
+        font-weight: bold;
+        white-space: nowrap; /* 确保文字不换行 */
+        flex-shrink: 0; /* 防止该元素被压缩 */
+    }
+
+    /* 移动端优化 */
+    @media (max-width: 768px) {
+        .message-data .message-title {
+            flex-wrap: wrap; /* 在移动端允许换行 */
+            gap: 0.5rem;
+            font-size: 1rem;
+        }
+
+        .message-title a {
+            font-size: 1.2em; /* 移动端域名字体大小 */
+            flex-grow: 1; /* 允许在移动端扩展 */
+        }
+
+        .domain-status-message {
+            margin-top: 8px; /* 在移动端，如果换行，增加一些上边距 */
         }
     }
   </style>
@@ -526,23 +787,6 @@ if ($domain) {
                 </svg>
               </span>
               价格
-            </label>
-            <div class="checkbox-icon-wrapper">
-              <svg class="checkbox-icon checkbox-icon-checkmark" width="50" height="39.69" viewBox="0 0 50 39.69" aria-hidden="true">
-                <path d="M43.68 0L16.74 27.051 6.319 16.63l-6.32 6.32 16.742 16.74L50 6.32z" />
-              </svg>
-            </div>
-          </div>
-          <div class="checkbox">
-            <input <?= $fetchBeiAn ? "checked" : "" ?> class="checkbox-trigger" id="checkbox-beian" name="beian" type="checkbox" value="1">
-            <label class="checkbox-label" for="checkbox-beian">
-              <span class="checkbox-leading-icon">
-                <svg width="18" height="18" viewBox="0 0 18 18" aria-hidden="true">
-                  <circle cx="9" cy="9" r="9" fill="#222"/>
-                  <text x="9" y="13" text-anchor="middle" fill="#fff" font-size="12" font-family="Arial" font-weight="bold">备</text>
-                </svg>
-              </span>
-              备案
             </label>
             <div class="checkbox-icon-wrapper">
               <svg class="checkbox-icon checkbox-icon-checkmark" width="50" height="39.69" viewBox="0 0 50 39.69" aria-hidden="true">
@@ -759,11 +1003,6 @@ if ($domain) {
                 <div class="skeleton"></div>
               </div>
             <?php endif; ?>
-            <?php if ($fetchBeiAn): ?>
-              <div class="message-beian" id="message-beian">
-                <div class="skeleton"></div>
-              </div>
-            <?php endif; ?>
             <?php if ($parser->age || $parser->remaining || $parser->pendingDelete || $parser->gracePeriod || $parser->redemptionPeriod): ?>
               <div class="message-tags">
                 <?php if ($parser->age): ?>
@@ -783,17 +1022,11 @@ if ($domain) {
                     <span>距离过期：<?= htmlspecialchars($parser->remaining, ENT_QUOTES, 'UTF-8'); ?></span>
                   </button>
                 <?php endif; ?>
-                <?php if ($parser->ageSeconds && $parser->ageSeconds < 60 * 24 * 60 * 60): ?>
+                <?php if ($parser->ageSeconds && $parser->ageSeconds < 7 * 24 * 60 * 60): ?>
                   <span class="message-tag message-tag-green">新注册</span>
                 <?php endif; ?>
-                <?php if (($parser->remainingSeconds ?? -1) >= 0 && $parser->remainingSeconds < 30 * 24 * 60 * 60): ?>
+                <?php if (($parser->remainingSeconds ?? -1) >= 0 && $parser->remainingSeconds < 7 * 24 * 60 * 60): ?>
                   <span class="message-tag message-tag-yellow">即将过期</span>
-                <?php endif; ?>
-                <?php if (($parser->ageSeconds ?? 0) >= 10 * 365 * 24 * 60 * 60): ?>
-                  <span class="message-tag message-tag-red">古董域名</span>
-                <?php endif; ?>
-                <?php if (($parser->remainingSeconds ?? 0) >= 5 * 365 * 24 * 60 * 60): ?>
-                  <span class="message-tag message-tag-blue">长期持有</span>
                 <?php endif; ?>
                 <?php if ($parser->pendingDelete): ?>
                   <span class="message-tag message-tag-red">待删除</span>
@@ -872,7 +1105,7 @@ if ($domain) {
         });
       }
 
-      const checkboxNames = ["whois", "rdap", "prices", "beian"];
+      const checkboxNames = ["whois", "rdap", "prices"];
       <?php if ($domain): ?>
         checkboxNames.forEach((name) => {
           const checkbox = document.getElementById(`checkbox-${name}`);
@@ -887,7 +1120,7 @@ if ($domain) {
         checkboxNames.forEach((name) => {
           const checkbox = document.getElementById(`checkbox-${name}`);
           if (checkbox) {
-            if (!+whoisValue && !+rdapValue && name !== "prices" && name !== "beian") {
+            if (!+whoisValue && !+rdapValue && name !== "prices") {
               checkbox.checked = true;
             } else {
               checkbox.checked = localStorage.getItem(`checkbox-${name}`) === "1";
@@ -945,7 +1178,7 @@ if ($domain) {
           if (years > 0) formatted.push(`${years}年`);
           if (months > 0) formatted.push(`${months}个月`);
           if (days > 0) formatted.push(`${days}天`);
-
+          
           return formatted.join("");
         }
 
@@ -1114,10 +1347,7 @@ if ($domain) {
         const startTime = Date.now();
 
         try {
-          // 这里替换为你的备案API URL，例如 "https://your-api.com/beian?domain=<?= urlencode($domain); ?>"
-          // 后续只需填写API URL即可使用
-          const apiUrl = "https://api.tian.hu/whois.php?domain=<?= urlencode($domain); ?>&action=checkPrice";
-          const response = await fetch(apiUrl);
+          const response = await fetch("https://api.tian.hu/whois.php?domain=<?= urlencode($domain); ?>&action=checkPrice");
 
           if (!response.ok) {
             throw new Error();
@@ -1186,58 +1416,6 @@ if ($domain) {
         } catch {
           setTimeout(() => {
             messagePrice.innerHTML = `<span class="message-tag message-tag-pink">获取价格失败</span>`;
-          }, Math.max(0, 500 - (Date.now() - startTime)));
-        }
-      });
-    </script>
-  <?php endif; ?>
-  <?php if ($fetchBeiAn): ?>
-    <script>
-      window.addEventListener("DOMContentLoaded", async () => {
-        const messageBeiAn = document.getElementById("message-beian");
-
-        if (!messageBeiAn) {
-          return;
-        }
-
-        const startTime = Date.now();
-
-        try {
-          // 这里替换为你的备案API URL，例如 "https://your-api.com/beian?domain=<?= urlencode($domain); ?>"
-          // 后续只需填写API URL即可使用
-          const apiUrl = "https://your-beian-api.com/check?domain=<?= urlencode($domain); ?>"; // 请替换为实际API
-          const response = await fetch(apiUrl);
-
-          if (!response.ok) {
-            throw new Error();
-          }
-
-          const data = await response.json();
-
-          // 假设API返回格式为 { code: "200", data: { beian: "备案号或信息" } }，根据实际API调整
-          if (data.code !== "200") {
-            throw new Error();
-          }
-
-          let innerHTML = `
-            <button class="message-tag message-tag-gray" id="beian-info">
-              <span>备案: ${data.data.beian || "无备案信息"}</span>
-            </button>
-          `;
-
-          setTimeout(() => {
-            messageBeiAn.innerHTML = innerHTML;
-
-            if (typeof tippy !== 'undefined') {
-              tippy("#beian-info", {
-                content: "备案详情",
-                placement: "bottom"
-              });
-            }
-          }, Math.max(0, 500 - (Date.now() - startTime)));
-        } catch {
-          setTimeout(() => {
-            messageBeiAn.innerHTML = `<span class="message-tag message-tag-pink">获取备案失败</span>`;
           }, Math.max(0, 500 - (Date.now() - startTime)));
         }
       });
