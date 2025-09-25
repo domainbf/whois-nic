@@ -2,7 +2,7 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>NIC.BN - 域名查询与出售</title>
     <style>
         * {
@@ -18,51 +18,51 @@
             min-height: 100vh;
             display: flex;
             flex-direction: column;
-            padding: 20px;
+            padding: 10px; /* 手机端减少 padding */
         }
 
         .container {
             flex: 1;
-            max-width: 1000px;
-            margin: auto;
+            width: 100%;
             display: flex;
             align-items: center;
             justify-content: center;
-            padding: 40px 20px;
+            padding: 20px 10px; /* 手机端调整 padding */
         }
 
         .container h1 {
-            font-size: 3rem;
+            font-size: 2.5rem; /* 默认较小字体，适配手机 */
             color: #2d3748;
             font-weight: 700;
+            text-align: center;
         }
         
         .footer {
             background: transparent;
-            margin-top: auto;
+            width: 100%;
             text-align: center;
         }
         
         .announcement-container {
             text-align: center;
-            margin-bottom: 20px;
-            max-width: 100%;
+            margin-bottom: 15px;
+            width: 100%;
             overflow: hidden;
         }
         
         .announcement-box {
-            padding: 10px;
-            min-height: 40px;
+            padding: 8px;
+            min-height: 35px;
             display: flex;
             align-items: center;
             justify-content: center;
             margin: 0 auto;
-            max-width: 100%;
+            width: 100%;
         }
         
         .announcement {
-            font-size: 1rem;
-            line-height: 1.5;
+            font-size: 0.9rem; /* 手机端字体稍小 */
+            line-height: 1.4;
             opacity: 0;
             position: absolute;
             width: 90%;
@@ -76,31 +76,48 @@
         }
         
         .host-info {
-            padding: 15px;
-            font-size: 1rem;
+            padding: 10px;
+            font-size: 0.9rem;
             color: #718096;
-            margin-bottom: 15px;
+            margin-bottom: 10px;
+            text-align: center;
         }
         
         .host-info a img {
             vertical-align: middle;
-            width: 500px; /* 调整宽度 */
-            height: 100px; /* 调整高度 */
+            max-width: 100%; /* 完全自适应 */
+            height: auto;
+            max-height: 80px; /* 限制最大高度，防止过大 */
         }
 
         .copyright {
-            padding: 10px;
-            font-size: 0.9rem;
+            padding: 8px;
+            font-size: 0.8rem;
             color: #718096;
         }
         
-        @media (max-width: 768px) {
-            .container h1 {
-                font-size: 2.5rem;
+        @media (min-width: 769px) {
+            .container {
+                max-width: 1000px;
+                padding: 40px 20px;
             }
-            .host-info a img {
-                width: 75px; /* 响应式调整宽度 */
-                height: 75px; /* 响应式调整高度 */
+            .container h1 {
+                font-size: 3rem;
+            }
+            .announcement-box {
+                padding: 10px;
+                min-height: 40px;
+            }
+            .announcement {
+                font-size: 1rem;
+            }
+            .host-info {
+                padding: 15px;
+                font-size: 1rem;
+            }
+            .copyright {
+                padding: 10px;
+                font-size: 0.9rem;
             }
         }
     </style>
