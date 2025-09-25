@@ -1368,7 +1368,10 @@ if ($domain) {
         const startTime = Date.now();
 
         try {
-          const response = await fetch("https://api.tian.hu/whois.php?domain=<?= urlencode($domain); ?>&action=checkPrice");
+          // 这里替换为你的备案API URL，例如 "https://your-api.com/beian?domain=<?= urlencode($domain); ?>"
+          // 后续只需填写API URL即可使用
+          const apiUrl = "https://api.tian.hu/whois.php?domain=<?= urlencode($domain); ?>&action=checkPrice";
+          const response = await fetch(apiUrl);
 
           if (!response.ok) {
             throw new Error();
