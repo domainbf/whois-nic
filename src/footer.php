@@ -85,9 +85,9 @@
         
         .host-info a img {
             vertical-align: middle;
-            max-width: 100%; /* 完全自适应 */
+            max-width: 80%; /* 完全自适应 */
             height: auto;
-            max-height: 80px; /* 限制最大高度，防止过大 */
+            max-height: 60px; /* 限制最大高度，防止过大 */
         }
 
         .copyright {
