@@ -391,7 +391,7 @@ if ($domain) {
         display: flex;
         justify-content: center;
         gap: 16px;
-        flex-wrap: wrap;
+        flex-wrap: nowrap; /* 关键：强制不换行 */
     }
 
     /* 新的CSS代码，用于修复超长域名换行问题 */
@@ -443,7 +443,8 @@ if ($domain) {
             font-size: 14px; /* 稍微小一点 */
             padding: 0 12px; /* 稍微小一点内边距 */
         }
-
+        
+        /* 关键：在移动端，将checkboxes的间距改小 */
         .checkboxes {
             margin-top: 8px;
             gap: 8px;
