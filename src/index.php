@@ -793,10 +793,10 @@ if ($domain) {
               <span class="checkbox-leading-icon">
                 <svg width="18" height="18" viewBox="0 0 18 18" aria-hidden="true">
                   <circle cx="9" cy="9" r="9" fill="#222"/>
-                  <text x="9" y="13" text-anchor="middle" fill="#fff" font-size="12" font-family="Arial" font-weight="bold">备</text>
+                  <text x="9" y="13" text-anchor="middle" fill="#fff" font-size="12" font-family="Arial" font-weight="bold">备案</text>
                 </svg>
               </span>
-              备案
+              
             </label>
             <div class="checkbox-icon-wrapper">
               <svg class="checkbox-icon checkbox-icon-checkmark" width="50" height="39.69" viewBox="0 0 50 39.69" aria-hidden="true">
