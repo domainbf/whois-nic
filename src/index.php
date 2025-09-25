@@ -1025,111 +1025,111 @@ if ($domain) {
                     <span>距离过期：<?= htmlspecialchars($parser->remaining, ENT_QUOTES, 'UTF-8'); ?></span>
                   </button>
                 <?php endif; ?>
-                            <?php if ($parser->ageSeconds && $parser->ageSeconds < 60 * 24 * 60 * 60): ?>
-              <span class="message-tag message-tag-green">新注册</span>
+                <?php if ($parser->ageSeconds && $parser->ageSeconds < 60 * 24 * 60 * 60): ?>
+                  <span class="message-tag message-tag-green">新注册</span>
+                <?php endif; ?>
+                <?php if ($parser->remainingSeconds && $parser->remainingSeconds < 60 * 24 * 60 * 60): ?>
+                  <span class="message-tag message-tag-yellow">即将到期</span>
+                <?php endif; ?>
+                <?php if ($parser->remainingSeconds && $parser->remainingSeconds >= 7 * 24 * 60 * 60 && $parser->remainingSeconds < 30 * 24 * 60 * 60): ?>
+                  <span class="message-tag message-tag-yellow">即将续费</span>
+                <?php endif; ?>
+                <?php if ($parser->remainingSeconds && $parser->remainingSeconds >= 5 * 365 * 24 * 60 * 60): ?>
+                  <span class="message-tag message-tag-green">长期持有</span>
+                <?php endif; ?>
+                <?php if ($parser->remainingSeconds < 0): ?>
+                  <span class="message-tag message-tag-red">已过期</span>
+                <?php endif; ?>
+                <?php if ($parser->redemptionPeriod): ?>
+                  <span class="message-tag message-tag-blue">赎回期</span>
+                <?php endif; ?>
+                <?php if ($parser->pendingDelete): ?>
+                  <span class="message-tag message-tag-red">待删除</span>
+                <?php endif; ?>
+                <?php if ($parser->status && (is_array($parser->status) ? in_array('pendingverification', array_map('strtolower', $parser->status)) : strpos(strtolower($parser->status), 'pendingverification') !== false)): ?>
+                  <span class="message-tag message-tag-yellow">待验证</span>
+                <?php endif; ?>
+                <?php if ($parser->status && (is_array($parser->status) ? in_array('active', array_map('strtolower', $parser->status)) || in_array('ok', array_map('strtolower', $parser->status)) : in_array(strtolower($parser->status), ['active', 'ok']))): ?>
+                  <span class="message-tag message-tag-green">活跃状态</span>
+                <?php endif; ?>
+                <?php if ($parser->status && (is_array($parser->status) ? in_array('clienthold', array_map('strtolower', $parser->status)) || in_array('serverhold', array_map('strtolower', $parser->status)) : strpos(strtolower($parser->status), 'clienthold') !== false || strpos(strtolower($parser->status), 'serverhold') !== false)): ?>
+                  <span class="message-tag message-tag-red">暂停使用</span>
+                <?php endif; ?>
+                <?php if ($parser->status && (is_array($parser->status) ? in_array('pendingtransfer', array_map('strtolower', $parser->status)) : strpos(strtolower($parser->status), 'pendingtransfer') !== false)): ?>
+                  <span class="message-tag message-tag-yellow">待转移</span>
+                <?php endif; ?>
+                <?php if ($parser->updatedDateISO8601 && (time() - strtotime($parser->updatedDateISO8601) < 30 * 24 * 60 * 60)): ?>
+                  <span class="message-tag message-tag-yellow">近期已转移</span>
+                <?php endif; ?>
+                <?php if ($parser->updatedDateISO8601 && (time() - strtotime($parser->updatedDateISO8601) < 90 * 24 * 60 * 60)): ?>
+                  <span class="message-tag message-tag-orange">疑似过户</span>
+                <?php endif; ?>
+                <?php if ($parser->status && (is_array($parser->status) ? in_array('clienttransferprohibited', array_map('strtolower', $parser->status)) || in_array('servertransferprohibited', array_map('strtolower', $parser->status)) : strpos(strtolower($parser->status), 'clienttransferprohibited') !== false || strpos(strtolower($parser->status), 'servertransferprohibited') !== false)): ?>
+                  <span class="message-tag message-tag-red">锁定状态</span>
+                <?php endif; ?>
+                <?php if ($parser->status && (is_array($parser->status) ? in_array('clientupdateprohibited', array_map('strtolower', $parser->status)) || in_array('serverupdateprohibited', array_map('strtolower', $parser->status)) : strpos(strtolower($parser->status), 'clientupdateprohibited') !== false || strpos(strtolower($parser->status), 'serverupdateprohibited') !== false)): ?>
+                  <span class="message-tag message-tag-red">更新受限</span>
+                <?php endif; ?>
+                <?php if ($parser->status && (is_array($parser->status) ? in_array('clientrenewprohibited', array_map('strtolower', $parser->status)) || in_array('serverrenewprohibited', array_map('strtolower', $parser->status)) : strpos(strtolower($parser->status), 'clientrenewprohibited') !== false || strpos(strtolower($parser->status), 'serverrenewprohibited') !== false)): ?>
+                  <span class="message-tag message-tag-red">续费受限</span>
+                <?php endif; ?>
+                <?php if ($parser->status && (is_array($parser->status) ? in_array('clientdeleteprohibited', array_map('strtolower', $parser->status)) || in_array('serverdeleteprohibited', array_map('strtolower', $parser->status)) : strpos(strtolower($parser->status), 'clientdeleteprohibited') !== false || strpos(strtolower($parser->status), 'serverdeleteprohibited') !== false)): ?>
+                  <span class="message-tag message-tag-red">删除受限</span>
+                <?php endif; ?>
+                <?php if ($parser->registrant && (strpos(strtolower($parser->registrant), 'privacy') !== false || strpos(strtolower($parser->registrant), 'whoisguard') !== false)): ?>
+                  <span class="message-tag message-tag-blue">隐私保护</span>
+                <?php endif; ?>
+                <?php if (strlen($parser->domain) <= 3): ?>
+                  <span class="message-tag message-tag-gold">超短域名</span>
+                <?php endif; ?>
+                <?php if (strlen($parser->domain) <= 10): ?>
+                  <span class="message-tag message-tag-teal">短域名</span>
+                <?php endif; ?>
+                <?php if (strlen($parser->domain) >= 20): ?>
+                  <span class="message-tag message-tag-blue">长域名</span>
+                <?php endif; ?>
+                <?php if (preg_match('/^[a-z0-9]\./i', $parser->domain)): ?>
+                  <span class="message-tag message-tag-purple">单字符</span>
+                <?php endif; ?>
+                <?php if (preg_match('/^[0-9]+$/', str_replace('.' . $parser->extension, '', $parser->domain))): ?>
+                  <span class="message-tag message-tag-orange">数字域名</span>
+                <?php endif; ?>
+                <?php if (preg_match('/^[a-z]+$/i', str_replace('.' . $parser->extension, '', $parser->domain))): ?>
+                  <span class="message-tag message-tag-blue">通用词域名</span>
+                <?php endif; ?>
+                <?php if (preg_match('/^[a-z]+$/i', str_replace('.' . $parser->extension, '', $parser->domain))): ?>
+                  <span class="message-tag message-tag-blue">英文单词域名</span>
+                <?php endif; ?>
+                <?php if (strpos($parser->domain, '-') !== false): ?>
+                  <span class="message-tag message-tag-orange">连字符域名</span>
+                <?php endif; ?>
+                <?php if (preg_match('/[^\x00-\x7F]/', $parser->domain)): ?>
+                  <span class="message-tag message-tag-purple">国际化域名</span>
+                <?php endif; ?>
+                <?php if ($parser->extension === 'com' && strlen($parser->domain) <= 5): ?>
+                  <span class="message-tag message-tag-gold">高价值</span>
+                <?php endif; ?>
+                <?php if ($parser->ageSeconds && $parser->ageSeconds >= 15 * 365 * 24 * 60 * 60): ?>
+                  <span class="message-tag message-tag-green">高龄域名</span>
+                <?php endif; ?>
+                <?php if ($parser->ageSeconds && $parser->ageSeconds >= 20 * 365 * 24 * 60 * 60): ?>
+                  <span class="message-tag message-tag-green">历史悠久</span>
+                <?php endif; ?>
+                <?php if (in_array($parser->extension, ['com', 'net', 'org', 'co'])): ?>
+                  <span class="message-tag message-tag-blue">优质 TLD</span>
+                <?php endif; ?>
+                <?php if (in_array($parser->extension, ['io', 'ai', 'app'])): ?>
+                  <span class="message-tag message-tag-blue">新兴 TLD</span>
+                <?php endif; ?>
+                <?php if ($parser->registrar && in_array(strtolower($parser->registrar), ['godaddy', 'namecheap', 'google'])): ?>
+                  <span class="message-tag message-tag-purple">知名注册商</span>
+                <?php endif; ?>
+                <?php if (preg_match('/\b(apple|google|amazon|facebook|microsoft)\b/i', str_replace('.' . $parser->extension, '', $parser->domain))): ?>
+                  <span class="message-tag message-tag-purple">品牌相关</span>
+                <?php endif; ?>
+                <!-- 黑名单标签需要外部查询，暂未实现 -->
+              </div>
             <?php endif; ?>
-            <?php if ($parser->remainingSeconds && $parser->remainingSeconds < 60 * 24 * 60 * 60): ?>
-              <span class="message-tag message-tag-yellow">即将到期</span>
-            <?php endif; ?>
-            <?php if ($parser->remainingSeconds && $parser->remainingSeconds >= 7 * 24 * 60 * 60 && $parser->remainingSeconds < 30 * 24 * 60 * 60): ?>
-              <span class="message-tag message-tag-yellow">即将续费</span>
-            <?php endif; ?>
-            <?php if ($parser->remainingSeconds && $parser->remainingSeconds >= 5 * 365 * 24 * 60 * 60): ?>
-              <span class="message-tag message-tag-green">长期持有</span>
-            <?php endif; ?>
-            <?php if ($parser->remainingSeconds < 0): ?>
-              <span class="message-tag message-tag-red">已过期</span>
-            <?php endif; ?>
-            <?php if ($parser->redemptionPeriod): ?>
-              <span class="message-tag message-tag-blue">赎回期</span>
-            <?php endif; ?>
-            <?php if ($parser->pendingDelete): ?>
-              <span class="message-tag message-tag-red">待删除</span>
-            <?php endif; ?>
-            <?php if ($parser->status && strpos(strtolower($parser->status), 'pendingverification') !== false): ?>
-              <span class="message-tag message-tag-yellow">待验证</span>
-            <?php endif; ?>
-            <?php if ($parser->status && in_array(strtolower($parser->status), ['active', 'ok'])): ?>
-              <span class="message-tag message-tag-green">活跃状态</span>
-            <?php endif; ?>
-            <?php if ($parser->status && (strpos(strtolower($parser->status), 'clienthold') !== false || strpos(strtolower($parser->status), 'serverhold') !== false)): ?>
-              <span class="message-tag message-tag-red">暂停使用</span>
-            <?php endif; ?>
-            <?php if ($parser->status && strpos(strtolower($parser->status), 'pendingtransfer') !== false): ?>
-              <span class="message-tag message-tag-yellow">待转移</span>
-            <?php endif; ?>
-            <?php if ($parser->updatedDateISO8601 && (time() - strtotime($parser->updatedDateISO8601) < 30 * 24 * 60 * 60)): ?>
-              <span class="message-tag message-tag-yellow">近期已转移</span>
-            <?php endif; ?>
-            <?php if ($parser->updatedDateISO8601 && (time() - strtotime($parser->updatedDateISO8601) < 90 * 24 * 60 * 60)): ?>
-              <span class="message-tag message-tag-orange">疑似过户</span>
-            <?php endif; ?>
-            <?php if ($parser->status && (strpos(strtolower($parser->status), 'clienttransferprohibited') !== false || strpos(strtolower($parser->status), 'servertransferprohibited') !== false)): ?>
-              <span class="message-tag message-tag-red">锁定状态</span>
-            <?php endif; ?>
-            <?php if ($parser->status && (strpos(strtolower($parser->status), 'clientupdateprohibited') !== false || strpos(strtolower($parser->status), 'serverupdateprohibited') !== false)): ?>
-              <span class="message-tag message-tag-red">更新受限</span>
-            <?php endif; ?>
-            <?php if ($parser->status && (strpos(strtolower($parser->status), 'clientrenewprohibited') !== false || strpos(strtolower($parser->status), 'serverrenewprohibited') !== false)): ?>
-              <span class="message-tag message-tag-red">续费受限</span>
-            <?php endif; ?>
-            <?php if ($parser->status && (strpos(strtolower($parser->status), 'clientdeleteprohibited') !== false || strpos(strtolower($parser->status), 'serverdeleteprohibited') !== false)): ?>
-              <span class="message-tag message-tag-red">删除受限</span>
-            <?php endif; ?>
-            <?php if ($parser->registrant && (strpos(strtolower($parser->registrant), 'privacy') !== false || strpos(strtolower($parser->registrant), 'whoisguard') !== false)): ?>
-              <span class="message-tag message-tag-blue">隐私保护</span>
-            <?php endif; ?>
-            <?php if (strlen($parser->domain) <= 3): ?>
-              <span class="message-tag message-tag-gold">超短域名</span>
-            <?php endif; ?>
-            <?php if (strlen($parser->domain) <= 10): ?>
-              <span class="message-tag message-tag-teal">短域名</span>
-            <?php endif; ?>
-            <?php if (strlen($parser->domain) >= 20): ?>
-              <span class="message-tag message-tag-blue">长域名</span>
-            <?php endif; ?>
-            <?php if (preg_match('/^[a-z0-9]\./i', $parser->domain)): ?>
-              <span class="message-tag message-tag-purple">单字符</span>
-            <?php endif; ?>
-            <?php if (preg_match('/^[0-9]+$/', str_replace('.' . $parser->extension, '', $parser->domain))): ?>
-              <span class="message-tag message-tag-orange">数字域名</span>
-            <?php endif; ?>
-            <?php if (preg_match('/^[a-z]+$/i', str_replace('.' . $parser->extension, '', $parser->domain))): ?>
-              <span class="message-tag message-tag-blue">通用词域名</span>
-            <?php endif; ?>
-            <?php if (preg_match('/^[a-z]+$/i', str_replace('.' . $parser->extension, '', $parser->domain))): ?>
-              <span class="message-tag message-tag-blue">英文单词域名</span>
-            <?php endif; ?>
-            <?php if (strpos($parser->domain, '-') !== false): ?>
-              <span class="message-tag message-tag-orange">连字符域名</span>
-            <?php endif; ?>
-            <?php if (preg_match('/[^\x00-\x7F]/', $parser->domain)): ?>
-              <span class="message-tag message-tag-purple">国际化域名</span>
-            <?php endif; ?>
-            <?php if ($parser->extension === 'com' && strlen($parser->domain) <= 5): ?>
-              <span class="message-tag message-tag-gold">高价值</span>
-            <?php endif; ?>
-            <?php if ($parser->ageSeconds && $parser->ageSeconds >= 15 * 365 * 24 * 60 * 60): ?>
-              <span class="message-tag message-tag-green">高龄域名</span>
-            <?php endif; ?>
-            <?php if ($parser->ageSeconds && $parser->ageSeconds >= 20 * 365 * 24 * 60 * 60): ?>
-              <span class="message-tag message-tag-green">历史悠久</span>
-            <?php endif; ?>
-            <?php if (in_array($parser->extension, ['com', 'net', 'org', 'co'])): ?>
-              <span class="message-tag message-tag-blue">优质 TLD</span>
-            <?php endif; ?>
-            <?php if (in_array($parser->extension, ['io', 'ai', 'app'])): ?>
-              <span class="message-tag message-tag-blue">新兴 TLD</span>
-            <?php endif; ?>
-            <?php if ($parser->registrar && in_array(strtolower($parser->registrar), ['godaddy', 'namecheap', 'google'])): ?>
-              <span class="message-tag message-tag-purple">知名注册商</span>
-            <?php endif; ?>
-            <?php if (preg_match('/\b(apple|google|amazon|facebook|microsoft)\b/i', str_replace('.' . $parser->extension, '', $parser->domain))): ?>
-              <span class="message-tag message-tag-purple">品牌相关</span>
-            <?php endif; ?>
-            <!-- 黑名单标签需要外部查询，暂未实现 -->
-          </div>
-        <?php endif; ?>
           </div>
         </div>
       </section>
