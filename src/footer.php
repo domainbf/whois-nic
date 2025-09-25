@@ -82,14 +82,10 @@
             margin-bottom: 15px;
         }
         
-        .host-info a {
-            color: #3b82f6;
-            text-decoration: none;
-            font-weight: 500;
-        }
-        
-        .host-info a:hover {
-            text-decoration: underline;
+        .host-info a img {
+            vertical-align: middle;
+            width: 48px;
+            height: 48px;
         }
 
         .copyright {
@@ -101,6 +97,10 @@
         @media (max-width: 768px) {
             .container h1 {
                 font-size: 2.5rem;
+            }
+            .host-info a img {
+                width: 36px;
+                height: 36px;
             }
         }
     </style>
@@ -121,7 +121,7 @@
         </div>
         
         <div class="host-info">
-            域名列表： <a href="https://www.hello.sn/domain" rel="noopener" target="_blank"><img src="/images/logo.png" alt="Logo" style="vertical-align: middle; width: 24px; height: 24px;"> 点击查看</a>
+            <a href="https://www.hello.sn/domain" rel="noopener" target="_blank"><img src="/images/logo.png" alt="Logo"></a>
         </div>
         
         <div class="copyright">
