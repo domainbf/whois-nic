@@ -314,8 +314,7 @@ if ($domain) {
         display: flex;
         align-items: center;
         gap: 8px;
-        margin-bottom: 8px; /* 缩减与下方选项的间距 */
-        justify-content: center; /* 新增: 让搜索框和按钮居中 */
+        justify-content: center; /* 让搜索框和按钮居中 */
     }
 
     .search-box {
@@ -327,7 +326,6 @@ if ($domain) {
         align-items: center !important;
         height: 42px !important;
         flex: 1; /* 让搜索框占据可用空间 */
-        max-width: 480px; /* 保持适中的长度 */
     }
 
     .search-box .input {
@@ -392,42 +390,16 @@ if ($domain) {
         justify-content: center;
         gap: 16px;
         flex-wrap: wrap;
+        margin-top: 8px; /* 增加顶部间距 */
     }
-
-    /* 新的CSS代码，用于修复超长域名换行问题 */
-    .message-data .message-title {
-        display: flex;
-        align-items: flex-start; /* 保持图标和多行文字的顶部对齐 */
-        gap: 0.5rem;
-        grid-column: 1 / -1;
-        margin-bottom: 1rem;
-        font-size: 1rem;
-        font-weight: 600;
-        color: #222;
-        text-align: left;
-        flex-wrap: wrap; /* 允许项目换行 */
-        max-width: 100%;
-        word-break: break-word; /* 允许在长单词内部换行 */
-    }
-
-    .message-title a {
-        flex-grow: 1; /* 允许链接扩展以占据可用空间 */
-        flex-shrink: 1; /* 允许链接收缩 */
-        min-width: 0;
-        /* 移除之前的单行截断属性，如 text-overflow 和 white-space */
-        word-break: break-all; /* 在任何地方都可断开，防止溢出 */
-        overflow-wrap: break-word; /* 兼容性更好 */
-    }
-
-
+    
     /* 移动端优化 - 保持水平布局 */
     @media (max-width: 768px) {
         .search-and-button-container {
             flex-direction: row !important; /* 保持水平布局 */
             align-items: center !important;
             gap: 8px !important;
-            flex-wrap: wrap; /* 如果空间不够就换行 */
-            margin-bottom: 6px; /* 缩减移动端间距 */
+            flex-wrap: wrap;
         }
 
         .search-box {
@@ -449,24 +421,6 @@ if ($domain) {
             gap: 8px;
             justify-content: center; /* 保持居中 */
         }
-
-        .message-data .message-title {
-            font-size: 0.9rem;
-            gap: 0.25rem;
-            margin-bottom: 0.75rem;
-        }
-
-        .message-title a {
-            font-size: 0.9rem;
-            max-width: 85%;
-        }
-
-        .domain-info-box {
-            /* 关键修改：在手机端居中显示 */
-            max-width: 90%;
-            margin-left: auto;
-            margin-right: auto;
-        }
     }
 
     @media (max-width: 480px) {
@@ -483,214 +437,6 @@ if ($domain) {
             min-width: 70px !important;
             font-size: 13px;
             padding: 0 10px;
-        }
-
-        .message-data .message-title {
-            font-size: 0.85rem;
-            gap: 0.2rem;
-        }
-
-        .message-title a {
-            font-size: 0.85rem;
-            max-width: 80%;
-        }
-    }
-
-    /* 调整标题内图标大小 */
-    .message-title .message-icon {
-        width: 1.2em;
-        height: 1.2em;
-        flex-shrink: 0;
-    }
-
-    /* 恢复正常的grid布局，这是解决错位的核心 */
-    .message-data {
-        display: grid;
-        grid-template-columns: auto 1fr;
-        gap: 1rem 1.5rem;
-        margin-top: 1.5rem;
-    }
-
-    .checkbox-label {
-        display: flex;
-        align-items: center;
-        gap: 4px;
-    }
-    .checkbox-leading-icon {
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        width: 18px;
-        height: 18px;
-        margin-right: 2px;
-    }
-
-    .message-label {
-        display: flex;
-        align-items: center;
-        gap: 4px;
-    }
-    .message-icon-leading {
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        width: 1.2em;
-        height: 1.2em;
-    }
-
-    /* 移除背景和侧边栏 */
-    .message.message-positive {
-        background: transparent;
-        border: none;
-        box-shadow: none;
-        padding: 0;
-    }
-    .message.message-positive .message-data {
-        background: transparent;
-        box-shadow: none;
-        padding: 0;
-    }
-
-    /* 统一页面背景为白色，但已修改为方格 */
-    header, main {
-        background-color: transparent;
-    }
-
-    .raw-data-whois,
-    .raw-data-rdap {
-        background-color: #ffffff;
-        padding: 1.5rem;
-        border-radius: 12px;
-        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-        position: relative;
-        margin-bottom: 1rem;
-        margin-top: 0;
-    }
-      /* 默认隐藏 RDAP 数据 */
-    .raw-data-rdap {
-        display: none;
-    }
-    /* 移动端优化 */
-    @media (max-width: 768px) {
-        .raw-data-whois,
-        .raw-data-rdap {
-            padding: 1rem;
-        }
-    }
-
-    @media (max-width: 480px) {
-        .raw-data-whois,
-        .raw-data-rdap {
-            padding: 0.75rem;
-        }
-    }
-
-    .raw-data-container pre {
-        margin: 0 !important;
-        padding: 0 !important;
-        width: 100%;
-        box-sizing: border-box;
-    }
-
-    /* 新增的提示背景框样式 */
-    .result-summary {
-        display: flex;
-        justify-content: center;
-        margin-top: 1.5rem;
-        margin-bottom: 2rem;
-    }
-
-    .result-box {
-        background-color: #ffffff; /* 白色背景 */
-        padding: 1.5rem 2rem; /* 内边距 */
-        border-radius: 12px; /* 圆角 */
-        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06); /* 阴影 */
-        font-size: 1.1rem; /* 字体大小 */
-        font-weight: 600; /* 字体粗细 */
-        text-align: center; /* 文字居中 */
-        max-width: 800px; /* 最大宽度 */
-    }
-
-    .result-box p {
-        margin: 0;
-    }
-
-    /* 新增的CSS样式 - 隐藏已注册状态的黑色背景框 */
-    .domain-info-box.registered-status {
-        display: none;
-    }
-
-    /* 保留其他状态的黑色背景框 */
-    .domain-info-box:not(.registered-status) {
-        display: block;
-    }
-
-    .domain-info-box {
-        background-color: #fff;
-        border: 2px solid #000;
-        border-radius: 10px;
-        padding: 8px 16px; /* 缩减垂直内边距 */
-        margin-top: 10px; /* 缩减顶部外边距 */
-        margin-bottom: 15px; /* 缩减底部外边距 */
-        font-weight: bold;
-        font-size: 1.1em;
-        max-width: fit-content; /* 关键修改：边框只包住内容 */
-        margin-left: auto; /* 关键修改：居中 */
-        margin-right: auto; /* 关键修改：居中 */
-    }
-
-    .domain-info-box p {
-        margin: 0;
-        text-align: center; /* 确保文字在盒子内居中 */
-    }
-
-    /* --- 新增或修改的CSS --- */
-    /* 将.message-title改为flex布局，并调整子元素的对齐方式
-       以实现 "图标 + 域名 + 结果" 的横向排列
-    */
-    /* 移除 display: block; 恢复 grid 布局 */
-    /* .message-data {
-        display: block;
-    } */
-
-    .message-data .message-title {
-        display: flex; /* 使用flexbox布局 */
-        align-items: center; /* 垂直居中对齐 */
-        gap: 0.75rem; /* 增加图标和域名之间的间距 */
-        margin-bottom: 1rem;
-        font-size: 1.2rem; /* 调整字体大小 */
-        font-weight: 600;
-        color: #222;
-        flex-wrap: nowrap; /* 不换行，保持单行显示 */
-        max-width: 100%;
-        word-break: normal; /* 恢复默认的单词换行，不强制在每个字符处断开 */
-        text-align: left;
-    }
-
-    .message-title a {
-        flex-grow: 0; /* 不允许链接扩展 */
-        flex-shrink: 1; /* 允许收缩 */
-        min-width: 0;
-        word-break: break-all;
-        overflow-wrap: break-word;
-        font-size: 1.5em; /* 调整域名字体大小 */
-    }
-
-    /* 移动端优化 */
-    @media (max-width: 768px) {
-        .message-data .message-title {
-            flex-wrap: wrap; /* 在移动端允许换行 */
-            gap: 0.5rem;
-            font-size: 1rem;
-        }
-
-        .message-title a {
-            font-size: 1.2em; /* 移动端域名字体大小 */
-            flex-grow: 1; /* 允许在移动端扩展 */
-        }
-
-        .domain-status-message {
-            margin-top: 8px; /* 在移动端，如果换行，增加一些上边距 */
         }
     }
   </style>
