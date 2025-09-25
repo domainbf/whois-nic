@@ -462,11 +462,9 @@ if ($domain) {
             max-width: 85%;
         }
 
-        .domain-info-box {
-            /* 关键修改：在手机端居中显示 */
-            max-width: 90%;
-            margin-left: auto;
-            margin-right: auto;
+        /* 原先黄色圈出的“域名已注册”提示，现在改为隐藏 */
+        .domain-info-box-hidden {
+            display: none !important;
         }
     }
 
