@@ -1,8 +1,7 @@
 <?php
-// 路由解析和调试
 session_start();
 
-// 调试日志（生产环境可删除）
+// 调试日志
 error_log("=== NEW REQUEST ===");
 error_log("URI: " . ($_SERVER['REQUEST_URI'] ?? ''));
 error_log("QUERY: " . ($_SERVER['QUERY_STRING'] ?? ''));
@@ -11,18 +10,14 @@ error_log("SCRIPT_NAME: " . ($_SERVER['SCRIPT_NAME'] ?? ''));
 // 解析域名参数
 $domain = null;
 
-// 方法1：从GET参数获取
 if (isset($_GET['domain']) && !empty(trim($_GET['domain']))) {
     $domain = trim($_GET['domain']);
     error_log("从GET参数获取域名: " . $domain);
 }
 
-// 方法2：从伪静态URL解析（如果GET参数为空）
 if (!$domain && isset($_SERVER['REQUEST_URI'])) {
-    // 匹配 /domain.com 格式
     if (preg_match('#^/([^/]+?)(?:\?|/|$)#', $_SERVER['REQUEST_URI'], $matches)) {
         $potentialDomain = $matches[1];
-        // 验证是否是域名格式
         if (preg_match('/^[a-zA-Z0-9]([a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(\.[a-zA-Z0-9]([a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)+$/', $potentialDomain)) {
             $domain = $potentialDomain;
             $_GET['domain'] = $domain;
@@ -89,7 +84,6 @@ function checkPassword()
   die;
 }
 
-// 修改后的 cleanDomain 函数
 function cleanDomain($inputDomain = null)
 {
     $domain = $inputDomain ?: ($_GET["domain"] ?? "");
@@ -196,9 +190,8 @@ if ($_SERVER["QUERY_STRING"] ?? "") {
   $manifestHref .= "?" . htmlspecialchars($_SERVER["QUERY_STRING"], ENT_QUOTES, "UTF-8");
 }
 
-// === 新增：动态生成分享元数据 ===
 $currentUrl = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? "https" : "http") . "://$_SERVER[HTTP_HOST]$_SERVER[REQUEST_URI]";
-$shareImage = BASE . "public/images/logo.png"; // 默认缩略图
+$shareImage = BASE . "public/images/logo.png";
 
 if ($domain) {
     if ($error) {
@@ -216,10 +209,9 @@ if ($domain) {
             $parser->expirationDate ? "到期日期: " . $parser->expirationDate : null
         ];
         $shareDescription = implode(" | ", array_filter($descriptionParts));
-    } else { // 域名未注册
+    } else {
         $shareTitle = "$domain | 可注册";
         $shareDescription = "域名 '$domain' 未被注册，可以尝试去注册。";
-        // 针对未注册域名可以换一个更吸引人的图片
         $shareImage = BASE . "public/images/available_domain.png";
     }
 } else {
@@ -302,20 +294,18 @@ if ($domain) {
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:wght@300;400;500;600;700;900&display=swap">
   <?= CUSTOM_HEAD ?>
   <style>
-    /* 首页搜索栏背景修改 - 去掉透明化，显示主页方格背景 */
     body {
         background-color: #ffffff;
         background-image: repeating-linear-gradient(0deg, transparent, transparent 19px, #eee 20px), repeating-linear-gradient(90deg, transparent, transparent 19px, #eee 20px);
         background-size: 20px 20px;
     }
 
-    /* 新增的容器，用于包裹搜索框和按钮 */
     .search-and-button-container {
         display: flex;
         align-items: center;
         gap: 8px;
-        margin-bottom: 8px; /* 缩减与下方选项的间距 */
-        justify-content: center; /* 新增: 让搜索框和按钮居中 */
+        margin-bottom: 8px;
+        justify-content: center;
     }
 
     .search-box {
@@ -326,8 +316,8 @@ if ($domain) {
         display: flex !important;
         align-items: center !important;
         height: 42px !important;
-        flex: 1; /* 让搜索框占据可用空间 */
-        max-width: 480px; /* 保持适中的长度 */
+        flex: 1;
+        max-width: 480px;
     }
 
     .search-box .input {
@@ -386,18 +376,16 @@ if ($domain) {
         min-width: 80px !important;
     }
 
-    /* 选项容器 */
     .checkboxes {
         display: flex;
         justify-content: center;
         gap: 16px;
-        flex-wrap: nowrap; /* 关键：强制不换行 */
+        flex-wrap: nowrap;
     }
 
-    /* 新的CSS代码，用于修复超长域名换行问题 */
     .message-data .message-title {
         display: flex;
-        align-items: flex-start; /* 保持图标和多行文字的顶部对齐 */
+        align-items: flex-start;
         gap: 0.5rem;
         grid-column: 1 / -1;
         margin-bottom: 1rem;
@@ -405,50 +393,46 @@ if ($domain) {
         font-weight: 600;
         color: #222;
         text-align: left;
-        flex-wrap: wrap; /* 允许项目换行 */
+        flex-wrap: wrap;
         max-width: 100%;
-        word-break: break-word; /* 允许在长单词内部换行 */
+        word-break: break-word;
     }
 
     .message-title a {
-        flex-grow: 1; /* 允许链接扩展以占据可用空间 */
-        flex-shrink: 1; /* 允许链接收缩 */
+        flex-grow: 1;
+        flex-shrink: 1;
         min-width: 0;
-        /* 移除之前的单行截断属性，如 text-overflow 和 white-space */
-        word-break: break-all; /* 在任何地方都可断开，防止溢出 */
-        overflow-wrap: break-word; /* 兼容性更好 */
+        word-break: break-all;
+        overflow-wrap: break-word;
     }
 
-
-    /* 移动端优化 - 保持水平布局 */
     @media (max-width: 768px) {
         .search-and-button-container {
-            flex-direction: row !important; /* 保持水平布局 */
+            flex-direction: row !important;
             align-items: center !important;
             gap: 8px !important;
-            flex-wrap: wrap; /* 如果空间不够就换行 */
-            margin-bottom: 6px; /* 缩减移动端间距 */
+            flex-wrap: wrap;
+            margin-bottom: 6px;
         }
 
         .search-box {
-            max-width: calc(100% - 88px); /* 留出按钮空间 */
+            max-width: calc(100% - 88px);
             flex: 1;
-            min-width: 200px; /* 最小宽度 */
+            min-width: 200px;
         }
 
         .search-button {
             width: auto !important;
             min-width: 80px !important;
-            flex-shrink: 0; /* 按钮不压缩 */
-            font-size: 14px; /* 稍微小一点 */
-            padding: 0 12px; /* 稍微小一点内边距 */
+            flex-shrink: 0;
+            font-size: 14px;
+            padding: 0 12px;
         }
         
-        /* 关键：在移动端，将checkboxes的间距改小 */
         .checkboxes {
             margin-top: 8px;
             gap: 8px;
-            justify-content: center; /* 保持居中 */
+            justify-content: center;
         }
 
         .message-data .message-title {
@@ -462,9 +446,10 @@ if ($domain) {
             max-width: 85%;
         }
 
-        /* 原先黄色圈出的“域名已注册”提示，现在改为隐藏 */
-        .domain-info-box-hidden {
-            display: none !important;
+        .domain-info-box {
+            max-width: 90%;
+            margin-left: auto;
+            margin-right: auto;
         }
     }
 
@@ -474,7 +459,7 @@ if ($domain) {
         }
 
         .search-box {
-            max-width: calc(100% - 76px); /* 更小的按钮 */
+            max-width: calc(100% - 76px);
             min-width: 160px;
         }
 
@@ -495,14 +480,12 @@ if ($domain) {
         }
     }
 
-    /* 调整标题内图标大小 */
     .message-title .message-icon {
         width: 1.2em;
         height: 1.2em;
         flex-shrink: 0;
     }
 
-    /* 恢复正常的grid布局，这是解决错位的核心 */
     .message-data {
         display: grid;
         grid-template-columns: auto 1fr;
@@ -537,7 +520,6 @@ if ($domain) {
         height: 1.2em;
     }
 
-    /* 移除背景和侧边栏 */
     .message.message-positive {
         background: transparent;
         border: none;
@@ -550,7 +532,6 @@ if ($domain) {
         padding: 0;
     }
 
-    /* 统一页面背景为白色，但已修改为方格 */
     header, main {
         background-color: transparent;
     }
@@ -565,18 +546,15 @@ if ($domain) {
         margin-bottom: 1rem;
         margin-top: 0;
     }
-      /* 默认隐藏 RDAP 数据 */
     .raw-data-rdap {
         display: none;
     }
-    /* 移动端优化 */
     @media (max-width: 768px) {
         .raw-data-whois,
         .raw-data-rdap {
             padding: 1rem;
         }
     }
-
     @media (max-width: 480px) {
         .raw-data-whois,
         .raw-data-rdap {
@@ -591,7 +569,6 @@ if ($domain) {
         box-sizing: border-box;
     }
 
-    /* 新增的提示背景框样式 */
     .result-summary {
         display: flex;
         justify-content: center;
@@ -600,96 +577,83 @@ if ($domain) {
     }
 
     .result-box {
-        background-color: #ffffff; /* 白色背景 */
-        padding: 1.5rem 2rem; /* 内边距 */
-        border-radius: 12px; /* 圆角 */
-        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06); /* 阴影 */
-        font-size: 1.1rem; /* 字体大小 */
-        font-weight: 600; /* 字体粗细 */
-        text-align: center; /* 文字居中 */
-        max-width: 800px; /* 最大宽度 */
+        background-color: #ffffff;
+        padding: 1.5rem 2rem;
+        border-radius: 12px;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        font-size: 1.1rem;
+        font-weight: 600;
+        text-align: center;
+        max-width: 800px;
     }
 
     .result-box p {
         margin: 0;
     }
 
-    /* 新增的CSS样式 - 隐藏已注册状态的黑色背景框 */
-    .domain-info-box.registered-status {
-        /* display: none; */ /* 移除这行，让已注册状态的盒子显示 */
-    }
-
-    /* 关键修改：移除这个选择器，让所有状态的盒子都显示 */
-    /* .domain-info-box:not(.registered-status) {
-        display: block;
-    } */
-
     .domain-info-box {
         background-color: #fff;
         border: 2px solid #000;
         border-radius: 10px;
-        padding: 8px 16px; /* 缩减垂直内边距 */
-        margin-top: 10px; /* 缩减顶部外边距 */
-        margin-bottom: 15px; /* 缩减底部外边距 */
+        padding: 8px 16px;
+        margin-top: 10px;
+        margin-bottom: 15px;
         font-weight: bold;
         font-size: 1.1em;
-        max-width: fit-content; /* 关键修改：边框只包住内容 */
-        margin-left: auto; /* 关键修改：居中 */
-        margin-right: auto; /* 关键修改：居中 */
+        max-width: fit-content;
+        margin-left: auto;
+        margin-right: auto;
     }
 
     .domain-info-box p {
         margin: 0;
-        text-align: center; /* 确保文字在盒子内居中 */
+        text-align: center;
     }
 
-    /* --- 新增或修改的CSS --- */
-    /* 将.message-title改为flex布局，并调整子元素的对齐方式
-       以实现 "图标 + 域名 + 结果" 的横向排列
-    */
-    /* 移除 display: block; 恢复 grid 布局 */
-    /* .message-data {
-        display: block;
-    } */
-
     .message-data .message-title {
-        display: flex; /* 使用flexbox布局 */
-        align-items: center; /* 垂直居中对齐 */
-        gap: 0.75rem; /* 增加图标和域名之间的间距 */
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
         margin-bottom: 1rem;
-        font-size: 1.2rem; /* 调整字体大小 */
+        font-size: 1.2rem;
         font-weight: 600;
         color: #222;
-        flex-wrap: nowrap; /* 不换行，保持单行显示 */
+        flex-wrap: nowrap;
         max-width: 100%;
-        word-break: normal; /* 恢复默认的单词换行，不强制在每个字符处断开 */
+        word-break: normal;
         text-align: left;
     }
 
     .message-title a {
-        flex-grow: 0; /* 不允许链接扩展 */
-        flex-shrink: 1; /* 允许收缩 */
+        flex-grow: 0;
+        flex-shrink: 1;
         min-width: 0;
         word-break: break-all;
         overflow-wrap: break-word;
-        font-size: 1.5em; /* 调整域名字体大小 */
+        font-size: 1.5em;
     }
 
-    /* 移动端优化 */
+    .message-title .registered-status {
+        background-color: #ffcccc;
+        padding: 5px 10px;
+        border-radius: 5px;
+        margin-left: 10px;
+    }
+
     @media (max-width: 768px) {
         .message-data .message-title {
-            flex-wrap: wrap; /* 在移动端允许换行 */
+            flex-wrap: wrap;
             gap: 0.5rem;
             font-size: 1rem;
         }
 
         .message-title a {
-            font-size: 1.2em; /* 移动端域名字体大小 */
-            flex-grow: 1; /* 允许在移动端扩展 */
+            font-size: 1.2em;
+            flex-grow: 1;
         }
 
         .domain-status-message {
-            margin-top: 8px; /* 在移动端，如果换行，增加一些上边距 */
+            margin-top: 8px;
         }
     }
   </style>
@@ -815,7 +779,7 @@ if ($domain) {
             } elseif ($parser->reserved) {
                 $resultMessage = "🤬该死的注册局，把这个域名保留了。";
             } elseif ($parser->registered) {
-                $resultMessage = "域名已注册。";
+                $resultMessage = "😁该域名已注册。";
             } else {
                 $resultMessage = "😁该域名未被注册，可以尝试去注册。";
             }
@@ -843,7 +807,7 @@ if ($domain) {
                     <path d="m10.97 4.97-.02.022-3.473 4.425-2.093-2.094a.75.75 0 0 0-1.06 1.06L6.97 11.03a.75.75 0 0 0 1.079-.02l3.992-4.99a.75.75 0 0 0-1.071-1.05" />
                   </svg>
                   <a href="http://<?= htmlspecialchars($domain, ENT_QUOTES, 'UTF-8'); ?>" rel="nofollow noopener noreferrer" target="_blank"><?= htmlspecialchars($domain, ENT_QUOTES, 'UTF-8'); ?></a>
-                  <span class="domain-status-message">域名已注册</span>
+                  <span class="registered-status">域名已注册</span>
               </h1>
               <?php if ($parser->registrar): ?>
                 <div class="message-label">
