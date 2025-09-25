@@ -694,19 +694,6 @@ if ($domain) {
             margin-top: 8px; /* 在移动端，如果换行，增加一些上边距 */
         }
     }
-    
-    /* 新增的 .registered-info-box 样式 */
-    .registered-info-box {
-        background-color: #e6f7ff; /* 淡蓝色背景 */
-        border: 1px solid #91d5ff; /* 蓝色边框 */
-        border-radius: 8px;
-        padding: 15px;
-        margin-top: 20px;
-        margin-bottom: 20px;
-        text-align: center;
-        font-weight: bold;
-        color: #1890ff;
-    }
   </style>
 </head>
 
@@ -830,14 +817,14 @@ if ($domain) {
             } elseif ($parser->reserved) {
                 $resultMessage = "🤬该死的注册局，把这个域名保留了。";
             } elseif ($parser->registered) {
-                $resultMessage = null; // 隐藏此处的提示
+                $resultMessage = "域名已注册。";
             } else {
                 $resultMessage = "😁该域名未被注册，可以尝试去注册。";
             }
         }
       ?>
       <?php if ($domain && $resultMessage): ?>
-        <div class="domain-info-box">
+        <div class="domain-info-box<?= $parser->registered ? ' registered-status' : '' ?>">
           <a href="http://<?= htmlspecialchars($domain, ENT_QUOTES, 'UTF-8'); ?>" rel="nofollow noopener noreferrer" target="_blank">
             <p style="margin-bottom: 5px; font-size: 1.2em;"><?= htmlspecialchars($domain, ENT_QUOTES, 'UTF-8'); ?></p>
           </a>
@@ -848,9 +835,6 @@ if ($domain) {
   </header>
   <main>
     <?php if ($parser->registered): ?>
-      <div class="registered-info-box">
-        <p>域名已注册</p>
-      </div>
       <section class="messages">
         <div>
           <div class="message message-positive">
@@ -861,7 +845,7 @@ if ($domain) {
                     <path d="m10.97 4.97-.02.022-3.473 4.425-2.093-2.094a.75.75 0 0 0-1.06 1.06L6.97 11.03a.75.75 0 0 0 1.079-.02l3.992-4.99a.75.75 0 0 0-1.071-1.05" />
                   </svg>
                   <a href="http://<?= htmlspecialchars($domain, ENT_QUOTES, 'UTF-8'); ?>" rel="nofollow noopener noreferrer" target="_blank"><?= htmlspecialchars($domain, ENT_QUOTES, 'UTF-8'); ?></a>
-                  <span class="domain-status-message"></span>
+                  <span class="domain-status-message">域名已注册</span>
               </h1>
               <?php if ($parser->registrar): ?>
                 <div class="message-label">
@@ -1468,7 +1452,7 @@ if ($domain) {
         const startTime = Date.now();
 
         try {
-          // 这里替换为你的备案API URL，例如 "https://your-api.com/beian?domain=<?= urlencode($domain); ?>"
+          // 这里替换为你的备案API URL，例如 "https://your-api.com/whois?domain=<?= urlencode($domain); ?>"
           // 后续只需填写API URL即可使用
           const apiUrl = "https://your-beian-api.com/check?domain=<?= urlencode($domain); ?>"; // 请替换为实际API
           const response = await fetch(apiUrl);
