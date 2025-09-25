@@ -218,7 +218,7 @@ if ($domain) {
         $shareTitle = "$domain | 可注册";
         $shareDescription = "域名 '$domain' 未被注册，可以尝试去注册。";
         // 针对未注册域名可以换一个更吸引人的图片
-        $shareImage = BASE . "public/images/available_domain.png"; 
+        $shareImage = BASE . "public/images/available_domain.png";
     }
 } else {
     $shareTitle = SITE_TITLE;
@@ -237,7 +237,7 @@ if ($domain) {
   <meta name="theme-color" content="#e1f9f9">
   <meta name="description" content="<?= SITE_DESCRIPTION ?>">
   <meta name="keywords" content="<?= SITE_KEYWORDS ?>">
-  
+
   <meta property="og:title" content="<?= htmlspecialchars($shareTitle, ENT_QUOTES, 'UTF-8'); ?>">
   <meta property="og:description" content="<?= htmlspecialchars($shareDescription, ENT_QUOTES, 'UTF-8'); ?>">
   <meta property="og:image" content="<?= htmlspecialchars($shareImage, ENT_QUOTES, 'UTF-8'); ?>">
@@ -248,7 +248,7 @@ if ($domain) {
   <meta name="twitter:title" content="<?= htmlspecialchars($shareTitle, ENT_QUOTES, 'UTF-8'); ?>">
   <meta name="twitter:description" content="<?= htmlspecialchars($shareDescription, ENT_QUOTES, 'UTF-8'); ?>">
   <meta name="twitter:image" content="<?= htmlspecialchars($shareImage, ENT_QUOTES, 'UTF-8'); ?>">
-  
+
   <link rel="shortcut icon" href="public/favicon.ico">
   <link rel="icon" href="public/images/favicon.svg" type="image/svg+xml">
   <link rel="apple-touch-icon" href="public/images/apple-icon-180.png">
@@ -458,7 +458,7 @@ if ($domain) {
             font-size: 0.9rem;
             max-width: 85%;
         }
-        
+
         .domain-info-box {
             /* 关键修改：在手机端居中显示 */
             max-width: 90%;
@@ -500,7 +500,7 @@ if ($domain) {
         height: 1.2em;
         flex-shrink: 0;
     }
-    
+
     /* 恢复正常的grid布局，这是解决错位的核心 */
     .message-data {
         display: grid;
@@ -1187,7 +1187,7 @@ if ($domain) {
           if (years > 0) formatted.push(`${years}年`);
           if (months > 0) formatted.push(`${months}个月`);
           if (days > 0) formatted.push(`${days}天`);
-          
+
           return formatted.join("");
         }
 
