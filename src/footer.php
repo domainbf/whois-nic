@@ -84,8 +84,8 @@
         
         .host-info a img {
             vertical-align: middle;
-            width: 48px;
-            height: 48px;
+            width: 100px; /* 调整宽度 */
+            height: 100px; /* 调整高度 */
         }
 
         .copyright {
@@ -99,8 +99,8 @@
                 font-size: 2.5rem;
             }
             .host-info a img {
-                width: 36px;
-                height: 36px;
+                width: 75px; /* 响应式调整宽度 */
+                height: 75px; /* 响应式调整高度 */
             }
         }
     </style>
@@ -121,7 +121,9 @@
         </div>
         
         <div class="host-info">
-            <a href="https://www.hello.sn/domain" rel="noopener" target="_blank"><img src="/images/logo.png" alt="Logo"></a>
+            <a href="https://www.hello.sn/domain" rel="noopener" target="_blank">
+                <img src="/images/logo.png" alt="Logo">
+            </a>
         </div>
         
         <div class="copyright">
