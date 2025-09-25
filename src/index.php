@@ -1046,7 +1046,7 @@ if ($domain) {
                 <?php if ($parser->pendingDelete): ?>
                   <span class="message-tag message-tag-red">待删除</span>
                 <?php endif; ?>
-                <?php if ($parser->status && (is_array($parser->status) ? in_array('pendingverification', array_map('strtolower', $parser->status)) : strpos(strtolower($parser->status), 'pendingverification') !== false)): ?>
+                <?php if ($parser->status && (is_array($parser->status) ? in_array(strtolower('pendingverification'), array_map('strtolower', $parser->status)) : strpos(strtolower($parser->status), 'pendingverification') !== false)): ?>
                   <span class="message-tag message-tag-yellow">待验证</span>
                 <?php endif; ?>
                 <?php if ($parser->status && (is_array($parser->status) ? in_array('active', array_map('strtolower', $parser->status)) || in_array('ok', array_map('strtolower', $parser->status)) : in_array(strtolower($parser->status), ['active', 'ok']))): ?>
