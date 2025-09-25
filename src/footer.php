@@ -124,7 +124,7 @@
 </head>
 <body>
     <div class="container">
-        <h1>NIC.BN</h1>
+        <h1>WHOIS+RDAP</h1>
     </div>
     
     <footer class="footer">
