@@ -139,6 +139,7 @@ $domain = cleanDomain($domain);
 
 $dataSource = [];
 $fetchPrices = false;
+$fetchBeiAn = false;
 $whoisData = null;
 $rdapData = null;
 $parser = new Parser("");
@@ -147,6 +148,7 @@ $error = null;
 if ($domain) {
   $dataSource = getDataSource();
   $fetchPrices = filter_var($_GET["prices"] ?? 0, FILTER_VALIDATE_BOOL);
+  $fetchBeiAn = filter_var($_GET["beian"] ?? 0, FILTER_VALIDATE_BOOL);
 
   try {
     $lookup = new Lookup($domain, $dataSource);
@@ -218,7 +220,7 @@ if ($domain) {
         $shareTitle = "$domain | 可注册";
         $shareDescription = "域名 '$domain' 未被注册，可以尝试去注册。";
         // 针对未注册域名可以换一个更吸引人的图片
-        $shareImage = BASE . "public/images/available_domain.png"; 
+        $shareImage = BASE . "public/images/available_domain.png";
     }
 } else {
     $shareTitle = SITE_TITLE;
@@ -237,7 +239,7 @@ if ($domain) {
   <meta name="theme-color" content="#e1f9f9">
   <meta name="description" content="<?= SITE_DESCRIPTION ?>">
   <meta name="keywords" content="<?= SITE_KEYWORDS ?>">
-  
+
   <meta property="og:title" content="<?= htmlspecialchars($shareTitle, ENT_QUOTES, 'UTF-8'); ?>">
   <meta property="og:description" content="<?= htmlspecialchars($shareDescription, ENT_QUOTES, 'UTF-8'); ?>">
   <meta property="og:image" content="<?= htmlspecialchars($shareImage, ENT_QUOTES, 'UTF-8'); ?>">
@@ -248,7 +250,7 @@ if ($domain) {
   <meta name="twitter:title" content="<?= htmlspecialchars($shareTitle, ENT_QUOTES, 'UTF-8'); ?>">
   <meta name="twitter:description" content="<?= htmlspecialchars($shareDescription, ENT_QUOTES, 'UTF-8'); ?>">
   <meta name="twitter:image" content="<?= htmlspecialchars($shareImage, ENT_QUOTES, 'UTF-8'); ?>">
-  
+
   <link rel="shortcut icon" href="public/favicon.ico">
   <link rel="icon" href="public/images/favicon.svg" type="image/svg+xml">
   <link rel="apple-touch-icon" href="public/images/apple-icon-180.png">
@@ -458,7 +460,7 @@ if ($domain) {
             font-size: 0.9rem;
             max-width: 85%;
         }
-        
+
         .domain-info-box {
             /* 关键修改：在手机端居中显示 */
             max-width: 90%;
@@ -500,7 +502,7 @@ if ($domain) {
         height: 1.2em;
         flex-shrink: 0;
     }
-    
+
     /* 恢复正常的grid布局，这是解决错位的核心 */
     .message-data {
         display: grid;
@@ -564,7 +566,10 @@ if ($domain) {
         margin-bottom: 1rem;
         margin-top: 0;
     }
-
+      /* 默认隐藏 RDAP 数据 */
+    .raw-data-rdap {
+        display: none;
+    }
     /* 移动端优化 */
     @media (max-width: 768px) {
         .raw-data-whois,
@@ -671,18 +676,6 @@ if ($domain) {
         font-size: 1.5em; /* 调整域名字体大小 */
     }
 
-    /* 新增的样式：用于包裹结果提示信息 */
-    .domain-status-message {
-        background-color: #28a745;
-        color: #fff;
-        padding: 4px 12px;
-        border-radius: 20px;
-        font-size: 0.8rem;
-        font-weight: bold;
-        white-space: nowrap; /* 确保文字不换行 */
-        flex-shrink: 0; /* 防止该元素被压缩 */
-    }
-
     /* 移动端优化 */
     @media (max-width: 768px) {
         .message-data .message-title {
@@ -787,6 +780,23 @@ if ($domain) {
                 </svg>
               </span>
               价格
+            </label>
+            <div class="checkbox-icon-wrapper">
+              <svg class="checkbox-icon checkbox-icon-checkmark" width="50" height="39.69" viewBox="0 0 50 39.69" aria-hidden="true">
+                <path d="M43.68 0L16.74 27.051 6.319 16.63l-6.32 6.32 16.742 16.74L50 6.32z" />
+              </svg>
+            </div>
+          </div>
+          <div class="checkbox">
+            <input <?= $fetchBeiAn ? "checked" : "" ?> class="checkbox-trigger" id="checkbox-beian" name="beian" type="checkbox" value="1">
+            <label class="checkbox-label" for="checkbox-beian">
+              <span class="checkbox-leading-icon">
+                <svg width="18" height="18" viewBox="0 0 18 18" aria-hidden="true">
+                  <circle cx="9" cy="9" r="9" fill="#222"/>
+                  <text x="9" y="13" text-anchor="middle" fill="#fff" font-size="12" font-family="Arial" font-weight="bold">备</text>
+                </svg>
+              </span>
+              备案
             </label>
             <div class="checkbox-icon-wrapper">
               <svg class="checkbox-icon checkbox-icon-checkmark" width="50" height="39.69" viewBox="0 0 50 39.69" aria-hidden="true">
@@ -1003,6 +1013,11 @@ if ($domain) {
                 <div class="skeleton"></div>
               </div>
             <?php endif; ?>
+            <?php if ($fetchBeiAn): ?>
+              <div class="message-beian" id="message-beian">
+                <div class="skeleton"></div>
+              </div>
+            <?php endif; ?>
             <?php if ($parser->age || $parser->remaining || $parser->pendingDelete || $parser->gracePeriod || $parser->redemptionPeriod): ?>
               <div class="message-tags">
                 <?php if ($parser->age): ?>
@@ -1022,11 +1037,17 @@ if ($domain) {
                     <span>距离过期：<?= htmlspecialchars($parser->remaining, ENT_QUOTES, 'UTF-8'); ?></span>
                   </button>
                 <?php endif; ?>
-                <?php if ($parser->ageSeconds && $parser->ageSeconds < 7 * 24 * 60 * 60): ?>
+                <?php if ($parser->ageSeconds && $parser->ageSeconds < 60 * 24 * 60 * 60): ?>
                   <span class="message-tag message-tag-green">新注册</span>
                 <?php endif; ?>
-                <?php if (($parser->remainingSeconds ?? -1) >= 0 && $parser->remainingSeconds < 7 * 24 * 60 * 60): ?>
+                <?php if (($parser->remainingSeconds ?? -1) >= 0 && $parser->remainingSeconds < 30 * 24 * 60 * 60): ?>
                   <span class="message-tag message-tag-yellow">即将过期</span>
+                <?php endif; ?>
+                <?php if (($parser->ageSeconds ?? 0) >= 10 * 365 * 24 * 60 * 60): ?>
+                  <span class="message-tag message-tag-red">古董域名</span>
+                <?php endif; ?>
+                <?php if (($parser->remainingSeconds ?? 0) >= 5 * 365 * 24 * 60 * 60): ?>
+                  <span class="message-tag message-tag-blue">长期持有</span>
                 <?php endif; ?>
                 <?php if ($parser->pendingDelete): ?>
                   <span class="message-tag message-tag-red">待删除</span>
@@ -1105,7 +1126,7 @@ if ($domain) {
         });
       }
 
-      const checkboxNames = ["whois", "rdap", "prices"];
+      const checkboxNames = ["whois", "rdap", "prices", "beian"];
       <?php if ($domain): ?>
         checkboxNames.forEach((name) => {
           const checkbox = document.getElementById(`checkbox-${name}`);
@@ -1120,7 +1141,7 @@ if ($domain) {
         checkboxNames.forEach((name) => {
           const checkbox = document.getElementById(`checkbox-${name}`);
           if (checkbox) {
-            if (!+whoisValue && !+rdapValue && name !== "prices") {
+            if (!+whoisValue && !+rdapValue && name !== "prices" && name !== "beian") {
               checkbox.checked = true;
             } else {
               checkbox.checked = localStorage.getItem(`checkbox-${name}`) === "1";
@@ -1178,7 +1199,7 @@ if ($domain) {
           if (years > 0) formatted.push(`${years}年`);
           if (months > 0) formatted.push(`${months}个月`);
           if (days > 0) formatted.push(`${days}天`);
-          
+
           return formatted.join("");
         }
 
@@ -1416,6 +1437,58 @@ if ($domain) {
         } catch {
           setTimeout(() => {
             messagePrice.innerHTML = `<span class="message-tag message-tag-pink">获取价格失败</span>`;
+          }, Math.max(0, 500 - (Date.now() - startTime)));
+        }
+      });
+    </script>
+  <?php endif; ?>
+  <?php if ($fetchBeiAn): ?>
+    <script>
+      window.addEventListener("DOMContentLoaded", async () => {
+        const messageBeiAn = document.getElementById("message-beian");
+
+        if (!messageBeiAn) {
+          return;
+        }
+
+        const startTime = Date.now();
+
+        try {
+          // 这里替换为你的备案API URL，例如 "https://your-api.com/beian?domain=<?= urlencode($domain); ?>"
+          // 后续只需填写API URL即可使用
+          const apiUrl = "https://your-beian-api.com/check?domain=<?= urlencode($domain); ?>"; // 请替换为实际API
+          const response = await fetch(apiUrl);
+
+          if (!response.ok) {
+            throw new Error();
+          }
+
+          const data = await response.json();
+
+          // 假设API返回格式为 { code: "200", data: { beian: "备案号或信息" } }，根据实际API调整
+          if (data.code !== "200") {
+            throw new Error();
+          }
+
+          let innerHTML = `
+            <button class="message-tag message-tag-gray" id="beian-info">
+              <span>备案: ${data.data.beian || "无备案信息"}</span>
+            </button>
+          `;
+
+          setTimeout(() => {
+            messageBeiAn.innerHTML = innerHTML;
+
+            if (typeof tippy !== 'undefined') {
+              tippy("#beian-info", {
+                content: "备案详情",
+                placement: "bottom"
+              });
+            }
+          }, Math.max(0, 500 - (Date.now() - startTime)));
+        } catch {
+          setTimeout(() => {
+            messageBeiAn.innerHTML = `<span class="message-tag message-tag-pink">获取备案失败</span>`;
           }, Math.max(0, 500 - (Date.now() - startTime)));
         }
       });
