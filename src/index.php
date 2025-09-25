@@ -618,13 +618,13 @@ if ($domain) {
 
     /* 新增的CSS样式 - 隐藏已注册状态的黑色背景框 */
     .domain-info-box.registered-status {
-        display: none;
+        /* display: none; */ /* 移除这行，让已注册状态的盒子显示 */
     }
 
-    /* 保留其他状态的黑色背景框 */
-    .domain-info-box:not(.registered-status) {
+    /* 关键修改：移除这个选择器，让所有状态的盒子都显示 */
+    /* .domain-info-box:not(.registered-status) {
         display: block;
-    }
+    } */
 
     .domain-info-box {
         background-color: #fff;
@@ -824,15 +824,12 @@ if ($domain) {
         }
       ?>
       <?php if ($domain && $resultMessage): ?>
-        <?php if ($parser->registered): ?>
-          <div class="domain-info-box registered-status">
-            <p><?= $resultMessage; ?></p>
-          </div>
-        <?php else: ?>
-          <div class="domain-info-box">
-            <p><?= $resultMessage; ?></p>
-          </div>
-        <?php endif; ?>
+        <div class="domain-info-box">
+          <a href="http://<?= htmlspecialchars($domain, ENT_QUOTES, 'UTF-8'); ?>" rel="nofollow noopener noreferrer" target="_blank">
+            <p style="margin-bottom: 5px; font-size: 1.2em;"><?= htmlspecialchars($domain, ENT_QUOTES, 'UTF-8'); ?></p>
+          </a>
+          <p><?= $resultMessage; ?></p>
+        </div>
       <?php endif; ?>
     </div>
   </header>
