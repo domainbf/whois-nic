@@ -84,7 +84,7 @@
         
         .host-info a img {
             vertical-align: middle;
-            width: 100px; /* 调整宽度 */
+            width: 500px; /* 调整宽度 */
             height: 100px; /* 调整高度 */
         }
 
