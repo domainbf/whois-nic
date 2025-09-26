@@ -1448,6 +1448,7 @@ if ($domain) {
               <div class="beian-info">
                 <span class="beian-domain">${domainName}</span>
                 <span class="beian-number">${mainLicence}</span>
+                <span class="beian-tip">点击查看详情</span>
               </div>
             `;
           } else {
@@ -1482,7 +1483,7 @@ if ($domain) {
                 placement: "bottom",
                 allowHTML: true,
                 theme: 'beian-tooltip',
-                maxWidth: 1200 /* 扩展宽度以容纳一行 */
+                maxWidth: 1200
               });
             }
           }, Math.max(0, 500 - (Date.now() - startTime)));
@@ -1513,6 +1514,7 @@ if ($domain) {
         background: transparent;
         font-family: 'Fraunces', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
         transition: opacity 0.3s ease;
+        position: relative;
       }
 
       .beian-domain {
@@ -1526,6 +1528,15 @@ if ($domain) {
         font-weight: 600;
         color: #333333;
         font-size: 14px;
+        white-space: nowrap;
+      }
+
+      .beian-tip {
+        position: absolute;
+        right: 5px;
+        bottom: -15px;
+        font-size: 10px;
+        color: #666666;
         white-space: nowrap;
       }
 
@@ -1549,13 +1560,14 @@ if ($domain) {
 
       /* 悬浮框样式 */
       .beian-tooltip {
-        max-width: 1200px; /* 扩展宽度以容纳所有字段一行 */
+        max-width: 1200px;
         padding: 0;
         background: #ffffff;
         border: 2px solid #000000;
         border-radius: 5px;
         box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
         font-family: 'Fraunces', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        margin: 0;
       }
 
       .tooltip-header {
@@ -1569,13 +1581,13 @@ if ($domain) {
 
       .tooltip-content {
         padding: 10px 12px;
-        display: flex; /* 水平排列 */
-        gap: 10px; /* 项间距 */
-        white-space: nowrap; /* 强制一行 */
+        display: flex;
+        gap: 10px;
+        white-space: nowrap;
       }
 
       .tooltip-item {
-        display: inline-flex; /* 行内 flex 排列 */
+        display: inline-flex;
         align-items: center;
         font-size: 13px;
       }
@@ -1592,9 +1604,9 @@ if ($domain) {
       .tooltip-value {
         color: #666666;
         flex: 1;
-        white-space: nowrap; /* 强制一行 */
-        overflow: hidden; /* 隐藏超出部分 */
-        text-overflow: ellipsis; /* 超出时显示省略号 */
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
       }
 
       .tippy-box[data-theme~='beian-tooltip'] {
@@ -1627,17 +1639,22 @@ if ($domain) {
         }
 
         .tooltip-content {
-          flex-direction: column; /* 移动端垂直排列 */
-          white-space: normal; /* 允许换行 */
+          flex-direction: column;
+          white-space: normal;
         }
 
         .tooltip-value {
-          white-space: normal; /* 移动端允许换行 */
-          word-break: break-all; /* 长单词换行 */
+          white-space: normal;
+          word-break: break-all;
+        }
+
+        .beian-tip {
+          bottom: -12px;
+          font-size: 9px;
         }
       }
     </style>
-<?php endif; ?>>
+<?php endif; ?>
   <?= CUSTOM_SCRIPT ?>
 </body>
 
