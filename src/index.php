@@ -1415,46 +1415,67 @@ if ($domain) {
         const startTime = Date.now();
 
         try {
-          // 这里替换为你的备案API URL，例如 "https://your-api.com/whois?domain=<?= urlencode($domain); ?>"
-          // 后续只需填写API URL即可使用
-          const apiUrl = "https://your-beian-api.com/check?domain=<?= urlencode($domain); ?>"; // 请替换为实际API
+          const apiUrl = "http://43.133.72.184:16181/query/web?search=<?= urlencode($domain); ?>";
           const response = await fetch(apiUrl);
 
           if (!response.ok) {
-            throw new Error();
+            throw new Error("网络请求失败");
           }
 
           const data = await response.json();
 
-          // 假设API返回格式为 { code: "200", data: { beian: "备案号或信息" } }，根据实际API调整
-          if (data.code !== "200") {
-            throw new Error();
+          if (data.code !== 200) {
+            throw new Error(data.msg || "查询失败");
           }
 
-          let innerHTML = `
-            <button class="message-tag message-tag-gray" id="beian-info">
-              <span>备案: ${data.data.beian || "无备案信息"}</span>
-            </button>
-          `;
+          let innerHTML = "";
+          const beianData = data.data && data.data.list && data.data.list.length > 0 ? data.data.list[0] : null;
+
+          if (beianData) {
+            const mainLicence = beianData.mainLicence || "无";
+            const unitName = beianData.unitName || "未知";
+            const updateRecordTime = beianData.updateRecordTime || "未知";
+            const blackListLevel = beianData.blackListLevel === 2 ? "暂无违法违规信息" : `威胁等级: ${beianData.blackListLevel || "未知"}`;
+
+            innerHTML = `
+              <button class="message-tag message-tag-gray" id="beian-info">
+                <span>备案: ${mainLicence} (${unitName}, ${updateRecordTime}, ${blackListLevel})</span>
+              </button>
+            `;
+          } else {
+            innerHTML = `<span class="message-tag message-tag-pink">无备案信息</span>`;
+          }
 
           setTimeout(() => {
             messageBeiAn.innerHTML = innerHTML;
 
-            if (typeof tippy !== 'undefined') {
+            if (beianData && typeof tippy !== 'undefined') {
               tippy("#beian-info", {
-                content: "备案详情",
-                placement: "bottom"
+                content: `
+                  <div style="text-align: left;">
+                    <strong>备案详情</strong><br>
+                    备案号: ${beianData.mainLicence || "无"}<br>
+                    主办单位: ${beianData.unitName || "未知"}<br>
+                    性质: ${beianData.natureName || "未知"}<br>
+                    审核时间: ${beianData.updateRecordTime || "未知"}<br>
+                    内容类型: ${beianData.contentTypeName || "未知"}<br>
+                    地址: ${beianData.mainUnitAddress || "未知"}<br>
+                    威胁等级: ${beianData.blackListLevel === 2 ? "暂无违法违规信息" : beianData.blackListLevel || "未知"}
+                  </div>
+                `,
+                placement: "bottom",
+                allowHTML: true
               });
             }
           }, Math.max(0, 500 - (Date.now() - startTime)));
-        } catch {
+        } catch (error) {
           setTimeout(() => {
-            messageBeiAn.innerHTML = `<span class="message-tag message-tag-pink">获取备案失败</span>`;
+            messageBeiAn.innerHTML = `<span class="message-tag message-tag-pink">获取备案失败: ${error.message}</span>`;
           }, Math.max(0, 500 - (Date.now() - startTime)));
         }
       });
     </script>
-  <?php endif; ?>
+<?php endif; ?>
   <?= CUSTOM_SCRIPT ?>
 </body>
 
