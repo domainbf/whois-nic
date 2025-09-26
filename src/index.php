@@ -1439,50 +1439,288 @@ if ($domain) {
           if (beianData) {
             const mainLicence = beianData.mainLicence || "无";
             const unitName = beianData.unitName || "未知";
-            const updateRecordTime = beianData.updateRecordTime || "未知";
-            
-            // 移除不存在的 blackListLevel 字段，或使用其他可用字段
+            const updateRecordTime = beianData.updateRecordTime ? new Date(beianData.updateRecordTime).toLocaleDateString() : "未知";
             const natureName = beianData.natureName || "未知";
+            const serviceLicence = beianData.serviceLicence || "";
+            const domainName = beianData.domain || "未知";
 
             innerHTML = `
-              <button class="message-tag message-tag-gray" id="beian-info">
-                <span>备案: ${mainLicence} (${unitName}, ${updateRecordTime}, ${natureName})</span>
-              </button>
+              <div class="beian-info-container">
+                <div class="beian-badge">
+                  <span class="beian-icon">📄</span>
+                  <span class="beian-label">备案信息</span>
+                </div>
+                <div class="beian-details">
+                  <div class="beian-main">
+                    <span class="beian-number">${mainLicence}</span>
+                    <span class="beian-type">${natureName}</span>
+                  </div>
+                  <div class="beian-secondary">
+                    <span class="beian-company">${unitName}</span>
+                    <span class="beian-date">${updateRecordTime}</span>
+                  </div>
+                </div>
+              </div>
             `;
           } else {
-            innerHTML = `<span class="message-tag message-tag-pink">无备案信息</span>`;
+            innerHTML = `
+              <div class="beian-info-container no-beian">
+                <div class="beian-badge">
+                  <span class="beian-icon">❌</span>
+                  <span class="beian-label">备案信息</span>
+                </div>
+                <div class="beian-details">
+                  <span class="no-beian-text">该域名暂无备案信息</span>
+                </div>
+              </div>
+            `;
           }
 
           setTimeout(() => {
             messageBeiAn.innerHTML = innerHTML;
 
             if (beianData && typeof tippy !== 'undefined') {
-              tippy("#beian-info", {
+              tippy(".beian-info-container", {
                 content: `
-                  <div style="text-align: left;">
-                    <strong>备案详情</strong><br>
-                    备案号: ${beianData.mainLicence || "无"}<br>
-                    主办单位: ${beianData.unitName || "未知"}<br>
-                    性质: ${beianData.natureName || "未知"}<br>
-                    审核时间: ${beianData.updateRecordTime || "未知"}<br>
-                    ${beianData.contentTypeName ? '内容类型: ' + beianData.contentTypeName + '<br>' : ''}
-                    ${beianData.serviceLicence ? '服务许可证: ' + beianData.serviceLicence + '<br>' : ''}
-                    域名: ${beianData.domain || "未知"}
+                  <div class="beian-tooltip">
+                    <div class="tooltip-header">备案详细信息</div>
+                    <div class="tooltip-grid">
+                      <div class="tooltip-item">
+                        <span class="tooltip-label">备案号:</span>
+                        <span class="tooltip-value">${beianData.mainLicence || "无"}</span>
+                      </div>
+                      <div class="tooltip-item">
+                        <span class="tooltip-label">主办单位:</span>
+                        <span class="tooltip-value">${beianData.unitName || "未知"}</span>
+                      </div>
+                      <div class="tooltip-item">
+                        <span class="tooltip-label">单位性质:</span>
+                        <span class="tooltip-value">${beianData.natureName || "未知"}</span>
+                      </div>
+                      <div class="tooltip-item">
+                        <span class="tooltip-label">审核时间:</span>
+                        <span class="tooltip-value">${beianData.updateRecordTime || "未知"}</span>
+                      </div>
+                      ${beianData.contentTypeName ? `
+                      <div class="tooltip-item">
+                        <span class="tooltip-label">内容类型:</span>
+                        <span class="tooltip-value">${beianData.contentTypeName}</span>
+                      </div>` : ''}
+                      ${beianData.serviceLicence ? `
+                      <div class="tooltip-item">
+                        <span class="tooltip-label">服务许可证:</span>
+                        <span class="tooltip-value">${beianData.serviceLicence}</span>
+                      </div>` : ''}
+                      <div class="tooltip-item">
+                        <span class="tooltip-label">域名:</span>
+                        <span class="tooltip-value">${beianData.domain || "未知"}</span>
+                      </div>
+                    </div>
                   </div>
                 `,
                 placement: "bottom",
-                allowHTML: true
+                allowHTML: true,
+                theme: 'beian-tooltip'
               });
             }
           }, Math.max(0, 500 - (Date.now() - startTime)));
         } catch (error) {
           console.error("备案查询错误:", error);
           setTimeout(() => {
-            messageBeiAn.innerHTML = `<span class="message-tag message-tag-pink">获取备案失败: ${error.message}</span>`;
+            messageBeiAn.innerHTML = `
+              <div class="beian-info-container error">
+                <div class="beian-badge">
+                  <span class="beian-icon">⚠️</span>
+                  <span class="beian-label">备案信息</span>
+                </div>
+                <div class="beian-details">
+                  <span class="error-text">获取备案失败: ${error.message}</span>
+                </div>
+              </div>
+            `;
           }, Math.max(0, 500 - (Date.now() - startTime)));
         }
       });
     </script>
+
+    <style>
+      .beian-info-container {
+        display: flex;
+        align-items: center;
+        background: #f8f9fa;
+        border: 1px solid #e9ecef;
+        border-radius: 8px;
+        padding: 10px 12px;
+        margin: 8px 0;
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        transition: all 0.2s ease;
+      }
+      
+      .beian-info-container:hover {
+        background: #e9ecef;
+        border-color: #ced4da;
+      }
+      
+      .beian-info-container.no-beian {
+        background: #fff3cd;
+        border-color: #ffeaa7;
+      }
+      
+      .beian-info-container.error {
+        background: #f8d7da;
+        border-color: #f5c6cb;
+      }
+      
+      .beian-badge {
+        display: flex;
+        align-items: center;
+        margin-right: 12px;
+        flex-shrink: 0;
+      }
+      
+      .beian-icon {
+        font-size: 16px;
+        margin-right: 6px;
+      }
+      
+      .beian-label {
+        font-size: 12px;
+        font-weight: 600;
+        color: #6c757d;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+      }
+      
+      .beian-details {
+        flex: 1;
+        min-width: 0;
+      }
+      
+      .beian-main {
+        display: flex;
+        align-items: center;
+        margin-bottom: 2px;
+      }
+      
+      .beian-number {
+        font-weight: 600;
+        color: #212529;
+        font-size: 14px;
+        margin-right: 8px;
+      }
+      
+      .beian-type {
+        background: #007bff;
+        color: white;
+        padding: 2px 6px;
+        border-radius: 4px;
+        font-size: 10px;
+        font-weight: 600;
+      }
+      
+      .beian-secondary {
+        display: flex;
+        align-items: center;
+        font-size: 12px;
+        color: #6c757d;
+      }
+      
+      .beian-company {
+        margin-right: 8px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+      
+      .beian-date {
+        color: #868e96;
+      }
+      
+      .no-beian-text, .error-text {
+        font-size: 13px;
+        color: #856404;
+        font-weight: 500;
+      }
+      
+      .error-text {
+        color: #721c24;
+      }
+      
+      /* Tippy 工具提示样式 */
+      .beian-tooltip {
+        max-width: 280px;
+        padding: 0;
+      }
+      
+      .tooltip-header {
+        background: #007bff;
+        color: white;
+        padding: 10px 12px;
+        font-weight: 600;
+        border-radius: 6px 6px 0 0;
+      }
+      
+      .tooltip-grid {
+        padding: 12px;
+      }
+      
+      .tooltip-item {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 6px;
+      }
+      
+      .tooltip-item:last-child {
+        margin-bottom: 0;
+      }
+      
+      .tooltip-label {
+        font-weight: 600;
+        color: #495057;
+        margin-right: 8px;
+        flex-shrink: 0;
+      }
+      
+      .tooltip-value {
+        color: #6c757d;
+        text-align: right;
+        word-break: break-word;
+      }
+      
+      .tippy-box[data-theme~='beian-tooltip'] {
+        background: white;
+        border: 1px solid #e9ecef;
+        border-radius: 6px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      }
+      
+      .tippy-box[data-theme~='beian-tooltip'] .tippy-arrow {
+        color: white;
+      }
+      
+      /* 响应式设计 */
+      @media (max-width: 480px) {
+        .beian-info-container {
+          flex-direction: column;
+          align-items: flex-start;
+        }
+        
+        .beian-badge {
+          margin-right: 0;
+          margin-bottom: 8px;
+        }
+        
+        .beian-secondary {
+          flex-direction: column;
+          align-items: flex-start;
+        }
+        
+        .beian-company {
+          margin-right: 0;
+          margin-bottom: 4px;
+        }
+      }
+    </style>
 <?php endif; ?>
   <?= CUSTOM_SCRIPT ?>
 </body>
