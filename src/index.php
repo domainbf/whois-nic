@@ -1482,7 +1482,7 @@ if ($domain) {
                 placement: "bottom",
                 allowHTML: true,
                 theme: 'beian-tooltip',
-                maxWidth: 800 /* 增加宽度以容纳一行 */
+                maxWidth: 1200 /* 扩展宽度以容纳一行 */
               });
             }
           }, Math.max(0, 500 - (Date.now() - startTime)));
@@ -1549,7 +1549,7 @@ if ($domain) {
 
       /* 悬浮框样式 */
       .beian-tooltip {
-        max-width: 800px; /* 增加宽度以容纳一行 */
+        max-width: 1200px; /* 扩展宽度以容纳所有字段一行 */
         padding: 0;
         background: #ffffff;
         border: 2px solid #000000;
@@ -1569,15 +1569,14 @@ if ($domain) {
 
       .tooltip-content {
         padding: 10px 12px;
-        display: flex; /* 使用 flex 水平排列 */
-        flex-wrap: wrap; /* 超出屏幕时换行 */
+        display: flex; /* 水平排列 */
         gap: 10px; /* 项间距 */
+        white-space: nowrap; /* 强制一行 */
       }
 
       .tooltip-item {
         display: inline-flex; /* 行内 flex 排列 */
         align-items: center;
-        margin-bottom: 0; /* 移除垂直间距 */
         font-size: 13px;
       }
 
@@ -1593,10 +1592,9 @@ if ($domain) {
       .tooltip-value {
         color: #666666;
         flex: 1;
-        white-space: nowrap; /* 优先一行显示 */
+        white-space: nowrap; /* 强制一行 */
         overflow: hidden; /* 隐藏超出部分 */
         text-overflow: ellipsis; /* 超出时显示省略号 */
-        max-width: 150px; /* 限制值宽度，防止过长 */
       }
 
       .tippy-box[data-theme~='beian-tooltip'] {
@@ -1628,18 +1626,18 @@ if ($domain) {
           width: 70px;
         }
 
+        .tooltip-content {
+          flex-direction: column; /* 移动端垂直排列 */
+          white-space: normal; /* 允许换行 */
+        }
+
         .tooltip-value {
           white-space: normal; /* 移动端允许换行 */
           word-break: break-all; /* 长单词换行 */
-          max-width: 120px; /* 移动端调整 */
-        }
-
-        .tooltip-content {
-          flex-direction: column; /* 移动端垂直排列 */
         }
       }
     </style>
-<?php endif; ?>
+<?php endif; ?>>
   <?= CUSTOM_SCRIPT ?>
 </body>
 
