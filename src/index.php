@@ -998,33 +998,35 @@ if ($domain) {
                     <span>距离过期：<?= htmlspecialchars($parser->remaining, ENT_QUOTES, 'UTF-8'); ?></span>
                   </button>
                 <?php endif; ?>
-                <?php if ($parser->ageSeconds && $parser->ageSeconds < 60 * 24 * 60 * 60): ?>
-                  <span class="message-tag message-tag-green">新注册</span>
-                <?php endif; ?>
-                <?php if (($parser->remainingSeconds ?? -1) >= 0 && $parser->remainingSeconds < 30 * 24 * 60 * 60): ?>
-                  <span class="message-tag message-tag-yellow">即将过期</span>
-                <?php endif; ?>
-                <?php if (($parser->ageSeconds ?? 0) >= 10 * 365 * 24 * 60 * 60): ?>
-                  <span class="message-tag message-tag-red">古董域名</span>
-                <?php endif; ?>
-                <?php if (($parser->remainingSeconds ?? 0) >= 5 * 365 * 24 * 60 * 60): ?>
-                  <span class="message-tag message-tag-blue">长期持有</span>
-                <?php endif; ?>
-                <?php if (preg_match('/^[a-zA-Z0-9]$/', $parser->domain)): ?>
+<?php if ($parser->ageSeconds && $parser->ageSeconds < 60 * 24 * 60 * 60): ?>
+  <span class="message-tag message-tag-green">新注册</span>
+<?php endif; ?>
+<?php if (($parser->remainingSeconds ?? -1) >= 0 && $parser->remainingSeconds < 30 * 24 * 60 * 60): ?>
+  <span class="message-tag message-tag-yellow">即将过期</span>
+<?php endif; ?>
+<?php if (($parser->ageSeconds ?? 0) >= 10 * 365 * 24 * 60 * 60): ?>
+  <span class="message-tag message-tag-red">古董域名</span>
+<?php endif; ?>
+<?php if (($parser->remainingSeconds ?? 0) >= 5 * 365 * 24 * 60 * 60): ?>
+  <span class="message-tag message-tag-blue">长期持有</span>
+<?php endif; ?>
+<?php 
+$domainParts = explode('.', $parser->domain ?? '');
+if ($parser && count($domainParts) > 0 && preg_match('/^[a-zA-Z0-9]$/', $domainParts[0])): ?>
   <span class="message-tag message-tag-blue">单字符</span>
 <?php endif; ?>
-                <?php if ($parser->pendingDelete): ?>
-                  <span class="message-tag message-tag-red">待删除</span>
-                <?php elseif ($parser->remainingSeconds < 0): ?>
-                  <span class="message-tag message-tag-red">已过期</span>
-                <?php endif; ?>
-                <?php if ($parser->gracePeriod): ?>
-                  <span class="message-tag message-tag-yellow">宽限期</span>
-                <?php elseif ($parser->redemptionPeriod): ?>
-                  <span class="message-tag message-tag-blue">赎回期</span>
-                <?php endif; ?>
-              </div>
-            <?php endif; ?>
+<?php if ($parser->pendingDelete): ?>
+  <span class="message-tag message-tag-red">待删除</span>
+<?php elseif ($parser->remainingSeconds < 0): ?>
+  <span class="message-tag message-tag-red">已过期</span>
+<?php endif; ?>
+<?php if ($parser->gracePeriod): ?>
+  <span class="message-tag message-tag-yellow">宽限期</span>
+<?php elseif ($parser->redemptionPeriod): ?>
+  <span class="message-tag message-tag-blue">赎回期</span>
+<?php endif; ?>
+</div>
+<?php endif; ?>
           </div>
         </div>
       </section>
