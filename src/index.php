@@ -1037,8 +1037,6 @@ if ($parser && count($domainParts) > 0 && preg_match('/^[a-zA-Z0-9]$/', $domainP
 <?php if (in_array($parser->domain, ['x.rw', 'nic.bn', 'nic.rw', 'l.ke', 'f.af', 'ai.kn', 'ai.rw', 'cxl.net'])): ?>
   <span class="message-tag message-tag-orange">由不讲·李持有</span>
 <?php endif; ?>
-</div>
-<?php endif; ?>
           </div>
         </div>
       </section>
