@@ -1415,7 +1415,7 @@ if ($domain) {
         const startTime = Date.now();
 
         try {
-          const apiUrl = "http://43.133.72.184:16181/query/web?search=<?= urlencode($domain); ?>";
+          const apiUrl = "https://beian.bug.kz/query/web?search=<?= urlencode($domain); ?>";
           const response = await fetch(apiUrl);
 
           if (!response.ok) {
