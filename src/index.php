@@ -1412,7 +1412,6 @@ if ($domain) {
           return;
         }
 
-        // 添加过渡效果，防止闪烁
         messageBeiAn.style.transition = "opacity 0.3s ease";
         messageBeiAn.style.opacity = "0";
 
@@ -1439,6 +1438,11 @@ if ($domain) {
           if (beianData) {
             const mainLicence = beianData.mainLicence || "无";
             const domainName = beianData.domain || "未知";
+            const serviceLicence = beianData.serviceLicence || "无";
+            const natureName = beianData.natureName || "未知";
+            const unitName = beianData.unitName || "未知";
+            const updateRecordTime = beianData.updateRecordTime ? new Date(beianData.updateRecordTime).toLocaleDateString() : "未知";
+            const policeLicence = beianData.policeLicence || "无";
 
             innerHTML = `
               <div class="beian-info">
@@ -1457,7 +1461,7 @@ if ($domain) {
 
           setTimeout(() => {
             messageBeiAn.innerHTML = innerHTML;
-            messageBeiAn.style.opacity = "1"; // 淡入效果
+            messageBeiAn.style.opacity = "1";
 
             if (beianData && typeof tippy !== 'undefined') {
               tippy(".beian-info", {
@@ -1466,12 +1470,32 @@ if ($domain) {
                     <div class="tooltip-header">备案详细信息</div>
                     <div class="tooltip-content">
                       <div class="tooltip-item">
+                        <span class="tooltip-label">域名:</span>
+                        <span class="tooltip-value">${beianData.domain || "未知"}</span>
+                      </div>
+                      <div class="tooltip-item">
                         <span class="tooltip-label">备案号:</span>
                         <span class="tooltip-value">${beianData.mainLicence || "无"}</span>
                       </div>
                       <div class="tooltip-item">
-                        <span class="tooltip-label">域名:</span>
-                        <span class="tooltip-value">${beianData.domain || "未知"}</span>
+                        <span class="tooltip-label">服务许可证:</span>
+                        <span class="tooltip-value">${beianData.serviceLicence || "无"}</span>
+                      </div>
+                      <div class="tooltip-item">
+                        <span class="tooltip-label">单位性质:</span>
+                        <span class="tooltip-value">${beianData.natureName || "未知"}</span>
+                      </div>
+                      <div class="tooltip-item">
+                        <span class="tooltip-label">主办单位:</span>
+                        <span class="tooltip-value">${beianData.unitName || "未知"}</span>
+                      </div>
+                      <div class="tooltip-item">
+                        <span class="tooltip-label">审核时间:</span>
+                        <span class="tooltip-value">${beianData.updateRecordTime ? new Date(beianData.updateRecordTime).toLocaleDateString() : "未知"}</span>
+                      </div>
+                      <div class="tooltip-item">
+                        <span class="tooltip-label">公安局备案号:</span>
+                        <span class="tooltip-value">${beianData.policeLicence || "无"}</span>
                       </div>
                     </div>
                   </div>
@@ -1492,14 +1516,14 @@ if ($domain) {
                 <span class="error-text">获取失败: ${error.message}</span>
               </div>
             `;
-            messageBeiAn.style.opacity = "1"; // 淡入效果
+            messageBeiAn.style.opacity = "1";
           }, Math.max(0, 500 - (Date.now() - startTime)));
         }
       });
     </script>
 
     <style>
-      /* 备案信息样式 */
+      /* 保留原有样式 */
       .beian-info {
         display: flex;
         align-items: center;
@@ -1507,7 +1531,7 @@ if ($domain) {
         padding: 5px 10px;
         border: 2px solid #000000;
         border-radius: 5px;
-        background: transparent; /* 使用页面原始方格背景 */
+        background: transparent;
         font-family: 'Fraunces', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
         transition: opacity 0.3s ease;
       }
@@ -1544,7 +1568,6 @@ if ($domain) {
         font-weight: 500;
       }
 
-      /* 悬浮框样式 */
       .beian-tooltip {
         max-width: 250px;
         padding: 0;
@@ -1605,7 +1628,6 @@ if ($domain) {
         border-color: #000000;
       }
 
-      /* 响应式设计 */
       @media (max-width: 480px) {
         .beian-info {
           flex-direction: column;
