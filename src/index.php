@@ -1517,11 +1517,12 @@ if ($domain) {
         font-family: 'Fraunces', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
         transition: opacity 0.3s ease;
         position: relative;
+        min-height: 40px; /* 确保有足够空间下移 */
       }
 
       .beian-left {
         display: flex;
-        align-items: center;
+        align-items: flex-start; /* 调整为顶部对齐，配合下移 */
         gap: 10px;
       }
 
@@ -1530,6 +1531,7 @@ if ($domain) {
         color: #000000;
         font-size: 14px;
         white-space: nowrap;
+        text-decoration: none; /* 取消下划线 */
       }
 
       .beian-number {
@@ -1537,6 +1539,7 @@ if ($domain) {
         color: #333333;
         font-size: 14px;
         white-space: nowrap;
+        text-decoration: none; /* 取消下划线 */
       }
 
       .beian-tip {
@@ -1638,6 +1641,7 @@ if ($domain) {
           align-items: flex-start;
           gap: 5px;
           padding: 5px;
+          min-height: auto;
         }
 
         .beian-left {
