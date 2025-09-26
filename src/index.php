@@ -779,14 +779,15 @@ if ($domain) {
             } elseif ($parser->reserved) {
                 $resultMessage = "🤬该死的注册局，把这个域名保留了。";
             } elseif ($parser->registered) {
-                $resultMessage = "😁该域名已注册。";
+                // 隐藏已注册状态的提示
+                $resultMessage = null; 
             } else {
                 $resultMessage = "😁该域名未被注册，可以尝试去注册。";
             }
         }
       ?>
-      <?php if ($domain && $resultMessage): ?>
-        <div class="domain-info-box<?= $parser->registered ? ' registered-status' : '' ?>">
+      <?php if ($domain && $resultMessage): // 只有当 $domain 存在且 $resultMessage 不为空（即不是已注册状态）时才显示此框 ?>
+        <div class="domain-info-box">
           <a href="http://<?= htmlspecialchars($domain, ENT_QUOTES, 'UTF-8'); ?>" rel="nofollow noopener noreferrer" target="_blank">
             <p style="margin-bottom: 5px; font-size: 1.2em;"><?= htmlspecialchars($domain, ENT_QUOTES, 'UTF-8'); ?></p>
           </a>
@@ -807,7 +808,8 @@ if ($domain) {
                     <path d="m10.97 4.97-.02.022-3.473 4.425-2.093-2.094a.75.75 0 0 0-1.06 1.06L6.97 11.03a.75.75 0 0 0 1.079-.02l3.992-4.99a.75.75 0 0 0-1.071-1.05" />
                   </svg>
                   <a href="http://<?= htmlspecialchars($domain, ENT_QUOTES, 'UTF-8'); ?>" rel="nofollow noopener noreferrer" target="_blank"><?= htmlspecialchars($domain, ENT_QUOTES, 'UTF-8'); ?></a>
-                  </h1>
+                  <span class="registered-status">域名已注册</span>
+              </h1>
               <?php if ($parser->registrar): ?>
                 <div class="message-label">
                   <span class="message-icon-leading">
