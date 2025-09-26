@@ -1025,18 +1025,6 @@ if ($parser && count($domainParts) > 0 && preg_match('/^[a-zA-Z0-9]$/', $domainP
 <?php elseif ($parser->redemptionPeriod): ?>
   <span class="message-tag message-tag-blue">赎回期</span>
 <?php endif; ?>
-<?php if ($parser->locked || (is_array($parser->status) && in_array('clientTransferProhibited', array_column($parser->status, 'text')))): ?>
-  <span class="message-tag message-tag-purple">锁定</span>
-<?php endif; ?>
-<?php if ($parser->recentlyTransferred && $parser->ageSeconds < 90 * 24 * 60 * 60): ?>
-  <span class="message-tag message-tag-lime">近日转移</span>
-<?php endif; ?>
-<?php if ($parser->transferring): ?>
-  <span class="message-tag message-tag-indigo">转移中</span>
-<?php endif; ?>
-<?php if (in_array($parser->domain, ['x.rw', 'nic.bn', 'nic.rw', 'l.ke', 'f.af', 'ai.kn', 'ai.rw', 'cxl.net'])): ?>
-  <span class="message-tag message-tag-orange">由不讲·李持有</span>
-<?php endif; ?>
 </div>
 <?php endif; ?>
           </div>
