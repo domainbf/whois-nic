@@ -978,8 +978,7 @@ if ($domain) {
               <div class="message-beian" id="message-beian">
                 <div class="skeleton"></div>
               </div>
-            <?php endif; ?>
-            <?php if ($parser->age || $parser->remaining || $parser->pendingDelete || $parser->gracePeriod || $parser->redemptionPeriod || $parser->locked || $parser->transferred || $parser->premium || $parser->auction || $parser->transferring || $parser->recentlyTransferred || (preg_match('/^[a-zA-Z0-9]\.[a-zA-Z]{2,}$/', $parser->domain) || preg_match('/^[a-zA-Z0-9]\.[a-zA-Z]+\.[a-zA-Z]{2,}$/', $parser->domain))): ?>
+                        <?php if ($parser->age || $parser->remaining || $parser->pendingDelete || $parser->gracePeriod || $parser->redemptionPeriod || (isset($parser->locked) && $parser->locked) || (isset($parser->transferred) && $parser->transferred) || (isset($parser->premium) && $parser->premium) || (isset($parser->auction) && $parser->auction) || (isset($parser->transferring) && $parser->transferring) || (isset($parser->recentlyTransferred) && $parser->recentlyTransferred) || (preg_match('/^[a-zA-Z0-9]\.[a-zA-Z]{2,}$/', $parser->domain) || preg_match('/^[a-zA-Z0-9]\.[a-zA-Z]+\.[a-zA-Z]{2,}$/', $parser->domain))): ?>
               <div class="message-tags">
                 <?php if ($parser->age): ?>
                   <button class="message-tag message-tag-gray" id="age" data-seconds="<?= $parser->ageSeconds; ?>">
@@ -1020,22 +1019,22 @@ if ($domain) {
                 <?php elseif ($parser->redemptionPeriod): ?>
                   <span class="message-tag message-tag-blue">赎回期</span>
                 <?php endif; ?>
-                <?php if ($parser->locked): ?>
+                <?php if (isset($parser->locked) && $parser->locked): ?>
                   <span class="message-tag message-tag-purple">已锁定</span>
                 <?php endif; ?>
-                <?php if ($parser->transferred): ?>
+                <?php if (isset($parser->transferred) && $parser->transferred): ?>
                   <span class="message-tag message-tag-orange">已转移</span>
                 <?php endif; ?>
-                <?php if ($parser->premium): ?>
+                <?php if (isset($parser->premium) && $parser->premium): ?>
                   <span class="message-tag message-tag-gold">高级域名</span>
                 <?php endif; ?>
-                <?php if ($parser->auction): ?>
+                <?php if (isset($parser->auction) && $parser->auction): ?>
                   <span class="message-tag message-tag-teal">拍卖中</span>
                 <?php endif; ?>
-                <?php if ($parser->transferring): ?>
+                <?php if (isset($parser->transferring) && $parser->transferring): ?>
                   <span class="message-tag message-tag-indigo">正在转移中</span>
                 <?php endif; ?>
-                <?php if ($parser->recentlyTransferred && $parser->ageSeconds < 90 * 24 * 60 * 60): ?>
+                <?php if (isset($parser->recentlyTransferred) && $parser->recentlyTransferred && $parser->ageSeconds < 90 * 24 * 60 * 60): ?>
                   <span class="message-tag message-tag-lime">近期转移过</span>
                 <?php endif; ?>
                 <?php if (preg_match('/^[a-zA-Z0-9]\.[a-zA-Z]{2,}$/', $parser->domain) || preg_match('/^[a-zA-Z0-9]\.[a-zA-Z]+\.[a-zA-Z]{2,}$/', $parser->domain)): ?>
