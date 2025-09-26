@@ -1446,8 +1446,10 @@ if ($domain) {
 
             innerHTML = `
               <div class="beian-info">
-                <span class="beian-domain">${domainName}</span>
-                <span class="beian-number">${mainLicence}</span>
+                <div class="beian-left">
+                  <span class="beian-domain">${domainName}</span>
+                  <span class="beian-number">${mainLicence}</span>
+                </div>
                 <span class="beian-tip">点击查看详情</span>
               </div>
             `;
@@ -1506,9 +1508,8 @@ if ($domain) {
       /* 备案信息样式 */
       .beian-info {
         display: flex;
-        align-items: center;
+        align-items: flex-end;
         justify-content: space-between;
-        gap: 10px;
         padding: 5px 10px;
         border: 2px solid #000000;
         border-radius: 5px;
@@ -1516,6 +1517,12 @@ if ($domain) {
         font-family: 'Fraunces', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
         transition: opacity 0.3s ease;
         position: relative;
+      }
+
+      .beian-left {
+        display: flex;
+        align-items: center;
+        gap: 10px;
       }
 
       .beian-domain {
@@ -1540,9 +1547,6 @@ if ($domain) {
         background: #f9f9f9;
         border: 1px solid #ddd;
         border-radius: 3px;
-        position: absolute;
-        right: 5px;
-        bottom: -15px;
       }
 
       .beian-info.no-beian {
@@ -1636,6 +1640,11 @@ if ($domain) {
           padding: 5px;
         }
 
+        .beian-left {
+          flex-direction: column;
+          align-items: flex-start;
+        }
+
         .beian-tooltip {
           max-width: 90vw;
         }
@@ -1656,7 +1665,6 @@ if ($domain) {
 
         .beian-tip {
           font-size: 10px;
-          position: static;
           margin-top: 5px;
           margin-left: auto;
         }
