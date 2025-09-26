@@ -1512,7 +1512,8 @@ if ($domain) {
         background: transparent;
         font-family: 'Fraunces', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
         transition: opacity 0.3s ease;
-        border: none; /* 去掉边框 */
+        border: none;
+        margin-left: 20px; /* 调整左边距与内容对齐 */
       }
 
       .beian-domain {
@@ -1632,6 +1633,7 @@ if ($domain) {
           align-items: flex-start;
           gap: 5px;
           padding: 5px;
+          margin-left: 10px; /* 移动端调整左边距 */
         }
 
         .beian-domain {
