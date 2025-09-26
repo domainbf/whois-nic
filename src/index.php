@@ -1446,10 +1446,8 @@ if ($domain) {
 
             innerHTML = `
               <div class="beian-info">
-                <div class="beian-left">
-                  <span class="beian-domain">${domainName}</span>
-                  <span class="beian-number">${mainLicence}</span>
-                </div>
+                <span class="beian-domain">${domainName}</span>
+                <span class="beian-number">${mainLicence}</span>
                 <span class="beian-tip">点击查看详情</span>
               </div>
             `;
@@ -1508,22 +1506,13 @@ if ($domain) {
       /* 备案信息样式 */
       .beian-info {
         display: flex;
-        align-items: flex-end;
-        justify-content: space-between;
+        align-items: center;
+        justify-content: flex-start;
         padding: 5px 10px;
-        border: 2px solid #000000;
-        border-radius: 5px;
         background: transparent;
         font-family: 'Fraunces', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
         transition: opacity 0.3s ease;
-        position: relative;
-        min-height: 40px; /* 确保有足够空间下移 */
-      }
-
-      .beian-left {
-        display: flex;
-        align-items: flex-start; /* 调整为顶部对齐，配合下移 */
-        gap: 10px;
+        border: none; /* 去掉边框 */
       }
 
       .beian-domain {
@@ -1531,7 +1520,8 @@ if ($domain) {
         color: #000000;
         font-size: 14px;
         white-space: nowrap;
-        text-decoration: none; /* 取消下划线 */
+        text-decoration: none;
+        margin-right: 10px;
       }
 
       .beian-number {
@@ -1539,7 +1529,8 @@ if ($domain) {
         color: #333333;
         font-size: 14px;
         white-space: nowrap;
-        text-decoration: none; /* 取消下划线 */
+        text-decoration: none;
+        margin-right: 10px;
       }
 
       .beian-tip {
@@ -1553,7 +1544,7 @@ if ($domain) {
       }
 
       .beian-info.no-beian {
-        border-color: #666666;
+        border: none;
       }
 
       .beian-info.no-beian .no-beian-text {
@@ -1562,7 +1553,7 @@ if ($domain) {
       }
 
       .beian-info.error {
-        border-color: #ff3333;
+        border: none;
       }
 
       .beian-info.error .error-text {
@@ -1641,12 +1632,14 @@ if ($domain) {
           align-items: flex-start;
           gap: 5px;
           padding: 5px;
-          min-height: auto;
         }
 
-        .beian-left {
-          flex-direction: column;
-          align-items: flex-start;
+        .beian-domain {
+          margin-right: 0;
+        }
+
+        .beian-number {
+          margin-right: 0;
         }
 
         .beian-tooltip {
@@ -1670,7 +1663,6 @@ if ($domain) {
         .beian-tip {
           font-size: 10px;
           margin-top: 5px;
-          margin-left: auto;
         }
       }
     </style>
