@@ -1424,22 +1424,29 @@ if ($domain) {
 
           const data = await response.json();
 
+          // 调试：在控制台打印完整响应，便于排查
+          console.log("API响应数据:", data);
+
           if (data.code !== 200) {
             throw new Error(data.msg || "查询失败");
           }
 
           let innerHTML = "";
-          const beianData = data.data && data.data.list && data.data.list.length > 0 ? data.data.list[0] : null;
+          
+          // 修正：使用正确的数据结构 data.params.list
+          const beianData = data.params && data.params.list && data.params.list.length > 0 ? data.params.list[0] : null;
 
           if (beianData) {
             const mainLicence = beianData.mainLicence || "无";
             const unitName = beianData.unitName || "未知";
             const updateRecordTime = beianData.updateRecordTime || "未知";
-            const blackListLevel = beianData.blackListLevel === 2 ? "暂无违法违规信息" : `威胁等级: ${beianData.blackListLevel || "未知"}`;
+            
+            // 移除不存在的 blackListLevel 字段，或使用其他可用字段
+            const natureName = beianData.natureName || "未知";
 
             innerHTML = `
               <button class="message-tag message-tag-gray" id="beian-info">
-                <span>备案: ${mainLicence} (${unitName}, ${updateRecordTime}, ${blackListLevel})</span>
+                <span>备案: ${mainLicence} (${unitName}, ${updateRecordTime}, ${natureName})</span>
               </button>
             `;
           } else {
@@ -1458,9 +1465,9 @@ if ($domain) {
                     主办单位: ${beianData.unitName || "未知"}<br>
                     性质: ${beianData.natureName || "未知"}<br>
                     审核时间: ${beianData.updateRecordTime || "未知"}<br>
-                    内容类型: ${beianData.contentTypeName || "未知"}<br>
-                    地址: ${beianData.mainUnitAddress || "未知"}<br>
-                    威胁等级: ${beianData.blackListLevel === 2 ? "暂无违法违规信息" : beianData.blackListLevel || "未知"}
+                    ${beianData.contentTypeName ? '内容类型: ' + beianData.contentTypeName + '<br>' : ''}
+                    ${beianData.serviceLicence ? '服务许可证: ' + beianData.serviceLicence + '<br>' : ''}
+                    域名: ${beianData.domain || "未知"}
                   </div>
                 `,
                 placement: "bottom",
@@ -1469,6 +1476,7 @@ if ($domain) {
             }
           }, Math.max(0, 500 - (Date.now() - startTime)));
         } catch (error) {
+          console.error("备案查询错误:", error);
           setTimeout(() => {
             messageBeiAn.innerHTML = `<span class="message-tag message-tag-pink">获取备案失败: ${error.message}</span>`;
           }, Math.max(0, 500 - (Date.now() - startTime)));
