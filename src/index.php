@@ -1520,7 +1520,9 @@ if ($domain) {
                 `,
                 placement: "bottom",
                 allowHTML: true,
-                theme: 'beian-tooltip'
+                theme: 'beian-tooltip',
+                maxWidth: 380, // 增加悬浮框最大宽度
+                duration: [300, 200] // 添加动画效果
               });
             }
           }, Math.max(0, 500 - (Date.now() - startTime)));
@@ -1544,49 +1546,68 @@ if ($domain) {
     </script>
 
     <style>
+      /* 与首页风格一致的配色方案 */
+      :root {
+        --primary-color: #3498db;       /* 主色调 - 蓝色 */
+        --secondary-color: #2ecc71;     /* 辅助色 - 绿色 */
+        --accent-color: #e74c3c;        /* 强调色 - 红色 */
+        --text-primary: #2c3e50;        /* 主要文字颜色 */
+        --text-secondary: #7f8c8d;      /* 次要文字颜色 */
+        --bg-light: #ecf0f1;            /* 浅背景色 */
+        --bg-card: #ffffff;             /* 卡片背景色 */
+        --border-color: #bdc3c7;        /* 边框颜色 */
+        --success-color: #27ae60;       /* 成功状态颜色 */
+        --warning-color: #f39c12;       /* 警告状态颜色 */
+        --error-color: #e74c3c;         /* 错误状态颜色 */
+      }
+      
       .beian-info-container {
         display: flex;
         align-items: center;
-        background: #f8f9fa;
-        border: 1px solid #e9ecef;
+        background: var(--bg-card);
+        border: 1px solid var(--border-color);
         border-radius: 8px;
-        padding: 10px 12px;
-        margin: 8px 0;
+        padding: 12px 15px;
+        margin: 10px 0;
         font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-        transition: all 0.2s ease;
+        transition: all 0.3s ease;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.05);
       }
       
       .beian-info-container:hover {
-        background: #e9ecef;
-        border-color: #ced4da;
+        background: var(--bg-light);
+        border-color: var(--primary-color);
+        box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        transform: translateY(-1px);
       }
       
       .beian-info-container.no-beian {
-        background: #fff3cd;
-        border-color: #ffeaa7;
+        background: #fef9e7;
+        border-color: #f7dc6f;
       }
       
       .beian-info-container.error {
-        background: #f8d7da;
-        border-color: #f5c6cb;
+        background: #fdedec;
+        border-color: #f5b7b1;
       }
       
       .beian-badge {
         display: flex;
         align-items: center;
-        margin-right: 12px;
+        margin-right: 15px;
         flex-shrink: 0;
       }
       
       .beian-icon {
-        font-size: 16px;
-        margin-right: 6px;
+        font-size: 18px;
+        margin-right: 8px;
+        color: var(--primary-color);
       }
       
       .beian-label {
-        font-size: 12px;
+        font-size: 13px;
         font-weight: 600;
-        color: #6c757d;
+        color: var(--text-secondary);
         text-transform: uppercase;
         letter-spacing: 0.5px;
       }
@@ -1599,75 +1620,81 @@ if ($domain) {
       .beian-main {
         display: flex;
         align-items: center;
-        margin-bottom: 2px;
+        margin-bottom: 4px;
       }
       
       .beian-number {
-        font-weight: 600;
-        color: #212529;
-        font-size: 14px;
-        margin-right: 8px;
+        font-weight: 700;
+        color: var(--text-primary);
+        font-size: 15px;
+        margin-right: 10px;
       }
       
       .beian-type {
-        background: #007bff;
+        background: var(--primary-color);
         color: white;
-        padding: 2px 6px;
+        padding: 3px 8px;
         border-radius: 4px;
-        font-size: 10px;
+        font-size: 11px;
         font-weight: 600;
       }
       
       .beian-secondary {
         display: flex;
         align-items: center;
-        font-size: 12px;
-        color: #6c757d;
+        font-size: 13px;
+        color: var(--text-secondary);
       }
       
       .beian-company {
-        margin-right: 8px;
+        margin-right: 10px;
         overflow: hidden;
         text-overflow: ellipsis;
         white-space: nowrap;
+        max-width: 60%;
       }
       
       .beian-date {
-        color: #868e96;
+        color: var(--text-secondary);
+        font-size: 12px;
       }
       
       .no-beian-text, .error-text {
-        font-size: 13px;
-        color: #856404;
+        font-size: 14px;
+        color: var(--warning-color);
         font-weight: 500;
       }
       
       .error-text {
-        color: #721c24;
+        color: var(--error-color);
       }
       
-      /* Tippy 工具提示样式 */
+      /* Tippy 工具提示样式 - 放宽宽度 */
       .beian-tooltip {
-        max-width: 280px;
+        max-width: 380px !important; /* 增加宽度防止换行 */
         padding: 0;
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
       }
       
       .tooltip-header {
-        background: #007bff;
+        background: var(--primary-color);
         color: white;
-        padding: 10px 12px;
+        padding: 12px 15px;
         font-weight: 600;
         border-radius: 6px 6px 0 0;
+        font-size: 15px;
       }
       
       .tooltip-grid {
-        padding: 12px;
+        padding: 15px;
       }
       
       .tooltip-item {
         display: flex;
         justify-content: space-between;
-        margin-bottom: 6px;
+        margin-bottom: 8px;
+        align-items: flex-start;
+        min-height: 20px;
       }
       
       .tooltip-item:last-child {
@@ -1676,33 +1703,42 @@ if ($domain) {
       
       .tooltip-label {
         font-weight: 600;
-        color: #495057;
-        margin-right: 8px;
+        color: var(--text-primary);
+        margin-right: 15px;
         flex-shrink: 0;
+        width: 100px; /* 固定标签宽度，使内容对齐 */
       }
       
       .tooltip-value {
-        color: #6c757d;
-        text-align: right;
+        color: var(--text-secondary);
+        text-align: left;
         word-break: break-word;
+        flex: 1;
+        min-width: 0;
       }
       
       .tippy-box[data-theme~='beian-tooltip'] {
-        background: white;
-        border: 1px solid #e9ecef;
-        border-radius: 6px;
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        background: var(--bg-card);
+        border: 1px solid var(--border-color);
+        border-radius: 8px;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        max-width: 380px !important; /* 确保宽度设置生效 */
       }
       
       .tippy-box[data-theme~='beian-tooltip'] .tippy-arrow {
-        color: white;
+        color: var(--bg-card);
+      }
+      
+      .tippy-box[data-theme~='beian-tooltip'] .tippy-content {
+        padding: 0;
       }
       
       /* 响应式设计 */
-      @media (max-width: 480px) {
+      @media (max-width: 768px) {
         .beian-info-container {
           flex-direction: column;
           align-items: flex-start;
+          padding: 10px;
         }
         
         .beian-badge {
@@ -1718,6 +1754,40 @@ if ($domain) {
         .beian-company {
           margin-right: 0;
           margin-bottom: 4px;
+          max-width: 100%;
+        }
+        
+        .beian-tooltip {
+          max-width: 300px !important;
+        }
+        
+        .tooltip-item {
+          flex-direction: column;
+          align-items: flex-start;
+        }
+        
+        .tooltip-label {
+          width: auto;
+          margin-bottom: 2px;
+        }
+        
+        .tooltip-value {
+          text-align: left;
+        }
+      }
+      
+      @media (max-width: 480px) {
+        .beian-tooltip {
+          max-width: 280px !important;
+        }
+        
+        .tooltip-header {
+          padding: 10px 12px;
+          font-size: 14px;
+        }
+        
+        .tooltip-grid {
+          padding: 12px;
         }
       }
     </style>
