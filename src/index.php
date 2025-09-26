@@ -1010,6 +1010,9 @@ if ($domain) {
                 <?php if (($parser->remainingSeconds ?? 0) >= 5 * 365 * 24 * 60 * 60): ?>
                   <span class="message-tag message-tag-blue">长期持有</span>
                 <?php endif; ?>
+                <?php if (preg_match('/^[a-zA-Z0-9]$/', $parser->domain)): ?>
+  <span class="message-tag message-tag-blue">单字符</span>
+<?php endif; ?>
                 <?php if ($parser->pendingDelete): ?>
                   <span class="message-tag message-tag-red">待删除</span>
                 <?php elseif ($parser->remainingSeconds < 0): ?>
