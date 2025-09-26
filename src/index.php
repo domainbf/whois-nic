@@ -1476,7 +1476,7 @@ if ($domain) {
                       <span class="tooltip-item"><span class="tooltip-label">单位性质:</span><span class="tooltip-value">${beianData.natureName || "未知"}</span></span>
                       <span class="tooltip-item"><span class="tooltip-label">主办单位:</span><span class="tooltip-value">${beianData.unitName || "未知"}</span></span>
                       <span class="tooltip-item"><span class="tooltip-label">审核时间:</span><span class="tooltip-value">${beianData.updateRecordTime ? new Date(beianData.updateRecordTime).toLocaleDateString() : "未知"}</span></span>
-                      <span class="tooltip-item"><span class="tooltip-label">公安局备案号:</span><span class="tooltip-value">${beianData.policeLicence || "无"}</span></span>
+                      <span class="tooltip-item"><span class="tooltip-label">公安局备案号:</span><span class="tooltip-value">&nbsp;${beianData.policeLicence || "无"}</span></span>
                     </div>
                   </div>
                 `,
@@ -1507,6 +1507,7 @@ if ($domain) {
       .beian-info {
         display: flex;
         align-items: center;
+        justify-content: space-between;
         gap: 10px;
         padding: 5px 10px;
         border: 2px solid #000000;
@@ -1514,6 +1515,7 @@ if ($domain) {
         background: transparent;
         font-family: 'Fraunces', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
         transition: opacity 0.3s ease;
+        position: relative;
       }
 
       .beian-domain {
@@ -1534,11 +1536,13 @@ if ($domain) {
         font-size: 12px;
         color: #666666;
         white-space: nowrap;
-        margin-left: auto;
         padding: 2px 5px;
         background: #f9f9f9;
         border: 1px solid #ddd;
         border-radius: 3px;
+        position: absolute;
+        right: 5px;
+        bottom: -15px;
       }
 
       .beian-info.no-beian {
@@ -1565,7 +1569,7 @@ if ($domain) {
         padding: 0;
         background: #ffffff;
         border: 2px solid #000000;
-        border-radius: 0; /* 移除圆角，修复白边 */
+        border-radius: 0;
         box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
         font-family: 'Fraunces', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
         margin: 0;
@@ -1584,7 +1588,7 @@ if ($domain) {
         display: flex;
         gap: 10px;
         white-space: nowrap;
-        background: #ffffff; /* 确保内容背景与整体一致 */
+        background: #ffffff;
       }
 
       .tooltip-item {
@@ -1614,21 +1618,13 @@ if ($domain) {
       .tippy-box[data-theme~='beian-tooltip'] {
         background: #ffffff;
         border: 2px solid #000000;
-        border-radius: 0; /* 移除圆角，修复白边 */
+        border-radius: 0;
         box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
       }
 
       .tippy-box[data-theme~='beian-tooltip'] .tippy-arrow {
         color: #ffffff;
         border-color: #000000;
-      }
-
-      /* 调整 .beian-info 布局 */
-      .beian-info {
-        display: flex;
-        align-items: center;
-        justify-content: space-between; /* 确保一排排列 */
-        width: 100%;
       }
 
       /* 响应式设计 */
@@ -1660,8 +1656,9 @@ if ($domain) {
 
         .beian-tip {
           font-size: 10px;
-          margin-left: 0;
+          position: static;
           margin-top: 5px;
+          margin-left: auto;
         }
       }
     </style>
