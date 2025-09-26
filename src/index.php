@@ -1514,7 +1514,6 @@ if ($domain) {
         background: transparent;
         font-family: 'Fraunces', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
         transition: opacity 0.3s ease;
-        position: relative;
       }
 
       .beian-domain {
@@ -1532,14 +1531,14 @@ if ($domain) {
       }
 
       .beian-tip {
-        font-size: 12px; /* 增大字体 */
+        font-size: 12px;
         color: #666666;
         white-space: nowrap;
-        margin-left: auto; /* 靠右对齐 */
-        padding: 2px 5px; /* 添加内边距，使其更像框架内部分 */
-        background: #f9f9f9; /* 轻微背景色，融入框架 */
-        border: 1px solid #ddd; /* 轻微边框 */
-        border-radius: 3px; /* 圆角 */
+        margin-left: auto;
+        padding: 2px 5px;
+        background: #f9f9f9;
+        border: 1px solid #ddd;
+        border-radius: 3px;
       }
 
       .beian-info.no-beian {
@@ -1566,7 +1565,7 @@ if ($domain) {
         padding: 0;
         background: #ffffff;
         border: 2px solid #000000;
-        border-radius: 5px;
+        border-radius: 0; /* 移除圆角，修复白边 */
         box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
         font-family: 'Fraunces', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
         margin: 0;
@@ -1577,7 +1576,6 @@ if ($domain) {
         color: #ffffff;
         padding: 8px 12px;
         font-weight: 600;
-        border-radius: 5px 5px 0 0;
         font-size: 14px;
       }
 
@@ -1586,19 +1584,19 @@ if ($domain) {
         display: flex;
         gap: 10px;
         white-space: nowrap;
-        background: #000000; /* 确保背景填满，消除白边 */
+        background: #ffffff; /* 确保内容背景与整体一致 */
       }
 
       .tooltip-item {
         display: inline-flex;
         align-items: center;
         font-size: 13px;
-        color: #ffffff; /* 文字颜色调整为白色，与背景匹配 */
+        color: #333333;
       }
 
       .tooltip-label {
         font-weight: 600;
-        color: #ffffff; /* 标签白色 */
+        color: #333333;
         margin-right: 8px;
         flex-shrink: 0;
         width: 80px;
@@ -1606,7 +1604,7 @@ if ($domain) {
       }
 
       .tooltip-value {
-        color: #cccccc; /* 值颜色稍浅 */
+        color: #666666;
         flex: 1;
         white-space: nowrap;
         overflow: hidden;
@@ -1614,15 +1612,23 @@ if ($domain) {
       }
 
       .tippy-box[data-theme~='beian-tooltip'] {
-        background: #000000; /* 悬浮框背景改为黑色，消除白边 */
+        background: #ffffff;
         border: 2px solid #000000;
-        border-radius: 5px;
+        border-radius: 0; /* 移除圆角，修复白边 */
         box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
       }
 
       .tippy-box[data-theme~='beian-tooltip'] .tippy-arrow {
-        color: #000000; /* 箭头颜色与背景匹配 */
+        color: #ffffff;
         border-color: #000000;
+      }
+
+      /* 调整 .beian-info 布局 */
+      .beian-info {
+        display: flex;
+        align-items: center;
+        justify-content: space-between; /* 确保一排排列 */
+        width: 100%;
       }
 
       /* 响应式设计 */
@@ -1654,7 +1660,8 @@ if ($domain) {
 
         .beian-tip {
           font-size: 10px;
-          bottom: -12px;
+          margin-left: 0;
+          margin-top: 5px;
         }
       }
     </style>
