@@ -1513,7 +1513,8 @@ if ($domain) {
         background: transparent;
         font-family: 'Fraunces', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
         transition: opacity 0.3s ease;
-        position: relative;
+        justify-content: center;
+        text-align: center;
       }
 
       .beian-domain {
@@ -1522,6 +1523,7 @@ if ($domain) {
         font-size: 14px;
         white-space: nowrap;
         text-decoration: none;
+        margin-right: 10px;
       }
 
       .beian-number {
@@ -1530,6 +1532,7 @@ if ($domain) {
         font-size: 14px;
         white-space: nowrap;
         text-decoration: none;
+        margin-right: 10px;
       }
 
       .beian-tip {
@@ -1547,6 +1550,7 @@ if ($domain) {
 
       .beian-info.no-beian {
         border: none;
+        justify-content: center;
       }
 
       .beian-info.no-beian .no-beian-text {
@@ -1556,6 +1560,7 @@ if ($domain) {
 
       .beian-info.error {
         border: none;
+        justify-content: center;
       }
 
       .beian-info.error .error-text {
@@ -1631,7 +1636,7 @@ if ($domain) {
       @media (max-width: 480px) {
         .beian-info {
           flex-direction: column;
-          align-items: flex-start;
+          align-items: center;
           gap: 5px;
           padding: 5px;
         }
@@ -1658,7 +1663,6 @@ if ($domain) {
           font-size: 10px;
           position: static;
           margin-top: 5px;
-          margin-left: auto;
         }
       }
     </style>
