@@ -1469,41 +1469,20 @@ if ($domain) {
                   <div class="beian-tooltip">
                     <div class="tooltip-header">备案详细信息</div>
                     <div class="tooltip-content">
-                      <div class="tooltip-item">
-                        <span class="tooltip-label">域名:</span>
-                        <span class="tooltip-value">${beianData.domain || "未知"}</span>
-                      </div>
-                      <div class="tooltip-item">
-                        <span class="tooltip-label">备案号:</span>
-                        <span class="tooltip-value">${beianData.mainLicence || "无"}</span>
-                      </div>
-                      <div class="tooltip-item">
-                        <span class="tooltip-label">服务许可证:</span>
-                        <span class="tooltip-value">${beianData.serviceLicence || "无"}</span>
-                      </div>
-                      <div class="tooltip-item">
-                        <span class="tooltip-label">单位性质:</span>
-                        <span class="tooltip-value">${beianData.natureName || "未知"}</span>
-                      </div>
-                      <div class="tooltip-item">
-                        <span class="tooltip-label">主办单位:</span>
-                        <span class="tooltip-value">${beianData.unitName || "未知"}</span>
-                      </div>
-                      <div class="tooltip-item">
-                        <span class="tooltip-label">审核时间:</span>
-                        <span class="tooltip-value">${beianData.updateRecordTime ? new Date(beianData.updateRecordTime).toLocaleDateString() : "未知"}</span>
-                      </div>
-                      <div class="tooltip-item">
-                        <span class="tooltip-label">公安局备案号:</span>
-                        <span class="tooltip-value">${beianData.policeLicence || "无"}</span>
-                      </div>
+                      <span class="tooltip-item"><span class="tooltip-label">域名:</span><span class="tooltip-value">${beianData.domain || "未知"}</span></span>
+                      <span class="tooltip-item"><span class="tooltip-label">备案号:</span><span class="tooltip-value">${beianData.mainLicence || "无"}</span></span>
+                      <span class="tooltip-item"><span class="tooltip-label">服务许可证:</span><span class="tooltip-value">${beianData.serviceLicence || "无"}</span></span>
+                      <span class="tooltip-item"><span class="tooltip-label">单位性质:</span><span class="tooltip-value">${beianData.natureName || "未知"}</span></span>
+                      <span class="tooltip-item"><span class="tooltip-label">主办单位:</span><span class="tooltip-value">${beianData.unitName || "未知"}</span></span>
+                      <span class="tooltip-item"><span class="tooltip-label">审核时间:</span><span class="tooltip-value">${beianData.updateRecordTime ? new Date(beianData.updateRecordTime).toLocaleDateString() : "未知"}</span></span>
+                      <span class="tooltip-item"><span class="tooltip-label">公安局备案号:</span><span class="tooltip-value">${beianData.policeLicence || "无"}</span></span>
                     </div>
                   </div>
                 `,
                 placement: "bottom",
                 allowHTML: true,
                 theme: 'beian-tooltip',
-                maxWidth: 350
+                maxWidth: 800 /* 增加宽度以容纳一行 */
               });
             }
           }, Math.max(0, 500 - (Date.now() - startTime)));
@@ -1570,7 +1549,7 @@ if ($domain) {
 
       /* 悬浮框样式 */
       .beian-tooltip {
-        max-width: 350px;
+        max-width: 800px; /* 增加宽度以容纳一行 */
         padding: 0;
         background: #ffffff;
         border: 2px solid #000000;
@@ -1590,17 +1569,16 @@ if ($domain) {
 
       .tooltip-content {
         padding: 10px 12px;
+        display: flex; /* 使用 flex 水平排列 */
+        flex-wrap: wrap; /* 超出屏幕时换行 */
+        gap: 10px; /* 项间距 */
       }
 
       .tooltip-item {
-        display: flex;
-        justify-content: space-between;
-        margin-bottom: 8px;
+        display: inline-flex; /* 行内 flex 排列 */
+        align-items: center;
+        margin-bottom: 0; /* 移除垂直间距 */
         font-size: 13px;
-      }
-
-      .tooltip-item:last-child {
-        margin-bottom: 0;
       }
 
       .tooltip-label {
@@ -1618,7 +1596,7 @@ if ($domain) {
         white-space: nowrap; /* 优先一行显示 */
         overflow: hidden; /* 隐藏超出部分 */
         text-overflow: ellipsis; /* 超出时显示省略号 */
-        max-width: 0; /* 配合 flex 自动扩展 */
+        max-width: 150px; /* 限制值宽度，防止过长 */
       }
 
       .tippy-box[data-theme~='beian-tooltip'] {
@@ -1653,6 +1631,11 @@ if ($domain) {
         .tooltip-value {
           white-space: normal; /* 移动端允许换行 */
           word-break: break-all; /* 长单词换行 */
+          max-width: 120px; /* 移动端调整 */
+        }
+
+        .tooltip-content {
+          flex-direction: column; /* 移动端垂直排列 */
         }
       }
     </style>
