@@ -1005,7 +1005,7 @@ if ($domain) {
                   <span class="message-tag message-tag-yellow">即将过期</span>
                 <?php endif; ?>
                 <?php if (($parser->ageSeconds ?? 0) >= 10 * 365 * 24 * 60 * 60): ?>
-                  <span class="message-tag message-tag-red">古董域名</span>
+                  <span class="message-tag message-tag-red">20</span>
                 <?php endif; ?>
                 <?php if (($parser->remainingSeconds ?? 0) >= 5 * 365 * 24 * 60 * 60): ?>
                   <span class="message-tag message-tag-blue">长期持有</span>
@@ -1019,6 +1019,27 @@ if ($domain) {
                   <span class="message-tag message-tag-yellow">宽限期</span>
                 <?php elseif ($parser->redemptionPeriod): ?>
                   <span class="message-tag message-tag-blue">赎回期</span>
+                <?php endif; ?>
+                <?php if ($parser->locked): ?>
+                  <span class="message-tag message-tag-purple">已锁定</span>
+                <?php endif; ?>
+                <?php if ($parser->transferred): ?>
+                  <span class="message-tag message-tag-orange">已转移</span>
+                <?php endif; ?>
+                <?php if ($parser->premium): ?>
+                  <span class="message-tag message-tag-gold">高级域名</span>
+                <?php endif; ?>
+                <?php if ($parser->auction): ?>
+                  <span class="message-tag message-tag-teal">拍卖中</span>
+                <?php endif; ?>
+                <?php if ($parser->transferring): ?>
+                  <span class="message-tag message-tag-indigo">正在转移中</span>
+                <?php endif; ?>
+                <?php if ($parser->recentlyTransferred && $parser->ageSeconds < 90 * 24 * 60 * 60): ?>
+                  <span class="message-tag message-tag-lime">近期转移过</span>
+                <?php endif; ?>
+                <?php if (preg_match('/^[a-zA-Z0-9]\.[a-zA-Z]{2,}$/', $parser->domain) || preg_match('/^[a-zA-Z0-9]\.[a-zA-Z]+\.[a-zA-Z]{2,}$/', $parser->domain)): ?>
+                  <span class="message-tag message-tag-silver">单字符域名</span>
                 <?php endif; ?>
               </div>
             <?php endif; ?>
