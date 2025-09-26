@@ -1424,16 +1424,12 @@ if ($domain) {
 
           const data = await response.json();
 
-          // 调试：在控制台打印完整响应，便于排查
-          console.log("API响应数据:", data);
-
           if (data.code !== 200) {
             throw new Error(data.msg || "查询失败");
           }
 
           let innerHTML = "";
           
-          // 修正：使用正确的数据结构 data.params.list
           const beianData = data.params && data.params.list && data.params.list.length > 0 ? data.params.list[0] : null;
 
           if (beianData) {
@@ -1446,16 +1442,16 @@ if ($domain) {
 
             innerHTML = `
               <div class="beian-info-container">
-                <div class="beian-badge">
+                <div class="beian-header">
                   <span class="beian-icon">📄</span>
-                  <span class="beian-label">备案信息</span>
+                  <span class="beian-title">备案信息</span>
                 </div>
-                <div class="beian-details">
-                  <div class="beian-main">
+                <div class="beian-content">
+                  <div class="beian-main-info">
                     <span class="beian-number">${mainLicence}</span>
-                    <span class="beian-type">${natureName}</span>
+                    <span class="beian-domain">${domainName}</span>
                   </div>
-                  <div class="beian-secondary">
+                  <div class="beian-details">
                     <span class="beian-company">${unitName}</span>
                     <span class="beian-date">${updateRecordTime}</span>
                   </div>
@@ -1465,11 +1461,11 @@ if ($domain) {
           } else {
             innerHTML = `
               <div class="beian-info-container no-beian">
-                <div class="beian-badge">
+                <div class="beian-header">
                   <span class="beian-icon">❌</span>
-                  <span class="beian-label">备案信息</span>
+                  <span class="beian-title">备案信息</span>
                 </div>
-                <div class="beian-details">
+                <div class="beian-content">
                   <span class="no-beian-text">该域名暂无备案信息</span>
                 </div>
               </div>
@@ -1483,46 +1479,58 @@ if ($domain) {
               tippy(".beian-info-container", {
                 content: `
                   <div class="beian-tooltip">
-                    <div class="tooltip-header">备案详细信息</div>
-                    <div class="tooltip-grid">
-                      <div class="tooltip-item">
-                        <span class="tooltip-label">备案号:</span>
-                        <span class="tooltip-value">${beianData.mainLicence || "无"}</span>
+                    <div class="tooltip-header">
+                      <span class="tooltip-icon">📋</span>
+                      <span>备案详细信息</span>
+                    </div>
+                    <div class="tooltip-content">
+                      <div class="tooltip-row">
+                        <div class="tooltip-item">
+                          <span class="tooltip-label">域名:</span>
+                          <span class="tooltip-value">${beianData.domain || "未知"}</span>
+                        </div>
+                        <div class="tooltip-item">
+                          <span class="tooltip-label">备案号:</span>
+                          <span class="tooltip-value">${beianData.mainLicence || "无"}</span>
+                        </div>
                       </div>
-                      <div class="tooltip-item">
-                        <span class="tooltip-label">主办单位:</span>
-                        <span class="tooltip-value">${beianData.unitName || "未知"}</span>
+                      <div class="tooltip-row">
+                        <div class="tooltip-item">
+                          <span class="tooltip-label">服务许可证:</span>
+                          <span class="tooltip-value">${beianData.serviceLicence || "无"}</span>
+                        </div>
+                        <div class="tooltip-item">
+                          <span class="tooltip-label">单位性质:</span>
+                          <span class="tooltip-value">${beianData.natureName || "未知"}</span>
+                        </div>
                       </div>
-                      <div class="tooltip-item">
-                        <span class="tooltip-label">单位性质:</span>
-                        <span class="tooltip-value">${beianData.natureName || "未知"}</span>
+                      <div class="tooltip-row">
+                        <div class="tooltip-item full-width">
+                          <span class="tooltip-label">主办单位:</span>
+                          <span class="tooltip-value">${beianData.unitName || "未知"}</span>
+                        </div>
                       </div>
-                      <div class="tooltip-item">
-                        <span class="tooltip-label">审核时间:</span>
-                        <span class="tooltip-value">${beianData.updateRecordTime || "未知"}</span>
+                      <div class="tooltip-row">
+                        <div class="tooltip-item full-width">
+                          <span class="tooltip-label">审核时间:</span>
+                          <span class="tooltip-value">${beianData.updateRecordTime || "未知"}</span>
+                        </div>
                       </div>
                       ${beianData.contentTypeName ? `
-                      <div class="tooltip-item">
-                        <span class="tooltip-label">内容类型:</span>
-                        <span class="tooltip-value">${beianData.contentTypeName}</span>
+                      <div class="tooltip-row">
+                        <div class="tooltip-item full-width">
+                          <span class="tooltip-label">内容类型:</span>
+                          <span class="tooltip-value">${beianData.contentTypeName}</span>
+                        </div>
                       </div>` : ''}
-                      ${beianData.serviceLicence ? `
-                      <div class="tooltip-item">
-                        <span class="tooltip-label">服务许可证:</span>
-                        <span class="tooltip-value">${beianData.serviceLicence}</span>
-                      </div>` : ''}
-                      <div class="tooltip-item">
-                        <span class="tooltip-label">域名:</span>
-                        <span class="tooltip-value">${beianData.domain || "未知"}</span>
-                      </div>
                     </div>
                   </div>
                 `,
                 placement: "bottom",
                 allowHTML: true,
                 theme: 'beian-tooltip',
-                maxWidth: 380, // 增加悬浮框最大宽度
-                duration: [300, 200] // 添加动画效果
+                maxWidth: 450,
+                duration: [300, 200]
               });
             }
           }, Math.max(0, 500 - (Date.now() - startTime)));
@@ -1531,11 +1539,11 @@ if ($domain) {
           setTimeout(() => {
             messageBeiAn.innerHTML = `
               <div class="beian-info-container error">
-                <div class="beian-badge">
+                <div class="beian-header">
                   <span class="beian-icon">⚠️</span>
-                  <span class="beian-label">备案信息</span>
+                  <span class="beian-title">备案信息</span>
                 </div>
-                <div class="beian-details">
+                <div class="beian-content">
                   <span class="error-text">获取备案失败: ${error.message}</span>
                 </div>
               </div>
@@ -1546,108 +1554,97 @@ if ($domain) {
     </script>
 
     <style>
-      /* 与首页风格一致的配色方案 */
+      /* 根据网站整体风格调整的配色方案 */
       :root {
-        --primary-color: #3498db;       /* 主色调 - 蓝色 */
-        --secondary-color: #2ecc71;     /* 辅助色 - 绿色 */
-        --accent-color: #e74c3c;        /* 强调色 - 红色 */
-        --text-primary: #2c3e50;        /* 主要文字颜色 */
-        --text-secondary: #7f8c8d;      /* 次要文字颜色 */
-        --bg-light: #ecf0f1;            /* 浅背景色 */
-        --bg-card: #ffffff;             /* 卡片背景色 */
-        --border-color: #bdc3c7;        /* 边框颜色 */
-        --success-color: #27ae60;       /* 成功状态颜色 */
-        --warning-color: #f39c12;       /* 警告状态颜色 */
-        --error-color: #e74c3c;         /* 错误状态颜色 */
+        --bg-primary: #0f172a;          /* 主背景色 - 深蓝黑 */
+        --bg-secondary: #1e293b;        /* 次要背景色 */
+        --bg-card: #334155;             /* 卡片背景色 */
+        --text-primary: #f1f5f9;        /* 主要文字颜色 */
+        --text-secondary: #94a3b8;      /* 次要文字颜色 */
+        --accent-blue: #3b82f6;         /* 蓝色强调色 */
+        --accent-green: #10b981;        /* 绿色强调色 */
+        --accent-purple: #8b5cf6;       /* 紫色强调色 */
+        --border-color: #475569;        /* 边框颜色 */
+        --success-color: #10b981;       /* 成功状态颜色 */
+        --warning-color: #f59e0b;       /* 警告状态颜色 */
+        --error-color: #ef4444;         /* 错误状态颜色 */
       }
       
       .beian-info-container {
-        display: flex;
-        align-items: center;
         background: var(--bg-card);
         border: 1px solid var(--border-color);
-        border-radius: 8px;
-        padding: 12px 15px;
-        margin: 10px 0;
+        border-radius: 10px;
+        padding: 0;
+        margin: 12px 0;
         font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
         transition: all 0.3s ease;
-        box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        overflow: hidden;
       }
       
       .beian-info-container:hover {
-        background: var(--bg-light);
-        border-color: var(--primary-color);
-        box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-        transform: translateY(-1px);
+        border-color: var(--accent-blue);
+        box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.2);
+        transform: translateY(-2px);
       }
       
-      .beian-info-container.no-beian {
-        background: #fef9e7;
-        border-color: #f7dc6f;
-      }
-      
-      .beian-info-container.error {
-        background: #fdedec;
-        border-color: #f5b7b1;
-      }
-      
-      .beian-badge {
+      .beian-header {
         display: flex;
         align-items: center;
-        margin-right: 15px;
-        flex-shrink: 0;
+        background: rgba(30, 41, 59, 0.7);
+        padding: 12px 15px;
+        border-bottom: 1px solid var(--border-color);
       }
       
       .beian-icon {
-        font-size: 18px;
+        font-size: 16px;
         margin-right: 8px;
-        color: var(--primary-color);
+        color: var(--accent-blue);
       }
       
-      .beian-label {
-        font-size: 13px;
+      .beian-title {
+        font-size: 14px;
         font-weight: 600;
-        color: var(--text-secondary);
+        color: var(--text-primary);
         text-transform: uppercase;
         letter-spacing: 0.5px;
       }
       
-      .beian-details {
-        flex: 1;
-        min-width: 0;
+      .beian-content {
+        padding: 15px;
       }
       
-      .beian-main {
+      .beian-main-info {
         display: flex;
+        justify-content: space-between;
         align-items: center;
-        margin-bottom: 4px;
+        margin-bottom: 8px;
       }
       
       .beian-number {
         font-weight: 700;
-        color: var(--text-primary);
+        color: var(--accent-green);
         font-size: 15px;
-        margin-right: 10px;
       }
       
-      .beian-type {
-        background: var(--primary-color);
+      .beian-domain {
+        background: var(--accent-purple);
         color: white;
-        padding: 3px 8px;
-        border-radius: 4px;
-        font-size: 11px;
+        padding: 4px 10px;
+        border-radius: 6px;
+        font-size: 12px;
         font-weight: 600;
       }
       
-      .beian-secondary {
+      .beian-details {
         display: flex;
+        justify-content: space-between;
         align-items: center;
         font-size: 13px;
         color: var(--text-secondary);
       }
       
       .beian-company {
-        margin-right: 10px;
         overflow: hidden;
         text-overflow: ellipsis;
         white-space: nowrap;
@@ -1659,70 +1656,109 @@ if ($domain) {
         font-size: 12px;
       }
       
+      .beian-info-container.no-beian {
+        background: rgba(245, 158, 11, 0.1);
+        border-color: rgba(245, 158, 11, 0.3);
+      }
+      
+      .beian-info-container.no-beian .beian-header {
+        background: rgba(245, 158, 11, 0.2);
+      }
+      
+      .beian-info-container.error {
+        background: rgba(239, 68, 68, 0.1);
+        border-color: rgba(239, 68, 68, 0.3);
+      }
+      
+      .beian-info-container.error .beian-header {
+        background: rgba(239, 68, 68, 0.2);
+      }
+      
       .no-beian-text, .error-text {
         font-size: 14px;
         color: var(--warning-color);
         font-weight: 500;
+        text-align: center;
+        width: 100%;
+        display: block;
       }
       
       .error-text {
         color: var(--error-color);
       }
       
-      /* Tippy 工具提示样式 - 放宽宽度 */
+      /* 悬浮框样式 - 加宽并优化布局 */
       .beian-tooltip {
-        max-width: 380px !important; /* 增加宽度防止换行 */
+        max-width: 450px !important;
         padding: 0;
         font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
       }
       
       .tooltip-header {
-        background: var(--primary-color);
-        color: white;
+        display: flex;
+        align-items: center;
+        background: var(--bg-secondary);
+        color: var(--text-primary);
         padding: 12px 15px;
         font-weight: 600;
-        border-radius: 6px 6px 0 0;
-        font-size: 15px;
+        border-bottom: 1px solid var(--border-color);
       }
       
-      .tooltip-grid {
+      .tooltip-icon {
+        margin-right: 8px;
+        font-size: 16px;
+      }
+      
+      .tooltip-content {
         padding: 15px;
+        background: var(--bg-card);
+      }
+      
+      .tooltip-row {
+        display: flex;
+        margin-bottom: 10px;
+      }
+      
+      .tooltip-row:last-child {
+        margin-bottom: 0;
       }
       
       .tooltip-item {
+        flex: 1;
         display: flex;
-        justify-content: space-between;
-        margin-bottom: 8px;
         align-items: flex-start;
-        min-height: 20px;
+        margin-right: 15px;
+      }
+      
+      .tooltip-item.full-width {
+        flex: 1 1 100%;
+        margin-right: 0;
       }
       
       .tooltip-item:last-child {
-        margin-bottom: 0;
+        margin-right: 0;
       }
       
       .tooltip-label {
         font-weight: 600;
         color: var(--text-primary);
-        margin-right: 15px;
+        margin-right: 10px;
         flex-shrink: 0;
-        width: 100px; /* 固定标签宽度，使内容对齐 */
+        width: 90px;
       }
       
       .tooltip-value {
         color: var(--text-secondary);
-        text-align: left;
         word-break: break-word;
         flex: 1;
-        min-width: 0;
       }
       
       .tippy-box[data-theme~='beian-tooltip'] {
         background: var(--bg-card);
         border: 1px solid var(--border-color);
-        border-radius: 8px;
-        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
-        max-width: 380px !important; /* 确保宽度设置生效 */
+        border-radius: 10px;
+        box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3);
+        max-width: 450px !important;
       }
       
       .tippy-box[data-theme~='beian-tooltip'] .tippy-arrow {
@@ -1735,44 +1771,39 @@ if ($domain) {
       
       /* 响应式设计 */
       @media (max-width: 768px) {
-        .beian-info-container {
+        .beian-main-info {
           flex-direction: column;
           align-items: flex-start;
-          padding: 10px;
         }
         
-        .beian-badge {
+        .beian-domain {
+          margin-top: 5px;
+        }
+        
+        .beian-details {
+          flex-direction: column;
+          align-items: flex-start;
+        }
+        
+        .beian-date {
+          margin-top: 5px;
+        }
+        
+        .beian-tooltip {
+          max-width: 320px !important;
+        }
+        
+        .tooltip-row {
+          flex-direction: column;
+        }
+        
+        .tooltip-item {
           margin-right: 0;
           margin-bottom: 8px;
         }
         
-        .beian-secondary {
-          flex-direction: column;
-          align-items: flex-start;
-        }
-        
-        .beian-company {
-          margin-right: 0;
-          margin-bottom: 4px;
-          max-width: 100%;
-        }
-        
-        .beian-tooltip {
-          max-width: 300px !important;
-        }
-        
-        .tooltip-item {
-          flex-direction: column;
-          align-items: flex-start;
-        }
-        
-        .tooltip-label {
-          width: auto;
-          margin-bottom: 2px;
-        }
-        
-        .tooltip-value {
-          text-align: left;
+        .tooltip-item.full-width {
+          margin-bottom: 0;
         }
       }
       
@@ -1783,11 +1814,14 @@ if ($domain) {
         
         .tooltip-header {
           padding: 10px 12px;
-          font-size: 14px;
         }
         
-        .tooltip-grid {
+        .tooltip-content {
           padding: 12px;
+        }
+        
+        .tooltip-label {
+          width: 80px;
         }
       }
     </style>
