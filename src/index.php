@@ -979,7 +979,7 @@ if ($domain) {
                 <div class="skeleton"></div>
               </div>
             <?php endif; ?>
-            <?php if ($parser->age || $parser->remaining || $parser->pendingDelete || $parser->gracePeriod || $parser->redemptionPeriod): ?>
+            <?php if ($parser->age || $parser->remaining || $parser->pendingDelete || $parser->gracePeriod || $parser->redemptionPeriod || $parser->locked || $parser->transferred || $parser->premium || $parser->auction || $parser->transferring || $parser->recentlyTransferred || (preg_match('/^[a-zA-Z0-9]\.[a-zA-Z]{2,}$/', $parser->domain) || preg_match('/^[a-zA-Z0-9]\.[a-zA-Z]+\.[a-zA-Z]{2,}$/', $parser->domain))): ?>
               <div class="message-tags">
                 <?php if ($parser->age): ?>
                   <button class="message-tag message-tag-gray" id="age" data-seconds="<?= $parser->ageSeconds; ?>">
@@ -1005,7 +1005,7 @@ if ($domain) {
                   <span class="message-tag message-tag-yellow">即将过期</span>
                 <?php endif; ?>
                 <?php if (($parser->ageSeconds ?? 0) >= 10 * 365 * 24 * 60 * 60): ?>
-                  <span class="message-tag message-tag-red">20</span>
+                  <span class="message-tag message-tag-red">古董域名</span>
                 <?php endif; ?>
                 <?php if (($parser->remainingSeconds ?? 0) >= 5 * 365 * 24 * 60 * 60): ?>
                   <span class="message-tag message-tag-blue">长期持有</span>
