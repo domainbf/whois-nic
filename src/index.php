@@ -1503,7 +1503,7 @@ if ($domain) {
                 placement: "bottom",
                 allowHTML: true,
                 theme: 'beian-tooltip',
-                maxWidth: 250
+                maxWidth: 350
               });
             }
           }, Math.max(0, 500 - (Date.now() - startTime)));
@@ -1523,7 +1523,7 @@ if ($domain) {
     </script>
 
     <style>
-      /* 保留原有样式 */
+      /* 备案信息样式 */
       .beian-info {
         display: flex;
         align-items: center;
@@ -1568,8 +1568,9 @@ if ($domain) {
         font-weight: 500;
       }
 
+      /* 悬浮框样式 */
       .beian-tooltip {
-        max-width: 250px;
+        max-width: 350px;
         padding: 0;
         background: #ffffff;
         border: 2px solid #000000;
@@ -1608,12 +1609,16 @@ if ($domain) {
         margin-right: 8px;
         flex-shrink: 0;
         width: 80px;
+        white-space: nowrap;
       }
 
       .tooltip-value {
         color: #666666;
-        word-break: break-word;
         flex: 1;
+        white-space: nowrap; /* 优先一行显示 */
+        overflow: hidden; /* 隐藏超出部分 */
+        text-overflow: ellipsis; /* 超出时显示省略号 */
+        max-width: 0; /* 配合 flex 自动扩展 */
       }
 
       .tippy-box[data-theme~='beian-tooltip'] {
@@ -1628,6 +1633,7 @@ if ($domain) {
         border-color: #000000;
       }
 
+      /* 响应式设计 */
       @media (max-width: 480px) {
         .beian-info {
           flex-direction: column;
@@ -1642,6 +1648,11 @@ if ($domain) {
 
         .tooltip-label {
           width: 70px;
+        }
+
+        .tooltip-value {
+          white-space: normal; /* 移动端允许换行 */
+          word-break: break-all; /* 长单词换行 */
         }
       }
     </style>
