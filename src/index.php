@@ -658,7 +658,7 @@ if ($domain) {
     }
   </style>
 </head>
-
+<script src="https://kit.fontawesome.com/55e81b6986.js" crossorigin="anonymous"></script>
 <body>
   <header>
     <div>
