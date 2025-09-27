@@ -124,7 +124,7 @@
 </head>
 <body>
     <div class="container">
-        <h3>不保证准确度，请尽量多方验证！</h3>
+        <h3>数据源于官方注册机构，仅供参考。</h3>
     </div>
     
     <footer class="footer">
