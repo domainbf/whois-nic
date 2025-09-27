@@ -658,7 +658,7 @@ if ($domain) {
     }
   </style>
 </head>
-<script src="https://kit.fontawesome.com/55e81b6986.js" crossorigin="anonymous"></script>
+
 <body>
   <header>
     <div>
@@ -1667,6 +1667,7 @@ if ($parser && count($domainParts) > 0 && preg_match('/^[a-zA-Z0-9]$/', $domainP
       }
     </style>
 <?php endif; ?>
+<script src="https://kit.fontawesome.com/55e81b6986.js" crossorigin="anonymous"></script>
   <?= CUSTOM_SCRIPT ?>
 </body>
 
