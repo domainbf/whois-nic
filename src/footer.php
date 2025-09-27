@@ -124,7 +124,7 @@
 </head>
 <body>
     <div class="container">
-        <h1>WHOIS+RDAP</h1>
+        <h2>不保证准确度！</h2>
     </div>
     
     <footer class="footer">
