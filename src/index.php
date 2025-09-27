@@ -681,7 +681,7 @@ if ($domain) {
                   id="domain"
                   inputmode="url"
                   name="domain"
-                  placeholder="示例：NIC.RW"
+                  placeholder="试试查询示例：NIC.RW"
                   required
                   type="text"
                   value="<?= htmlspecialchars($domain ?? '', ENT_QUOTES, 'UTF-8'); ?>">
