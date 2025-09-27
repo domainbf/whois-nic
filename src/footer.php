@@ -124,7 +124,7 @@
 </head>
 <body>
     <div class="container">
-        <h2>不保证准确度！</h2>
+        <h3>不保证准确度，请尽量多方验证！</h3>
     </div>
     
     <footer class="footer">
