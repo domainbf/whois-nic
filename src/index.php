@@ -911,22 +911,46 @@ if ($domain) {
               <?php endif; ?>
               <?php if ($parser->status): ?>
                 <div class="message-label">
-                  <span class="message-icon-leading">
-                    <i class="fa-solid fa-circle-check"></i>
-                  </span>
-                  域名状态
-                </div>
-                <div class="message-value-status">
-                  <?php foreach ($parser->status as $status): ?>
-                    <div>
-                      <?php if ($status["url"]): ?>
-                        <a href="<?= htmlspecialchars($status["url"], ENT_QUOTES, 'UTF-8'); ?>" rel="nofollow noopener noreferrer" target="_blank"><?= htmlspecialchars($status["text"], ENT_QUOTES, 'UTF-8'); ?></a>
-                      <?php else: ?>
-                        <?= htmlspecialchars($status["text"], ENT_QUOTES, 'UTF-8'); ?>
-                      <?php endif; ?>
-                    </div>
-                  <?php endforeach; ?>
-                </div>
+  <span class="message-icon-leading">
+    <i class="fa-solid fa-circle-check"></i>
+  </span>
+  域名状态
+</div>
+<div class="message-value-status">
+  <?php
+  // 状态码到中文的映射
+  $statusMapping = [
+      'active' => '活跃',
+      'inactive' => '未激活',
+      'pendingDelete' => '待删除',
+      'pendingTransfer' => '待转移',
+      'clientHold' => '客户持有',
+      'serverHold' => '服务器持有',
+      'autoRenew' => '自动续费',
+      'renewPeriod' => '续费期',
+      'redemptionPeriod' => '赎回期',
+      'gracePeriod' => '宽限期',
+      'clientUpdateProhibited' => '禁止客户更新',
+      'clientTransferProhibited' => '禁止客户转移',
+      'clientDeleteProhibited' => '禁止客户删除',
+      'serverUpdateProhibited' => '禁止服务器更新',
+      'serverTransferProhibited' => '禁止服务器转移',
+      'serverDeleteProhibited' => '禁止服务器删除',
+      // 可根据需要扩展更多状态
+  ];
+
+  foreach ($parser->status as $status): ?>
+    <div>
+      <?php if ($status["url"]): ?>
+        <a href="<?= htmlspecialchars($status["url"], ENT_QUOTES, 'UTF-8'); ?>" rel="nofollow noopener noreferrer" target="_blank">
+          <?= htmlspecialchars(isset($statusMapping[$status["text"]]) ? $statusMapping[$status["text"]] : $status["text"], ENT_QUOTES, 'UTF-8'); ?>
+        </a>
+      <?php else: ?>
+        <?= htmlspecialchars(isset($statusMapping[$status["text"]]) ? $statusMapping[$status["text"]] : $status["text"], ENT_QUOTES, 'UTF-8'); ?>
+      <?php endif; ?>
+    </div>
+  <?php endforeach; ?>
+</div>
               <?php endif; ?>
               <?php if ($parser->nameServers): ?>
                 <div class="message-label">
