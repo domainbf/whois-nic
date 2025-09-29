@@ -562,7 +562,14 @@ if ($domain) {
         width: 100%;
         box-sizing: border-box;
     }
-
+      /* 新增样式开始 */
+  .message-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    align-items: flex-start;
+    margin-top: 1rem;
+  }
     .result-summary {
         display: flex;
         justify-content: center;
