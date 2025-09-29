@@ -986,50 +986,93 @@ if ($domain) {
             <?php endif; ?>
             <?php if ($parser->age || $parser->remaining || $parser->pendingDelete || $parser->gracePeriod || $parser->redemptionPeriod): ?>
               <div class="message-tags">
-                <?php if ($parser->age): ?>
-                  <button class="message-tag message-tag-gray" id="age" data-seconds="<?= $parser->ageSeconds; ?>">
-                    <svg width="1em" height="1em" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true">
-                      <path d="M8 3.5a.5.5 0 0 0-1 0V9a.5.5 0 0 0 .252.434l3.5 2a.5.5 0 0 0 .496-.868L8 8.71z" />
-                      <path d="M8 16A8 8 0 1 0 8 0a8 8 0 0 0 0 16m7-8A7 7 0 1 1 1 8a7 7 0 0 1 14 0" />
-                    </svg>
-                    <span>已经注册：<?= htmlspecialchars($parser->age, ENT_QUOTES, 'UTF-8'); ?></span>
-                  </button>
-                <?php endif; ?>
-                <?php if ($parser->remaining): ?>
-                  <button class="message-tag message-tag-gray" id="remaining" data-seconds="<?= $parser->remainingSeconds; ?>">
-                    <svg width="1em" height="1em" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true">
-                      <path d="M2 1.5a.5.5 0 0 1 .5-.5h11a.5.5 0 0 1 0 1h-1v1a4.5 4.5 0 0 1-2.557 4.06c-.29.139-.443.377-.443.59v.7c0 .213.154.451.443.59A4.5 4.5 0 0 1 12.5 13v1h1a.5.5 0 0 1 0 1h-11a.5.5 0 1 1 0-1h1v-1a4.5 4.5 0 0 1 2.557-4.06c.29-.139.443-.377.443-.59v-.7c0-.213-.154-.451-.443-.59A4.5 4.5 0 0 1 3.5 3V2h-1a.5.5 0 0 1-.5-.5m2.5.5v1a3.5 3.5 0 0 0 1.989 3.158c.533.256 1.011.791 1.011 1.491v.702c0 .7-.478 1.235-1.011 1.491A3.5 3.5 0 0 0 4.5 13v1h7v-1a3.5 3.5 0 0 0-1.989-3.158C8.978 9.586 8.5 9.052 8.5 8.351v-.702c0-.7.478-1.235 1.011-1.491A3.5 3.5 0 0 0 11.5 3V2z" />
-                    </svg>
-                    <span>距离过期：<?= htmlspecialchars($parser->remaining, ENT_QUOTES, 'UTF-8'); ?></span>
-                  </button>
-                <?php endif; ?>
-<?php if ($parser->ageSeconds && $parser->ageSeconds < 60 * 24 * 60 * 60): ?>
-  <span class="message-tag message-tag-green">新注册</span>
-<?php endif; ?>
-<?php if (($parser->remainingSeconds ?? -1) >= 0 && $parser->remainingSeconds < 30 * 24 * 60 * 60): ?>
-  <span class="message-tag message-tag-yellow">即将过期</span>
-<?php endif; ?>
-<?php if (($parser->ageSeconds ?? 0) >= 10 * 365 * 24 * 60 * 60): ?>
-  <span class="message-tag message-tag-red">古董域名</span>
-<?php endif; ?>
-<?php if (($parser->remainingSeconds ?? 0) >= 5 * 365 * 24 * 60 * 60): ?>
-  <span class="message-tag message-tag-blue">长期持有</span>
-<?php endif; ?>
-<?php 
-$domainParts = explode('.', $parser->domain ?? '');
-if ($parser && count($domainParts) > 0 && preg_match('/^[a-zA-Z0-9]$/', $domainParts[0])): ?>
-  <span class="message-tag message-tag-blue">单字符</span>
-<?php endif; ?>
-<?php if ($parser->pendingDelete): ?>
-  <span class="message-tag message-tag-red">待删除</span>
-<?php elseif ($parser->remainingSeconds < 0): ?>
-  <span class="message-tag message-tag-red">已过期</span>
-<?php endif; ?>
-<?php if ($parser->gracePeriod): ?>
-  <span class="message-tag message-tag-yellow">宽限期</span>
-<?php elseif ($parser->redemptionPeriod): ?>
-  <span class="message-tag message-tag-blue">赎回期</span>
-<?php endif; ?>
+  <?php if ($parser->age): ?>
+    <button class="message-tag message-tag-gray" id="age" data-seconds="<?= $parser->ageSeconds; ?>">
+      <svg width="1em" height="1em" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true">
+        <path d="M8 3.5a.5.5 0 0 0-1 0V9a.5.5 0 0 0 .252.434l3.5 2a.5.5 0 0 0 .496-.868L8 8.71z" />
+        <path d="M8 16A8 8 0 1 0 8 0a8 8 0 0 0 0 16m7-8A7 7 0 1 1 1 8a7 7 0 0 1 14 0" />
+      </svg>
+      <span>已经注册：<?= htmlspecialchars($parser->age, ENT_QUOTES, 'UTF-8'); ?></span>
+    </button>
+  <?php endif; ?>
+  <?php if ($parser->remaining): ?>
+    <button class="message-tag message-tag-gray" id="remaining" data-seconds="<?= $parser->remainingSeconds; ?>">
+      <svg width="1em" height="1em" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true">
+        <path d="M2 1.5a.5.5 0 0 1 .5-.5h11a.5.5 0 0 1 0 1h-1v1a4.5 4.5 0 0 1-2.557 4.06c-.29.139-.443.377-.443.59v.7c0 .213.154.451.443.59A4.5 4.5 0 0 1 12.5 13v1h1a.5.5 0 0 1 0 1h-11a.5.5 0 1 1 0-1h1v-1a4.5 4.5 0 0 1 2.557-4.06c.29-.139.443-.377.443-.59v-.7c0-.213-.154-.451-.443-.59A4.5 4.5 0 0 1 3.5 3V2h-1a.5.5 0 0 1-.5-.5m2.5.5v1a3.5 3.5 0 0 0 1.989 3.158c.533.256 1.011.791 1.011 1.491v.702c0 .7-.478 1.235-1.011 1.491A3.5 3.5 0 0 0 4.5 13v1h7v-1a3.5 3.5 0 0 0-1.989-3.158C8.978 9.586 8.5 9.052 8.5 8.351v-.702c0-.7.478-1.235 1.011-1.491A3.5 3.5 0 0 0 11.5 3V2z" />
+      </svg>
+      <span>距离过期：<?= htmlspecialchars($parser->remaining, ENT_QUOTES, 'UTF-8'); ?></span>
+    </button>
+  <?php endif; ?>
+
+  <?php if ($parser->ageSeconds && $parser->ageSeconds < 60 * 24 * 60 * 60): ?>
+    <span class="message-tag message-tag-green">新注册</span>
+  <?php endif; ?>
+  <?php if (($parser->remainingSeconds ?? -1) >= 0 && $parser->remainingSeconds < 30 * 24 * 60 * 60): ?>
+    <span class="message-tag message-tag-yellow">即将过期</span>
+  <?php endif; ?>
+  <?php if (($parser->ageSeconds ?? 0) >= 10 * 365 * 24 * 60 * 60): ?>
+    <span class="message-tag message-tag-red">古董域名</span>
+  <?php endif; ?>
+  <?php if (($parser->remainingSeconds ?? 0) >= 5 * 365 * 24 * 60 * 60): ?>
+    <span class="message-tag message-tag-blue">长期持有</span>
+  <?php endif; ?>
+
+  <?php 
+  $domainParts = explode('.', $parser->domain ?? '');
+  if ($parser && count($domainParts) > 0 && strlen($domainParts[0]) === 1): ?>
+    <span class="message-tag message-tag-purple">单字符</span>
+  <?php endif; ?>
+
+  <?php if ($parser->pendingDelete): ?>
+    <span class="message-tag message-tag-red">待删除</span>
+  <?php elseif ($parser->remainingSeconds < 0): ?>
+    <span class="message-tag message-tag-red">已过期</span>
+  <?php endif; ?>
+  <?php if ($parser->gracePeriod): ?>
+    <span class="message-tag message-tag-yellow">宽限期</span>
+  <?php elseif ($parser->redemptionPeriod): ?>
+    <span class="message-tag message-tag-blue">赎回期</span>
+  <?php endif; ?>
+
+  <?php if (strpos($whoisData ?? '', 'transfer') !== false || strpos($whoisData ?? '', 'pendingTransfer') !== false): ?>
+    <span class="message-tag message-tag-yellow">正在转移</span>
+  <?php endif; ?>
+  <?php 
+  if ($parser->updatedDateISO8601 && strpos($whoisData ?? '', 'transfer') !== false): 
+    $updatedDate = new DateTime($parser->updatedDateISO8601);
+    $now = new DateTime();
+    $diff = $now->diff($updatedDate)->days;
+    if ($diff <= 90): ?>
+      <span class="message-tag message-tag-blue">近期转移</span>
+  <?php endif; endif; ?>
+
+  <?php if (in_array(strtolower($parser->extension), ['com', 'net']) && strlen($domainParts[0]) < 6): ?>
+    <span class="message-tag message-tag-green">高流量潜力</span>
+  <?php endif; ?>
+
+  <?php if ($parser->remainingSeconds < 0 && !$parser->redemptionPeriod): ?>
+    <span class="message-tag message-tag-red">过期待续</span>
+  <?php endif; ?>
+
+  <?php if (strpos($whoisData ?? '', 'clientHold') !== false || strpos($whoisData ?? '', 'serverHold') !== false): ?>
+    <span class="message-tag message-tag-orange">已锁定</span>
+  <?php endif; ?>
+
+  <?php if (strpos($whoisData ?? '', 'deleted') !== false || strpos($whoisData ?? '', 'inactive') !== false): ?>
+    <span class="message-tag message-tag-gray">已删除</span>
+  <?php endif; ?>
+
+  <?php if (strpos($whoisData ?? '', 'autoRenew') !== false || strpos($whoisData ?? '', 'renewPeriod') !== false): ?>
+    <span class="message-tag message-tag-green">自动续费</span>
+  <?php endif; ?>
+
+  <?php if ((strpos($whoisData ?? '', 'clientHold') !== false || strpos($whoisData ?? '', 'serverHold') !== false) && !$parser->registered): ?>
+    <span class="message-tag message-tag-yellow">暂停服务</span>
+  <?php endif; ?>
+
+  <?php if ((strpos($whoisData ?? '', 'fraud') !== false || $parser->pendingDelete) && ($parser->remainingSeconds ?? 0) < 7 * 24 * 60 * 60): ?>
+    <span class="message-tag message-tag-red">高风险</span>
+  <?php endif; ?>
 </div>
 <?php endif; ?>
           </div>
