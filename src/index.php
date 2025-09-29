@@ -385,25 +385,99 @@ if ($domain) {
 
     .message-data .message-title {
         display: flex;
-        align-items: center;
-        gap: 0.75rem;
+        align-items: flex-start;
+        gap: 0.5rem;
+        grid-column: 1 / -1;
         margin-bottom: 1rem;
-        font-size: 1.2rem;
+        font-size: 1rem;
         font-weight: 600;
         color: #222;
+        text-align: left;
         flex-wrap: wrap;
         max-width: 100%;
         word-break: break-word;
     }
 
-    .message-data .message-title a {
-        flex-grow: 0;
+    .message-title a {
+        flex-grow: 1;
         flex-shrink: 1;
         min-width: 0;
         word-break: break-all;
         overflow-wrap: break-word;
-        font-size: 1.5em;
-        max-width: 70%;
+    }
+
+    @media (max-width: 768px) {
+        .search-and-button-container {
+            flex-direction: row !important;
+            align-items: center !important;
+            gap: 8px !important;
+            flex-wrap: wrap;
+            margin-bottom: 6px;
+        }
+
+        .search-box {
+            max-width: calc(100% - 88px);
+            flex: 1;
+            min-width: 200px;
+        }
+
+        .search-button {
+            width: auto !important;
+            min-width: 80px !important;
+            flex-shrink: 0;
+            font-size: 14px;
+            padding: 0 12px;
+        }
+        
+        .checkboxes {
+            margin-top: 8px;
+            gap: 8px;
+            justify-content: center;
+        }
+
+        .message-data .message-title {
+            font-size: 0.9rem;
+            gap: 0.25rem;
+            margin-bottom: 0.75rem;
+        }
+
+        .message-title a {
+            font-size: 0.9rem;
+            max-width: 85%;
+        }
+
+        .domain-info-box {
+            max-width: 90%;
+            margin-left: auto;
+            margin-right: auto;
+        }
+    }
+
+    @media (max-width: 480px) {
+        .search-and-button-container {
+            gap: 6px !important;
+        }
+
+        .search-box {
+            max-width: calc(100% - 76px);
+            min-width: 160px;
+        }
+
+        .search-button {
+            min-width: 70px !important;
+            font-size: 13px;
+            padding: 0 10px;
+        }
+
+        .message-data .message-title {
+            font-size: 0.85rem;
+            gap: 0.2rem;
+        }
+
+        .message-title a {
+            font-size: 0.85rem;
+            max-width: 80%;
+        }
     }
 
     .message-title .message-icon {
@@ -476,80 +550,12 @@ if ($domain) {
         display: none;
     }
     @media (max-width: 768px) {
-        .search-and-button-container {
-            flex-direction: row !important;
-            align-items: center !important;
-            gap: 8px !important;
-            flex-wrap: wrap;
-            margin-bottom: 6px;
-        }
-
-        .search-box {
-            max-width: calc(100% - 88px);
-            flex: 1;
-            min-width: 200px;
-        }
-
-        .search-button {
-            width: auto !important;
-            min-width: 80px !important;
-            flex-shrink: 0;
-            font-size: 14px;
-            padding: 0 12px;
-        }
-        
-        .checkboxes {
-            margin-top: 8px;
-            gap: 8px;
-            justify-content: center;
-        }
-
-        .message-data .message-title {
-            flex-wrap: wrap;
-            gap: 0.5rem;
-            font-size: 1rem;
-        }
-
-        .message-data .message-title a {
-            font-size: 1.2em;
-            max-width: 65%;
-        }
-
-        .domain-info-box {
-            max-width: 90%;
-        }
-
         .raw-data-whois,
         .raw-data-rdap {
             padding: 1rem;
         }
     }
-
     @media (max-width: 480px) {
-        .search-and-button-container {
-            gap: 6px !important;
-        }
-
-        .search-box {
-            max-width: calc(100% - 76px);
-            min-width: 160px;
-        }
-
-        .search-button {
-            min-width: 70px !important;
-            font-size: 13px;
-            padding: 0 10px;
-        }
-
-        .message-data .message-title a {
-            font-size: 0.85rem;
-            max-width: 60%;
-        }
-
-        .domain-info-box {
-            max-width: 85%;
-        }
-
         .raw-data-whois,
         .raw-data-rdap {
             padding: 0.75rem;
@@ -597,67 +603,11 @@ if ($domain) {
         max-width: fit-content;
         margin-left: auto;
         margin-right: auto;
-        word-break: break-all;
-        overflow-wrap: break-word;
     }
 
-    .domain-info-box a {
-        display: block;
-        word-break: break-all;
-        overflow-wrap: break-word;
-        max-width: 100%;
-    }
-
-    .message-title .registered-status {
-        background-color: #ffcccc;
-        padding: 5px 10px;
-        border-radius: 5px;
-        margin-left: 10px;
-    }
-
-    @media (max-width: 768px) {
-        .message-data .message-title {
-            display: flex;
-            align-items: flex-start;
-            gap: 0.25rem;
-            grid-column: 1 / -1;
-            margin-bottom: 0.75rem;
-            font-size: 0.9rem;
-            font-weight: 600;
-            color: #222;
-            text-align: left;
-            flex-wrap: wrap;
-            max-width: 100%;
-            word-break: break-word;
-        }
-
-        .message-title a {
-            flex-grow: 1;
-            flex-shrink: 1;
-            min-width: 0;
-            word-break: break-all;
-            overflow-wrap: break-word;
-            font-size: 0.9rem;
-            max-width: 85%;
-        }
-
-        .domain-info-box {
-            max-width: 90%;
-            margin-left: auto;
-            margin-right: auto;
-        }
-    }
-
-    @media (max-width: 480px) {
-        .message-data .message-title {
-            font-size: 0.85rem;
-            gap: 0.2rem;
-        }
-
-        .message-title a {
-            font-size: 0.85rem;
-            max-width: 80%;
-        }
+    .domain-info-box p {
+        margin: 0;
+        text-align: center;
     }
 
     .message-data .message-title {
@@ -683,10 +633,30 @@ if ($domain) {
         font-size: 1.5em;
     }
 
-    .domain-status-message {
-        margin-top: 8px;
+    .message-title .registered-status {
+        background-color: #ffcccc;
+        padding: 5px 10px;
+        border-radius: 5px;
+        margin-left: 10px;
     }
-</style>
+
+    @media (max-width: 768px) {
+        .message-data .message-title {
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            font-size: 1rem;
+        }
+
+        .message-title a {
+            font-size: 1.2em;
+            flex-grow: 1;
+        }
+
+        .domain-status-message {
+            margin-top: 8px;
+        }
+    }
+  </style>
 </head>
 
 <body>
