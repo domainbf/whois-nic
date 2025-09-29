@@ -1046,9 +1046,9 @@ if ($domain) {
       <span class="message-tag message-tag-blue">近期转移</span>
   <?php endif; endif; ?>
 
-  <?php if (in_array(strtolower($parser->extension), ['com', 'net']) && strlen($domainParts[0]) < 6): ?>
-    <span class="message-tag message-tag-green">高流量潜力</span>
-  <?php endif; ?>
+  <?php if (isset($parser->extension) && in_array(strtolower($parser->extension), ['com', 'net']) && strlen($domainParts[0]) < 6): ?>
+  <span class="message-tag message-tag-green">高流量潜力</span>
+<?php endif; ?>
 
   <?php if ($parser->remainingSeconds < 0 && !$parser->redemptionPeriod): ?>
     <span class="message-tag message-tag-red">过期待续</span>
