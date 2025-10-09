@@ -14,5 +14,8 @@
     { "source": "/:domain([a-zA-Z0-9.-]+\\.[a-zA-Z0-9.-]+)", "destination": "/api/vercel.php?domain=:domain" },
     { "source": "/:domain([a-zA-Z0-9.-]+\\.[a-zA-Z0-9.-]+)/", "destination": "/api/vercel.php?domain=:domain" },
     { "source": "/", "destination": "/api/vercel.php" }
-  ]
+  ],
+  "analytics": {
+    "enable": true
+  }
 }
