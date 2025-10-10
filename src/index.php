@@ -640,6 +640,22 @@ if ($domain) {
         margin-left: 10px;
     }
 
+    /* 修复未注册域名超出屏幕问题 */
+    .domain-info-box {
+        max-width: 90% !important;
+        margin-left: auto !important;
+        margin-right: auto !important;
+        word-break: break-all !important;
+        overflow-wrap: break-word !important;
+        white-space: normal !important;
+    }
+
+    .domain-info-box p {
+        word-break: break-all !important;
+        overflow-wrap: break-word !important;
+        white-space: normal !important;
+    }
+
     @media (max-width: 768px) {
         .message-data .message-title {
             flex-wrap: wrap;
@@ -655,21 +671,12 @@ if ($domain) {
         .domain-status-message {
             margin-top: 8px;
         }
-        /* 修复未注册域名超出屏幕问题 */
-.domain-info-box {
-    max-width: 90% !important;
-    margin-left: auto !important;
-    margin-right: auto !important;
-    word-break: break-all !important;
-    overflow-wrap: break-word !important;
-    white-space: normal !important;
-}
-
-.domain-info-box p {
-    word-break: break-all !important;
-    overflow-wrap: break-word !important;
-    white-space: normal !important;
-}
+        
+        /* 移动端进一步优化 */
+        .domain-info-box {
+            max-width: 95% !important;
+            padding: 10px 12px;
+        }
     }
   </style>
 </head>
