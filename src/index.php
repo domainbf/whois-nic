@@ -655,6 +655,21 @@ if ($domain) {
         .domain-status-message {
             margin-top: 8px;
         }
+        /* 修复未注册域名超出屏幕问题 */
+.domain-info-box {
+    max-width: 90% !important;
+    margin-left: auto !important;
+    margin-right: auto !important;
+    word-break: break-all !important;
+    overflow-wrap: break-word !important;
+    white-space: normal !important;
+}
+
+.domain-info-box p {
+    word-break: break-all !important;
+    overflow-wrap: break-word !important;
+    white-space: normal !important;
+}
     }
   </style>
 </head>
