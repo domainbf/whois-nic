@@ -786,14 +786,14 @@ if ($domain) {
             }
         }
       ?>
-      <?php if ($domain && $resultMessage): // 只有当 $domain 存在且 $resultMessage 不为空（即不是已注册状态）时才显示此框 ?>
-        <div class="domain-info-box">
-          <a href="http://<?= htmlspecialchars($domain, ENT_QUOTES, 'UTF-8'); ?>" rel="nofollow noopener noreferrer" target="_blank">
-            <p style="margin-bottom: 5px; font-size: 1.2em;"><?= htmlspecialchars($domain, ENT_QUOTES, 'UTF-8'); ?></p>
-          </a>
-          <p><?= $resultMessage; ?></p>
-        </div>
-      <?php endif; ?>
+      <?php if ($domain && $resultMessage): ?>
+  <div class="domain-info-box">
+    <a href="http://<?= htmlspecialchars($domain, ENT_QUOTES, 'UTF-8'); ?>" rel="nofollow noopener noreferrer" target="_blank">
+      <p style="margin-bottom: 5px; font-size: 1.2em; word-break: break-all; overflow-wrap: break-word;"><?= htmlspecialchars($domain, ENT_QUOTES, 'UTF-8'); ?></p>
+    </a>
+    <p><?= $resultMessage; ?></p>
+  </div>
+<?php endif; ?>
     </div>
   </header>
   <main>
