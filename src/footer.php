@@ -19,17 +19,29 @@
             position: relative;
             margin-top: 30px;
         }
+        .footer-mainarea {
+            width: 100%;
+            text-align: center;
+            position: relative;
+            margin-bottom: 38px; /* 为底部版权留足空间 */
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 12px;
+        }
         /* 公告样式，底部一组 */
         .footer-announcement-container {
-            margin: 0 auto 10px auto;
+            margin: 0 auto 0 auto;
             max-width: 96vw;
             box-sizing: border-box;
             position: relative;
             min-height: 32px;
+            width: 100%;
         }
         .footer-announcement-box {
             min-height: 32px;
             position: relative;
+            width: 100%;
         }
         .footer-announcement {
             background: rgba(255,255,255,0.93);
@@ -70,7 +82,7 @@
         }
         /* LOGO放大且居中 */
         .footer-logo {
-            margin: 10px auto 14px auto;
+            margin: 8px auto 8px auto;
             max-width: 170px;
             filter: drop-shadow(0 2px 14px rgba(44,36,82,0.12));
             display: block;
@@ -78,12 +90,13 @@
         }
         @media (max-width: 700px) {
             .footer-announcement { font-size: 0.82rem; padding: 5px 6px 5px 4px; }
-            .footer-logo { max-width: 126px; margin: 7px auto 10px auto; }
+            .footer-logo { max-width: 126px; margin: 7px auto 8px auto; }
+            .footer-mainarea { gap: 10px; margin-bottom: 38px;}
         }
         /* 合作徽章美化，域名SVG图标 */
         .footer-badge-container {
             display: block;
-            margin: 0 auto 12px auto;
+            margin: 0 auto 0 auto;
             text-align: center;
         }
         .footer-badge-bg {
@@ -173,71 +186,73 @@
         <!-- 主内容 -->
     </div>
     <footer class="footer">
-        <!-- 公告区（logo、徽章都在版权上方） -->
-        <div class="footer-announcement-container">
-            <div class="footer-announcement-box">
-                <div class="footer-announcement active">
-                    <span class="speaker">
-                        <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
-                            <g>
-                                <path d="M3 7v4h3l4 4V3L6 7H3z" fill="#2c2452"></path>
-                                <path d="M14.5 9a4.5 4.5 0 0 0-2.5-4v8a4.5 4.5 0 0 0 2.5-4z" fill="#c7ff35"></path>
-                            </g>
-                        </svg>
-                    </span>
-                    RDAP+WHOIS 双核驱动提供准确数据。
-                </div>
-                <div class="footer-announcement">
-                    <span class="speaker">
-                        <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
-                            <g>
-                                <path d="M3 7v4h3l4 4V3L6 7H3z" fill="#2c2452"></path>
-                                <path d="M14.5 9a4.5 4.5 0 0 0-2.5-4v8a4.5 4.5 0 0 0 2.5-4z" fill="#c7ff35"></path>
-                            </g>
-                        </svg>
-                    </span>
-                    我们提供查询平台，但不储存任何查询数据。
-                </div>
-                <div class="footer-announcement">
-                    <span class="speaker">
-                        <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
-                            <g>
-                                <path d="M3 7v4h3l4 4V3L6 7H3z" fill="#2c2452"></path>
-                                <path d="M14.5 9a4.5 4.5 0 0 0-2.5-4v8a4.5 4.5 0 0 0 2.5-4z" fill="#c7ff35"></path>
-                            </g>
-                        </svg>
-                    </span>
-                    在售的域名，可👇点击{下方}进入列表查看，
-                </div>
-                <div class="footer-announcement">
-                    <span class="speaker">
-                        <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
-                            <g>
-                                <path d="M3 7v4h3l4 4V3L6 7H3z" fill="#2c2452"></path>
-                                <path d="M14.5 9a4.5 4.5 0 0 0-2.5-4v8a4.5 4.5 0 0 0 2.5-4z" fill="#c7ff35"></path>
-                            </g>
-                        </svg>
-                    </span>
-                    不记录·不储存·所有数据仅保留在您本地浏览器。
+        <!-- 主区域整体下移至版权上方 -->
+        <div class="footer-mainarea">
+            <div class="footer-announcement-container">
+                <div class="footer-announcement-box">
+                    <div class="footer-announcement active">
+                        <span class="speaker">
+                            <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+                                <g>
+                                    <path d="M3 7v4h3l4 4V3L6 7H3z" fill="#2c2452"></path>
+                                    <path d="M14.5 9a4.5 4.5 0 0 0-2.5-4v8a4.5 4.5 0 0 0 2.5-4z" fill="#c7ff35"></path>
+                                </g>
+                            </svg>
+                        </span>
+                        RDAP+WHOIS 双核驱动提供准确数据。
+                    </div>
+                    <div class="footer-announcement">
+                        <span class="speaker">
+                            <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+                                <g>
+                                    <path d="M3 7v4h3l4 4V3L6 7H3z" fill="#2c2452"></path>
+                                    <path d="M14.5 9a4.5 4.5 0 0 0-2.5-4v8a4.5 4.5 0 0 0 2.5-4z" fill="#c7ff35"></path>
+                                </g>
+                            </svg>
+                        </span>
+                        我们提供查询平台，但不储存任何查询数据。
+                    </div>
+                    <div class="footer-announcement">
+                        <span class="speaker">
+                            <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+                                <g>
+                                    <path d="M3 7v4h3l4 4V3L6 7H3z" fill="#2c2452"></path>
+                                    <path d="M14.5 9a4.5 4.5 0 0 0-2.5-4v8a4.5 4.5 0 0 0 2.5-4z" fill="#c7ff35"></path>
+                                </g>
+                            </svg>
+                        </span>
+                        在售的域名，可👇点击{下方}进入列表查看，
+                    </div>
+                    <div class="footer-announcement">
+                        <span class="speaker">
+                            <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+                                <g>
+                                    <path d="M3 7v4h3l4 4V3L6 7H3z" fill="#2c2452"></path>
+                                    <path d="M14.5 9a4.5 4.5 0 0 0-2.5-4v8a4.5 4.5 0 0 0 2.5-4z" fill="#c7ff35"></path>
+                                </g>
+                            </svg>
+                        </span>
+                        不记录·不储存·所有数据仅保留在您本地浏览器。
+                    </div>
                 </div>
             </div>
-        </div>
-        <img class="footer-logo" src="/images/logo.png" alt="NIC.BN logo">
-        <!-- 合作徽章，域名SVG图标 -->
-        <span class="footer-badge-container">
-            <span class="footer-badge-bg available" id="footer-badge-bg" onclick="toggleBadge()">
-                <span class="footer-badge-icon">
-                  <!-- 域名SVG图标（举例为全球/域名风格） -->
-                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" fill="none">
-                    <circle cx="16" cy="16" r="14" stroke="#c7ff35" stroke-width="2" fill="#2c2452"/>
-                    <rect x="10" y="13" width="12" height="6" rx="2" fill="#c7ff35"/>
-                    <circle cx="16" cy="16" r="2" fill="#2c2452"/>
-                  </svg>
+            <img class="footer-logo" src="/images/logo.png" alt="NIC.BN logo">
+            <!-- 合作徽章，域名SVG图标 -->
+            <span class="footer-badge-container">
+                <span class="footer-badge-bg available" id="footer-badge-bg" onclick="toggleBadge()">
+                    <span class="footer-badge-icon">
+                        <!-- 域名SVG图标（举例为全球/域名风格） -->
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" fill="none">
+                            <circle cx="16" cy="16" r="14" stroke="#c7ff35" stroke-width="2" fill="#2c2452"/>
+                            <rect x="10" y="13" width="12" height="6" rx="2" fill="#c7ff35"/>
+                            <circle cx="16" cy="16" r="2" fill="#2c2452"/>
+                        </svg>
+                    </span>
+                    <span class="footer-badge-dot"></span>
+                    <span class="footer-badge-text" id="footer-badge-text">域名寻求合作</span>
                 </span>
-                <span class="footer-badge-dot"></span>
-                <span class="footer-badge-text" id="footer-badge-text">域名寻求合作</span>
             </span>
-        </span>
+        </div>
         <!-- 版权固定底部，透明无背景框 -->
         <div class="footer-copyright">
             &copy; 2025 NIC.BN. All rights reserved.
