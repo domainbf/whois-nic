@@ -98,61 +98,69 @@
             display: inline-block;
         }
 
-        /* 徽章样式完全还原示例图片 */
+        /* 徽章样式 */
         .footer-badge-container {
             display: inline-block;
             vertical-align: middle;
             margin-left: 1.2em;
-            transition: opacity 0.3s;
+            margin-bottom: 0.8em;
         }
-        .footer-badge {
-            display: flex;
+        .footer-badge-bg {
+            display: inline-flex;
             align-items: center;
-            padding: 1.4rem 2.2rem;
-            border-radius: 2.2rem;
-            font-weight: 600;
-            box-shadow: 0 8px 32px rgba(44,36,82,0.15);
+            border-radius: 999px;
+            font-weight: 700;
+            box-shadow: 0 8px 32px rgba(44,36,82,0.20);
+            font-size: 2rem;
+            padding: 1.3rem 2.4rem;
+            transition: all 0.3s;
+        }
+        .footer-badge-bg.available {
             background: #2c2452;
             color: #fff;
-            transition: all 0.3s;
-            font-size: 2rem;
-            position: relative;
+        }
+        .footer-badge-bg.mail {
+            background: #c7ff35;
+            color: #2c2452;
         }
         .footer-badge-eye {
             display: flex;
             align-items: center;
-            margin-right: 8px;
-            margin-left: -6px;
+            margin-right: 18px;
+            margin-left: -12px;
         }
         .footer-badge-dot {
-            width: 15px;
-            height: 15px;
+            width: 20px;
+            height: 20px;
             border-radius: 50%;
             display: inline-block;
-            background: #c0ff2e;
-            margin-left: 8px;
-            margin-right: 12px;
+            margin-right: 18px;
             transition: all 0.3s;
         }
-        .footer-badge a {
-            font-weight: 600;
+        .footer-badge-bg.available .footer-badge-dot {
+            background: #c0ff2e;
+        }
+        .footer-badge-bg.mail .footer-badge-dot {
+            background: #2c2452;
+        }
+        .footer-badge-bg.mail a {
             color: #2c2452;
             text-decoration: none;
+            font-weight: 700;
         }
-        @media (max-width: 600px) {
-            .footer-badge {
-                padding: 0.7rem 1.1rem;
-                font-size: 1rem;
+        @media (max-width: 700px) {
+            .footer-badge-bg {
+                font-size: 1.1rem;
+                padding: 0.7rem 1.2rem;
             }
-            .footer-badge-eye svg {
-                width: 20px;
-                height: 11px;
+            .footer-badge-eye {
+                margin-right: 8px;
+                margin-left: -6px;
             }
             .footer-badge-dot {
-                width: 8px;
-                height: 8px;
-                margin-left: 4px;
-                margin-right: 6px;
+                width: 10px;
+                height: 10px;
+                margin-right: 8px;
             }
         }
     </style>
@@ -161,7 +169,7 @@
     <div class="container">
         <h3>数据源于官方注册机构，仅供参考。</h3>
     </div>
-    
+
     <footer class="footer">
         <div class="announcement-container">
             <div class="announcement-box">
@@ -181,23 +189,21 @@
         <div class="copyright">
             &copy; 2025 NIC.BN. All rights reserved.
         </div>
-        <!-- 底部徽章，紧跟在版权后方 -->
-        <span class="footer-badge-container" id="footer-badge-container">
-          <span class="footer-badge" id="footer-badge">
-            <!-- 眼睛 SVG图标 -->
-            <span class="footer-badge-eye">
-              <svg width="40" height="24" viewBox="0 0 40 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <ellipse cx="20" cy="12" rx="16" ry="8" fill="#392A5C" opacity="0.35"/>
-                <ellipse cx="20" cy="12" rx="8" ry="4.5" fill="#392A5C" opacity="0.45"/>
-                <circle cx="20" cy="12" r="4" fill="white" opacity="0.9"/>
-                <circle cx="20" cy="12" r="2" fill="#2c2452"/>
-              </svg>
+        <!-- 徽章紧跟版权 -->
+        <span class="footer-badge-container">
+            <span class="footer-badge-bg available" id="footer-badge-bg">
+                <!-- 眼睛SVG -->
+                <span class="footer-badge-eye">
+                  <svg width="32" height="22" viewBox="0 0 32 22" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <ellipse cx="16" cy="11" rx="15" ry="9" fill="#392A5C" opacity="0.3"/>
+                    <ellipse cx="16" cy="11" rx="7" ry="4" fill="#392A5C" opacity="0.55"/>
+                    <circle cx="16" cy="11" r="4" fill="white" opacity="0.85"/>
+                    <circle cx="16" cy="11" r="2" fill="#2c2452"/>
+                  </svg>
+                </span>
+                <span class="footer-badge-dot"></span>
+                <span class="footer-badge-text" id="footer-badge-text">Available for freelance</span>
             </span>
-            <!-- 右侧圆点 -->
-            <span class="footer-badge-dot" id="footer-badge-dot"></span>
-            <!-- 文字内容（邮箱可跳转） -->
-            <span id="footer-badge-text"></span>
-          </span>
         </span>
     </footer>
 
@@ -205,51 +211,39 @@
         document.addEventListener('DOMContentLoaded', function() {
             const announcements = document.querySelectorAll('.announcement');
             let currentIndex = 0;
-            
+
             announcements[0].classList.add('active');
-            
+
             function showNextAnnouncement() {
                 announcements[currentIndex].classList.remove('active');
                 currentIndex = (currentIndex + 1) % announcements.length;
                 announcements[currentIndex].classList.add('active');
             }
-            
+
             setInterval(showNextAnnouncement, 6000);
         });
 
-        // 底部徽章逻辑
+        // 徽章切换逻辑
         (function(){
-          var badge = document.getElementById('footer-badge');
-          var dot = document.getElementById('footer-badge-dot');
-          var text = document.getElementById('footer-badge-text');
-          var container = document.getElementById('footer-badge-container');
-
-          function setBadgeContent(isBottom) {
-            if(isBottom){
-              badge.style.background = "#c7ff35";
-              badge.style.color = "#2c2452";
-              dot.style.background = "#2e2052";
-              dot.style.marginLeft = "8px";
-              dot.style.marginRight = "12px";
-              text.innerHTML = '<a href="mailto:domain@nic.bn" style="color:#2c2452;text-decoration:none;font-weight:600;">domain@nic.bn</a>';
-            }else{
-              badge.style.background = "#2c2452";
-              badge.style.color = "#fff";
-              dot.style.background = "#c0ff2e";
-              dot.style.marginLeft = "8px";
-              dot.style.marginRight = "12px";
-              text.textContent = "Available for freelance";
+            var bg = document.getElementById('footer-badge-bg');
+            var text = document.getElementById('footer-badge-text');
+            function setBadgeContent(isBottom) {
+                if(isBottom){
+                    bg.className = 'footer-badge-bg mail';
+                    text.innerHTML = '<a href="mailto:domain@nic.bn">domain@nic.bn</a>';
+                }else{
+                    bg.className = 'footer-badge-bg available';
+                    text.textContent = "Available for freelance";
+                }
             }
-          }
-          function updateBadge(){
-            var isBottom = (window.innerHeight + window.scrollY) >= (document.body.offsetHeight - 2);
-            container.style.opacity = isBottom ? "1" : "0.92";
-            setBadgeContent(isBottom);
-          }
-          window.addEventListener('scroll', updateBadge);
-          window.addEventListener('resize', updateBadge);
-          document.addEventListener('DOMContentLoaded', updateBadge);
-          updateBadge();
+            function updateBadge(){
+                var isBottom = (window.innerHeight + window.scrollY) >= (document.body.offsetHeight - 2);
+                setBadgeContent(isBottom);
+            }
+            window.addEventListener('scroll', updateBadge);
+            window.addEventListener('resize', updateBadge);
+            document.addEventListener('DOMContentLoaded', updateBadge);
+            updateBadge();
         })();
     </script>
 </body>
