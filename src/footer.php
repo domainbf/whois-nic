@@ -113,15 +113,10 @@
             box-shadow: 0 8px 32px rgba(44,36,82,0.20);
             font-size: 2rem;
             padding: 1.3rem 2.4rem;
-            transition: all 0.3s;
-        }
-        .footer-badge-bg.available {
             background: #2c2452;
             color: #fff;
-        }
-        .footer-badge-bg.mail {
-            background: #c7ff35;
-            color: #2c2452;
+            transition: all 0.3s;
+            position: relative;
         }
         .footer-badge-eye {
             display: flex;
@@ -136,20 +131,35 @@
             display: inline-block;
             margin-right: 18px;
             transition: all 0.3s;
-        }
-        .footer-badge-bg.available .footer-badge-dot {
             background: #c0ff2e;
         }
+        .footer-badge-text {
+            font-weight: 700;
+            font-size: 2rem;
+            transition: all 0.3s;
+        }
+        /* 邮箱模式：嵌套黄色圆角块 */
         .footer-badge-bg.mail .footer-badge-dot {
             background: #2c2452;
         }
-        .footer-badge-bg.mail a {
+        .footer-badge-bg.mail .footer-badge-inner {
+            background: #c7ff35;
+            color: #2c2452;
+            border-radius: 999px;
+            padding: 0.6em 1.2em;
+            margin-left: 0.2em;
+            font-weight: 700;
+            font-size: 2rem;
+            box-shadow: 0 1px 8px rgba(44,36,82,0.08);
+            display: inline-block;
+        }
+        .footer-badge-bg.mail .footer-badge-inner a {
             color: #2c2452;
             text-decoration: none;
             font-weight: 700;
         }
         @media (max-width: 700px) {
-            .footer-badge-bg {
+            .footer-badge-bg, .footer-badge-bg.mail .footer-badge-inner {
                 font-size: 1.1rem;
                 padding: 0.7rem 1.2rem;
             }
@@ -230,7 +240,10 @@
             function setBadgeContent(isBottom) {
                 if(isBottom){
                     bg.className = 'footer-badge-bg mail';
-                    text.innerHTML = '<a href="mailto:domain@nic.bn">domain@nic.bn</a>';
+                    text.innerHTML =
+                        '<span class="footer-badge-inner">' +
+                        '<a href="mailto:domain@nic.bn">domain@nic.bn</a>' +
+                        '</span>';
                 }else{
                     bg.className = 'footer-badge-bg available';
                     text.textContent = "Available for freelance";
