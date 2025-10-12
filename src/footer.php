@@ -237,7 +237,7 @@
                                 <g><path d="M3 7v4h3l4 4V3L6 7H3z" fill="#2c2452"></path><path d="M14.5 9a4.5 4.5 0 0 0-2.5-4v8a4.5 4.5 0 0 0 2.5-4z" fill="#c7ff35"></path></g>
                             </svg>
                         </span>
-                        RDAP+WHOIS 双核驱动提供准确数据。
+                        集成 RDAP+WHOIS 双核驱动提供精准域名注册数据。
                     </div>
                     <div class="footer-announcement">
                         <span class="speaker">
@@ -245,7 +245,7 @@
                                 <g><path d="M3 7v4h3l4 4V3L6 7H3z" fill="#2c2452"></path><path d="M14.5 9a4.5 4.5 0 0 0-2.5-4v8a4.5 4.5 0 0 0 2.5-4z" fill="#c7ff35"></path></g>
                             </svg>
                         </span>
-                        我们提供查询平台，但不储存任何查询数据。
+                        本站提供域名查询服务，不储存任何搜索及查询数据信息。
                     </div>
                     <div class="footer-announcement">
                         <span class="speaker">
@@ -253,7 +253,7 @@
                                 <g><path d="M3 7v4h3l4 4V3L6 7H3z" fill="#2c2452"></path><path d="M14.5 9a4.5 4.5 0 0 0-2.5-4v8a4.5 4.5 0 0 0 2.5-4z" fill="#c7ff35"></path></g>
                             </svg>
                         </span>
-                        在售的域名，可👇点击{下方}进入列表查看，
+                        在售的域名，可👇点击{下方}LOGO进入列表查看所有域名。
                     </div>
                     <div class="footer-announcement">
                         <span class="speaker">
@@ -261,7 +261,7 @@
                                 <g><path d="M3 7v4h3l4 4V3L6 7H3z" fill="#2c2452"></path><path d="M14.5 9a4.5 4.5 0 0 0-2.5-4v8a4.5 4.5 0 0 0 2.5-4z" fill="#c7ff35"></path></g>
                             </svg>
                         </span>
-                        不记录·不储存·所有数据仅保留在您本地浏览器。
+                        不记录·不储存·所有搜索查询数据仅保留在您本地浏览器。
                     </div>
                 </div>
             </div>
