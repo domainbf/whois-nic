@@ -36,13 +36,17 @@
             align-items: center;
             gap: 9px;
         }
+        
         /* 公告样式 */
         .footer-announcement-container {
             width: 100%;
             max-width: 96vw;
             box-sizing: border-box;
             position: relative;
-            min-height: 30px;
+            /* * 【修复 LOGO 闪动】
+             * 设置最小高度，确保公告切换时容器高度不变 
+             */
+            min-height: 35px; /* 足够容纳一行公告 */
         }
         .footer-announcement-box {
             min-height: 30px;
@@ -83,7 +87,10 @@
 
         .footer-announcement.active {
             opacity: 1;
-            position: relative;
+            /* * 注意：这里保持了 position: relative;
+             * 配合 .footer-announcement-container 的 min-height 解决了跳动问题
+             */
+            position: relative; 
         }
         .footer-announcement .speaker {
             display: inline-flex;
@@ -95,10 +102,14 @@
             0%,100% { transform: scale(1) rotate(-8deg);}
             50% { transform: scale(1.08) rotate(8deg);}
         }
+        
         /* LOGO美化且居中 */
         .footer-logo {
             margin: 5px auto 5px auto;
-            max-width: 130px;
+            /* * 【调整 LOGO 大小】
+             * 将最大宽度从 130px 增大到 180px 
+             */
+            max-width: 180px;
             filter: drop-shadow(0 2px 14px rgba(44,36,82,0.12));
             display: block;
             transition: max-width 0.3s, max-height 0.3s;
@@ -187,7 +198,12 @@
                 overflow: visible;
                 padding: 8px 10px; /* 在移动端允许换行并给足左右空间 */
             }
-            .footer-logo { max-width: 88px; margin: 4px auto 4px auto; }
+            /* 【修复 LOGO 闪动】确保移动端公告容器高度也稳定 */
+            .footer-announcement-container {
+                min-height: 35px; 
+            }
+            /* 【调整 LOGO 大小】移动端相应放大 */
+            .footer-logo { max-width: 110px; margin: 4px auto 4px auto; }
             .footer-bottomarea { gap: 5px; padding-bottom: 10px; }
             .footer-badge-bg, .footer-badge-bg.mail .footer-badge-inner {
                 font-size: 0.7rem;
@@ -266,13 +282,18 @@
             let currentIndex = 0;
             function showNextAnnouncement() {
                 if (announcements.length > 0) {
+                    // 移除当前 active 状态
                     announcements[currentIndex].classList.remove('active');
+                    // 计算下一个索引
                     currentIndex = (currentIndex + 1) % announcements.length;
+                    // 添加下一个 active 状态
                     announcements[currentIndex].classList.add('active');
                 }
             }
             if (announcements.length > 0) {
+                // 确保第一个元素初始化时为 active
                 announcements[0].classList.add('active');
+                // 每 6 秒切换一次
                 setInterval(showNextAnnouncement, 6000);
             }
         });
