@@ -98,7 +98,7 @@
             display: inline-block;
         }
 
-        /* 徽章样式 */
+        /* 缩小版徽章样式 */
         .footer-badge-container {
             display: inline-block;
             vertical-align: middle;
@@ -110,9 +110,9 @@
             align-items: center;
             border-radius: 999px;
             font-weight: 700;
-            box-shadow: 0 8px 32px rgba(44,36,82,0.20);
-            font-size: 2rem;
-            padding: 1.3rem 2.4rem;
+            box-shadow: 0 4px 16px rgba(44,36,82,0.15);
+            font-size: 1rem;
+            padding: 0.65rem 1.2rem;
             background: #2c2452;
             color: #fff;
             transition: all 0.3s;
@@ -121,21 +121,25 @@
         .footer-badge-eye {
             display: flex;
             align-items: center;
-            margin-right: 18px;
-            margin-left: -12px;
+            margin-right: 9px;
+            margin-left: -6px;
+        }
+        .footer-badge-eye svg {
+            width: 18px;
+            height: 12px;
         }
         .footer-badge-dot {
-            width: 20px;
-            height: 20px;
+            width: 10px;
+            height: 10px;
             border-radius: 50%;
             display: inline-block;
-            margin-right: 18px;
+            margin-right: 9px;
             transition: all 0.3s;
             background: #c0ff2e;
         }
         .footer-badge-text {
             font-weight: 700;
-            font-size: 2rem;
+            font-size: 1rem;
             transition: all 0.3s;
         }
         /* 邮箱模式：嵌套黄色圆角块 */
@@ -146,11 +150,11 @@
             background: #c7ff35;
             color: #2c2452;
             border-radius: 999px;
-            padding: 0.6em 1.2em;
-            margin-left: 0.2em;
+            padding: 0.3em 0.7em;
+            margin-left: 0.1em;
             font-weight: 700;
-            font-size: 2rem;
-            box-shadow: 0 1px 8px rgba(44,36,82,0.08);
+            font-size: 1rem;
+            box-shadow: 0 1px 4px rgba(44,36,82,0.08);
             display: inline-block;
         }
         .footer-badge-bg.mail .footer-badge-inner a {
@@ -160,17 +164,21 @@
         }
         @media (max-width: 700px) {
             .footer-badge-bg, .footer-badge-bg.mail .footer-badge-inner {
-                font-size: 1.1rem;
-                padding: 0.7rem 1.2rem;
+                font-size: 0.85rem;
+                padding: 0.35rem 0.6rem;
             }
             .footer-badge-eye {
-                margin-right: 8px;
-                margin-left: -6px;
+                margin-right: 4px;
+                margin-left: -3px;
+            }
+            .footer-badge-eye svg {
+                width: 11px;
+                height: 7px;
             }
             .footer-badge-dot {
-                width: 10px;
-                height: 10px;
-                margin-right: 8px;
+                width: 6px;
+                height: 6px;
+                margin-right: 4px;
             }
         }
     </style>
@@ -199,12 +207,12 @@
         <div class="copyright">
             &copy; 2025 NIC.BN. All rights reserved.
         </div>
-        <!-- 徽章紧跟版权 -->
+        <!-- 缩小版徽章紧跟版权 -->
         <span class="footer-badge-container">
             <span class="footer-badge-bg available" id="footer-badge-bg">
                 <!-- 眼睛SVG -->
                 <span class="footer-badge-eye">
-                  <svg width="32" height="22" viewBox="0 0 32 22" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <svg width="18" height="12" viewBox="0 0 32 22" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <ellipse cx="16" cy="11" rx="15" ry="9" fill="#392A5C" opacity="0.3"/>
                     <ellipse cx="16" cy="11" rx="7" ry="4" fill="#392A5C" opacity="0.55"/>
                     <circle cx="16" cy="11" r="4" fill="white" opacity="0.85"/>
@@ -246,7 +254,7 @@
                         '</span>';
                 }else{
                     bg.className = 'footer-badge-bg available';
-                    text.textContent = "域名正在寻求合作";
+                    text.textContent = "Available for freelance";
                 }
             }
             function updateBadge(){
