@@ -43,10 +43,8 @@
             max-width: 96vw;
             box-sizing: border-box;
             position: relative;
-            /* * 【修复 LOGO 闪动】
-             * 设置最小高度，确保公告切换时容器高度不变 
-             */
-            min-height: 35px; /* 足够容纳一行公告 */
+            /* * 【关键修复】增大最小高度，确保能容纳两行最长公告文本，解决 LOGO 闪动 */
+            min-height: 55px; /* 从 35px 增大到 55px */
         }
         .footer-announcement-box {
             min-height: 30px;
@@ -136,23 +134,22 @@
             cursor: pointer;
             user-select: none;
         }
-        /* >>>>>>> 修改开始：放大 SVG 图标并调整间距 <<<<<<< */
+        /* >>>>>>> 徽章样式：放大 SVG 图标并调整间距 (上次的修改保留) <<<<<<< */
         .footer-badge-icon {
             display: flex;
             align-items: center;
-            margin-right: 0.4em; /* 调整图标与文字的间距 */
-            margin-left: -0.1em; /* 稍微向左调整 */
+            margin-right: 0.4em; 
+            margin-left: -0.1em; 
         }
         .footer-badge-icon svg {
-            /* 增大 SVG 尺寸，使其与文字高度接近 */
             width: 1.1em; 
             height: 1.1em;
         }
-        /* >>>>>>> 修改开始：移除黄色圆点 <<<<<<< */
+        /* >>>>>>> 徽章样式：移除黄色圆点 (上次的修改保留) <<<<<<< */
         .footer-badge-dot {
-            display: none; /* 直接隐藏黄色圆点 */
+            display: none; 
         }
-        /* >>>>>>> 修改结束 <<<<<<< */
+        /* >>>>>>> 徽章样式修改结束 <<<<<<< */
         .footer-badge-text {
             font-weight: 700;
             font-size: 0.98rem;
@@ -191,14 +188,15 @@
         @media (max-width: 700px) {
             .footer-announcement { 
                 font-size: 0.77rem; 
-                white-space: normal;
+                /* 确保公告在移动端可以换行，以适应 min-height 的要求 */
+                white-space: normal; 
                 text-overflow: initial;
                 overflow: visible;
                 padding: 8px 10px; /* 在移动端允许换行并给足左右空间 */
             }
-            /* 【修复 LOGO 闪动】确保移动端公告容器高度也稳定 */
+            /* 【关键修复】确保移动端公告容器高度能稳定容纳换行文本 */
             .footer-announcement-container {
-                min-height: 35px; 
+                min-height: 55px; /* 与桌面端一致，确保不闪动 */
             }
             /* 【调整 LOGO 大小】移动端相应放大 */
             .footer-logo { max-width: 110px; margin: 4px auto 4px auto; }
@@ -207,20 +205,19 @@
                 font-size: 0.7rem;
                 padding: 0.18rem 0.33rem;
             }
-            /* >>>>>>> 移动端修改开始 <<<<<<< */
+            /* >>>>>>> 移动端徽章样式 (上次的修改保留) <<<<<<< */
             .footer-badge-icon { 
-                margin-right: 0.3em; /* 调整图标与文字的间距 */
-                margin-left: -0.1em; /* 稍微向左调整 */
+                margin-right: 0.3em; 
+                margin-left: -0.1em; 
             }
             .footer-badge-icon svg { 
-                /* 移动端 SVG 尺寸与文字高度接近 */
                 width: 1.1em; 
                 height: 1.1em;
             }
             .footer-badge-dot { 
-                display: none; /* 移除黄色圆点 */
+                display: none; 
             }
-            /* >>>>>>> 移动端修改结束 <<<<<<< */
+            /* >>>>>>> 移动端徽章样式修改结束 <<<<<<< */
         }
     </style>
 </head>
