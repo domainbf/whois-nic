@@ -18,31 +18,32 @@
             width: 100%;
             text-align: center;
             position: relative;
+            margin-top: 30px;
         }
-        /* 公告样式 */
+        /* 公告样式, 保证移动端一行显示 */
         .footer-announcement-container {
             margin: 0 auto 10px auto;
             max-width: 96vw;
             box-sizing: border-box;
             position: relative;
-            min-height: 38px;
+            min-height: 32px;
         }
         .footer-announcement-box {
-            min-height: 38px;
+            min-height: 32px;
             position: relative;
         }
         .footer-announcement {
             background: rgba(255,255,255,0.93);
             border-radius: 13px;
             box-shadow: 0 2px 14px rgba(200,200,210,0.09);
-            font-size: 1.13rem;
+            font-size: 1.03rem;
             color: #25304a;
-            font-weight: 700;
+            font-weight: 600;
             text-align: left;
             display: flex;
             align-items: center;
-            gap: 0.6em;
-            padding: 10px 16px 10px 12px;
+            gap: 0.45em;
+            padding: 6px 12px 6px 8px;
             margin: 0 auto;
             max-width: 100%;
             opacity: 0;
@@ -50,6 +51,9 @@
             left: 0; right: 0;
             transition: opacity 0.5s;
             z-index: 2;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
         .footer-announcement.active {
             opacity: 1;
@@ -58,36 +62,43 @@
         .footer-announcement .speaker {
             display: inline-flex;
             align-items: center;
-            margin-right: 0.5em;
+            margin-right: 0.32em;
             animation: speaker-bounce 1.2s infinite;
         }
         @keyframes speaker-bounce {
             0%,100% { transform: scale(1) rotate(-8deg);}
             50% { transform: scale(1.08) rotate(8deg);}
         }
-        /* LOGO美化放大 */
+        /* LOGO放大且居中 */
         .footer-logo {
             margin: 14px auto 10px auto;
-            max-width: 138px;
+            max-width: 165px;
             filter: drop-shadow(0 2px 14px rgba(44,36,82,0.12));
             display: block;
             transition: max-width 0.3s, max-height 0.3s;
         }
         @media (max-width: 700px) {
-            .footer-announcement { font-size: 1.03rem; padding: 8px 8px 8px 7px; }
-            .footer-logo { max-width: 98px; margin: 10px auto 7px auto; }
+            .footer-announcement { font-size: 0.81rem; padding: 5px 6px 5px 4px; }
+            .footer-logo { max-width: 125px; margin: 10px auto 7px auto; }
         }
+        /* 版权固定在底部 */
         .footer-copyright {
             font-size: 0.85rem;
             color: #718096;
-            margin-bottom: 8px;
+            width: 100vw;
             text-align: center;
             display: block;
+            position: fixed;
+            left: 0;
+            bottom: 0;
+            background: rgba(255,255,255,0.93);
+            z-index: 111;
+            padding: 5px 0 5px 0;
         }
-        /* 底部徽章样式 */
+        /* 合作徽章美化，点击显示 */
         .footer-badge-container {
             display: block;
-            margin: 0 auto 12px auto;
+            margin: 0 auto 14px auto;
             text-align: center;
         }
         .footer-badge-bg {
@@ -102,6 +113,8 @@
             color: #fff;
             transition: all 0.3s;
             position: relative;
+            cursor: pointer;
+            user-select: none;
         }
         .footer-badge-eye {
             display: flex;
@@ -147,7 +160,7 @@
         }
         @media (max-width: 700px) {
             .footer-badge-bg, .footer-badge-bg.mail .footer-badge-inner {
-                font-size: 0.8rem;
+                font-size: 0.82rem;
                 padding: 0.28rem 0.5rem;
             }
             .footer-badge-eye { margin-right: 3px; margin-left: -2px; }
@@ -211,12 +224,9 @@
             </div>
         </div>
         <img class="footer-logo" src="/images/logo.png" alt="NIC.BN logo">
-        <div class="footer-copyright">
-            &copy; 2025 NIC.BN. All rights reserved.
-        </div>
-        <!-- 缩小版徽章美化放底部居中 -->
+        <!-- 合作徽章点击显示 -->
         <span class="footer-badge-container">
-            <span class="footer-badge-bg available" id="footer-badge-bg">
+            <span class="footer-badge-bg available" id="footer-badge-bg" onclick="toggleBadge()">
                 <span class="footer-badge-eye">
                   <svg width="14" height="9" viewBox="0 0 32 22" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <ellipse cx="16" cy="11" rx="15" ry="9" fill="#392A5C" opacity="0.3"/>
@@ -229,6 +239,10 @@
                 <span class="footer-badge-text" id="footer-badge-text">域名寻求合作</span>
             </span>
         </span>
+        <!-- 版权固定底部 -->
+        <div class="footer-copyright">
+            &copy; 2025 NIC.BN. All rights reserved.
+        </div>
     </footer>
     <script>
         // 公告轮播逻辑
@@ -244,31 +258,23 @@
             setInterval(showNextAnnouncement, 6000);
         });
 
-        // 徽章切换逻辑
-        (function(){
+        // 合作徽章点击显示邮箱
+        let badgeMail = false;
+        function toggleBadge() {
+            badgeMail = !badgeMail;
             var bg = document.getElementById('footer-badge-bg');
             var text = document.getElementById('footer-badge-text');
-            function setBadgeContent(isBottom) {
-                if(isBottom){
-                    bg.className = 'footer-badge-bg mail';
-                    text.innerHTML =
-                        '<span class="footer-badge-inner">' +
-                        '<a href="mailto:domain@nic.bn">domain@nic.bn</a>' +
-                        '</span>';
-                }else{
-                    bg.className = 'footer-badge-bg available';
-                    text.textContent = "域名寻求合作";
-                }
+            if(badgeMail){
+                bg.className = 'footer-badge-bg mail';
+                text.innerHTML =
+                    '<span class="footer-badge-inner">' +
+                    '<a href="mailto:domain@nic.bn">domain@nic.bn</a>' +
+                    '</span>';
+            }else{
+                bg.className = 'footer-badge-bg available';
+                text.textContent = "域名寻求合作";
             }
-            function updateBadge(){
-                var isBottom = (window.innerHeight + window.scrollY) >= (document.body.offsetHeight - 2);
-                setBadgeContent(isBottom);
-            }
-            window.addEventListener('scroll', updateBadge);
-            window.addEventListener('resize', updateBadge);
-            document.addEventListener('DOMContentLoaded', updateBadge);
-            updateBadge();
-        })();
+        }
     </script>
 </body>
 </html>
