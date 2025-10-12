@@ -148,6 +148,42 @@
         </div>
     </footer>
 
+    <!-- 触底邮箱徽章（插入到footer后面即可） -->
+    <div id="scroll-badge" style="
+        position:fixed;
+        top:2.5rem;
+        left:50%;
+        transform:translateX(-50%);
+        z-index:9999;
+        opacity:0.8;
+        transition:all 0.3s;
+        pointer-events:none;
+        font-family:inherit;
+    ">
+      <span id="scroll-badge-inner" style="
+        display:inline-flex;
+        align-items:center;
+        padding:0.5rem 1.5rem;
+        border-radius:999px;
+        font-weight:600;
+        box-shadow:0 4px 16px rgba(44,36,82,0.18);
+        background:#2c2452;
+        color:#fff;
+        transition:all 0.3s;
+      ">
+        <span id="scroll-badge-dot" style="
+          width:0.5rem;
+          height:0.5rem;
+          border-radius:50%;
+          display:inline-block;
+          background:#c0ff2e;
+          margin-right:0.5rem;
+          transition:all 0.3s;
+        "></span>
+        <span id="scroll-badge-text">Available for freelance</span>
+      </span>
+    </div>
+
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             const announcements = document.querySelectorAll('.announcement');
@@ -163,6 +199,36 @@
             
             setInterval(showNextAnnouncement, 6000);
         });
+
+        // 触底邮箱徽章逻辑
+        (function(){
+          var badge = document.getElementById('scroll-badge');
+          var inner = document.getElementById('scroll-badge-inner');
+          var dot = document.getElementById('scroll-badge-dot');
+          var text = document.getElementById('scroll-badge-text');
+          function updateBadge(){
+            var isBottom = (window.innerHeight + window.scrollY) >= (document.body.offsetHeight - 2);
+            if(isBottom){
+              badge.style.opacity = "1";
+              inner.style.background = "#c7ff35";
+              inner.style.color = "#2c2452";
+              dot.style.background = "#2e2052";
+              dot.style.marginRight = "0.75rem";
+              text.textContent = "domain@nic.bn";
+            }else{
+              badge.style.opacity = "0.8";
+              inner.style.background = "#2c2452";
+              inner.style.color = "#fff";
+              dot.style.background = "#c0ff2e";
+              dot.style.marginRight = "0.5rem";
+              text.textContent = "Available for freelance";
+            }
+          }
+          window.addEventListener('scroll', updateBadge);
+          window.addEventListener('resize', updateBadge);
+          document.addEventListener('DOMContentLoaded', updateBadge);
+          updateBadge();
+        })();
     </script>
 </body>
 </html>
