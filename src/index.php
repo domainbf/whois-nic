@@ -1791,5 +1791,5 @@ if ($parser && count($domainParts) > 0 && preg_match('/^[a-zA-Z0-9]$/', $domainP
 <script src="https://kit.fontawesome.com/55e81b6986.js" crossorigin="anonymous"></script>
   <?= CUSTOM_SCRIPT ?>
 </body>
-
+<script defer src="https://umami-rho-blue.vercel.app/script.js" data-website-id="ad534fcf-b898-4f4c-b80b-c910820e206f"></script>
 </html>
