@@ -11,32 +11,29 @@
             min-height: 100vh;
             display: flex;
             flex-direction: column;
-            padding: 10px;
         }
         .footer {
             width: 100%;
-            text-align: center;
             position: relative;
-            margin-top: 30px;
+            text-align: center;
         }
-        .footer-mainarea {
+        .footer-bottomarea {
             width: 100%;
             text-align: center;
             position: relative;
-            margin-bottom: 38px; /* 为底部版权留足空间 */
+            margin-bottom: 44px; /* 给版权腾出空间 */
             display: flex;
             flex-direction: column;
             align-items: center;
-            gap: 12px;
+            gap: 14px;
         }
-        /* 公告样式，底部一组 */
+        /* 公告样式（底部一组） */
         .footer-announcement-container {
-            margin: 0 auto 0 auto;
+            width: 100%;
             max-width: 96vw;
             box-sizing: border-box;
             position: relative;
             min-height: 32px;
-            width: 100%;
         }
         .footer-announcement-box {
             min-height: 32px;
@@ -47,15 +44,15 @@
             background: rgba(255,255,255,0.93);
             border-radius: 13px;
             box-shadow: 0 2px 14px rgba(200,200,210,0.09);
-            font-size: 0.97rem;
+            font-size: 0.96rem;
             color: #25304a;
             font-weight: 600;
             text-align: left;
             display: flex;
             align-items: center;
             gap: 0.45em;
-            padding: 6px 12px 6px 8px;
-            margin: 0 auto 6px auto;
+            padding: 7px 14px 7px 11px;
+            margin: 0 auto 2px auto;
             max-width: 100%;
             opacity: 0;
             position: absolute;
@@ -83,15 +80,15 @@
         /* LOGO放大且居中 */
         .footer-logo {
             margin: 8px auto 8px auto;
-            max-width: 170px;
+            max-width: 156px;
             filter: drop-shadow(0 2px 14px rgba(44,36,82,0.12));
             display: block;
             transition: max-width 0.3s, max-height 0.3s;
         }
         @media (max-width: 700px) {
-            .footer-announcement { font-size: 0.82rem; padding: 5px 6px 5px 4px; }
-            .footer-logo { max-width: 126px; margin: 7px auto 8px auto; }
-            .footer-mainarea { gap: 10px; margin-bottom: 38px;}
+            .footer-announcement { font-size: 0.82rem; padding: 6px 6px 6px 5px; }
+            .footer-logo { max-width: 105px; margin: 7px auto 8px auto; }
+            .footer-bottomarea { gap: 8px; margin-bottom: 38px;}
         }
         /* 合作徽章美化，域名SVG图标 */
         .footer-badge-container {
@@ -106,7 +103,7 @@
             font-weight: 700;
             box-shadow: 0 4px 16px rgba(44,36,82,0.15);
             font-size: 1rem;
-            padding: 0.52rem 1.1rem;
+            padding: 0.49rem 1rem;
             background: #2c2452;
             color: #fff;
             transition: all 0.3s;
@@ -121,8 +118,8 @@
             margin-left: -4px;
         }
         .footer-badge-icon svg {
-            width: 16px;
-            height: 16px;
+            width: 15px;
+            height: 15px;
         }
         .footer-badge-dot {
             width: 8px;
@@ -158,8 +155,8 @@
         }
         @media (max-width: 700px) {
             .footer-badge-bg, .footer-badge-bg.mail .footer-badge-inner {
-                font-size: 0.82rem;
-                padding: 0.28rem 0.5rem;
+                font-size: 0.8rem;
+                padding: 0.25rem 0.48rem;
             }
             .footer-badge-icon { margin-right: 3px; margin-left: -2px; }
             .footer-badge-icon svg { width: 10px; height: 10px; }
@@ -178,6 +175,7 @@
             background: transparent;
             z-index: 111;
             padding: 5px 0 5px 0;
+            pointer-events: none;
         }
     </style>
 </head>
@@ -186,8 +184,8 @@
         <!-- 主内容 -->
     </div>
     <footer class="footer">
-        <!-- 主区域整体下移至版权上方 -->
-        <div class="footer-mainarea">
+        <!-- 底部区：公告/logo/徽章整体移至版权上方 -->
+        <div class="footer-bottomarea">
             <div class="footer-announcement-container">
                 <div class="footer-announcement-box">
                     <div class="footer-announcement active">
@@ -241,7 +239,7 @@
             <span class="footer-badge-container">
                 <span class="footer-badge-bg available" id="footer-badge-bg" onclick="toggleBadge()">
                     <span class="footer-badge-icon">
-                        <!-- 域名SVG图标（举例为全球/域名风格） -->
+                        <!-- 域名SVG图标（全球/域名风格） -->
                         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" fill="none">
                             <circle cx="16" cy="16" r="14" stroke="#c7ff35" stroke-width="2" fill="#2c2452"/>
                             <rect x="10" y="13" width="12" height="6" rx="2" fill="#c7ff35"/>
