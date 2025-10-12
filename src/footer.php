@@ -5,12 +5,21 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>NIC.BN - 域名查询与出售</title>
     <style>
+        /* 主要改动 1: 使用 Flexbox 构建粘性页脚布局 */
+        html, body {
+            height: 100%;
+            margin: 0;
+        }
         body {
             background: #f8fafc;
             color: #333;
             min-height: 100vh;
             display: flex;
             flex-direction: column;
+        }
+        /* 主要改动 2: 让主内容区占据所有可用空间，将页脚推到底部 */
+        .container {
+            flex: 1;
         }
         .footer {
             width: 100%;
@@ -21,7 +30,8 @@
             width: 100%;
             text-align: center;
             position: relative;
-            margin-bottom: 38px; /* 给版权腾出空间 */
+            /* 主要改动 3: 移除了为旧布局服务的 margin-bottom */
+            padding-bottom: 20px; /* 增加一些底部内边距，使其与版权信息有空间 */
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -65,7 +75,7 @@
         }
         .footer-announcement.active {
             opacity: 1;
-            position: static;
+            position: relative; /* 改为 relative，使其在流中占位 */
         }
         .footer-announcement .speaker {
             display: inline-flex;
@@ -86,9 +96,16 @@
             transition: max-width 0.3s, max-height 0.3s;
         }
         @media (max-width: 700px) {
-            .footer-announcement { font-size: 0.77rem; padding: 5px 5px 5px 4px; }
+             /* 主要改动 4: 允许公告在移动端换行，防止溢出 */
+            .footer-announcement { 
+                font-size: 0.77rem; 
+                padding: 8px 10px; /* 调整内边距适应多行 */
+                white-space: normal; /* 允许换行 */
+                text-overflow: initial; /* 取消省略号 */
+                overflow: visible;
+            }
             .footer-logo { max-width: 88px; margin: 4px auto 4px auto; }
-            .footer-bottomarea { gap: 5px; margin-bottom: 34px;}
+            .footer-bottomarea { gap: 5px; padding-bottom: 10px; }
         }
         /* 合作徽章美化，域名SVG图标 */
         .footer-badge-container {
@@ -162,29 +179,21 @@
             .footer-badge-icon svg { width: 8px; height: 8px; }
             .footer-badge-dot { width: 4px; height: 4px; margin-right: 2px; }
         }
-        /* 版权固定底部，透明无背景框 */
+        /* 主要改动 5: 移除固定定位，使其成为页脚的一部分 */
         .footer-copyright {
             font-size: 0.82rem;
             color: #718096;
-            width: 100vw;
+            width: 100%;
             text-align: center;
-            display: block;
-            position: fixed;
-            left: 0;
-            bottom: 0;
+            padding: 10px 0; /* 调整上下间距 */
             background: transparent;
-            z-index: 111;
-            padding: 4px 0 4px 0;
-            pointer-events: none;
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <!-- 主内容 -->
-    </div>
+        </div>
     <footer class="footer">
-        <!-- 底部区：公告/logo/徽章整体在版权上方紧凑排列 -->
         <div class="footer-bottomarea">
             <div class="footer-announcement-container">
                 <div class="footer-announcement-box">
@@ -219,7 +228,7 @@
                                 </g>
                             </svg>
                         </span>
-                        在售的域名，可👇点击{下方}进入列表查看，
+                        在售的域名，可👇点击{下方}进入列表查看。
                     </div>
                     <div class="footer-announcement">
                         <span class="speaker">
@@ -234,11 +243,10 @@
                     </div>
                 </div>
             </div>
-            <img class="footer-logo" src="/images/logo.png" alt="NIC.BN logo">
+            <img class="footer-logo" src="https://whois.nic.bn/images/logo-dark.svg" alt="NIC.BN logo">
             <span class="footer-badge-container">
                 <span class="footer-badge-bg available" id="footer-badge-bg" onclick="toggleBadge()">
                     <span class="footer-badge-icon">
-                        <!-- 域名SVG图标（举例为全球/域名风格） -->
                         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" fill="none">
                             <circle cx="16" cy="16" r="14" stroke="#c7ff35" stroke-width="2" fill="#2c2452"/>
                             <rect x="10" y="13" width="12" height="6" rx="2" fill="#c7ff35"/>
@@ -250,26 +258,30 @@
                 </span>
             </span>
         </div>
-        <!-- 版权固定底部，透明无背景框 -->
         <div class="footer-copyright">
             &copy; 2025 NIC.BN. All rights reserved.
         </div>
     </footer>
     <script>
-        // 公告轮播逻辑
+        // 公告轮播逻辑 (JS部分无需修改)
         document.addEventListener('DOMContentLoaded', function() {
             const announcements = document.querySelectorAll('.footer-announcement');
             let currentIndex = 0;
             function showNextAnnouncement() {
-                announcements[currentIndex].classList.remove('active');
-                currentIndex = (currentIndex + 1) % announcements.length;
-                announcements[currentIndex].classList.add('active');
+                // 确保有公告内容时才执行
+                if (announcements.length > 0) {
+                    announcements[currentIndex].classList.remove('active');
+                    currentIndex = (currentIndex + 1) % announcements.length;
+                    announcements[currentIndex].classList.add('active');
+                }
             }
-            announcements[0].classList.add('active');
-            setInterval(showNextAnnouncement, 6000);
+            if (announcements.length > 0) {
+                announcements[0].classList.add('active');
+                setInterval(showNextAnnouncement, 6000);
+            }
         });
 
-        // 合作徽章点击显示邮箱
+        // 合作徽章点击显示邮箱 (JS部分无需修改)
         let badgeMail = false;
         function toggleBadge() {
             badgeMail = !badgeMail;
