@@ -246,7 +246,7 @@
                         '</span>';
                 }else{
                     bg.className = 'footer-badge-bg available';
-                    text.textContent = "Available for freelance";
+                    text.textContent = "域名正在寻求合作";
                 }
             }
             function updateBadge(){
