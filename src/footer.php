@@ -30,11 +30,11 @@
             width: 100%;
             text-align: center;
             position: relative;
-            padding-bottom: 20px; /* 增加一些底部内边距，使其与版权信息有空间 */
+            padding-bottom: 20px;
             display: flex;
             flex-direction: column;
-            align-items: center; /* 这会将所有子元素（公告、logo、徽章）作为一个整体水平居中 */
-            gap: 9px; /* 紧凑间距 */
+            align-items: center;
+            gap: 9px;
         }
         /* 公告样式 */
         .footer-announcement-container {
@@ -49,18 +49,25 @@
             position: relative;
             width: 100%;
         }
+
+        /* --- 主要修改区域开始 --- */
         .footer-announcement {
-            background: rgba(255,255,255,0.93);
-            border-radius: 13px;
-            box-shadow: 0 2px 14px rgba(200,200,210,0.09);
+            /* 1. 移除背景框和阴影 */
+            background: transparent;
+            box-shadow: none;
+
             font-size: 0.95rem;
             color: #25304a;
             font-weight: 600;
-            text-align: left; /* 公告框内的文字是左对齐的 */
             display: flex;
+            
+            /* 2. 实现内容（图标+文字）居中对齐 */
+            justify-content: center; 
             align-items: center;
+
             gap: 0.4em;
-            padding: 6px 13px 6px 10px;
+            /* 3. 调整内边距，去掉水平边距 */
+            padding: 6px 0; 
             margin: 0 auto 1px auto;
             max-width: 100%;
             opacity: 0;
@@ -72,9 +79,11 @@
             overflow: hidden;
             text-overflow: ellipsis;
         }
+        /* --- 主要修改区域结束 --- */
+
         .footer-announcement.active {
             opacity: 1;
-            position: relative; /* 改为 relative，使其在流中占位 */
+            position: relative;
         }
         .footer-announcement .speaker {
             display: inline-flex;
@@ -159,25 +168,24 @@
             font-weight: 700;
         }
         
-        /* 移除固定定位，使其成为页脚的一部分 */
+        /* 版权样式 */
         .footer-copyright {
             font-size: 0.82rem;
             color: #718096;
             width: 100%;
             text-align: center;
-            padding: 10px 0; /* 调整上下间距 */
+            padding: 10px 0;
             background: transparent;
         }
 
         /* 移动端适配 */
         @media (max-width: 700px) {
-            /* 允许公告在移动端换行，防止溢出 */
             .footer-announcement { 
                 font-size: 0.77rem; 
-                padding: 8px 10px; /* 调整内边距适应多行 */
-                white-space: normal; /* 允许换行 */
-                text-overflow: initial; /* 取消省略号 */
+                white-space: normal;
+                text-overflow: initial;
                 overflow: visible;
+                padding: 8px 10px; /* 在移动端允许换行并给足左右空间 */
             }
             .footer-logo { max-width: 88px; margin: 4px auto 4px auto; }
             .footer-bottomarea { gap: 5px; padding-bottom: 10px; }
@@ -236,7 +244,7 @@
             <span class="footer-badge-container">
                 <span class="footer-badge-bg available" id="footer-badge-bg" onclick="toggleBadge()">
                     <span class="footer-badge-icon">
-                        <svg xmlns="http://www.w.org/2000/svg" viewBox="0 0 32 32" fill="none">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" fill="none">
                             <circle cx="16" cy="16" r="14" stroke="#c7ff35" stroke-width="2" fill="#2c2452"/>
                             <rect x="10" y="13" width="12" height="6" rx="2" fill="#c7ff35"/>
                             <circle cx="16" cy="16" r="2" fill="#2c2452"/>
