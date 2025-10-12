@@ -43,8 +43,8 @@
             max-width: 96vw;
             box-sizing: border-box;
             position: relative;
-            /* * 【关键修复】增大最小高度，确保能容纳两行最长公告文本，解决 LOGO 闪动 */
-            min-height: 55px; /* 从 35px 增大到 55px */
+            /* * 【最终修复】增大最小高度至 65px，确保容纳最长换行文本，彻底解决 LOGO 闪动 */
+            min-height: 65px; 
         }
         .footer-announcement-box {
             min-height: 30px;
@@ -52,7 +52,7 @@
             width: 100%;
         }
 
-        /* --- 主要修改区域开始 (公告部分未变) --- */
+        /* --- 主要修改区域开始 --- */
         .footer-announcement {
             /* 1. 移除背景框和阴影 */
             background: transparent;
@@ -77,11 +77,13 @@
             left: 0; right: 0;
             transition: opacity 0.5s;
             z-index: 2;
-            white-space: nowrap;
+            /* * 【修复闪动】移除桌面端的 nowrap 限制，让容器可以根据内容撑开 */
+            white-space: normal;
             overflow: hidden;
             text-overflow: ellipsis;
+            text-align: center; /* 确保换行后文本居中 */
         }
-        /* --- 主要修改区域结束 (公告部分未变) --- */
+        /* --- 主要修改区域结束 --- */
 
         .footer-announcement.active {
             opacity: 1;
@@ -134,7 +136,7 @@
             cursor: pointer;
             user-select: none;
         }
-        /* >>>>>>> 徽章样式：放大 SVG 图标并调整间距 (上次的修改保留) <<<<<<< */
+        /* >>>>>>> 徽章样式：放大 SVG 图标并调整间距 (已保留) <<<<<<< */
         .footer-badge-icon {
             display: flex;
             align-items: center;
@@ -145,7 +147,7 @@
             width: 1.1em; 
             height: 1.1em;
         }
-        /* >>>>>>> 徽章样式：移除黄色圆点 (上次的修改保留) <<<<<<< */
+        /* >>>>>>> 徽章样式：移除黄色圆点 (已保留) <<<<<<< */
         .footer-badge-dot {
             display: none; 
         }
@@ -188,15 +190,14 @@
         @media (max-width: 700px) {
             .footer-announcement { 
                 font-size: 0.77rem; 
-                /* 确保公告在移动端可以换行，以适应 min-height 的要求 */
-                white-space: normal; 
+                white-space: normal;
                 text-overflow: initial;
                 overflow: visible;
                 padding: 8px 10px; /* 在移动端允许换行并给足左右空间 */
             }
-            /* 【关键修复】确保移动端公告容器高度能稳定容纳换行文本 */
+            /* 【最终修复】确保移动端公告容器高度能稳定容纳换行文本 */
             .footer-announcement-container {
-                min-height: 55px; /* 与桌面端一致，确保不闪动 */
+                min-height: 65px; 
             }
             /* 【调整 LOGO 大小】移动端相应放大 */
             .footer-logo { max-width: 110px; margin: 4px auto 4px auto; }
@@ -205,7 +206,7 @@
                 font-size: 0.7rem;
                 padding: 0.18rem 0.33rem;
             }
-            /* >>>>>>> 移动端徽章样式 (上次的修改保留) <<<<<<< */
+            /* >>>>>>> 移动端徽章样式 (已保留) <<<<<<< */
             .footer-badge-icon { 
                 margin-right: 0.3em; 
                 margin-left: -0.1em; 
