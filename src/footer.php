@@ -14,13 +14,12 @@
             padding: 10px;
         }
         .footer {
-            background: transparent;
             width: 100%;
             text-align: center;
             position: relative;
             margin-top: 30px;
         }
-        /* 公告样式, 保证移动端一行显示 */
+        /* 公告样式，底部一组 */
         .footer-announcement-container {
             margin: 0 auto 10px auto;
             max-width: 96vw;
@@ -36,7 +35,7 @@
             background: rgba(255,255,255,0.93);
             border-radius: 13px;
             box-shadow: 0 2px 14px rgba(200,200,210,0.09);
-            font-size: 1.03rem;
+            font-size: 0.97rem;
             color: #25304a;
             font-weight: 600;
             text-align: left;
@@ -44,7 +43,7 @@
             align-items: center;
             gap: 0.45em;
             padding: 6px 12px 6px 8px;
-            margin: 0 auto;
+            margin: 0 auto 6px auto;
             max-width: 100%;
             opacity: 0;
             position: absolute;
@@ -71,34 +70,20 @@
         }
         /* LOGO放大且居中 */
         .footer-logo {
-            margin: 14px auto 10px auto;
-            max-width: 165px;
+            margin: 10px auto 14px auto;
+            max-width: 170px;
             filter: drop-shadow(0 2px 14px rgba(44,36,82,0.12));
             display: block;
             transition: max-width 0.3s, max-height 0.3s;
         }
         @media (max-width: 700px) {
-            .footer-announcement { font-size: 0.81rem; padding: 5px 6px 5px 4px; }
-            .footer-logo { max-width: 125px; margin: 10px auto 7px auto; }
+            .footer-announcement { font-size: 0.82rem; padding: 5px 6px 5px 4px; }
+            .footer-logo { max-width: 126px; margin: 7px auto 10px auto; }
         }
-        /* 版权固定在底部 */
-        .footer-copyright {
-            font-size: 0.85rem;
-            color: #718096;
-            width: 100vw;
-            text-align: center;
-            display: block;
-            position: fixed;
-            left: 0;
-            bottom: 0;
-            background: rgba(255,255,255,0.93);
-            z-index: 111;
-            padding: 5px 0 5px 0;
-        }
-        /* 合作徽章美化，点击显示 */
+        /* 合作徽章美化，域名SVG图标 */
         .footer-badge-container {
             display: block;
-            margin: 0 auto 14px auto;
+            margin: 0 auto 12px auto;
             text-align: center;
         }
         .footer-badge-bg {
@@ -116,15 +101,15 @@
             cursor: pointer;
             user-select: none;
         }
-        .footer-badge-eye {
+        .footer-badge-icon {
             display: flex;
             align-items: center;
             margin-right: 7px;
             margin-left: -4px;
         }
-        .footer-badge-eye svg {
-            width: 14px;
-            height: 9px;
+        .footer-badge-icon svg {
+            width: 16px;
+            height: 16px;
         }
         .footer-badge-dot {
             width: 8px;
@@ -163,9 +148,23 @@
                 font-size: 0.82rem;
                 padding: 0.28rem 0.5rem;
             }
-            .footer-badge-eye { margin-right: 3px; margin-left: -2px; }
-            .footer-badge-eye svg { width: 8px; height: 5px; }
+            .footer-badge-icon { margin-right: 3px; margin-left: -2px; }
+            .footer-badge-icon svg { width: 10px; height: 10px; }
             .footer-badge-dot { width: 5px; height: 5px; margin-right: 3px; }
+        }
+        /* 版权固定底部，透明无背景框 */
+        .footer-copyright {
+            font-size: 0.85rem;
+            color: #718096;
+            width: 100vw;
+            text-align: center;
+            display: block;
+            position: fixed;
+            left: 0;
+            bottom: 0;
+            background: transparent;
+            z-index: 111;
+            padding: 5px 0 5px 0;
         }
     </style>
 </head>
@@ -174,7 +173,7 @@
         <!-- 主内容 -->
     </div>
     <footer class="footer">
-        <!-- 公告区（logo上方，4条轮播） -->
+        <!-- 公告区（logo、徽章都在版权上方） -->
         <div class="footer-announcement-container">
             <div class="footer-announcement-box">
                 <div class="footer-announcement active">
@@ -224,22 +223,22 @@
             </div>
         </div>
         <img class="footer-logo" src="/images/logo.png" alt="NIC.BN logo">
-        <!-- 合作徽章点击显示 -->
+        <!-- 合作徽章，域名SVG图标 -->
         <span class="footer-badge-container">
             <span class="footer-badge-bg available" id="footer-badge-bg" onclick="toggleBadge()">
-                <span class="footer-badge-eye">
-                  <svg width="14" height="9" viewBox="0 0 32 22" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <ellipse cx="16" cy="11" rx="15" ry="9" fill="#392A5C" opacity="0.3"/>
-                    <ellipse cx="16" cy="11" rx="7" ry="4" fill="#392A5C" opacity="0.55"/>
-                    <circle cx="16" cy="11" r="4" fill="white" opacity="0.85"/>
-                    <circle cx="16" cy="11" r="2" fill="#2c2452"/>
+                <span class="footer-badge-icon">
+                  <!-- 域名SVG图标（举例为全球/域名风格） -->
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" fill="none">
+                    <circle cx="16" cy="16" r="14" stroke="#c7ff35" stroke-width="2" fill="#2c2452"/>
+                    <rect x="10" y="13" width="12" height="6" rx="2" fill="#c7ff35"/>
+                    <circle cx="16" cy="16" r="2" fill="#2c2452"/>
                   </svg>
                 </span>
                 <span class="footer-badge-dot"></span>
                 <span class="footer-badge-text" id="footer-badge-text">域名寻求合作</span>
             </span>
         </span>
-        <!-- 版权固定底部 -->
+        <!-- 版权固定底部，透明无背景框 -->
         <div class="footer-copyright">
             &copy; 2025 NIC.BN. All rights reserved.
         </div>
