@@ -54,7 +54,7 @@
             width: 100%;
         }
 
-        /* --- 主要修改区域开始 --- */
+        /* --- 主要修改区域开始 (公告部分未变) --- */
         .footer-announcement {
             /* 1. 移除背景框和阴影 */
             background: transparent;
@@ -83,7 +83,7 @@
             overflow: hidden;
             text-overflow: ellipsis;
         }
-        /* --- 主要修改区域结束 --- */
+        /* --- 主要修改区域结束 (公告部分未变) --- */
 
         .footer-announcement.active {
             opacity: 1;
@@ -136,25 +136,23 @@
             cursor: pointer;
             user-select: none;
         }
+        /* >>>>>>> 修改开始：放大 SVG 图标并调整间距 <<<<<<< */
         .footer-badge-icon {
             display: flex;
             align-items: center;
-            margin-right: 7px;
-            margin-left: -4px;
+            margin-right: 0.4em; /* 调整图标与文字的间距 */
+            margin-left: -0.1em; /* 稍微向左调整 */
         }
         .footer-badge-icon svg {
-            width: 15px;
-            height: 15px;
+            /* 增大 SVG 尺寸，使其与文字高度接近 */
+            width: 1.1em; 
+            height: 1.1em;
         }
+        /* >>>>>>> 修改开始：移除黄色圆点 <<<<<<< */
         .footer-badge-dot {
-            width: 7px;
-            height: 7px;
-            border-radius: 50%;
-            display: inline-block;
-            margin-right: 7px;
-            transition: all 0.3s;
-            background: #c0ff2e;
+            display: none; /* 直接隐藏黄色圆点 */
         }
+        /* >>>>>>> 修改结束 <<<<<<< */
         .footer-badge-text {
             font-weight: 700;
             font-size: 0.98rem;
@@ -209,9 +207,20 @@
                 font-size: 0.7rem;
                 padding: 0.18rem 0.33rem;
             }
-            .footer-badge-icon { margin-right: 2px; margin-left: -2px; }
-            .footer-badge-icon svg { width: 8px; height: 8px; }
-            .footer-badge-dot { width: 4px; height: 4px; margin-right: 2px; }
+            /* >>>>>>> 移动端修改开始 <<<<<<< */
+            .footer-badge-icon { 
+                margin-right: 0.3em; /* 调整图标与文字的间距 */
+                margin-left: -0.1em; /* 稍微向左调整 */
+            }
+            .footer-badge-icon svg { 
+                /* 移动端 SVG 尺寸与文字高度接近 */
+                width: 1.1em; 
+                height: 1.1em;
+            }
+            .footer-badge-dot { 
+                display: none; /* 移除黄色圆点 */
+            }
+            /* >>>>>>> 移动端修改结束 <<<<<<< */
         }
     </style>
 </head>
