@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>NIC.BN - 域名查询与出售</title>
     <style>
-        /* 使用 Flexbox 构建粘性页脚布局 */
         html, body {
             height: 100%;
             margin: 0;
@@ -49,7 +48,6 @@
             width: 100%;
         }
 
-        /* --- 主要修改区域开始 --- */
         .footer-announcement {
             background: transparent;
             box-shadow: none;
@@ -73,10 +71,9 @@
             overflow: hidden;
             text-overflow: ellipsis;
             text-align: center;
-            height: 65px; /* 新增固定高度 */
-            line-height: 1.4; /* 统一行高 */
+            height: 65px;
+            line-height: 1.4;
         }
-        /* --- 主要修改区域结束 --- */
 
         .footer-announcement.active {
             opacity: 1;
@@ -95,12 +92,23 @@
             50% { transform: scale(1.08) rotate(8deg);}
         }
         
-        .footer-logo {
-            margin: 5px auto 5px auto;
+        .footer-logo-link {
+            display: inline-block;
+            margin: 5px auto;
             max-width: 180px;
+            transition: all 0.3s;
+            cursor: pointer;
+            text-decoration: none;
+            color: inherit;
+        }
+        .footer-logo-link:hover {
+            transform: translateY(-2px);
+            filter: drop-shadow(0 4px 16px rgba(44,36,82,0.15));
+        }
+        .footer-logo {
+            max-width: 100%;
             filter: drop-shadow(0 2px 14px rgba(44,36,82,0.12));
             display: block;
-            transition: max-width 0.3s, max-height 0.3s;
         }
         
         .footer-badge-container {
@@ -173,7 +181,10 @@
             .footer-announcement-container {
                 min-height: 65px; 
             }
-            .footer-logo { max-width: 110px; margin: 4px auto 4px auto; }
+            .footer-logo-link {
+                max-width: 110px;
+                margin: 4px auto;
+            }
             .footer-bottomarea { gap: 5px; padding-bottom: 10px; }
             .footer-badge-bg, .footer-badge-bg.mail .footer-badge-inner {
                 font-size: 0.7rem;
@@ -226,11 +237,13 @@
                                 <g><path d="M3 7v4h3l4 4V3L6 7H3z" fill="#2c2452"></path><path d="M14.5 9a4.5 4.5 0 0 0-2.5-4v8a4.5 4.5 0 0 0 2.5-4z" fill="#c7ff35"></path></g>
                             </svg>
                         </span>
-                        不记录·不储存·所有搜索查询数据仅保存在您本地浏览器。
+                        不记录·不储存·所有搜索查询数据仅保留在您本地浏览器。
                     </div>
                 </div>
             </div>
-            <img class="footer-logo" src="/images/logo.png" alt="NIC.BN logo">
+            <a href="https://hello.sn/domain" target="_blank" class="footer-logo-link">
+                <img class="footer-logo" src="/images/logo.png" alt="NIC.BN logo">
+            </a>
             <span class="footer-badge-container">
                 <span class="footer-badge-bg available" id="footer-badge-bg" onclick="toggleBadge()">
                     <span class="footer-badge-icon">
