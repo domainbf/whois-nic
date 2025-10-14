@@ -1,335 +1,245 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>NIC.BN - 域名查询与出售</title>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>NIC.BN - 域名查询</title>
     <style>
-        /* 使用 Flexbox 构建粘性页脚布局 */
+        /* ====== 基础页面布局 ====== */
         html, body {
             height: 100%;
             margin: 0;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
         }
         body {
-            background: #f8fafc;
-            color: #333;
-            min-height: 100vh;
             display: flex;
             flex-direction: column;
+            background: #f8fafc;
+            color: #333;
         }
-        /* 让主内容区占据所有可用空间，将页脚推到底部 */
         .container {
             flex: 1;
         }
+
+        /* ====== 页脚基础样式 ====== */
         .footer {
-            width: 100%;
-            position: relative;
-            text-align: center;
+            background: #ffffff;
+            box-shadow: 0 -2px 10px rgba(0,0,0,0.05);
+            padding: 30px 0 20px 0;
         }
-        .footer-bottomarea {
-            width: 100%;
-            text-align: center;
-            position: relative;
-            padding-bottom: 20px;
+        .footer-content {
+            max-width: 1200px;
+            margin: 0 auto;
             display: flex;
             flex-direction: column;
             align-items: center;
-            gap: 9px;
-        }
-        
-        /* 公告样式 */
-        .footer-announcement-container {
-            width: 100%;
-            max-width: 96vw;
-            box-sizing: border-box;
-            position: relative;
-            /* ✅ 修复：设置固定高度，避免公告切换时布局跳动导致 logo 抖动 */
-            height: 65px;       /* 固定高度 */
-            min-height: 65px;   /* 保留兼容 */
-        }
-        .footer-announcement-box {
-            min-height: 30px;
-            position: relative;
-            width: 100%;
-        }
-
-        /* --- 主要修改区域开始 --- */
-        .footer-announcement {
-            /* 1. 移除背景框和阴影 */
-            background: transparent;
-            box-shadow: none;
-
-            font-size: 0.95rem;
-            color: #25304a;
-            font-weight: 600;
-            display: flex;
-            
-            /* 2. 实现内容（图标+文字）居中对齐 */
-            justify-content: center; 
-            align-items: center;
-
-            gap: 0.4em;
-            /* 3. 调整内边距，去掉水平边距 */
-            padding: 6px 0; 
-            margin: 0 auto 1px auto;
-            max-width: 100%;
-            opacity: 0;
-            position: absolute;
-            left: 0; 
-            right: 0;
-            transition: opacity 0.5s;
-            z-index: 2;
-            /* * 【修复闪动】移除桌面端的 nowrap 限制，让容器可以根据内容撑开 */
-            white-space: normal;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            text-align: center; /* 确保换行后文本居中 */
-        }
-        /* --- 主要修改区域结束 --- */
-
-        .footer-announcement.active {
-            opacity: 1;
-            /* 注意：这里保持了 position: relative;
-             * 配合 .footer-announcement-container 的固定高度，解决了跳动问题
-             */
-            position: relative; 
-        }
-        .footer-announcement .speaker {
-            display: inline-flex;
-            align-items: center;
-            margin-right: 0.28em;
-            animation: speaker-bounce 1.2s infinite;
-        }
-        @keyframes speaker-bounce {
-            0%,100% { transform: scale(1) rotate(-8deg);}
-            50% { transform: scale(1.08) rotate(8deg);}
-        }
-        
-        /* LOGO美化且居中 */
-        .footer-logo {
-            margin: 5px auto 5px auto;
-            /* * 【调整 LOGO 大小】
-             * 将最大宽度从 130px 增大到 180px 
-             */
-            max-width: 180px;
-            filter: drop-shadow(0 2px 14px rgba(44,36,82,0.12));
-            display: block;
-            transition: max-width 0.3s, max-height 0.3s;
-        }
-        
-        /* 合作徽章美化，域名SVG图标 */
-        .footer-badge-container {
-            display: block;
-            margin: 0 auto 0 auto;
             text-align: center;
         }
-        .footer-badge-bg {
-            display: inline-flex;
-            align-items: center;
-            border-radius: 999px;
-            font-weight: 700;
-            box-shadow: 0 4px 16px rgba(44,36,82,0.13);
-            font-size: 0.98rem;
-            padding: 0.42rem 0.88rem;
-            background: #2c2452;
-            color: #fff;
-            transition: all 0.3s;
+
+        /* ====== 公告区域（核心修复部分）====== */
+        .announcement-container {
+            width: 90%;
+            max-width: 600px;
+            height: 60px; /* 固定高度，避免跳动 */
             position: relative;
-            cursor: pointer;
-            user-select: none;
+            overflow: hidden;
+            margin-bottom: 20px;
         }
-        /* >>>>>>> 徽章样式：放大 SVG 图标并调整间距 (已保留) <<<<<<< */
-        .footer-badge-icon {
+        .announcement-track {
+            position: absolute;
+            width: 100%;
+            top: 0;
+            left: 0;
+            transition: transform 0.5s ease-in-out;
+        }
+        .announcement {
+            height: 60px;
             display: flex;
             align-items: center;
-            margin-right: 0.4em; 
-            margin-left: -0.1em; 
+            justify-content: center;
+            font-size: 15px;
+            font-weight: 600;
+            color: #2c2452;
+            padding: 0 15px;
+            box-sizing: border-box;
+            text-align: center;
         }
-        .footer-badge-icon svg {
-            width: 1.1em; 
-            height: 1.1em;
+        .announcement-icon {
+            margin-right: 8px;
+            animation: bounce 1.5s infinite;
         }
-        /* >>>>>>> 徽章样式：移除黄色圆点 (已保留) <<<<<<< */
-        .footer-badge-dot {
-            display: none; 
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0) rotate(-5deg); }
+            50% { transform: translateY(-2px) rotate(5deg); }
         }
-        /* >>>>>>> 徽章样式修改结束 <<<<<<< */
-        .footer-badge-text {
-            font-weight: 700;
-            font-size: 0.98rem;
-            transition: all 0.3s;
+
+        /* ====== LOGO 样式 ====== */
+        .footer-logo {
+            width: 180px;
+            height: auto;
+            margin: 15px 0;
+            filter: drop-shadow(0 2px 8px rgba(44, 36, 82, 0.12));
+            transition: all 0.3s ease;
         }
-        .footer-badge-bg.mail .footer-badge-dot { background: #2c2452; }
-        .footer-badge-bg.mail .footer-badge-inner {
+
+        /* ====== 合作徽章样式 ====== */
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            background: #2c2452;
+            color: #ffffff;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            margin: 15px 0;
+            box-shadow: 0 4px 12px rgba(44, 36, 82, 0.1);
+            transition: all 0.3s ease;
+        }
+        .badge-icon {
+            margin-right: 8px;
+        }
+        .badge.mail {
             background: #c7ff35;
             color: #2c2452;
-            border-radius: 999px;
-            padding: 0.18em 0.42em;
-            margin-left: 0.08em;
-            font-weight: 700;
-            font-size: 0.98rem;
-            box-shadow: 0 1px 4px rgba(44,36,82,0.08);
-            display: inline-block;
-            transition: background 0.3s, color 0.3s;
-        }
-        .footer-badge-bg.mail .footer-badge-inner a {
-            color: #2c2452;
-            text-decoration: none;
-            font-weight: 700;
-        }
-        
-        /* 版权样式 */
-        .footer-copyright {
-            font-size: 0.82rem;
-            color: #718096;
-            width: 100%;
-            text-align: center;
-            padding: 10px 0;
-            background: transparent;
         }
 
-        /* 移动端适配 */
-        @media (max-width: 700px) {
-            .footer-announcement { 
-                font-size: 0.77rem; 
-                white-space: normal;
-                text-overflow: initial;
-                overflow: visible;
-                padding: 8px 10px; /* 在移动端允许换行并给足左右空间 */
+        /* ====== 版权信息 ====== */
+        .copyright {
+            margin-top: 15px;
+            font-size: 12px;
+            color: #718096;
+        }
+
+        /* ====== 响应式 ====== */
+        @media (max-width: 768px) {
+            .announcement {
+                font-size: 14px;
+                padding: 0 10px;
             }
-            /* 【最终修复】确保移动端公告容器高度能稳定容纳换行文本 */
-            .footer-announcement-container {
-                min-height: 65px; 
-                height: 65px;
+            .footer-logo {
+                width: 120px;
             }
-            /* 【调整 LOGO 大小】移动端相应放大 */
-            .footer-logo { max-width: 110px; margin: 4px auto 4px auto; }
-            .footer-bottomarea { gap: 5px; padding-bottom: 10px; }
-            .footer-badge-bg, .footer-badge-bg.mail .footer-badge-inner {
-                font-size: 0.7rem;
-                padding: 0.18rem 0.33rem;
+            .badge {
+                font-size: 13px;
+                padding: 6px 12px;
             }
-            /* >>>>>>> 移动端徽章样式 (已保留) <<<<<<< */
-            .footer-badge-icon { 
-                margin-right: 0.3em; 
-                margin-left: -0.1em; 
-            }
-            .footer-badge-icon svg { 
-                width: 1.1em; 
-                height: 1.1em;
-            }
-            .footer-badge-dot { 
-                display: none; 
-            }
-            /* >>>>>>> 移动端徽章样式修改结束 <<<<<<< */
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <!-- 主内容可以放在这里 -->
+        <!-- 主内容区域 -->
     </div>
 
     <footer class="footer">
-        <div class="footer-bottomarea">
-            <!-- 公告轮播区域 -->
-            <div class="footer-announcement-container">
-                <div class="footer-announcement-box">
-                    <div class="footer-announcement active">
-                        <span class="speaker">
-                            <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
-                                <g><path d="M3 7v4h3l4 4V3L6 7H3z" fill="#2c2452"></path><path d="M14.5 9a4.5 4.5 0 0 0-2.5-4v8a4.5 4.5 0 0 0 2.5-4z" fill="#c7ff35"></path></g>
+        <div class="footer-content">
+
+            <!-- ====== 公告轮播区域（已修复跳动问题）====== -->
+            <div class="announcement-container">
+                <div class="announcement-track" id="announcementTrack">
+                    <div class="announcement">
+                        <span class="announcement-icon">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+                                <path d="M3 9v6h4l5 5V4L7 9H3z" fill="#2c2452"/>
+                                <path d="M16.5 12a4.5 4.5 0 0 0-2.5-4v8a4.5 4.5 0 0 0 2.5-4z" fill="#c7ff35"/>
                             </svg>
                         </span>
-                        集成 RDAP+WHOIS 双核驱动提供精准域名注册数据。
+                        集成 RDAP+WHOIS 双核驱动提供精准域名注册数据
                     </div>
-                    <div class="footer-announcement">
-                        <span class="speaker">
-                            <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
-                                <g><path d="M3 7v4h3l4 4V3L6 7H3z" fill="#2c2452"></path><path d="M14.5 9a4.5 4.5 0 0 0-2.5-4v8a4.5 4.5 0 0 0 2.5-4z" fill="#c7ff35"></path></g>
+                    <div class="announcement">
+                        <span class="announcement-icon">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+                                <path d="M3 9v6h4l5 5V4L7 9H3z" fill="#2c2452"/>
+                                <path d="M16.5 12a4.5 4.5 0 0 0-2.5-4v8a4.5 4.5 0 0 0 2.5-4z" fill="#c7ff35"/>
                             </svg>
                         </span>
-                        本站提供域名查询服务，不储存任何搜索及查询数据信息。
+                        本站提供域名查询服务，不储存任何搜索及查询数据信息
                     </div>
-                    <div class="footer-announcement">
-                        <span class="speaker">
-                            <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
-                                <g><path d="M3 7v4h3l4 4V3L6 7H3z" fill="#2c2452"></path><path d="M14.5 9a4.5 4.5 0 0 0-2.5-4v8a4.5 4.5 0 0 0 2.5-4z" fill="#c7ff35"></path></g>
+                    <div class="announcement">
+                        <span class="announcement-icon">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+                                <path d="M3 9v6h4l5 5V4L7 9H3z" fill="#2c2452"/>
+                                <path d="M16.5 12a4.5 4.5 0 0 0-2.5-4v8a4.5 4.5 0 0 0 2.5-4z" fill="#c7ff35"/>
                             </svg>
                         </span>
-                        在售的域名，可👇点击[NIC.BN]进入列表查看所有域名。
+                        在售的域名，可点击下方按钮查看所有域名
                     </div>
-                    <div class="footer-announcement">
-                        <span class="speaker">
-                            <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
-                                <g><path d="M3 7v4h3l4 4V3L6 7H3z" fill="#2c2452"></path><path d="M14.5 9a4.5 4.5 0 0 0-2.5-4v8a4.5 4.5 0 0 0 2.5-4z" fill="#c7ff35"></path></g>
+                    <div class="announcement">
+                        <span class="announcement-icon">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+                                <path d="M3 9v6h4l5 5V4L7 9H3z" fill="#2c2452"/>
+                                <path d="M16.5 12a4.5 4.5 0 0 0-2.5-4v8a4.5 4.5 0 0 0 2.5-4z" fill="#c7ff35"/>
                             </svg>
                         </span>
-                        不记录·不储存·所有搜索查询数据仅保留在您本地浏览器。
+                        不记录·不储存·所有搜索查询数据仅保留在您本地浏览器
                     </div>
                 </div>
             </div>
 
-            <!-- LOGO -->
-            <img class="footer-logo" src="/images/logo.png" alt="NIC.BN logo">
+            <!-- ====== LOGO ====== -->
+            <img class="footer-logo" src="logo.png" alt="NIC.BN Logo" />
 
-            <!-- 合作联系徽章 -->
-            <span class="footer-badge-container">
-                <span class="footer-badge-bg available" id="footer-badge-bg" onclick="toggleBadge()">
-                    <span class="footer-badge-icon">
-                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" fill="none">
-                            <circle cx="16" cy="16" r="14" stroke="#c7ff35" stroke-width="2" fill="#2c2452"/>
-                            <rect x="10" y="13" width="12" height="6" rx="2" fill="#c7ff35"/>
-                            <circle cx="16" cy="16" r="2" fill="#2c2452"/>
-                        </svg>
-                    </span>
-                    <span class="footer-badge-dot"></span>
-                    <span class="footer-badge-text" id="footer-badge-text">域名寻求合作</span>
+            <!-- ====== 合作徽章（点击切换）====== -->
+            <div class="badge" id="cooperationBadge">
+                <span class="badge-icon">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+                        <circle cx="12" cy="12" r="10" stroke="#c7ff35" stroke-width="2" fill="#2c2452"/>
+                        <rect x="8" y="10" width="8" height="4" rx="1" fill="#c7ff35"/>
+                        <circle cx="12" cy="12" r="1" fill="#2c2452"/>
+                    </svg>
                 </span>
-            </span>
-        </div>
+                <span id="badgeText">域名寻求合作</span>
+            </div>
 
-        <!-- 版权信息 -->
-        <div class="footer-copyright">
-            &copy; 2025 NIC.BN. All rights reserved.
+            <!-- ====== 版权信息 ====== -->
+            <div class="copyright">
+                &copy; 2025 NIC.BN. All rights reserved.
+            </div>
+
         </div>
     </footer>
 
     <script>
-        // 公告轮播 JS （无需改动）
-        document.addEventListener('DOMContentLoaded', function() {
-            const announcements = document.querySelectorAll('.footer-announcement');
+        // ====== 公告轮播逻辑（垂直位移，无跳动） ======
+        document.addEventListener('DOMContentLoaded', function () {
+            const track = document.getElementById('announcementTrack');
+            const announcements = document.querySelectorAll('.announcement');
+            const height = announcements[0].offsetHeight; // 每条高度固定为 60px
             let currentIndex = 0;
-            function showNextAnnouncement() {
-                if (announcements.length > 0) {
-                    announcements[currentIndex].classList.remove('active');
-                    currentIndex = (currentIndex + 1) % announcements.length;
-                    announcements[currentIndex].classList.add('active');
-                }
-            }
-            if (announcements.length > 0) {
-                announcements[0].classList.add('active');
-                setInterval(showNextAnnouncement, 6000);
-            }
-        });
 
-        // 徽章切换 JS （无需改动）
-        let badgeMail = false;
-        function toggleBadge() {
-            badgeMail = !badgeMail;
-            var bg = document.getElementById('footer-badge-bg');
-            var text = document.getElementById('footer-badge-text');
-            if(badgeMail){
-                bg.className = 'footer-badge-bg mail';
-                text.innerHTML =
-                    '<span class="footer-badge-inner">' +
-                    '<a href="mailto:domain@nic.bn">domain@nic.bn</a>' +
-                    '</span>';
-            }else{
-                bg.className = 'footer-badge-bg available';
-                text.textContent = "域名寻求合作";
+            function updatePosition() {
+                track.style.transform = `translateY(-${currentIndex * height}px)`;
             }
-        }
+
+            function nextAnnouncement() {
+                currentIndex = (currentIndex + 1) % announcements.length;
+                updatePosition();
+            }
+
+            // 初始化显示第一条
+            updatePosition();
+
+            // 每 6 秒切换一次
+            setInterval(nextAnnouncement, 6000);
+
+            // ====== 合作徽章切换逻辑 ======
+            const badge = document.getElementById('cooperationBadge');
+            const badgeText = document.getElementById('badgeText');
+            let isMailMode = false;
+
+            badge.addEventListener('click', function () {
+                isMailMode = !isMailMode;
+                if (isMailMode) {
+                    badge.classList.add('mail');
+                    badgeText.innerHTML = '<a href="mailto:domain@nic.bn" style="color: inherit; text-decoration: none;">domain@nic.bn</a>';
+                } else {
+                    badge.classList.remove('mail');
+                    badgeText.textContent = '域名寻求合作';
+                }
+            });
+        });
     </script>
 </body>
 </html>
