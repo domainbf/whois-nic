@@ -43,8 +43,9 @@
             max-width: 96vw;
             box-sizing: border-box;
             position: relative;
-            /* * 【最终修复】增大最小高度至 65px，确保容纳最长换行文本，彻底解决 LOGO 闪动 */
-            min-height: 65px; 
+            /* ✅ 修复：设置固定高度，避免公告切换时布局跳动导致 logo 抖动 */
+            height: 65px;       /* 固定高度 */
+            min-height: 65px;   /* 保留兼容 */
         }
         .footer-announcement-box {
             min-height: 30px;
@@ -74,7 +75,8 @@
             max-width: 100%;
             opacity: 0;
             position: absolute;
-            left: 0; right: 0;
+            left: 0; 
+            right: 0;
             transition: opacity 0.5s;
             z-index: 2;
             /* * 【修复闪动】移除桌面端的 nowrap 限制，让容器可以根据内容撑开 */
@@ -87,8 +89,8 @@
 
         .footer-announcement.active {
             opacity: 1;
-            /* * 注意：这里保持了 position: relative;
-             * 配合 .footer-announcement-container 的 min-height 解决了跳动问题
+            /* 注意：这里保持了 position: relative;
+             * 配合 .footer-announcement-container 的固定高度，解决了跳动问题
              */
             position: relative; 
         }
@@ -198,6 +200,7 @@
             /* 【最终修复】确保移动端公告容器高度能稳定容纳换行文本 */
             .footer-announcement-container {
                 min-height: 65px; 
+                height: 65px;
             }
             /* 【调整 LOGO 大小】移动端相应放大 */
             .footer-logo { max-width: 110px; margin: 4px auto 4px auto; }
@@ -224,9 +227,12 @@
 </head>
 <body>
     <div class="container">
-        </div>
+        <!-- 主内容可以放在这里 -->
+    </div>
+
     <footer class="footer">
         <div class="footer-bottomarea">
+            <!-- 公告轮播区域 -->
             <div class="footer-announcement-container">
                 <div class="footer-announcement-box">
                     <div class="footer-announcement active">
@@ -263,7 +269,11 @@
                     </div>
                 </div>
             </div>
+
+            <!-- LOGO -->
             <img class="footer-logo" src="/images/logo.png" alt="NIC.BN logo">
+
+            <!-- 合作联系徽章 -->
             <span class="footer-badge-container">
                 <span class="footer-badge-bg available" id="footer-badge-bg" onclick="toggleBadge()">
                     <span class="footer-badge-icon">
@@ -278,33 +288,32 @@
                 </span>
             </span>
         </div>
+
+        <!-- 版权信息 -->
         <div class="footer-copyright">
             &copy; 2025 NIC.BN. All rights reserved.
         </div>
     </footer>
+
     <script>
-        // JS部分无需修改
+        // 公告轮播 JS （无需改动）
         document.addEventListener('DOMContentLoaded', function() {
             const announcements = document.querySelectorAll('.footer-announcement');
             let currentIndex = 0;
             function showNextAnnouncement() {
                 if (announcements.length > 0) {
-                    // 移除当前 active 状态
                     announcements[currentIndex].classList.remove('active');
-                    // 计算下一个索引
                     currentIndex = (currentIndex + 1) % announcements.length;
-                    // 添加下一个 active 状态
                     announcements[currentIndex].classList.add('active');
                 }
             }
             if (announcements.length > 0) {
-                // 确保第一个元素初始化时为 active
                 announcements[0].classList.add('active');
-                // 每 6 秒切换一次
                 setInterval(showNextAnnouncement, 6000);
             }
         });
 
+        // 徽章切换 JS （无需改动）
         let badgeMail = false;
         function toggleBadge() {
             badgeMail = !badgeMail;
