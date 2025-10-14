@@ -251,7 +251,7 @@
                                 <g><path d="M3 7v4h3l4 4V3L6 7H3z" fill="#2c2452"></path><path d="M14.5 9a4.5 4.5 0 0 0-2.5-4v8a4.5 4.5 0 0 0 2.5-4z" fill="#c7ff35"></path></g>
                             </svg>
                         </span>
-                        在售的域名，可👇点击{下方}LOGO进入列表查看所有域名。
+                        在售的域名，可👇点击[NIC.BN]进入列表查看所有域名。
                     </div>
                     <div class="footer-announcement">
                         <span class="speaker">
