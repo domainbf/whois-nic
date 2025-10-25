@@ -1439,7 +1439,7 @@ if ($parser && count($domainParts) > 0 && preg_match('/^[a-zA-Z0-9]$/', $domainP
     </script>
   <?php endif; ?>
   <?php if ($fetchPrices): ?>
-    <script>
+        <script>
       window.addEventListener("DOMContentLoaded", async () => {
         const messagePrice = document.getElementById("message-price");
 
@@ -1450,7 +1450,7 @@ if ($parser && count($domainParts) > 0 && preg_match('/^[a-zA-Z0-9]$/', $domainP
         const startTime = Date.now();
 
         try {
-          const response = await fetch("https://api.tian.hu/whois.php?domain=<?= urlencode($domain); ?>&action=checkPrice");
+          const response = await fetch("https://api.tian.hu/whois.php?domain=<?= $domain; ?>&action=checkPrice");
 
           if (!response.ok) {
             throw new Error();
@@ -1458,7 +1458,7 @@ if ($parser && count($domainParts) > 0 && preg_match('/^[a-zA-Z0-9]$/', $domainP
 
           const data = await response.json();
 
-          if (data.code !== "200") {
+          if (data.code !== 200) {
             throw new Error();
           }
 
@@ -1489,36 +1489,34 @@ if ($parser && count($domainParts) > 0 && preg_match('/^[a-zA-Z0-9]$/', $domainP
           innerHTML = `
             ${innerHTML}
             <button class="message-tag message-tag-gray" id="price-register">
-              <span>注册: $${registerUSD}</span>
+              <span>Register: $${registerUSD}</span>
             </button>
             <button class="message-tag message-tag-gray" id="price-renew">
-              <span>续费: $${renewUSD}</span>
+              <span>Renew: $${renewUSD}</span>
             </button>
           `;
 
           setTimeout(() => {
             messagePrice.innerHTML = innerHTML;
 
-            if (isPremium && typeof tippy !== 'undefined') {
+            if (isPremium) {
               tippy("#price-premium", {
-                content: "溢价",
+                content: "Premium",
                 placement: "bottom",
               });
             }
-            if (typeof tippy !== 'undefined') {
-              tippy("#price-register", {
-                content: `¥${registerCNY}`,
-                placement: "bottom"
-              });
-              tippy("#price-renew", {
-                content: `¥${renewCNY}`,
-                placement: "bottom"
-              });
-            }
+            tippy("#price-register", {
+              content: `¥${registerCNY}`,
+              placement: "bottom"
+            });
+            tippy("#price-renew", {
+              content: `¥${renewCNY}`,
+              placement: "bottom"
+            });
           }, Math.max(0, 500 - (Date.now() - startTime)));
         } catch {
           setTimeout(() => {
-            messagePrice.innerHTML = `<span class="message-tag message-tag-pink">获取价格失败</span>`;
+            messagePrice.innerHTML = `<span class="message-tag message-tag-pink">Failed to fetch prices</span>`;
           }, Math.max(0, 500 - (Date.now() - startTime)));
         }
       });
