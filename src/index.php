@@ -1524,37 +1524,40 @@ if ($parser && count($domainParts) > 0 && preg_match('/^[a-zA-Z0-9]$/', $domainP
   <?php endif; ?>
   <?php if ($fetchBeiAn): ?>
     <script>
-      window.addEventListener("DOMContentLoaded", async () => {
-        const messageBeiAn = document.getElementById("message-beian");
+window.addEventListener("DOMContentLoaded", async () => {
+    const messageBeiAn = document.getElementById("message-beian");
 
-        if (!messageBeiAn) {
-          return;
+    if (!messageBeiAn) {
+        return;
+    }
+
+    messageBeiAn.style.transition = "opacity 0.3s ease";
+    messageBeiAn.style.opacity = "0";
+
+    const startTime = Date.now();
+
+    try {
+        // 修改为您的API地址
+        const apiUrl = "https://beian.bug.kz/query/web?search=<?= urlencode($domain); ?>";
+        console.log("正在请求API:", apiUrl);
+        
+        const response = await fetch(apiUrl);
+
+        if (!response.ok) {
+            throw new Error("网络请求失败，状态码: " + response.status);
         }
 
-        messageBeiAn.style.transition = "opacity 0.3s ease";
-        messageBeiAn.style.opacity = "0";
+        const data = await response.json();
+        console.log("API响应数据:", data);
 
-        const startTime = Date.now();
-
-        try {
-          const apiUrl = "http://43.133.72.184:16181/query/web?search=<?= urlencode($domain); ?>";
-          const response = await fetch(apiUrl);
-
-          if (!response.ok) {
-            throw new Error("网络请求失败");
-          }
-
-          const data = await response.json();
-          console.log("API响应数据:", data);
-
-          if (data.code !== 200) {
+        if (data.code !== 200) {
             throw new Error(data.msg || "查询失败");
-          }
+        }
 
-          let innerHTML = "";
-          const beianData = data.params && data.params.list && data.params.list.length > 0 ? data.params.list[0] : null;
+        let innerHTML = "";
+        const beianData = data.params && data.params.list && data.params.list.length > 0 ? data.params.list[0] : null;
 
-          if (beianData) {
+        if (beianData) {
             const mainLicence = beianData.mainLicence || "无";
             const domainName = beianData.domain || "未知";
             const serviceLicence = beianData.serviceLicence || "无";
@@ -1570,56 +1573,56 @@ if ($parser && count($domainParts) > 0 && preg_match('/^[a-zA-Z0-9]$/', $domainP
                 <span class="beian-tip">点击查看详情</span>
               </div>
             `;
-          } else {
+        } else {
             innerHTML = `
               <div class="beian-info no-beian">
-                <span class="beian-domain">${$domain}</span>
+                <span class="beian-domain"><?= $domain ?></span>
                 <span class="no-beian-text">无备案信息</span>
               </div>
             `;
-          }
+        }
 
-          setTimeout(() => {
+        setTimeout(() => {
             messageBeiAn.innerHTML = innerHTML;
             messageBeiAn.style.opacity = "1";
 
             if (beianData && typeof tippy !== 'undefined') {
-              tippy(".beian-info", {
-                content: `
-                  <div class="beian-tooltip">
-                    <div class="tooltip-header">备案详细信息</div>
-                    <div class="tooltip-content">
-                      <span class="tooltip-item"><span class="tooltip-label">域名:</span><span class="tooltip-value">${beianData.domain || "未知"}</span></span>
-                      <span class="tooltip-item"><span class="tooltip-label">备案号:</span><span class="tooltip-value">${beianData.mainLicence || "无"}</span></span>
-                      <span class="tooltip-item"><span class="tooltip-label">服务许可证:</span><span class="tooltip-value">${beianData.serviceLicence || "无"}</span></span>
-                      <span class="tooltip-item"><span class="tooltip-label">单位性质:</span><span class="tooltip-value">${beianData.natureName || "未知"}</span></span>
-                      <span class="tooltip-item"><span class="tooltip-label">主办单位:</span><span class="tooltip-value">${beianData.unitName || "未知"}</span></span>
-                      <span class="tooltip-item"><span class="tooltip-label">审核时间:</span><span class="tooltip-value">${beianData.updateRecordTime ? new Date(beianData.updateRecordTime).toLocaleDateString() : "未知"}</span></span>
-                      <span class="tooltip-item"><span class="tooltip-label">公安局备案号:</span><span class="tooltip-value">&nbsp;${beianData.policeLicence || "无"}</span></span>
-                    </div>
-                  </div>
-                `,
-                placement: "bottom",
-                allowHTML: true,
-                theme: 'beian-tooltip',
-                maxWidth: 1200
-              });
+                tippy(".beian-info", {
+                    content: `
+                      <div class="beian-tooltip">
+                        <div class="tooltip-header">备案详细信息</div>
+                        <div class="tooltip-content">
+                          <div class="tooltip-item"><span class="tooltip-label">域名:</span><span class="tooltip-value">${beianData.domain || "未知"}</span></div>
+                          <div class="tooltip-item"><span class="tooltip-label">备案号:</span><span class="tooltip-value">${beianData.mainLicence || "无"}</span></div>
+                          <div class="tooltip-item"><span class="tooltip-label">服务许可证:</span><span class="tooltip-value">${beianData.serviceLicence || "无"}</span></div>
+                          <div class="tooltip-item"><span class="tooltip-label">单位性质:</span><span class="tooltip-value">${beianData.natureName || "未知"}</span></div>
+                          <div class="tooltip-item"><span class="tooltip-label">主办单位:</span><span class="tooltip-value">${beianData.unitName || "未知"}</span></div>
+                          <div class="tooltip-item"><span class="tooltip-label">审核时间:</span><span class="tooltip-value">${beianData.updateRecordTime ? new Date(beianData.updateRecordTime).toLocaleDateString() : "未知"}</span></div>
+                          <div class="tooltip-item"><span class="tooltip-label">公安局备案:</span><span class="tooltip-value">${beianData.policeLicence || "无"}</span></div>
+                        </div>
+                      </div>
+                    `,
+                    placement: "bottom",
+                    allowHTML: true,
+                    theme: 'beian-tooltip',
+                    maxWidth: 400
+                });
             }
-          }, Math.max(0, 500 - (Date.now() - startTime)));
-        } catch (error) {
-          console.error("备案查询错误:", error);
-          setTimeout(() => {
+        }, Math.max(0, 500 - (Date.now() - startTime)));
+    } catch (error) {
+        console.error("备案查询错误:", error);
+        setTimeout(() => {
             messageBeiAn.innerHTML = `
               <div class="beian-info error">
-                <span class="beian-domain">${$domain}</span>
+                <span class="beian-domain"><?= $domain ?></span>
                 <span class="error-text">获取失败: ${error.message}</span>
               </div>
             `;
             messageBeiAn.style.opacity = "1";
-          }, Math.max(0, 500 - (Date.now() - startTime)));
-        }
-      });
-    </script>
+        }, Math.max(0, 500 - (Date.now() - startTime)));
+    }
+});
+</script>
 
     <style>
       /* 备案信息样式 */
