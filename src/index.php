@@ -1539,7 +1539,7 @@ if ($parser && count($domainParts) > 0 && preg_match('/^[a-zA-Z0-9]$/', $domainP
         const startTime = Date.now();
 
         try {
-          const apiUrl = "https://beian.bug.kz/query/web?search=<?= urlencode($domain); ?>";
+          const apiUrl = "43.133.72.184:16181/query/web?search=<?= urlencode($domain); ?>";
           const response = await fetch(apiUrl);
 
           if (!response.ok) {
