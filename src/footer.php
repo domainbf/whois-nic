@@ -260,6 +260,10 @@
         </div>
         <div class="footer-copyright">
             &copy; 2025 NIC.BN. All rights reserved.
+            <br>
+            <span style="font-size: 0.8em; opacity: 0.8;">
+                Powered by <a href="https://github.com/reg233/whois-domain-lookup" target="_blank" style="color: inherit; text-decoration: underline;">reg233/whois-domain-lookup</a>
+            </span>
         </div>
     </footer>
     <script>
