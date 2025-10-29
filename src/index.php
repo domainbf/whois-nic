@@ -1554,103 +1554,167 @@ if ($parser && count($domainParts) > 0 && preg_match('/^[a-zA-Z0-9]$/', $domainP
     }, Math.max(0, 500 - (Date.now() - startTime)));
   }
 });
-    </script>
-
-  <?php endif; ?>
-  <?php if ($fetchBeiAn): ?>
     <script>
 window.addEventListener("DOMContentLoaded", async () => {
+    // 获取用于显示备案信息的 DOM 元素，请确保您的 HTML 中有一个 <div id="message-beian"> 元素
     const messageBeiAn = document.getElementById("message-beian");
 
     if (!messageBeiAn) {
+        console.error("未找到 id 为 'message-beian' 的 DOM 元素。");
         return;
     }
 
+    // 初始过渡效果
     messageBeiAn.style.transition = "opacity 0.3s ease";
     messageBeiAn.style.opacity = "0";
 
     const startTime = Date.now();
+    const domain = "<?php echo $domain; ?>";
+    const key = "<?php echo $key; ?>"; // 您的 itapi.cn 密钥
+
+    // API URLs
+    // ICP 备案 (bug.kz API)
+    const icpApiUrl = `https://beian.bug.kz/query/web?search=<?php echo urlencode($domain); ?>`;
+    // 公安局备案 (itapi.cn API)
+    const policeApiUrl = `https://api.itapi.cn/api/wanganbeian?key=${key}&domain=<?php echo urlencode($domain); ?>`;
+    
+    console.log("正在请求 ICP API:", icpApiUrl);
+    console.log("正在请求公安 API:", policeApiUrl);
+
+    let beianData = null; // ICP 备案数据
+    let policeData = null; // 公安局备案数据
+    let errorMsg = null;
 
     try {
-        // 修改为您的API地址
-        const apiUrl = "https://beian.bug.kz/query/web?search=<?= urlencode($domain); ?>";
-        console.log("正在请求API:", apiUrl);
-        
-        const response = await fetch(apiUrl);
+        // 使用 Promise.allSettled 并发请求两个 API，互不影响
+        const [icpResponse, policeResponse] = await Promise.allSettled([
+            fetch(icpApiUrl),
+            fetch(policeApiUrl)
+        ]);
 
-        if (!response.ok) {
-            throw new Error("网络请求失败，状态码: " + response.status);
+        // --- 处理 ICP 备案数据 (bug.kz API) ---
+        if (icpResponse.status === 'fulfilled' && icpResponse.value.ok) {
+            const data = await icpResponse.value.json();
+            console.log("ICP API响应数据:", data);
+
+            if (data.code === 200) {
+                // 提取第一个备案记录
+                beianData = data.params && data.params.list && data.params.list.length > 0 ? data.params.list[0] : null;
+            } else {
+                console.warn("ICP 查询失败或无记录:", data.msg);
+            }
+        } else {
+            console.error("ICP 网络请求失败或被拒绝:", icpResponse.reason || (icpResponse.value && icpResponse.value.status));
         }
 
-        const data = await response.json();
-        console.log("API响应数据:", data);
+        // --- 处理公安备案数据 (itapi.cn API) ---
+        if (policeResponse.status === 'fulfilled' && policeResponse.value.ok) {
+            const data = await policeResponse.value.json();
+            console.log("公安 API响应数据:", data);
 
-        if (data.code !== 200) {
-            throw new Error(data.msg || "查询失败");
+            if (data.code === "200" && data.data && data.data.beianhao) {
+                // 提取公安数据
+                policeData = data.data;
+            } else {
+                console.warn("无有效的公安备案数据或查询失败:", data.msg || (data.code !== "200" ? `错误码: ${data.code}` : ""));
+            }
+        } else {
+            console.error("公安网络请求失败或被拒绝:", policeResponse.reason || (policeResponse.value && policeResponse.value.status));
         }
 
+        // ------------------------------------
+        // 3. 渲染结果
+        // ------------------------------------
         let innerHTML = "";
-        const beianData = data.params && data.params.list && data.params.list.length > 0 ? data.params.list[0] : null;
-
-        if (beianData) {
-            const mainLicence = beianData.mainLicence || "无";
-            const domainName = beianData.domain || "未知";
-            const serviceLicence = beianData.serviceLicence || "无";
-            const natureName = beianData.natureName || "未知";
-            const unitName = beianData.unitName || "未知";
-            const updateRecordTime = beianData.updateRecordTime ? new Date(beianData.updateRecordTime).toLocaleDateString() : "未知";
-            const policeLicence = beianData.policeLicence || "无";
+        
+        // 确定最终展示的公安备案号 (优先使用新 API 的数据)
+        const finalPoliceLicence = policeData ? policeData.beianhao : (beianData ? beianData.policeLicence : "无");
+        
+        if (beianData || policeData) {
+            // 确定展示的 ICP 备案号和域名
+            const mainLicence = beianData ? beianData.mainLicence : "无";
+            const domainName = beianData ? beianData.domain : (policeData ? policeData.domain : domain);
 
             innerHTML = `
               <div class="beian-info">
                 <span class="beian-domain">${domainName}</span>
-                <span class="beian-number">${mainLicence}</span>
+                ${mainLicence && mainLicence !== '无' ? `<a href="https://beian.miit.gov.cn" target="_blank" class="beian-number">${mainLicence}</a>` : ''}
+                ${finalPoliceLicence && finalPoliceLicence !== '无' ? `<a href="http://www.beian.gov.cn/portal/registerSystemInfo?recordcode=${finalPoliceLicence.replace(/[^\d]/g, '')}" target="_blank" class="police-number">公网安备 ${finalPoliceLicence}</a>` : ''}
                 <span class="beian-tip">点击查看详情</span>
               </div>
             `;
         } else {
+            // 无任何备案信息
             innerHTML = `
               <div class="beian-info no-beian">
-                <span class="beian-domain"><?= $domain ?></span>
+                <span class="beian-domain">${domain}</span>
                 <span class="no-beian-text">无备案信息</span>
               </div>
             `;
         }
 
+        // 确保至少等待 500ms，防止闪烁
         setTimeout(() => {
             messageBeiAn.innerHTML = innerHTML;
             messageBeiAn.style.opacity = "1";
 
-            if (beianData && typeof tippy !== 'undefined') {
+            // ------------------------------------
+            // 4. 初始化 Tippy.js 悬浮框 (需要引入 tippy.js 库)
+            // ------------------------------------
+            if ((beianData || policeData) && typeof tippy !== 'undefined') {
+                
+                // 格式化 ICP 备案信息
+                const icpInfo = beianData ? `
+                    <div class="tooltip-item"><span class="tooltip-label">ICP备案号:</span><span class="tooltip-value">${beianData.mainLicence || "无"}</span></div>
+                    <div class="tooltip-item"><span class="tooltip-label">服务许可证:</span><span class="tooltip-value">${beianData.serviceLicence || "无"}</span></div>
+                    <div class="tooltip-item"><span class="tooltip-label">单位性质:</span><span class="tooltip-value">${beianData.natureName || "未知"}</span></div>
+                    <div class="tooltip-item"><span class="tooltip-label">主办单位:</span><span class="tooltip-value">${beianData.unitName || "未知"}</span></div>
+                    <div class="tooltip-item"><span class="tooltip-label">审核时间:</span><span class="tooltip-value">${beianData.updateRecordTime ? new Date(beianData.updateRecordTime).toLocaleDateString() : "未知"}</span></div>
+                ` : '<div class="tooltip-item no-info"><span class="tooltip-label">ICP备案:</span><span class="tooltip-value">未查询到信息</span></div>';
+                
+                // 格式化公安备案信息
+                const policeInfo = policeData ? `
+                    <div class="tooltip-item"><span class="tooltip-label">公安局备案:</span><span class="tooltip-value">${policeData.beianhao || "无"}</span></div>
+                    <div class="tooltip-item"><span class="tooltip-label">网站名称:</span><span class="tooltip-value">${policeData.sitename || "未知"}</span></div>
+                    <div class="tooltip-item"><span class="tooltip-label">备案性质:</span><span class="tooltip-value">${policeData.type || "未知"}</span></div>
+                    <div class="tooltip-item"><span class="tooltip-label">审核单位:</span><span class="tooltip-value">${policeData.gaaddress || "未知"}</span></div>
+                    <div class="tooltip-item"><span class="tooltip-label">备案时间:</span><span class="tooltip-value">${policeData.time || "未知"}</span></div>
+                ` : '<div class="tooltip-item no-info"><span class="tooltip-label">公安局备案:</span><span class="tooltip-value">未查询到信息</span></div>';
+
                 tippy(".beian-info", {
                     content: `
                       <div class="beian-tooltip">
-                        <div class="tooltip-header">备案详细信息</div>
-                        <div class="tooltip-content">
-                          <div class="tooltip-item"><span class="tooltip-label">域名:</span><span class="tooltip-value">${beianData.domain || "未知"}</span></div>
-                          <div class="tooltip-item"><span class="tooltip-label">备案号:</span><span class="tooltip-value">${beianData.mainLicence || "无"}</span></div>
-                          <div class="tooltip-item"><span class="tooltip-label">服务许可证:</span><span class="tooltip-value">${beianData.serviceLicence || "无"}</span></div>
-                          <div class="tooltip-item"><span class="tooltip-label">单位性质:</span><span class="tooltip-value">${beianData.natureName || "未知"}</span></div>
-                          <div class="tooltip-item"><span class="tooltip-label">主办单位:</span><span class="tooltip-value">${beianData.unitName || "未知"}</span></div>
-                          <div class="tooltip-item"><span class="tooltip-label">审核时间:</span><span class="tooltip-value">${beianData.updateRecordTime ? new Date(beianData.updateRecordTime).toLocaleDateString() : "未知"}</span></div>
-                          <div class="tooltip-item"><span class="tooltip-label">公安局备案:</span><span class="tooltip-value">${beianData.policeLicence || "无"}</span></div>
+                        <div class="tooltip-header">备案详细信息 - ${domain}</div>
+                        <div class="tooltip-content-wrapper">
+                            <div class="tooltip-section">
+                                <div class="section-header">ICP/网站备案 (工信部)</div>
+                                ${icpInfo}
+                            </div>
+                            <div class="tooltip-section">
+                                <div class="section-header">公安局备案 (网安)</div>
+                                ${policeInfo}
+                            </div>
                         </div>
                       </div>
                     `,
                     placement: "bottom",
                     allowHTML: true,
                     theme: 'beian-tooltip',
-                    maxWidth: 400
+                    maxWidth: 600, 
+                    interactive: true
                 });
             }
         }, Math.max(0, 500 - (Date.now() - startTime)));
+        
     } catch (error) {
-        console.error("备案查询错误:", error);
+        console.error("备案查询发生致命错误:", error);
+        errorMsg = error.message;
+
         setTimeout(() => {
             messageBeiAn.innerHTML = `
               <div class="beian-info error">
-                <span class="beian-domain"><?= $domain ?></span>
-                <span class="error-text">获取失败: ${error.message}</span>
+                <span class="beian-domain">${domain}</span>
+                <span class="error-text">获取失败: ${errorMsg}</span>
               </div>
             `;
             messageBeiAn.style.opacity = "1";
@@ -1672,6 +1736,7 @@ window.addEventListener("DOMContentLoaded", async () => {
         transition: opacity 0.3s ease;
         justify-content: center;
         text-align: center;
+        position: relative; 
       }
 
       .beian-domain {
@@ -1680,16 +1745,29 @@ window.addEventListener("DOMContentLoaded", async () => {
         font-size: 14px;
         white-space: nowrap;
         text-decoration: none;
-        margin-right: 10px;
       }
 
-      .beian-number {
+      .beian-number, .police-number {
         font-weight: 600;
         color: #333333;
         font-size: 14px;
         white-space: nowrap;
         text-decoration: none;
-        margin-right: 10px;
+        padding: 2px 5px;
+        border: 1px solid #ccc;
+        border-radius: 3px;
+        background-color: #f0f0f0;
+        cursor: pointer; 
+      }
+      
+      .beian-number:hover, .police-number:hover {
+          opacity: 0.8;
+      }
+
+      .police-number {
+          border-color: #3b5998; 
+          color: #3b5998;
+          background-color: #e6f0ff;
       }
 
       .beian-tip {
@@ -1701,8 +1779,16 @@ window.addEventListener("DOMContentLoaded", async () => {
         border: 1px solid #ddd;
         border-radius: 3px;
         position: absolute;
-        right: 5px;
+        right: 50%;
         bottom: -15px;
+        transform: translateX(50%);
+        opacity: 0;
+        transition: opacity 0.3s ease;
+        pointer-events: none; 
+      }
+
+      .beian-info:hover .beian-tip {
+          opacity: 1;
       }
 
       .beian-info.no-beian {
@@ -1725,9 +1811,9 @@ window.addEventListener("DOMContentLoaded", async () => {
         font-weight: 500;
       }
 
-      /* 悬浮框样式 */
+      /* 悬浮框样式 (Tippy.js) */
       .beian-tooltip {
-        max-width: 1200px;
+        max-width: 600px;
         padding: 0;
         background: #ffffff;
         border: 2px solid #000000;
@@ -1744,20 +1830,39 @@ window.addEventListener("DOMContentLoaded", async () => {
         font-weight: 600;
         font-size: 14px;
       }
-
-      .tooltip-content {
-        padding: 10px 12px;
+      
+      .tooltip-content-wrapper {
         display: flex;
-        gap: 10px;
-        white-space: nowrap;
-        background: #ffffff;
+        padding: 10px 12px;
+        gap: 20px;
+      }
+
+      .tooltip-section {
+          flex: 1;
+          padding-right: 10px;
+          border-right: 1px solid #eee;
+      }
+      .tooltip-section:last-child {
+          border-right: none;
+          padding-right: 0;
+          padding-left: 10px;
+      }
+
+      .section-header {
+          font-weight: 700;
+          font-size: 14px;
+          color: #000000;
+          margin-bottom: 5px;
+          padding-bottom: 3px;
+          border-bottom: 1px dashed #ddd;
       }
 
       .tooltip-item {
-        display: inline-flex;
-        align-items: center;
+        display: flex;
+        align-items: flex-start;
         font-size: 13px;
         color: #333333;
+        margin-bottom: 5px;
       }
 
       .tooltip-label {
@@ -1765,18 +1870,23 @@ window.addEventListener("DOMContentLoaded", async () => {
         color: #333333;
         margin-right: 8px;
         flex-shrink: 0;
-        width: 80px;
+        width: 80px; 
         white-space: nowrap;
       }
 
       .tooltip-value {
         color: #666666;
         flex: 1;
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
+        word-break: break-all;
+        text-align: left;
+      }
+      
+      .tooltip-item.no-info .tooltip-value {
+          color: #ff3333;
+          font-style: italic;
       }
 
+      /* Tippy Theme */
       .tippy-box[data-theme~='beian-tooltip'] {
         background: #ffffff;
         border: 2px solid #000000;
@@ -1790,39 +1900,47 @@ window.addEventListener("DOMContentLoaded", async () => {
       }
 
       /* 响应式设计 */
-      @media (max-width: 480px) {
-        .beian-info {
-          flex-direction: column;
-          align-items: center;
-          gap: 5px;
-          padding: 5px;
-        }
-
+      @media (max-width: 650px) {
         .beian-tooltip {
           max-width: 90vw;
+        }
+
+        .tooltip-content-wrapper {
+          flex-direction: column;
+          gap: 15px;
+        }
+        
+        .tooltip-section {
+            border-right: none;
+            border-bottom: 1px dashed #ddd;
+            padding-right: 0;
+            padding-left: 0;
+            padding-bottom: 10px;
+        }
+        .tooltip-section:last-child {
+            border-bottom: none;
+            padding-bottom: 0;
         }
 
         .tooltip-label {
           width: 70px;
         }
-
-        .tooltip-content {
-          flex-direction: column;
-          white-space: normal;
-        }
-
-        .tooltip-value {
-          white-space: normal;
-          word-break: break-all;
-        }
-
+        
         .beian-tip {
           font-size: 10px;
           position: static;
           margin-top: 5px;
+          transform: translateX(0);
+          opacity: 1; 
+          pointer-events: auto;
+        }
+        
+        .beian-number, .police-number {
+            margin-bottom: 5px; 
         }
       }
     </style>
+
 <?php endif; ?>
 <script src="https://kit.fontawesome.com/55e81b6986.js" crossorigin="anonymous"></script>
   <?= CUSTOM_SCRIPT ?>
