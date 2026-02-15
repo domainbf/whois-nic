@@ -108,6 +108,10 @@ if ($_SERVER["REQUEST_METHOD"] === "GET") {
   <link rel="preconnect" href="https://fonts.gstatic.cn" crossorigin>
   <link rel="stylesheet" href="https://fonts.googleapis.cn/css2?family=Fraunces:opsz,wght,SOFT,WONK@72,600,50,1&display=swap">
   <?= CUSTOM_HEAD_LOGIN ?>
+  <script>
+    window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };
+  </script>
+  <script defer src="/_vercel/insights/script.js"></script>
 </head>
 
 <body>
