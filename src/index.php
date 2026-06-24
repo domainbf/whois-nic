@@ -711,11 +711,28 @@ if ($domain) {
         word-break: break-word;
     }
 
-    /* 超小屏：查询选项允许换行，避免被裁切 */
+    /* 超小屏：查询选项强制保持一排，缩小间距/字号以完整容纳，不换行不裁切 */
     @media (max-width: 480px) {
         .checkboxes {
-            flex-wrap: wrap !important;
-            row-gap: 10px;
+            flex-wrap: nowrap !important;
+            gap: 8px !important;
+            justify-content: center;
+        }
+
+        .checkbox-label {
+            font-size: 13px;
+            gap: 4px;
+            white-space: nowrap;
+        }
+    }
+
+    @media (max-width: 360px) {
+        .checkboxes {
+            gap: 5px !important;
+        }
+
+        .checkbox-label {
+            font-size: 12px;
         }
     }
   </style>
