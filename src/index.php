@@ -679,6 +679,73 @@ if ($domain) {
             padding: 10px 12px;
         }
     }
+
+    /* ===== 全局移动端自适应优化：防止任何内容横向溢出/遮挡 ===== */
+    html,
+    body {
+        overflow-x: hidden;
+        max-width: 100%;
+    }
+
+    /* 让网格/弹性子项可收缩，长内容换行而不是撑破布局 */
+    .message-data > div,
+    .message-value-status > div,
+    .message-value-name-servers > div,
+    .message-title a {
+        min-width: 0;
+        overflow-wrap: anywhere;
+        word-break: break-word;
+    }
+
+    /* 原始数据区域横向滚动而非撑破页面 */
+    .raw-data-whois,
+    .raw-data-rdap {
+        overflow-x: auto;
+        max-width: 100%;
+    }
+
+    .raw-data-whois code,
+    .raw-data-rdap code {
+        white-space: pre-wrap;
+        overflow-wrap: anywhere;
+        word-break: break-word;
+    }
+
+    /* 中小屏：信息区改为单列堆叠，标签在上、值在下，避免长内容被挤压遮挡 */
+    @media (max-width: 600px) {
+        .message-data {
+            grid-template-columns: 1fr !important;
+            gap: 0.25rem 0 !important;
+            margin-left: 0 !important;
+        }
+
+        .message-data .message-label {
+            margin-top: 0.6rem;
+        }
+
+        .message-data .message-title {
+            margin-top: 0 !important;
+        }
+
+        .message-price,
+        .message-tags,
+        .message-beian {
+            margin-left: 0 !important;
+        }
+
+        .message-price,
+        .message-tags {
+            flex-wrap: wrap;
+        }
+    }
+
+    /* 超小屏：查询选项允许换行，避免被裁切 */
+    @media (max-width: 480px) {
+        .checkboxes {
+            flex-wrap: wrap !important;
+            row-gap: 10px;
+        }
+    }
   </style>
 </head>
 
