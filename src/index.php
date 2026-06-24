@@ -711,34 +711,6 @@ if ($domain) {
         word-break: break-word;
     }
 
-    /* 中小屏：信息区改为单列堆叠，标签在上、值在下，避免长内容被挤压遮挡 */
-    @media (max-width: 600px) {
-        .message-data {
-            grid-template-columns: 1fr !important;
-            gap: 0.25rem 0 !important;
-            margin-left: 0 !important;
-        }
-
-        .message-data .message-label {
-            margin-top: 0.6rem;
-        }
-
-        .message-data .message-title {
-            margin-top: 0 !important;
-        }
-
-        .message-price,
-        .message-tags,
-        .message-beian {
-            margin-left: 0 !important;
-        }
-
-        .message-price,
-        .message-tags {
-            flex-wrap: wrap;
-        }
-    }
-
     /* 超小屏：查询选项允许换行，避免被裁切 */
     @media (max-width: 480px) {
         .checkboxes {
