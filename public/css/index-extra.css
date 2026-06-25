@@ -1,0 +1,603 @@
+    body {
+        background-color: #ffffff;
+        background-image: repeating-linear-gradient(0deg, transparent, transparent 19px, #eee 20px), repeating-linear-gradient(90deg, transparent, transparent 19px, #eee 20px);
+        background-size: 20px 20px;
+    }
+
+    .search-and-button-container {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin-bottom: 8px;
+        justify-content: center;
+    }
+
+    .search-box {
+        background: transparent !important;
+        border: 2px solid #000000 !important;
+        border-radius: 9999px !important;
+        padding: 2px 4px !important;
+        display: flex !important;
+        align-items: center !important;
+        height: 42px !important;
+        flex: 1;
+        max-width: 480px;
+    }
+
+    .search-box .input {
+        background: transparent !important;
+        border: none !important;
+        box-shadow: none !important;
+        color: #333 !important;
+        font-size: 16px !important;
+        padding: 0 12px !important;
+        flex: 1 !important;
+        outline: none !important;
+        height: 36px !important;
+        border-radius: 9999px !important;
+        margin: 0 -2px !important;
+    }
+
+    .search-box .input::placeholder {
+        color: #666 !important;
+        opacity: 1 !important;
+    }
+
+    .search-box .input:focus {
+        outline: none !important;
+    }
+
+    .search-box .search-clear {
+        background: #f0f0f0 !important;
+        border: 1px solid #ddd !important;
+        border-radius: 50% !important;
+        padding: 2px !important;
+        margin: 0 4px !important;
+        cursor: pointer !important;
+        transition: all 0.2s ease !important;
+        width: 32px !important;
+        height: 32px !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+    }
+
+    .search-box .search-clear:hover {
+        background: #e0e0e0 !important;
+        border-color: #999 !important;
+    }
+
+    .search-box .search-clear svg {
+        width: 14px !important;
+        height: 14px !important;
+    }
+
+    .search-button {
+        height: 42px !important;
+        border-radius: 9999px !important;
+        padding: 0 16px !important;
+        white-space: nowrap !important;
+        min-width: 80px !important;
+    }
+
+    .checkboxes {
+        display: flex;
+        justify-content: center;
+        gap: 16px;
+        flex-wrap: nowrap;
+    }
+
+    .message-data .message-title {
+        display: flex;
+        align-items: flex-start;
+        gap: 0.5rem;
+        grid-column: 1 / -1;
+        margin-bottom: 1rem;
+        font-size: 1rem;
+        font-weight: 600;
+        color: #222;
+        text-align: left;
+        flex-wrap: wrap;
+        max-width: 100%;
+        word-break: break-word;
+    }
+
+    .message-title a {
+        flex-grow: 1;
+        flex-shrink: 1;
+        min-width: 0;
+        word-break: break-all;
+        overflow-wrap: break-word;
+    }
+
+    @media (max-width: 768px) {
+        .search-and-button-container {
+            flex-direction: row !important;
+            align-items: center !important;
+            gap: 8px !important;
+            flex-wrap: wrap;
+            margin-bottom: 6px;
+        }
+
+        .search-box {
+            max-width: calc(100% - 88px);
+            flex: 1;
+            min-width: 200px;
+        }
+
+        .search-button {
+            width: auto !important;
+            min-width: 80px !important;
+            flex-shrink: 0;
+            font-size: 14px;
+            padding: 0 12px;
+        }
+        
+        .checkboxes {
+            margin-top: 8px;
+            gap: 8px;
+            justify-content: center;
+        }
+
+        .message-data .message-title {
+            font-size: 0.9rem;
+            gap: 0.25rem;
+            margin-bottom: 0.75rem;
+        }
+
+        .message-title a {
+            font-size: 0.9rem;
+            max-width: 85%;
+        }
+
+        .domain-info-box {
+            max-width: 90%;
+            margin-left: auto;
+            margin-right: auto;
+        }
+    }
+
+    @media (max-width: 480px) {
+        .search-and-button-container {
+            gap: 6px !important;
+        }
+
+        .search-box {
+            max-width: calc(100% - 76px);
+            min-width: 160px;
+        }
+
+        .search-button {
+            min-width: 70px !important;
+            font-size: 13px;
+            padding: 0 10px;
+        }
+
+        .message-data .message-title {
+            font-size: 0.85rem;
+            gap: 0.2rem;
+        }
+
+        .message-title a {
+            font-size: 0.85rem;
+            max-width: 80%;
+        }
+    }
+
+    .message-title .message-icon {
+        width: 1.2em;
+        height: 1.2em;
+        flex-shrink: 0;
+    }
+
+    .message-data {
+        display: grid;
+        grid-template-columns: auto 1fr;
+        gap: 1rem 1.5rem;
+        margin-top: 1.5rem;
+    }
+
+    .checkbox-label {
+        display: flex;
+        align-items: center;
+        gap: 4px;
+    }
+    .checkbox-leading-icon {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 18px;
+        height: 18px;
+        margin-right: 2px;
+    }
+
+    .message-label {
+        display: flex;
+        align-items: center;
+        gap: 4px;
+    }
+    .message-icon-leading {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 1.2em;
+        height: 1.2em;
+    }
+
+    .message.message-positive {
+        background: transparent;
+        border: none;
+        box-shadow: none;
+        padding: 0;
+    }
+    .message.message-positive .message-data {
+        background: transparent;
+        box-shadow: none;
+        padding: 0;
+    }
+
+    header, main {
+        background-color: transparent;
+    }
+
+    .raw-data-whois,
+    .raw-data-rdap {
+        background-color: #ffffff;
+        padding: 1.5rem;
+        border-radius: 12px;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        position: relative;
+        margin-bottom: 1rem;
+        margin-top: 0;
+    }
+    .raw-data-rdap {
+        display: none;
+    }
+    @media (max-width: 768px) {
+        .raw-data-whois,
+        .raw-data-rdap {
+            padding: 1rem;
+        }
+    }
+    @media (max-width: 480px) {
+        .raw-data-whois,
+        .raw-data-rdap {
+            padding: 0.75rem;
+        }
+    }
+
+    .raw-data-container pre {
+        margin: 0 !important;
+        padding: 0 !important;
+        width: 100%;
+        box-sizing: border-box;
+    }
+
+    .result-summary {
+        display: flex;
+        justify-content: center;
+        margin-top: 1.5rem;
+        margin-bottom: 2rem;
+    }
+
+    .result-box {
+        background-color: #ffffff;
+        padding: 1.5rem 2rem;
+        border-radius: 12px;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        font-size: 1.1rem;
+        font-weight: 600;
+        text-align: center;
+        max-width: 800px;
+    }
+
+    .result-box p {
+        margin: 0;
+    }
+
+    .domain-info-box {
+        background-color: #fff;
+        border: 2px solid #000;
+        border-radius: 10px;
+        padding: 8px 16px;
+        margin-top: 10px;
+        margin-bottom: 15px;
+        font-weight: bold;
+        font-size: 1.1em;
+        max-width: fit-content;
+        margin-left: auto;
+        margin-right: auto;
+    }
+
+    .domain-info-box p {
+        margin: 0;
+        text-align: center;
+    }
+
+    .message-data .message-title {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        margin-bottom: 1rem;
+        font-size: 1.2rem;
+        font-weight: 600;
+        color: #222;
+        flex-wrap: nowrap;
+        max-width: 100%;
+        word-break: normal;
+        text-align: left;
+    }
+
+    .message-title a {
+        flex-grow: 0;
+        flex-shrink: 1;
+        min-width: 0;
+        word-break: break-all;
+        overflow-wrap: break-word;
+        font-size: 1.5em;
+    }
+
+    .message-title .registered-status {
+        background-color: #ffcccc;
+        padding: 5px 10px;
+        border-radius: 5px;
+        margin-left: 10px;
+    }
+
+    /* 修复未注册域名超出屏幕问题 */
+    .domain-info-box {
+        max-width: 90% !important;
+        margin-left: auto !important;
+        margin-right: auto !important;
+        word-break: break-all !important;
+        overflow-wrap: break-word !important;
+        white-space: normal !important;
+    }
+
+    .domain-info-box p {
+        word-break: break-all !important;
+        overflow-wrap: break-word !important;
+        white-space: normal !important;
+    }
+
+    @media (max-width: 768px) {
+        .message-data .message-title {
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            font-size: 1rem;
+        }
+
+        .message-title a {
+            font-size: 1.2em;
+            flex-grow: 1;
+        }
+
+        .domain-status-message {
+            margin-top: 8px;
+        }
+        
+        /* 移动端进一步优化 */
+        .domain-info-box {
+            max-width: 95% !important;
+            padding: 10px 12px;
+        }
+    }
+
+    /* ===== 全局移动端自适应优化：防止任何内容横向溢出/遮挡 ===== */
+    html,
+    body {
+        overflow-x: hidden;
+        max-width: 100%;
+    }
+
+    /* 让网格/弹性子项可收缩，长内容换行而不是撑破布局 */
+    .message-data > div,
+    .message-value-status > div,
+    .message-value-name-servers > div,
+    .message-title a {
+        min-width: 0;
+        overflow-wrap: anywhere;
+        word-break: break-word;
+    }
+
+    /* 原始数据区域横向滚动而非撑破页面 */
+    .raw-data-whois,
+    .raw-data-rdap {
+        overflow-x: auto;
+        max-width: 100%;
+    }
+
+    .raw-data-whois code,
+    .raw-data-rdap code {
+        white-space: pre-wrap;
+        overflow-wrap: anywhere;
+        word-break: break-word;
+    }
+
+    /* 超小屏：查询选项强制保持一排，缩小间距/字号以完整容纳，不换行不裁切 */
+    @media (max-width: 480px) {
+        .checkboxes {
+            flex-wrap: nowrap !important;
+            gap: 8px !important;
+            justify-content: center;
+        }
+
+        .checkbox-label {
+            font-size: 13px;
+            gap: 4px;
+            white-space: nowrap;
+        }
+    }
+
+    @media (max-width: 360px) {
+        .checkboxes {
+            gap: 5px !important;
+        }
+
+        .checkbox-label {
+            font-size: 12px;
+        }
+    }
+
+      /* 备案信息样式 */
+      .beian-info {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 5px 10px;
+        border: none;
+        background: transparent;
+        font-family: 'Fraunces', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        transition: opacity 0.3s ease;
+        justify-content: center;
+        text-align: center;
+      }
+
+      .beian-domain {
+        font-weight: 600;
+        color: #000000;
+        font-size: 14px;
+        white-space: nowrap;
+        text-decoration: none;
+        margin-right: 10px;
+      }
+
+      .beian-number {
+        font-weight: 600;
+        color: #333333;
+        font-size: 14px;
+        white-space: nowrap;
+        text-decoration: none;
+        margin-right: 10px;
+      }
+
+      .beian-tip {
+        font-size: 12px;
+        color: #666666;
+        white-space: nowrap;
+        padding: 2px 5px;
+        background: #f9f9f9;
+        border: 1px solid #ddd;
+        border-radius: 3px;
+        position: absolute;
+        right: 5px;
+        bottom: -15px;
+      }
+
+      .beian-info.no-beian {
+        border: none;
+        justify-content: center;
+      }
+
+      .beian-info.no-beian .no-beian-text {
+        color: #666666;
+        font-weight: 500;
+      }
+
+      .beian-info.error {
+        border: none;
+        justify-content: center;
+      }
+
+      .beian-info.error .error-text {
+        color: #ff3333;
+        font-weight: 500;
+      }
+
+      /* 悬浮框样式 */
+      .beian-tooltip {
+        max-width: 1200px;
+        padding: 0;
+        background: #ffffff;
+        border: 2px solid #000000;
+        border-radius: 0;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        font-family: 'Fraunces', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        margin: 0;
+      }
+
+      .tooltip-header {
+        background: #000000;
+        color: #ffffff;
+        padding: 8px 12px;
+        font-weight: 600;
+        font-size: 14px;
+      }
+
+      .tooltip-content {
+        padding: 10px 12px;
+        display: flex;
+        gap: 10px;
+        white-space: nowrap;
+        background: #ffffff;
+      }
+
+      .tooltip-item {
+        display: inline-flex;
+        align-items: center;
+        font-size: 13px;
+        color: #333333;
+      }
+
+      .tooltip-label {
+        font-weight: 600;
+        color: #333333;
+        margin-right: 8px;
+        flex-shrink: 0;
+        width: 80px;
+        white-space: nowrap;
+      }
+
+      .tooltip-value {
+        color: #666666;
+        flex: 1;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+
+      .tippy-box[data-theme~='beian-tooltip'] {
+        background: #ffffff;
+        border: 2px solid #000000;
+        border-radius: 0;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+      }
+
+      .tippy-box[data-theme~='beian-tooltip'] .tippy-arrow {
+        color: #ffffff;
+        border-color: #000000;
+      }
+
+      /* 响应式设计 */
+      @media (max-width: 480px) {
+        .beian-info {
+          flex-direction: column;
+          align-items: center;
+          gap: 5px;
+          padding: 5px;
+        }
+
+        .beian-tooltip {
+          max-width: 90vw;
+        }
+
+        .tooltip-label {
+          width: 70px;
+        }
+
+        .tooltip-content {
+          flex-direction: column;
+          white-space: normal;
+        }
+
+        .tooltip-value {
+          white-space: normal;
+          word-break: break-all;
+        }
+
+        .beian-tip {
+          font-size: 10px;
+          position: static;
+          margin-top: 5px;
+        }
+      }
