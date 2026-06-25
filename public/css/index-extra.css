@@ -414,28 +414,67 @@
         word-break: break-word;
     }
 
-    /* 超小屏：查询选项强制保持一排，缩小间距/字号以完整容纳，不换行不裁切 */
+    /* 超小屏：查询选项强制保持一排，整体缩小间距/图标/字号以完整容纳，不换行不裁切 */
     @media (max-width: 480px) {
         .checkboxes {
             flex-wrap: nowrap !important;
-            gap: 8px !important;
+            gap: 10px !important;
             justify-content: center;
+            padding-left: 4px;
+            padding-right: 4px;
+        }
+
+        .checkbox {
+            gap: 4px !important;
+            flex: 0 0 auto;
         }
 
         .checkbox-label {
             font-size: 13px;
-            gap: 4px;
+            gap: 3px;
             white-space: nowrap;
+        }
+
+        .checkbox-leading-icon {
+            width: 16px;
+            height: 16px;
+            margin-right: 0;
+            flex-shrink: 0;
+        }
+
+        .checkbox-leading-icon svg {
+            width: 16px;
+            height: 16px;
         }
     }
 
-    @media (max-width: 360px) {
+    @media (max-width: 380px) {
+        .checkboxes {
+            gap: 7px !important;
+        }
+
+        .checkbox {
+            gap: 3px !important;
+        }
+
+        .checkbox-label {
+            font-size: 12px;
+        }
+
+        .checkbox-leading-icon,
+        .checkbox-leading-icon svg {
+            width: 15px;
+            height: 15px;
+        }
+    }
+
+    @media (max-width: 340px) {
         .checkboxes {
             gap: 5px !important;
         }
 
         .checkbox-label {
-            font-size: 12px;
+            font-size: 11px;
         }
     }
 

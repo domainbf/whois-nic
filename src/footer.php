@@ -174,12 +174,17 @@
 
         @media (max-width: 700px) {
             .footer-announcement { 
-                font-size: 0.77rem; 
-                padding: 8px 10px; 
+                font-size: 0.72rem; 
+                padding: 6px 6px; 
                 height: 65px;
+                white-space: nowrap;
+            }
+            .footer-announcement .speaker {
+                margin-right: 0.18em;
             }
             .footer-announcement-container {
                 min-height: 65px; 
+                max-width: 100vw;
             }
             .footer-logo-link {
                 max-width: 110px;
@@ -197,6 +202,13 @@
             .footer-badge-icon svg { 
                 width: 1.1em; 
                 height: 1.1em;
+            }
+        }
+
+        @media (max-width: 380px) {
+            .footer-announcement {
+                font-size: 0.66rem;
+                padding: 6px 4px;
             }
         }
     </style>
