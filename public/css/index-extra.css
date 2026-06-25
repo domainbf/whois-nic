@@ -337,11 +337,38 @@
         font-size: 1.5em;
     }
 
-    .message-title .registered-status {
-        background-color: #ffcccc;
-        padding: 5px 10px;
-        border-radius: 5px;
-        margin-left: 10px;
+    /* 提示卡片按状态配色：可注册(绿)/保留(黄)/禁止(红)/未找到(灰)/无效(红) */
+    .domain-info-box--available {
+        border-color: #008236;
+        background-color: #f0fdf4;
+        color: #08431f;
+    }
+
+    .domain-info-box--reserved {
+        border-color: #a65f00;
+        background-color: #fefce8;
+        color: #894b00;
+    }
+
+    .domain-info-box--prohibited,
+    .domain-info-box--invalid {
+        border-color: #c10007;
+        background-color: #fef2f2;
+        color: #9f0712;
+    }
+
+    .domain-info-box--unknown {
+        border-color: #6a7282;
+        background-color: #f9fafb;
+        color: #364153;
+    }
+
+    .domain-info-box--available a,
+    .domain-info-box--reserved a,
+    .domain-info-box--prohibited a,
+    .domain-info-box--unknown a,
+    .domain-info-box--invalid a {
+        color: inherit;
     }
 
     /* 修复未注册域名超出屏幕问题 */

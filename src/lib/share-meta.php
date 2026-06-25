@@ -15,9 +15,12 @@ if ($domain) {
     if ($error) {
         $shareTitle = "$domain | 无效域名查询";
         $shareDescription = "查询的域名 '$domain' 是无效的。请尝试其他域名。";
-    } elseif ($parser->unknown || $parser->reserved) {
-        $shareTitle = "$domain | 未找到或保留";
-        $shareDescription = "未找到域名 '$domain' 的信息，或该域名已被注册局保留。";
+    } elseif ($parser->reserved || $parser->prohibited) {
+        $shareTitle = "$domain | 保留或限制注册";
+        $shareDescription = "域名 '$domain' 已被注册局保留或禁止/限制注册。";
+    } elseif ($parser->unknown) {
+        $shareTitle = "$domain | 未找到";
+        $shareDescription = "未找到域名 '$domain' 的注册信息。";
     } elseif ($parser->registered) {
         $shareTitle = "$domain | 已注册";
         $descriptionParts = [

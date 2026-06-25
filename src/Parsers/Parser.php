@@ -15,6 +15,8 @@ class Parser
 
   public $reserved = false;
 
+  public $prohibited = false;
+
   public $registered = false;
 
   public $domain = "";
@@ -72,6 +74,11 @@ class Parser
       return;
     }
 
+    $this->prohibited = $this->getProhibited();
+    if ($this->prohibited) {
+      return;
+    }
+
     $this->registered = !$this->getUnregistered();
     if (!$this->registered) {
       return;
@@ -116,16 +123,18 @@ class Parser
     }
   }
 
-  // TODO
+  // 注册局“保留”关键词（仅匹配明确短语，避免误伤已注册域名）
   private const RESERVED_KEYWORDS = [
     "reserved by the registry", // ac
     "has been reserved", // ae
     "temporarily reserved", // am
     "reserved by registry", // au
-    "registration status: forbidden", // bg
-    "is on a restricted list", // bi
-    "prohibited string", // bj
-    "object is blocked", // by
+    "reserved name", // generic
+    "reserved domain name", // generic
+    "this domain is reserved", // generic
+    "domain is reserved", // generic
+    "is a reserved name", // generic
+    "registry reserved", // generic
   ];
 
   protected function getReservedRegExp()
@@ -136,6 +145,33 @@ class Parser
   protected function getReserved()
   {
     return (bool)preg_match($this->getReservedRegExp(), $this->data);
+  }
+
+  // 注册局“禁止/限制注册”关键词。
+  // 重要：必须使用完整短语，绝不能用裸词 “prohibited / forbidden / restricted / blocked”，
+  // 否则会把含 clientTransferProhibited / serverDeleteProhibited 等正常状态的已注册域名误判。
+  private const PROHIBITED_KEYWORDS = [
+    "registration status: forbidden", // bg
+    "is on a restricted list", // bi
+    "prohibited string", // bj
+    "object is blocked", // by
+    "registration of this domain is prohibited", // generic
+    "registration is forbidden", // generic
+    "registration is not allowed", // generic
+    "registration restricted", // generic
+    "this domain is restricted", // generic
+    "domain name is blocked", // generic
+    "blocked for registration", // generic
+  ];
+
+  protected function getProhibitedRegExp()
+  {
+    return "/" . implode("|", self::PROHIBITED_KEYWORDS) . "/i";
+  }
+
+  protected function getProhibited()
+  {
+    return (bool)preg_match($this->getProhibitedRegExp(), $this->data);
   }
 
   private const UNREGISTERED_KEYWORDS = [
@@ -161,6 +197,11 @@ class Parser
     "is available for purchase", // tm
     "domain name is available", // tt
     "no found", // tw
+    "no matching record", // generic
+    "object does not exist", // generic
+    "domain name not known", // generic
+    "available for registration", // generic
+    "domain status: free", // generic
   ];
 
   protected function getUnregisteredRegExp()

@@ -9,7 +9,6 @@
                     <path d="m10.97 4.97-.02.022-3.473 4.425-2.093-2.094a.75.75 0 0 0-1.06 1.06L6.97 11.03a.75.75 0 0 0 1.079-.02l3.992-4.99a.75.75 0 0 0-1.071-1.05" />
                   </svg>
                   <a href="http://<?= htmlspecialchars($domain, ENT_QUOTES, 'UTF-8'); ?>" rel="nofollow noopener noreferrer" target="_blank"><?= htmlspecialchars($domain, ENT_QUOTES, 'UTF-8'); ?></a>
-                  <span class="registered-status">域名已注册</span>
               </h1>
               <?php if ($parser->registrar): ?>
                 <div class="message-label">
@@ -192,10 +191,34 @@
 <?php if (($parser->remainingSeconds ?? 0) >= 5 * 365 * 24 * 60 * 60): ?>
   <span class="message-tag message-tag-blue">长期持有</span>
 <?php endif; ?>
-<?php 
-$domainParts = explode('.', $parser->domain ?? '');
-if ($parser && count($domainParts) > 0 && preg_match('/^[a-zA-Z0-9]$/', $domainParts[0])): ?>
+<?php
+// 域名特征标签：基于二级域名标签（SLD），多维度识别长度与字符构成
+$sld = '';
+if (!empty($parser->domain)) {
+    $sldParts = explode('.', $parser->domain);
+    $sld = $sldParts[0] ?? '';
+}
+$sldLen = $sld === '' ? 0 : (function_exists('mb_strlen') ? mb_strlen($sld) : strlen($sld));
+$isAllDigits = $sld !== '' && preg_match('/^[0-9]+$/', $sld);
+$isAllLetters = $sld !== '' && preg_match('/^[a-zA-Z]+$/', $sld);
+$hasHyphen = $sld !== '' && strpos($sld, '-') !== false;
+?>
+<?php if ($sldLen === 1): ?>
   <span class="message-tag message-tag-blue">单字符</span>
+<?php elseif ($sldLen === 2): ?>
+  <span class="message-tag message-tag-blue">双字符</span>
+<?php elseif ($sldLen === 3): ?>
+  <span class="message-tag message-tag-indigo">三字符</span>
+<?php elseif ($sldLen === 4): ?>
+  <span class="message-tag message-tag-indigo">四字符</span>
+<?php endif; ?>
+<?php if ($isAllDigits): ?>
+  <span class="message-tag message-tag-purple"><?= $sldLen; ?>位纯数字</span>
+<?php elseif ($isAllLetters && $sldLen >= 2 && $sldLen <= 4): ?>
+  <span class="message-tag message-tag-green">纯字母</span>
+<?php endif; ?>
+<?php if ($hasHyphen): ?>
+  <span class="message-tag message-tag-gray">含连字符</span>
 <?php endif; ?>
 <?php if ($parser->pendingDelete): ?>
   <span class="message-tag message-tag-red">待删除</span>

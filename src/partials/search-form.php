@@ -108,24 +108,33 @@
         </div>
       </form>
       <?php
+        // 根据解析结果区分状态：无效 / 保留 / 禁止注册 / 未找到 / 已注册(隐藏) / 可注册
         $resultMessage = null;
+        $resultState = '';
         if ($domain) {
             if ($error) {
-                $resultMessage = "😂查询的这个域名是无效的哦。";
-            } elseif ($parser->unknown) {
-                $resultMessage = "🫣未找到该域名的信息。";
+                $resultMessage = "❌ 这是一个无效的域名，请检查格式后重试。";
+                $resultState = 'invalid';
             } elseif ($parser->reserved) {
-                $resultMessage = "🤬该死的注册局，把这个域名保留了。";
+                $resultMessage = "🔒 该域名已被注册局保留，暂不开放注册。";
+                $resultState = 'reserved';
+            } elseif ($parser->prohibited) {
+                $resultMessage = "🚫 该域名被注册局禁止或限制注册。";
+                $resultState = 'prohibited';
+            } elseif ($parser->unknown) {
+                $resultMessage = "🔍 未找到该域名的注册信息。";
+                $resultState = 'unknown';
             } elseif ($parser->registered) {
-                // 隐藏已注册状态的提示
-                $resultMessage = null; 
+                // 已注册：直接展示下方信息卡片，此处不再提示
+                $resultMessage = null;
             } else {
-                $resultMessage = "😁该域名未被注册，可以尝试去注册。";
+                $resultMessage = "✅ 恭喜！该域名尚未注册，可以立即注册。";
+                $resultState = 'available';
             }
         }
       ?>
       <?php if ($domain && $resultMessage): ?>
-  <div class="domain-info-box">
+  <div class="domain-info-box domain-info-box--<?= htmlspecialchars($resultState, ENT_QUOTES, 'UTF-8'); ?>">
     <a href="http://<?= htmlspecialchars($domain, ENT_QUOTES, 'UTF-8'); ?>" rel="nofollow noopener noreferrer" target="_blank">
       <p style="margin-bottom: 5px; font-size: 1.2em; word-break: break-all; overflow-wrap: break-word;"><?= htmlspecialchars($domain, ENT_QUOTES, 'UTF-8'); ?></p>
     </a>
