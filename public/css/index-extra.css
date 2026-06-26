@@ -667,3 +667,57 @@
           margin-top: 5px;
         }
       }
+
+      /* ===== 结果页布局横向铺满优化：消除右侧大块空白 ===== */
+      /* 收紧左边距与列间距，让内容横向展开 */
+      .message-data {
+        margin-left: 6px;
+        column-gap: 0.9rem;
+      }
+
+      /* 域名状态、NS 服务器等多值字段改为横向流式换行，填满整行宽度 */
+      .message-value-status,
+      .message-value-name-servers {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: baseline;
+        gap: 4px 8px;
+      }
+
+      .message-value-status > div,
+      .message-value-name-servers > div {
+        position: relative;
+        padding-right: 12px;
+      }
+
+      /* 覆盖原竖排换行的箭头指示符 */
+      .message-value-status > div:not(:only-child)::after,
+      .message-value-name-servers > div:not(:only-child)::after {
+        content: "" !important;
+        background-image: none !important;
+        width: 0 !important;
+        height: 0 !important;
+        margin: 0 !important;
+        bottom: auto !important;
+        position: static !important;
+      }
+
+      /* 用淡色间隔点分隔横向排列的各项 */
+      .message-value-status > div:not(:last-child)::after,
+      .message-value-name-servers > div:not(:last-child)::after {
+        content: "·" !important;
+        display: inline-block !important;
+        position: absolute !important;
+        right: 2px;
+        color: #c2c8d0;
+        background: none !important;
+        width: auto !important;
+        height: auto !important;
+      }
+
+      @media (max-width: 480px) {
+        .message-data {
+          margin-left: 2px;
+          column-gap: 0.75rem;
+        }
+      }
