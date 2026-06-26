@@ -161,7 +161,8 @@
               </div>
             <?php endif; ?>
             <?php if ($parser->age || $parser->remaining || $parser->pendingDelete || $parser->gracePeriod || $parser->redemptionPeriod): ?>
-              <div class="message-tags">
+              <?php if ($parser->age || $parser->remaining): ?>
+              <div class="message-tags message-tags-info">
                 <?php if ($parser->age): ?>
                   <button class="message-tag message-tag-gray" id="age" data-seconds="<?= $parser->ageSeconds; ?>">
                     <svg width="1em" height="1em" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true">
@@ -179,6 +180,23 @@
                     <span>距离过期：<?= htmlspecialchars($parser->remaining, ENT_QUOTES, 'UTF-8'); ?></span>
                   </button>
                 <?php endif; ?>
+              </div>
+              <?php endif; ?>
+<?php
+// 域名特征标签：基于二级域名标签（SLD），多维度识别长度与字符构成
+$sld = '';
+if (!empty($parser->domain)) {
+    $sldParts = explode('.', $parser->domain);
+    $sld = $sldParts[0] ?? '';
+}
+$sldLen = $sld === '' ? 0 : (function_exists('mb_strlen') ? mb_strlen($sld) : strlen($sld));
+$isAllDigits = $sld !== '' && preg_match('/^[0-9]+$/', $sld);
+$isAllLetters = $sld !== '' && preg_match('/^[a-zA-Z]+$/', $sld);
+$hasHyphen = $sld !== '' && strpos($sld, '-') !== false;
+
+// 先用输出缓冲收集所有特征标签，仅当确有标签时才渲染容器，避免出现空白分隔线
+ob_start();
+?>
 <?php if ($parser->ageSeconds && $parser->ageSeconds < 60 * 24 * 60 * 60): ?>
   <span class="message-tag message-tag-green">新注册</span>
 <?php endif; ?>
@@ -191,18 +209,6 @@
 <?php if (($parser->remainingSeconds ?? 0) >= 5 * 365 * 24 * 60 * 60): ?>
   <span class="message-tag message-tag-blue">长期持有</span>
 <?php endif; ?>
-<?php
-// 域名特征标签：基于二级域名标签（SLD），多维度识别长度与字符构成
-$sld = '';
-if (!empty($parser->domain)) {
-    $sldParts = explode('.', $parser->domain);
-    $sld = $sldParts[0] ?? '';
-}
-$sldLen = $sld === '' ? 0 : (function_exists('mb_strlen') ? mb_strlen($sld) : strlen($sld));
-$isAllDigits = $sld !== '' && preg_match('/^[0-9]+$/', $sld);
-$isAllLetters = $sld !== '' && preg_match('/^[a-zA-Z]+$/', $sld);
-$hasHyphen = $sld !== '' && strpos($sld, '-') !== false;
-?>
 <?php if ($sldLen === 1): ?>
   <span class="message-tag message-tag-blue">单字符</span>
 <?php elseif ($sldLen === 2): ?>
@@ -230,7 +236,12 @@ $hasHyphen = $sld !== '' && strpos($sld, '-') !== false;
 <?php elseif ($parser->redemptionPeriod): ?>
   <span class="message-tag message-tag-blue">赎回期</span>
 <?php endif; ?>
-</div>
+<?php
+$featureTagsHtml = ob_get_clean();
+if (trim($featureTagsHtml) !== ''):
+?>
+              <div class="message-tags message-tags-feature"><?= $featureTagsHtml; ?></div>
+<?php endif; ?>
 <?php endif; ?>
           </div>
         </div>

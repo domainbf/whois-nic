@@ -96,8 +96,18 @@ window.addEventListener("DOMContentLoaded", async () => {
 
     setTimeout(() => {
       messagePrice.innerHTML = innerHTML;
+
+      // 价格行过长时，转移价格会被挤到第二行。检测到换行则移除转移价格，仅保留注册与续费。
+      const firstTag = messagePrice.querySelector("button.message-tag");
+      const transferEl = messagePrice.querySelector("#price-transfer");
+      let activeTips = tips;
+      if (firstTag && transferEl && transferEl.offsetTop > firstTag.offsetTop) {
+        transferEl.remove();
+        activeTips = tips.filter((t) => t.id !== "#price-transfer");
+      }
+
       if (typeof tippy === "function") {
-        tips.forEach((t) => tippy(t.id, { content: t.content, placement: "bottom" }));
+        activeTips.forEach((t) => tippy(t.id, { content: t.content, placement: "bottom" }));
       }
     }, Math.max(0, 500 - (Date.now() - startTime)));
   } catch {
