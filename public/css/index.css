@@ -433,6 +433,22 @@ form {
   margin-left: 24px;
 }
 
+/* 注册时间信息行（已注册/距离过期）独立成行 */
+.message-tags-info {
+  margin-top: 4px;
+}
+
+/* 域名特征标签行：与上方信息行分隔，避免挤在一起 */
+.message-tags-feature {
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 1px dashed #eceef1;
+}
+
+.message-tags-feature:empty {
+  display: none;
+}
+
 .message-tag {
   align-items: center;
   border-radius: 4px;

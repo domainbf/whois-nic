@@ -172,14 +172,68 @@
             background: transparent;
         }
 
+        /* 鸣谢区：版权下方的数据来源与作者致谢 */
+        .footer-credits {
+            width: 100%;
+            max-width: 96vw;
+            margin: 0 auto;
+            padding: 12px 16px 4px;
+            box-sizing: border-box;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 6px;
+        }
+        .footer-credits-divider {
+            width: 48px;
+            height: 2px;
+            border-radius: 2px;
+            background: #e2e8f0;
+            margin-bottom: 4px;
+        }
+        .footer-credits-line {
+            font-size: 0.8rem;
+            line-height: 1.5;
+            color: #64748b;
+            text-align: center;
+        }
+        .footer-credits-line .credit-label {
+            color: #94a3b8;
+            margin-right: 0.2em;
+        }
+        .footer-credits-line a {
+            color: #2c2452;
+            text-decoration: none;
+            font-weight: 600;
+            border-bottom: 1px dashed #c7c2e0;
+            transition: color 0.2s, border-color 0.2s;
+        }
+        .footer-credits-line a:hover {
+            color: #5b4bb7;
+            border-color: #5b4bb7;
+        }
+        .footer-credits-sep {
+            color: #cbd5e1;
+            margin: 0 0.45em;
+        }
+        @media (max-width: 700px) {
+            .footer-credits { max-width: 100vw; padding: 10px 12px 4px; }
+            .footer-credits-line { font-size: 0.72rem; }
+        }
+
         @media (max-width: 700px) {
             .footer-announcement { 
-                font-size: 0.77rem; 
-                padding: 8px 10px; 
+                font-size: 0.72rem; 
+                padding: 6px 6px; 
                 height: 65px;
+                white-space: nowrap;
+            }
+            .footer-announcement .speaker {
+                margin-right: 0.18em;
             }
             .footer-announcement-container {
                 min-height: 65px; 
+                max-width: 100vw;
             }
             .footer-logo-link {
                 max-width: 110px;
@@ -197,6 +251,13 @@
             .footer-badge-icon svg { 
                 width: 1.1em; 
                 height: 1.1em;
+            }
+        }
+
+        @media (max-width: 380px) {
+            .footer-announcement {
+                font-size: 0.66rem;
+                padding: 6px 4px;
             }
         }
     </style>
@@ -260,10 +321,23 @@
         </div>
         <div class="footer-copyright">
             &copy; 2025 NIC.BN. All rights reserved.
-            <br>
-            <span style="font-size: 0.8em; opacity: 0.8;">
-                Powered by <a href="https://github.com/reg233/whois-domain-lookup" target="_blank" style="color: inherit; text-decoration: underline;">reg233/whois-domain-lookup</a>
-            </span>
+        </div>
+        <div class="footer-credits">
+            <div class="footer-credits-divider"></div>
+            <div class="footer-credits-line">
+                <span class="credit-label">域名价格数据由</span>
+                <a href="https://www.miqingju.com" target="_blank" rel="noopener noreferrer">米情局</a>
+                <span class="footer-credits-sep">·</span>
+                <a href="https://www.nazhumi.com" target="_blank" rel="noopener noreferrer">哪煮米</a>
+                <span class="credit-label">友情提供</span>
+            </div>
+            <div class="footer-credits-line">
+                <span class="credit-label">鸣谢作者</span>
+                <a href="https://github.com/reg233/whois-domain-lookup" target="_blank" rel="noopener noreferrer">reg233</a>
+                <span class="footer-credits-sep">·</span>
+                <span class="credit-label">开源项目</span>
+                <a href="https://github.com/reg233/whois-domain-lookup" target="_blank" rel="noopener noreferrer">whois-domain-lookup</a>
+            </div>
         </div>
     </footer>
     <script>

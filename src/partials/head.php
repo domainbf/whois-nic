@@ -1,63 +1,35 @@
-<?php
-require_once __DIR__ . "/../config/config.php";
-
-function redirect()
-{
-  $redirect = BASE;
-  if (isset($_GET["redirect"])) {
-    $redirect = urldecode($_GET["redirect"]);
-    if (!preg_match("#^" . BASE . ".*$#", $redirect)) {
-      $redirect = BASE;
-    }
-  }
-  header("Location: $redirect");
-  die;
-}
-
-$failed = false;
-
-if ($_SERVER["REQUEST_METHOD"] === "GET") {
-  if (!SITE_PASSWORD) {
-    redirect();
-  }
-
-  $password = $_COOKIE["password"] ?? "";
-
-  if ($password === hash("sha256", SITE_PASSWORD)) {
-    redirect();
-  }
-} else if ($_SERVER["REQUEST_METHOD"] === "POST") {
-  if (!SITE_PASSWORD) {
-    http_response_code(500);
-    die;
-  }
-
-  if (($_POST["password"] ?? "") === SITE_PASSWORD) {
-    setcookie("password", hash("sha256", SITE_PASSWORD), [
-      "expires" => strtotime("+1 year"),
-      "path" => BASE,
-      "secure" => true,
-      "httponly" => true,
-      "samesite" => "Lax",
-    ]);
-    redirect();
-  } else {
-    $failed = true;
-  }
-}
-?>
-
-<!DOCTYPE html>
-<html lang="en-US">
-
 <head>
   <base href="<?= BASE; ?>">
   <meta charset="UTF-8">
+  <!-- 主题初始化：在样式加载前设置 data-theme，避免暗色模式闪烁 -->
+  <script>
+    (function () {
+      try {
+        var t = localStorage.getItem("theme");
+        if (!t) {
+          t = window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+        }
+        document.documentElement.setAttribute("data-theme", t);
+      } catch (e) {}
+    })();
+  </script>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="theme-color" content="#e1f9f9">
+  <meta name="theme-color" content="#ffffff">
   <meta name="description" content="<?= SITE_DESCRIPTION ?>">
   <meta name="keywords" content="<?= SITE_KEYWORDS ?>">
+
+  <meta property="og:title" content="<?= htmlspecialchars($shareTitle, ENT_QUOTES, 'UTF-8'); ?>">
+  <meta property="og:description" content="<?= htmlspecialchars($shareDescription, ENT_QUOTES, 'UTF-8'); ?>">
+  <meta property="og:image" content="<?= htmlspecialchars($shareImage, ENT_QUOTES, 'UTF-8'); ?>">
+  <meta property="og:url" content="<?= htmlspecialchars($currentUrl, ENT_QUOTES, 'UTF-8'); ?>">
+  <meta property="og:type" content="website">
+
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="<?= htmlspecialchars($shareTitle, ENT_QUOTES, 'UTF-8'); ?>">
+  <meta name="twitter:description" content="<?= htmlspecialchars($shareDescription, ENT_QUOTES, 'UTF-8'); ?>">
+  <meta name="twitter:image" content="<?= htmlspecialchars($shareImage, ENT_QUOTES, 'UTF-8'); ?>">
+
   <link rel="shortcut icon" href="public/favicon.ico">
   <link rel="icon" href="public/images/favicon.svg" type="image/svg+xml">
   <link rel="apple-touch-icon" href="public/images/apple-icon-180.png">
@@ -99,48 +71,17 @@ if ($_SERVER["REQUEST_METHOD"] === "GET") {
   <link rel="apple-touch-startup-image" href="public/images/apple-splash-2208-1242.jpg" media="(device-width: 414px) and (device-height: 736px) and (-webkit-device-pixel-ratio: 3) and (orientation: landscape)">
   <link rel="apple-touch-startup-image" href="public/images/apple-splash-1334-750.jpg" media="(device-width: 375px) and (device-height: 667px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape)">
   <link rel="apple-touch-startup-image" href="public/images/apple-splash-1136-640.jpg" media="(device-width: 320px) and (device-height: 568px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape)">
-  <link rel="manifest" href="manifest">
-  <title><?= SITE_TITLE ?></title>
+  <link rel="manifest" href="<?= $manifestHref; ?>">
+  <title><?= ($domain ? "$domain | " : "") . SITE_TITLE ?></title>
   <!-- 自托管 Fraunces 字体，避免依赖境外 Google Fonts，提升国内访问速度 -->
   <link rel="preload" href="public/fonts/fraunces-latin.woff2" as="font" type="font/woff2" crossorigin>
   <link rel="stylesheet" href="public/css/fonts.css">
   <link rel="stylesheet" href="public/css/global.css">
-  <link rel="stylesheet" href="public/css/login.css">
-  <?= CUSTOM_HEAD_LOGIN ?>
+  <link rel="stylesheet" href="public/css/index.css">
+  <link rel="stylesheet" href="public/css/json.css">
+  <?= CUSTOM_HEAD ?>
+  <link rel="stylesheet" href="public/css/index-extra.css">
+  <!-- next-whois 风格主题层（最后加载，覆盖旧版样式）-->
+  <link rel="stylesheet" href="public/css/theme.css">
+  <script src="public/js/theme.js" defer></script>
 </head>
-
-<body>
-  <main>
-    <img alt="<?= SITE_TITLE ?>" height="48" loading="lazy" src="public/images/favicon.svg">
-    <h1><?= SITE_TITLE ?></h1>
-    <?php if ($failed): ?>
-      <div class="error">
-        <svg width="1em" height="1em" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true">
-          <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14m0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16" />
-          <path d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708" />
-        </svg>
-        <span>Incorrect password.</span>
-      </div>
-    <?php endif; ?>
-    <form action="" id="form" method="post">
-      <input autocomplete="current-password" autofocus class="input" id="password" name="password" placeholder="Password" required type="password">
-      <button class="button" type="submit">Sign in</button>
-    </form>
-  </main>
-  <?php require_once __DIR__ . "/footer.php"; ?>
-  <script>
-    const form = document.getElementById("form");
-    form.addEventListener("submit", (e) => {
-      e.preventDefault();
-
-      const submitButton = form.querySelector('button[type="submit"]');
-      submitButton.disabled = true;
-      submitButton.textContent = "Signing in…";
-
-      form.submit();
-    });
-  </script>
-  <?= CUSTOM_SCRIPT_LOGIN ?>
-</body>
-
-</html>
