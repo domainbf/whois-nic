@@ -1,4 +1,5 @@
   <script src="public/js/app.js" defer></script>
+  <script src="public/js/history.js" defer></script>
   <?php if ($whoisData || $rdapData): ?>
     <script src="public/js/dates.js" defer></script>
     <script src="public/js/popper.min.js" defer></script>

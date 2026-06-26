@@ -8,6 +8,7 @@
                         <path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001q.044.06.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1 1 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0" />
                     </svg>
                 </span>
+                <kbd class="nw-kbd nw-kbd-inline" id="slash-hint" aria-hidden="true">/</kbd>
                 <input
                   autocapitalize="off"
                   autocomplete="domain"
@@ -71,17 +72,16 @@
     <p><?= $resultMessage; ?></p>
   </div>
 <?php endif; ?>
+      <!-- 搜索框下方快捷键提示行（复刻 next-whois）-->
+      <div class="nw-hotkeys" aria-hidden="true">
+        <span class="nw-hotkey-item">查询 <kbd class="nw-kbd">/</kbd></span>
+        <span class="nw-hotkey-item">清除 / 失焦 <kbd class="nw-kbd">Esc</kbd></span>
+      </div>
       <?php if (!$domain): ?>
-      <!-- 首页大号渐变动画标题 -->
-      <div class="hero">
-        <h1 class="hero-title">WHOIS</h1>
-        <p class="hero-subtitle">专业的 WHOIS / RDAP 域名查询工具</p>
-        <div class="hero-links">
-          <button type="button" class="hero-chip" data-domain="nic.rw">nic.rw</button>
-          <button type="button" class="hero-chip" data-domain="google.com">google.com</button>
-          <button type="button" class="hero-chip" data-domain="github.com">github.com</button>
-          <button type="button" class="hero-chip" data-domain="vercel.com">vercel.com</button>
-        </div>
+      <!-- 首页：TODAY 历史查询列表（由 history.js 基于 localStorage 渲染）-->
+      <div class="nw-history" id="search-history" hidden>
+        <div class="nw-history-divider"><span>TODAY</span></div>
+        <ul class="nw-history-list" id="search-history-list"></ul>
       </div>
       <?php endif; ?>
     </div>

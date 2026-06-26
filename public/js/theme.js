@@ -26,18 +26,5 @@
         applyTheme(currentTheme() === "dark" ? "light" : "dark");
       });
     }
-
-    // 示例快捷查询：点击填入搜索框并提交
-    var chips = document.querySelectorAll(".hero-chip");
-    var input = document.getElementById("domain");
-    var form = document.getElementById("form");
-    chips.forEach(function (chip) {
-      chip.addEventListener("click", function () {
-        if (input && form) {
-          input.value = chip.dataset.domain || chip.textContent.trim();
-          form.submit();
-        }
-      });
-    });
   });
 })();

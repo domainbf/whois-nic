@@ -382,85 +382,145 @@ form {
   height: 18px;
 }
 
-/* ---------- 大号渐变动画标题（首页 hero）---------- */
-.hero {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
+/* ---------- 键盘快捷键提示（kbd）---------- */
+.nw-kbd {
+  display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 14px;
-  text-align: center;
-  user-select: none;
-  min-height: 38vh;
-}
-
-.hero-title {
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans",
-    Helvetica, Arial, sans-serif !important;
-  font-weight: 800;
-  letter-spacing: 0.22em;
-  font-size: clamp(3.5rem, 12vw, 7rem);
-  line-height: 1;
-  margin: 0;
-  padding-left: 0.22em; /* 补偿字距视觉居中 */
-  background: linear-gradient(
-    90deg,
-    hsl(var(--muted-foreground) / 0.5) 0%,
-    hsl(var(--muted-foreground) / 0.5) 30%,
-    hsl(var(--foreground)) 50%,
-    hsl(var(--muted-foreground) / 0.5) 70%,
-    hsl(var(--muted-foreground) / 0.5) 100%
-  );
-  background-size: 300% auto;
-  -webkit-background-clip: text;
-  background-clip: text;
-  -webkit-text-fill-color: transparent;
-  color: transparent;
-  animation: text-shimmer 5.5s ease-in-out infinite,
-    text-float 5s ease-in-out infinite;
-}
-
-.hero-subtitle {
-  font-size: 12px;
-  letter-spacing: 0.22em;
-  text-transform: uppercase;
-  color: hsl(var(--muted-foreground) / 0.55);
-}
-
-.hero-links {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  margin-top: 6px;
-}
-
-.hero-chip {
-  font-size: 13px;
-  color: hsl(var(--muted-foreground));
+  min-width: 18px;
+  height: 18px;
+  padding: 0 5px;
   border: 1px solid hsl(var(--border));
-  border-radius: 9999px;
-  padding: 6px 14px;
-  background: hsl(var(--card) / 0.5);
-  cursor: pointer;
-  transition: color 0.2s ease, border-color 0.2s ease;
+  border-bottom-width: 2px;
+  border-radius: 5px;
+  background: hsl(var(--muted));
+  color: hsl(var(--muted-foreground));
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 10px;
+  line-height: 1;
 }
 
-.hero-chip:hover {
-  color: hsl(var(--foreground));
-  border-color: hsl(var(--border-hover));
+/* 搜索框内左侧的 "/" 提示 */
+.nw-kbd-inline {
+  margin-right: 10px;
+  flex-shrink: 0;
 }
 
-@keyframes text-shimmer {
-  0% { background-position: 100% center; }
-  100% { background-position: 0% center; }
+/* 搜索框下方的快捷键提示行（右对齐）*/
+.nw-hotkeys {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 16px;
+  margin: 8px 2px 0;
+  font-size: 11px;
+  color: hsl(var(--muted-foreground) / 0.7);
+  user-select: none;
 }
 
-@keyframes text-float {
-  0%, 100% { transform: translateY(0); opacity: 0.85; }
-  50% { transform: translateY(-3px); opacity: 1; }
+.nw-hotkey-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+/* ---------- TODAY 历史查询列表 ---------- */
+.nw-history {
+  margin-top: 24px;
+}
+
+.nw-history-divider {
+  position: relative;
+  text-align: center;
+  margin-bottom: 8px;
+}
+
+.nw-history-divider::before {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: hsl(var(--border) / 0.7);
+}
+
+.nw-history-divider span {
+  position: relative;
+  display: inline-block;
+  padding: 0 14px;
+  background: hsl(var(--background));
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  color: hsl(var(--muted-foreground));
+}
+
+.nw-history-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.nw-history-item + .nw-history-item {
+  border-top: 1px solid hsl(var(--border) / 0.4);
+}
+
+.nw-history-link {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 8px;
+  border-radius: 8px;
+  color: hsl(var(--foreground)) !important;
+  text-decoration: none;
+  transition: background 0.15s ease;
+}
+
+.nw-history-link:hover {
+  background: hsl(var(--muted) / 0.5);
+}
+
+.nw-history-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: hsl(var(--muted-foreground));
+  flex-shrink: 0;
+}
+
+.nw-history-icon svg {
+  width: 16px;
+  height: 16px;
+}
+
+.nw-history-name {
+  flex: 1;
+  min-width: 0;
+  font-size: 14px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.nw-history-meta {
+  display: inline-flex;
+  align-items: center;
+  gap: 14px;
+  flex-shrink: 0;
+}
+
+.nw-history-type {
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  color: hsl(var(--muted-foreground));
+}
+
+.nw-history-time {
+  font-size: 12px;
+  color: hsl(var(--muted-foreground) / 0.8);
 }
 
 /* ---------- 提示卡片（可注册 / 保留 / 禁止 / 未找到 / 无效）---------- */
@@ -617,10 +677,10 @@ code a { color: hsl(var(--info)) !important; }
   body[data-has-domain="0"] header { min-height: calc(100vh - var(--nav-h)); }
 }
 
-@media (max-width: 420px) {
-  .hero-title { letter-spacing: 0.16em; padding-left: 0.16em; }
+  @media (max-width: 420px) {
   .topbar { padding: 8px 12px; }
-}
+  .nw-hotkeys { gap: 12px; }
+  }
 
 /* ---------- 页脚（NIC.BN）暗色适配 ---------- */
 [data-theme="dark"] .footer-announcement {
