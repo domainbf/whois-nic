@@ -11,6 +11,11 @@
                   <a href="http://<?= htmlspecialchars($domain, ENT_QUOTES, 'UTF-8'); ?>" rel="nofollow noopener noreferrer" target="_blank"><?= htmlspecialchars($domain, ENT_QUOTES, 'UTF-8'); ?></a>
               </h1>
               <?php if ($parser->registrar): ?>
+                <?php
+                  // 注册商官网：优先使用 WHOIS/RDAP 提供的 URL，缺失时用全球注册商映射智能识别
+                  require_once __DIR__ . "/../lib/registrar-map.php";
+                  $registrarLink = $parser->registrarURL ?: registrar_website($parser->registrar);
+                ?>
                 <div class="message-label">
                   <span class="message-icon-leading">
                     <i class="fa-solid fa-credit-card"></i>
@@ -18,8 +23,8 @@
                   注册平台
                 </div>
                 <div>
-                  <?php if ($parser->registrarURL): ?>
-                    <a href="<?= htmlspecialchars($parser->registrarURL, ENT_QUOTES, 'UTF-8'); ?>" rel="nofollow noopener noreferrer" target="_blank"><?= htmlspecialchars($parser->registrar, ENT_QUOTES, 'UTF-8'); ?></a>
+                  <?php if ($registrarLink): ?>
+                    <a href="<?= htmlspecialchars($registrarLink, ENT_QUOTES, 'UTF-8'); ?>" rel="nofollow noopener noreferrer" target="_blank"><?= htmlspecialchars($parser->registrar, ENT_QUOTES, 'UTF-8'); ?></a>
                   <?php else: ?>
                     <?= htmlspecialchars($parser->registrar, ENT_QUOTES, 'UTF-8'); ?>
                   <?php endif; ?>

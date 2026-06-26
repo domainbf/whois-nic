@@ -8,34 +8,54 @@ window.addEventListener("DOMContentLoaded", async () => {
   const startTime = Date.now();
   const domain = messagePrice.dataset.domain || "";
 
-  // 货币符号映射
+  // 货币符号映射（覆盖常见币种）
   const symbolOf = (cur) => {
-    const map = { CNY: "¥", USD: "$", EUR: "€", GBP: "£", JPY: "¥", HKD: "HK$" };
+    const map = {
+      CNY: "¥", USD: "$", EUR: "€", GBP: "£", JPY: "¥", HKD: "HK$",
+      AUD: "A$", CAD: "C$", NZD: "NZ$", SGD: "S$", TWD: "NT$", KRW: "₩",
+      INR: "₹", RUB: "₽", BRL: "R$", TRY: "₺", ZAR: "R", THB: "฿",
+    };
     return map[(cur || "").toUpperCase()] || "";
   };
 
-  // 价格主显示：优先人民币换算值，否则显示原币种价格
+  // 数字千分位格式化，避免大额数字误读
+  const fmtNum = (n) => {
+    const num = Number(n);
+    if (!isFinite(num)) {
+      return String(n);
+    }
+    return num.toLocaleString("zh-CN", { maximumFractionDigits: 2 });
+  };
+
+  // 价格主显示：优先人民币换算值（统一口径，避免外币大额数字误导），否则显示原币种价格
   const formatMain = (entry) => {
     if (!entry || entry.price === null || entry.price === undefined) {
       return null;
     }
     if (entry.price_cny !== null && entry.price_cny !== undefined) {
-      return `¥${entry.price_cny}`;
+      return `¥${fmtNum(entry.price_cny)}`;
     }
-    return `${symbolOf(entry.currency)}${entry.price}`;
+    return `${symbolOf(entry.currency)}${fmtNum(entry.price)}`;
   };
 
-  // 悬浮提示：展示原始币种价格与最低价注册商
+  // 悬浮提示：明确展示「原币种原价 ≈ 人民币换算价」与最低价注册商，
+  // 解决外币大额数字（如 RWF 12,711.87）被误认为人民币价格的困惑。
   const formatTip = (entry, label) => {
     if (!entry) {
       return `${label}: 暂无数据`;
     }
     const parts = [];
     if (entry.price !== null && entry.price !== undefined) {
-      parts.push(`${entry.currency || ""} ${symbolOf(entry.currency)}${entry.price}`.trim());
+      const cur = entry.currency || "";
+      let priceStr = `${cur} ${symbolOf(cur)}${fmtNum(entry.price)}`.trim();
+      // 原币种非人民币且有换算值时，显示换算关系
+      if (entry.price_cny !== null && entry.price_cny !== undefined && cur && cur !== "CNY") {
+        priceStr += ` ≈ ¥${fmtNum(entry.price_cny)}`;
+      }
+      parts.push(priceStr);
     }
     if (entry.registrar) {
-      parts.push(`最低价: ${entry.registrar}`);
+      parts.push(`最低价注册商: ${entry.registrar}`);
     }
     return `${label} | ${parts.join(" · ") || "暂无数据"}`;
   };

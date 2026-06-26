@@ -10,36 +10,7 @@
           });
         }
 
-        function updateDateElementTooltip(elementId) {
-          const element = document.getElementById(elementId);
-          if (element) {
-            const iso8601 = element.dataset.iso8601;
-            if (iso8601) {
-              const date = new Date(iso8601);
-              const year = date.getFullYear();
-              const month = String(date.getMonth() + 1).padStart(2, "0");
-              const day = String(date.getDate()).padStart(2, "0");
-              const hours = String(date.getHours()).padStart(2, "0");
-              const minutes = String(date.getMinutes()).padStart(2, "0");
-              const seconds = String(date.getSeconds()).padStart(2, "0");
-              const formattedDateTime = `${hours}时${minutes}分${seconds}秒`;
-
-
-              if (typeof tippy !== 'undefined') {
-                tippy(`#${elementId}`, {
-                  content: formattedDateTime,
-                  placement: "right",
-                  appendTo: () => document.body,
-                });
-              }
-            }
-          }
-        }
-
-        updateDateElementTooltip("creation-date");
-        updateDateElementTooltip("expiration-date");
-        updateDateElementTooltip("updated-date");
-        updateDateElementTooltip("available-date");
+        // 日期的时分秒已直接内联显示于日期文本中（见 dates.js），不再使用悬浮提示。
 
         function updateSecondsElementTooltip(elementId, prefix) {
           const element = document.getElementById(elementId);
