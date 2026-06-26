@@ -45,7 +45,8 @@
         checkboxNames.forEach((name) => {
           const checkbox = document.getElementById(`checkbox-${name}`);
           if (checkbox) {
-            if (!+whoisValue && !+rdapValue && name !== "prices" && name !== "beian") {
+            // 首次访问（无历史偏好）：默认开启 WHOIS、RDAP 与价格，备案保持关闭
+            if (!+whoisValue && !+rdapValue && name !== "beian") {
               checkbox.checked = true;
             } else {
               checkbox.checked = localStorage.getItem(`checkbox-${name}`) === "1";
