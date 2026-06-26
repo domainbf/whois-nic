@@ -6,6 +6,20 @@
       "maxDuration": 22
     }
   },
+  "headers": [
+    {
+      "source": "/public/fonts/(.*)",
+      "headers": [{ "key": "Cache-Control", "value": "public, max-age=31536000, immutable" }]
+    },
+    {
+      "source": "/(.*)\\.(woff2|woff|ttf|otf)",
+      "headers": [{ "key": "Cache-Control", "value": "public, max-age=31536000, immutable" }]
+    },
+    {
+      "source": "/(.*)\\.(css|js|svg|png|jpg|jpeg|webp|ico)",
+      "headers": [{ "key": "Cache-Control", "value": "public, max-age=2592000" }]
+    }
+  ],
   "rewrites": [
     { "source": "/public/:path*", "destination": "/:path*" },
     { "source": "/manifest", "destination": "/api/vercel.php" },

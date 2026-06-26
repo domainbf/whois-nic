@@ -1,18 +1,11 @@
 <?php
 session_start();
 
-// 调试日志
-error_log("=== NEW REQUEST ===");
-error_log("URI: " . ($_SERVER['REQUEST_URI'] ?? ''));
-error_log("QUERY: " . ($_SERVER['QUERY_STRING'] ?? ''));
-error_log("SCRIPT_NAME: " . ($_SERVER['SCRIPT_NAME'] ?? ''));
-
 // 解析域名参数
 $domain = null;
 
 if (isset($_GET['domain']) && !empty(trim($_GET['domain']))) {
     $domain = trim($_GET['domain']);
-    error_log("从GET参数获取域名: " . $domain);
 }
 
 if (!$domain && isset($_SERVER['REQUEST_URI'])) {
@@ -21,12 +14,9 @@ if (!$domain && isset($_SERVER['REQUEST_URI'])) {
         if (preg_match('/^[a-zA-Z0-9]([a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(\.[a-zA-Z0-9]([a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)+$/', $potentialDomain)) {
             $domain = $potentialDomain;
             $_GET['domain'] = $domain;
-            error_log("从URL路径解析域名: " . $domain);
         }
     }
 }
-
-error_log("最终使用的域名: " . ($domain ?? '无'));
 
 if ($_SERVER["REQUEST_METHOD"] !== "GET") {
   http_response_code(405);
@@ -122,7 +112,6 @@ require __DIR__ . "/lib/share-meta.php";
     </svg>
   </button>
   <?php require __DIR__ . "/partials/scripts.php"; ?>
-<script src="https://kit.fontawesome.com/55e81b6986.js" crossorigin="anonymous"></script>
   <?= CUSTOM_SCRIPT ?>
 </body>
 <script defer src="https://umami-rho-blue.vercel.app/script.js" data-website-id="ad534fcf-b898-4f4c-b80b-c910820e206f"></script>

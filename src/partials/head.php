@@ -61,13 +61,12 @@
   <link rel="apple-touch-startup-image" href="public/images/apple-splash-1136-640.jpg" media="(device-width: 320px) and (device-height: 568px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape)">
   <link rel="manifest" href="<?= $manifestHref; ?>">
   <title><?= ($domain ? "$domain | " : "") . SITE_TITLE ?></title>
+  <!-- 自托管 Fraunces 字体，避免依赖境外 Google Fonts，提升国内访问速度 -->
+  <link rel="preload" href="public/fonts/fraunces-latin.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="stylesheet" href="public/css/fonts.css">
   <link rel="stylesheet" href="public/css/global.css">
   <link rel="stylesheet" href="public/css/index.css">
   <link rel="stylesheet" href="public/css/json.css">
-  <!-- 替换为中国镜像域名 -->
-  <link rel="preconnect" href="https://fonts.googleapis.cn">
-  <link rel="preconnect" href="https://fonts.gstatic.cn" crossorigin>
-  <link rel="stylesheet" href="https://fonts.googleapis.cn/css2?family=Fraunces:wght@300;400;500;600;700;900&display=swap">
   <?= CUSTOM_HEAD ?>
   <link rel="stylesheet" href="public/css/index-extra.css">
 </head>

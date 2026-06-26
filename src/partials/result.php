@@ -1,3 +1,4 @@
+    <?php require_once __DIR__ . "/../lib/icons.php"; ?>
     <?php if ($parser->registered): ?>
       <section class="messages">
         <div>
@@ -18,7 +19,7 @@
                 ?>
                 <div class="message-label">
                   <span class="message-icon-leading">
-                    <i class="fa-solid fa-credit-card"></i>
+                    <?= inline_icon('credit-card'); ?>
                   </span>
                   注册平台
                 </div>
@@ -33,7 +34,7 @@
               <?php if ($parser->creationDate): ?>
                 <div class="message-label">
                   <span class="message-icon-leading">
-                    <i class="fa-solid fa-calendar-days"></i>
+                    <?= inline_icon('calendar-days'); ?>
                   </span>
                   创建日期
                 </div>
@@ -54,7 +55,7 @@
               <?php if ($parser->expirationDate): ?>
                 <div class="message-label">
                   <span class="message-icon-leading">
-                    <i class="fa-solid fa-calendar-xmark"></i>
+                    <?= inline_icon('calendar-xmark'); ?>
                   </span>
                   到期日期
                 </div>
@@ -75,7 +76,7 @@
               <?php if ($parser->updatedDate): ?>
                 <div class="message-label">
                   <span class="message-icon-leading">
-                    <i class="fa-solid fa-rotate"></i>
+                    <?= inline_icon('rotate'); ?>
                   </span>
                   更新日期
                 </div>
@@ -96,7 +97,7 @@
               <?php if ($parser->availableDate): ?>
                 <div class="message-label">
                   <span class="message-icon-leading">
-                    <i class="fa-solid fa-mobile-screen"></i>
+                    <?= inline_icon('mobile-screen'); ?>
                   </span>
                   可用日期
                 </div>
@@ -117,7 +118,7 @@
               <?php if ($parser->status): ?>
                 <div class="message-label">
   <span class="message-icon-leading">
-    <i class="fa-solid fa-circle-check"></i>
+    <?= inline_icon('circle-check'); ?>
   </span>
   域名状态
 </div>
@@ -142,7 +143,7 @@
               <?php if ($parser->nameServers): ?>
                 <div class="message-label">
                   <span class="message-icon-leading">
-                    <i class="fa-solid fa-server"></i>
+                    <?= inline_icon('server'); ?>
                   </span>
                   NS服务器
                 </div>
