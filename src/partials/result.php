@@ -17,21 +17,71 @@
       $statusKey = 'neutral'; $statusLabel = '已注册';
     }
 
-    // 到期剩余颜色
+    // 到期剩余颜色 + 中文剩余文案
     if ($remSec !== null && $remSec <= 0) { $remColor = 'nw-text-bad'; }
     elseif ($remSec !== null && $remSec <= 30 * 24 * 60 * 60) { $remColor = 'nw-text-bad'; }
     elseif ($remSec !== null && $remSec <= 60 * 24 * 60 * 60) { $remColor = 'nw-text-warn'; }
     else { $remColor = 'nw-text-ok'; }
 
-    // EPP 状态码 → 颜色点
-    $eppColor = function (string $code): string {
-      $c = strtolower($code);
-      if (strpos($c, 'prohibited') !== false) return '#f59e0b';
-      if (strpos($c, 'pending') !== false || strpos($c, 'hold') !== false ||
-          strpos($c, 'redemption') !== false || strpos($c, 'delete') !== false) return '#ef4444';
-      if ($c === 'ok' || $c === 'active') return '#10b981';
-      return '#71717a';
+    $remText = '';
+    if ($remSec !== null) {
+      $remText = $remSec <= 0 ? '已过期' : '剩余 ' . intval(ceil($remSec / 86400)) . ' 天';
+    }
+
+    // 域龄（年）→ 状态行小药丸
+    $ageYears = '';
+    if ($parser->ageSeconds !== null && $parser->ageSeconds > 0) {
+      $y = floor($parser->ageSeconds / (365.25 * 86400));
+      $ageYears = $y < 1 ? '<1 年' : intval($y) . ' 年';
+    }
+
+    // 日期：YYYY-MM-DD + 中文相对时间
+    $isoDate = function ($iso, $fallback = '') {
+      if ($iso) { $t = strtotime($iso); if ($t) return date('Y-m-d', $t); }
+      return $fallback;
     };
+    $relPast = function ($iso) {
+      if (!$iso) return '';
+      $t = strtotime($iso); if (!$t) return '';
+      $d = abs(time() - $t); $day = 86400;
+      if ($d < $day) return '今天';
+      $years = floor($d / (365.25 * $day));
+      if ($years >= 1) return intval($years) . '年前';
+      $months = floor($d / (30.4 * $day));
+      if ($months >= 1) return intval($months) . '个月前';
+      return intval($d / $day) . '天前';
+    };
+
+    // 从原始 WHOIS 文本提取扩展字段（注册局 ID / WHOIS 服务器 / 注册人 / 滥用联系）
+    $wRaw = $whoisData ?: '';
+    $grab = function ($labels) use ($wRaw) {
+      foreach ((array) $labels as $lb) {
+        if (preg_match('/^\s*' . preg_quote($lb, '/') . '\s*:\s*(.+?)\s*$/mi', $wRaw, $m)) {
+          $v = trim($m[1]);
+          if ($v !== '' && !preg_match('/redact|privacy|not disclosed|data protected|gdpr|statutory masking/i', $v)) {
+            return $v;
+          }
+        }
+      }
+      return '';
+    };
+    $registryDomainId = $grab('Registry Domain ID');
+    $whoisServerVal   = $grab(['Registrar WHOIS Server', 'WHOIS Server']);
+    $registrantEmail  = $grab(['Registrant Email', 'Registrant Contact Email']);
+    $registrantPhone  = $grab('Registrant Phone');
+    $abuseEmail       = $grab('Registrar Abuse Contact Email');
+    $abusePhone       = $grab('Registrar Abuse Contact Phone');
+
+    $mailLink = function ($val) {
+      if (strpos($val, '@') !== false) return 'mailto:' . $val;
+      if (preg_match('#^https?://#i', $val)) return $val;
+      return '';
+    };
+
+    $hasRegistrant = $registrantEmail || $registrantPhone;
+    $hasAbuse      = $abuseEmail || $abusePhone;
+    $hasRegTech    = $whoisServerVal || $registryDomainId;
+    $dataSourceLabel = $whoisData ? 'whois' : ($rdapData ? 'rdap' : '');
 
     // NS 提供商识别（用于右侧小徽标）
     $nsBrand = function (string $ns): string {
@@ -49,32 +99,20 @@
       return '';
     };
 
+    // EPP 状态码 → 颜色点
+    $eppColor = function (string $code): string {
+      $c = strtolower($code);
+      if (strpos($c, 'prohibited') !== false) return '#f59e0b';
+      if (strpos($c, 'pending') !== false || strpos($c, 'hold') !== false ||
+          strpos($c, 'redemption') !== false || strpos($c, 'delete') !== false) return '#ef4444';
+      if ($c === 'ok' || $c === 'active') return '#10b981';
+      return '#71717a';
+    };
+
     $displayDomain = $parser->domain ?: $domain;
+    $registrarInitial = $parser->registrar ? mb_substr($parser->registrar, 0, 1) : '';
   ?>
   <section class="nw-result">
-
-    <!-- 顶部价格 / 年龄标签行 -->
-    <?php if ($parser->age || $fetchPrices || $fetchBeiAn): ?>
-      <div class="nw-pills">
-        <?php if ($parser->age): ?>
-          <span class="nw-pill nw-pill-accent" id="age" data-seconds="<?= $parser->ageSeconds; ?>">
-            <svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-            <span>已注册 <?= htmlspecialchars($parser->age, ENT_QUOTES, 'UTF-8'); ?></span>
-          </span>
-        <?php endif; ?>
-        <?php if ($fetchPrices): ?>
-          <span class="nw-price-slot" id="message-price" data-domain="<?= htmlspecialchars($domain ?? '', ENT_QUOTES, 'UTF-8'); ?>">
-            <span class="nw-skeleton"></span>
-          </span>
-        <?php endif; ?>
-        <?php if ($fetchBeiAn): ?>
-          <span class="nw-beian-slot" id="message-beian" data-domain="<?= htmlspecialchars($domain ?? '', ENT_QUOTES, 'UTF-8'); ?>">
-            <span class="nw-skeleton"></span>
-          </span>
-        <?php endif; ?>
-      </div>
-    <?php endif; ?>
-
     <div class="nw-grid">
       <!-- ============ 左列 ============ -->
       <div class="nw-col-main">
@@ -82,12 +120,20 @@
         <!-- 域名主卡 -->
         <div class="nw-card nw-domain-card">
           <div class="nw-globe" aria-hidden="true">
-            <svg viewBox="0 0 100 100" fill="none" stroke="currentColor" stroke-width="1">
-              <circle cx="50" cy="50" r="45"/>
-              <ellipse cx="50" cy="50" rx="20" ry="45"/>
-              <ellipse cx="50" cy="50" rx="45" ry="20"/>
-              <line x1="5" y1="50" x2="95" y2="50"/>
-              <line x1="50" y1="5" x2="50" y2="95"/>
+            <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+              <defs>
+                <clipPath id="nw-globe-clip"><circle cx="50" cy="50" r="46"/></clipPath>
+              </defs>
+              <circle cx="50" cy="50" r="46" class="nw-globe-sphere"/>
+              <g class="nw-globe-grid" clip-path="url(#nw-globe-clip)">
+                <ellipse cx="50" cy="50" rx="15" ry="46"/>
+                <ellipse cx="50" cy="50" rx="31" ry="46"/>
+                <line x1="4" y1="50" x2="96" y2="50"/>
+                <line x1="9" y1="29" x2="91" y2="29"/>
+                <line x1="9" y1="71" x2="91" y2="71"/>
+                <line x1="50" y1="4" x2="50" y2="96"/>
+              </g>
+              <circle cx="50" cy="50" r="46" class="nw-globe-ring"/>
             </svg>
           </div>
 
@@ -96,50 +142,100 @@
             <h1 class="nw-domain-name">
               <a href="http://<?= htmlspecialchars($displayDomain, ENT_QUOTES, 'UTF-8'); ?>" rel="nofollow noopener noreferrer" target="_blank"><?= htmlspecialchars($displayDomain, ENT_QUOTES, 'UTF-8'); ?></a>
             </h1>
-            <?php if ($parser->registrar): ?>
-              <p class="nw-domain-sub">
-                注册商：
-                <?php if ($registrarLink): ?>
-                  <a href="<?= htmlspecialchars($registrarLink, ENT_QUOTES, 'UTF-8'); ?>" rel="nofollow noopener noreferrer" target="_blank"><?= htmlspecialchars($parser->registrar, ENT_QUOTES, 'UTF-8'); ?></a>
-                <?php else: ?>
-                  <?= htmlspecialchars($parser->registrar, ENT_QUOTES, 'UTF-8'); ?>
-                <?php endif; ?>
-              </p>
-            <?php endif; ?>
 
+            <!-- 状态行：状态徽章 + 域龄药丸 -->
             <div class="nw-status-row">
               <span class="nw-status-badge nw-status-<?= $statusKey; ?>">
                 <span class="nw-dot"></span><?= $statusLabel; ?>
               </span>
+              <?php if ($ageYears): ?>
+                <span class="nw-age-pill" id="age" data-seconds="<?= $parser->ageSeconds; ?>">
+                  <svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                  <?= htmlspecialchars($ageYears, ENT_QUOTES, 'UTF-8'); ?>
+                </span>
+              <?php endif; ?>
             </div>
 
+            <!-- 价格 / 备案标签（由 JS 异步填充） -->
+            <?php if ($fetchPrices || $fetchBeiAn): ?>
+              <div class="nw-pills">
+                <?php if ($fetchPrices): ?>
+                  <span class="nw-price-slot" id="message-price" data-domain="<?= htmlspecialchars($domain ?? '', ENT_QUOTES, 'UTF-8'); ?>">
+                    <span class="nw-skeleton"></span>
+                  </span>
+                <?php endif; ?>
+                <?php if ($fetchBeiAn): ?>
+                  <span class="nw-beian-slot" id="message-beian" data-domain="<?= htmlspecialchars($domain ?? '', ENT_QUOTES, 'UTF-8'); ?>">
+                    <span class="nw-skeleton"></span>
+                  </span>
+                <?php endif; ?>
+              </div>
+            <?php endif; ?>
+
+            <!-- 数据来源行 -->
+            <?php if ($dataSourceLabel): ?>
+              <div class="nw-source-row">
+                <span class="nw-source-label">· <?= htmlspecialchars($dataSourceLabel, ENT_QUOTES, 'UTF-8'); ?></span>
+              </div>
+            <?php endif; ?>
+
+            <!-- 日期网格 -->
             <?php if ($parser->creationDate || $parser->expirationDate || $parser->updatedDate || $parser->availableDate): ?>
               <div class="nw-dates">
                 <?php if ($parser->creationDate): ?>
                   <div class="nw-date">
                     <p class="nw-date-label">创建日期</p>
-                    <p class="nw-date-value" <?= $parser->creationDateISO8601 ? 'id="creation-date" data-iso8601="' . htmlspecialchars($parser->creationDateISO8601, ENT_QUOTES, 'UTF-8') . '"' : ''; ?>><?= htmlspecialchars($parser->creationDate, ENT_QUOTES, 'UTF-8'); ?></p>
+                    <p class="nw-date-value" <?= $parser->creationDateISO8601 ? 'id="creation-date" data-iso8601="' . htmlspecialchars($parser->creationDateISO8601, ENT_QUOTES, 'UTF-8') . '"' : ''; ?>><?= htmlspecialchars($isoDate($parser->creationDateISO8601, $parser->creationDate), ENT_QUOTES, 'UTF-8'); ?></p>
+                    <?php if ($relPast($parser->creationDateISO8601)): ?>
+                      <p class="nw-date-sub"><?= htmlspecialchars($relPast($parser->creationDateISO8601), ENT_QUOTES, 'UTF-8'); ?></p>
+                    <?php endif; ?>
                   </div>
                 <?php endif; ?>
                 <?php if ($parser->expirationDate): ?>
                   <div class="nw-date">
                     <p class="nw-date-label">到期日期</p>
-                    <p class="nw-date-value" <?= $parser->expirationDateISO8601 ? 'id="expiration-date" data-iso8601="' . htmlspecialchars($parser->expirationDateISO8601, ENT_QUOTES, 'UTF-8') . '"' : ''; ?>><?= htmlspecialchars($parser->expirationDate, ENT_QUOTES, 'UTF-8'); ?></p>
-                    <?php if ($parser->remaining): ?>
-                      <p class="nw-date-sub <?= $remColor; ?>"><?= $remSec !== null && $remSec <= 0 ? '已过期' : '剩余 ' . htmlspecialchars($parser->remaining, ENT_QUOTES, 'UTF-8'); ?></p>
+                    <p class="nw-date-value" <?= $parser->expirationDateISO8601 ? 'id="expiration-date" data-iso8601="' . htmlspecialchars($parser->expirationDateISO8601, ENT_QUOTES, 'UTF-8') . '"' : ''; ?>><?= htmlspecialchars($isoDate($parser->expirationDateISO8601, $parser->expirationDate), ENT_QUOTES, 'UTF-8'); ?></p>
+                    <?php if ($remText): ?>
+                      <p class="nw-date-sub <?= $remColor; ?>"><?= htmlspecialchars($remText, ENT_QUOTES, 'UTF-8'); ?></p>
                     <?php endif; ?>
                   </div>
                 <?php endif; ?>
                 <?php if ($parser->updatedDate): ?>
-                  <div class="nw-date">
+                  <div class="nw-date nw-date-wide">
                     <p class="nw-date-label">更新日期</p>
-                    <p class="nw-date-value" <?= $parser->updatedDateISO8601 ? 'id="updated-date" data-iso8601="' . htmlspecialchars($parser->updatedDateISO8601, ENT_QUOTES, 'UTF-8') . '"' : ''; ?>><?= htmlspecialchars($parser->updatedDate, ENT_QUOTES, 'UTF-8'); ?></p>
+                    <p class="nw-date-value" <?= $parser->updatedDateISO8601 ? 'id="updated-date" data-iso8601="' . htmlspecialchars($parser->updatedDateISO8601, ENT_QUOTES, 'UTF-8') . '"' : ''; ?>><?= htmlspecialchars($isoDate($parser->updatedDateISO8601, $parser->updatedDate), ENT_QUOTES, 'UTF-8'); ?></p>
+                    <?php if ($relPast($parser->updatedDateISO8601)): ?>
+                      <p class="nw-date-sub"><?= htmlspecialchars($relPast($parser->updatedDateISO8601), ENT_QUOTES, 'UTF-8'); ?></p>
+                    <?php endif; ?>
                   </div>
                 <?php endif; ?>
                 <?php if ($parser->availableDate): ?>
                   <div class="nw-date">
                     <p class="nw-date-label">可用日期</p>
-                    <p class="nw-date-value" <?= $parser->availableDateISO8601 ? 'id="available-date" data-iso8601="' . htmlspecialchars($parser->availableDateISO8601, ENT_QUOTES, 'UTF-8') . '"' : ''; ?>><?= htmlspecialchars($parser->availableDate, ENT_QUOTES, 'UTF-8'); ?></p>
+                    <p class="nw-date-value" <?= $parser->availableDateISO8601 ? 'id="available-date" data-iso8601="' . htmlspecialchars($parser->availableDateISO8601, ENT_QUOTES, 'UTF-8') . '"' : ''; ?>><?= htmlspecialchars($isoDate($parser->availableDateISO8601, $parser->availableDate), ENT_QUOTES, 'UTF-8'); ?></p>
+                  </div>
+                <?php endif; ?>
+              </div>
+            <?php endif; ?>
+
+            <!-- 注册人联系（主卡内） -->
+            <?php if ($hasRegistrant): ?>
+              <div class="nw-contact-grid">
+                <?php if ($registrantEmail): ?>
+                  <div class="nw-contact">
+                    <p class="nw-date-label">注册人邮箱</p>
+                    <?php $ml = $mailLink($registrantEmail); ?>
+                    <?php if ($ml): ?>
+                      <a class="nw-contact-value nw-link" href="<?= htmlspecialchars($ml, ENT_QUOTES, 'UTF-8'); ?>" rel="nofollow noopener noreferrer" target="_blank"><?= htmlspecialchars($registrantEmail, ENT_QUOTES, 'UTF-8'); ?></a>
+                    <?php else: ?>
+                      <p class="nw-contact-value"><?= htmlspecialchars($registrantEmail, ENT_QUOTES, 'UTF-8'); ?></p>
+                    <?php endif; ?>
+                  </div>
+                <?php endif; ?>
+                <?php if ($registrantPhone): ?>
+                  <div class="nw-contact">
+                    <p class="nw-date-label">注册人电话</p>
+                    <p class="nw-contact-value"><?= htmlspecialchars($registrantPhone, ENT_QUOTES, 'UTF-8'); ?></p>
                   </div>
                 <?php endif; ?>
               </div>
@@ -205,7 +301,7 @@
               <h3 class="nw-card-title nw-card-title-plain">注册商</h3>
             </div>
             <div class="nw-registrar-body">
-              <div class="nw-registrar-logo"><?= htmlspecialchars(mb_substr($parser->registrar, 0, 1), ENT_QUOTES, 'UTF-8'); ?></div>
+              <div class="nw-registrar-logo"><?= htmlspecialchars($registrarInitial, ENT_QUOTES, 'UTF-8'); ?></div>
               <div class="nw-registrar-meta">
                 <p class="nw-registrar-name"><?= htmlspecialchars($parser->registrar, ENT_QUOTES, 'UTF-8'); ?></p>
                 <?php if ($registrarLink): ?>
@@ -213,6 +309,59 @@
                 <?php endif; ?>
               </div>
             </div>
+
+            <?php if ($hasRegTech): ?>
+              <div class="nw-registrar-section">
+                <?php if ($whoisServerVal): ?>
+                  <div class="nw-kv">
+                    <span class="nw-kv-key">WHOIS 服务器</span>
+                    <span class="nw-kv-val"><?= htmlspecialchars($whoisServerVal, ENT_QUOTES, 'UTF-8'); ?></span>
+                  </div>
+                <?php endif; ?>
+                <?php if ($registryDomainId): ?>
+                  <div class="nw-kv">
+                    <span class="nw-kv-key">注册局 ID</span>
+                    <span class="nw-kv-val"><?= htmlspecialchars($registryDomainId, ENT_QUOTES, 'UTF-8'); ?></span>
+                  </div>
+                <?php endif; ?>
+              </div>
+            <?php endif; ?>
+
+            <?php if ($hasAbuse): ?>
+              <div class="nw-registrar-section">
+                <p class="nw-section-title">滥用联系</p>
+                <?php if ($abuseEmail): ?>
+                  <div class="nw-kv">
+                    <span class="nw-kv-key">邮箱</span>
+                    <a class="nw-kv-val nw-link" href="<?= htmlspecialchars($mailLink($abuseEmail) ?: '#', ENT_QUOTES, 'UTF-8'); ?>" rel="nofollow noopener noreferrer" target="_blank"><?= htmlspecialchars($abuseEmail, ENT_QUOTES, 'UTF-8'); ?></a>
+                  </div>
+                <?php endif; ?>
+                <?php if ($abusePhone): ?>
+                  <div class="nw-kv">
+                    <span class="nw-kv-key">电话</span>
+                    <span class="nw-kv-val"><?= htmlspecialchars($abusePhone, ENT_QUOTES, 'UTF-8'); ?></span>
+                  </div>
+                <?php endif; ?>
+              </div>
+            <?php endif; ?>
+
+            <?php if ($hasRegistrant): ?>
+              <div class="nw-registrar-section">
+                <p class="nw-section-title">注册人信息</p>
+                <?php if ($registrantEmail): ?>
+                  <div class="nw-kv">
+                    <span class="nw-kv-key">邮箱</span>
+                    <a class="nw-kv-val nw-link" href="<?= htmlspecialchars($mailLink($registrantEmail) ?: '#', ENT_QUOTES, 'UTF-8'); ?>" rel="nofollow noopener noreferrer" target="_blank"><?= htmlspecialchars($registrantEmail, ENT_QUOTES, 'UTF-8'); ?></a>
+                  </div>
+                <?php endif; ?>
+                <?php if ($registrantPhone): ?>
+                  <div class="nw-kv">
+                    <span class="nw-kv-key">电话</span>
+                    <span class="nw-kv-val"><?= htmlspecialchars($registrantPhone, ENT_QUOTES, 'UTF-8'); ?></span>
+                  </div>
+                <?php endif; ?>
+              </div>
+            <?php endif; ?>
           </div>
         <?php endif; ?>
 

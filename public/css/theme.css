@@ -727,7 +727,7 @@ code a { color: hsl(var(--info)) !important; }
   flex-wrap: wrap;
   align-items: center;
   gap: 8px;
-  margin-bottom: 20px;
+  margin-top: 12px;
 }
 
 .nw-pill {
@@ -830,13 +830,36 @@ code a { color: hsl(var(--info)) !important; }
 
 .nw-globe {
   position: absolute;
-  top: 14px;
-  right: 12px;
-  width: 120px;
-  height: 120px;
-  color: hsl(var(--muted-foreground));
-  opacity: 0.18;
+  top: 16px;
+  right: 14px;
+  width: 116px;
+  height: 116px;
   pointer-events: none;
+  opacity: 0.9;
+}
+
+.nw-globe-sphere {
+  fill: hsl(var(--muted) / 0.55);
+}
+
+.nw-globe-land {
+  fill: hsl(var(--muted-foreground) / 0.45);
+}
+
+.nw-globe-grid {
+  fill: none;
+  stroke: hsl(var(--muted-foreground) / 0.25);
+  stroke-width: 0.6;
+}
+
+.nw-globe-ring {
+  fill: none;
+  stroke: hsl(var(--border));
+  stroke-width: 1;
+}
+
+@media (max-width: 420px) {
+  .nw-globe { width: 92px; height: 92px; top: 14px; right: 12px; }
 }
 
 .nw-globe svg { width: 100%; height: 100%; }
@@ -880,7 +903,23 @@ code a { color: hsl(var(--info)) !important; }
 
 .nw-domain-sub a { color: hsl(var(--info)) !important; }
 
-.nw-status-row { display: flex; flex-wrap: wrap; gap: 8px; }
+.nw-status-row { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-top: 14px; }
+
+/* 域龄药丸 */
+.nw-age-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 3px 9px;
+  border-radius: 6px;
+  border: 1px solid hsl(var(--primary) / 0.3);
+  background: hsl(var(--primary) / 0.06);
+  color: hsl(var(--primary));
+  font-size: 11px;
+  white-space: nowrap;
+}
+
+.nw-age-pill svg { width: 12px; height: 12px; }
 
 .nw-status-badge {
   display: inline-flex;
@@ -914,8 +953,8 @@ code a { color: hsl(var(--info)) !important; }
   display: grid;
   grid-template-columns: repeat(2, 1fr);
   gap: 24px;
-  margin-top: 28px;
-  padding-top: 28px;
+  margin-top: 16px;
+  padding-top: 24px;
   border-top: 1px solid hsl(var(--border) / 0.6);
 }
 
@@ -946,6 +985,85 @@ code a { color: hsl(var(--info)) !important; }
   font-weight: 500;
   color: hsl(var(--muted-foreground));
 }
+
+@media (max-width: 639px) {
+  .nw-date-wide { grid-column: span 2; }
+}
+
+/* 数据来源行 */
+.nw-source-row {
+  margin-top: 16px;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 11px;
+  color: hsl(var(--muted-foreground) / 0.7);
+}
+
+/* 注册人联系（主卡内） */
+.nw-contact-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 24px;
+  margin-top: 28px;
+}
+
+.nw-contact { min-width: 0; }
+
+.nw-contact-value {
+  margin: 0;
+  font-size: 13px;
+  color: hsl(var(--foreground));
+  word-break: break-all;
+}
+
+a.nw-contact-value.nw-link { color: hsl(var(--info)) !important; text-decoration: none; }
+a.nw-contact-value.nw-link:hover { text-decoration: underline; }
+
+/* 注册商卡分区（WHOIS服务器 / 滥用 / 注册人） */
+.nw-registrar-section {
+  border-top: 1px solid hsl(var(--border) / 0.6);
+  padding: 14px 0 2px;
+  margin-top: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.nw-section-title {
+  margin: 0;
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: hsl(var(--muted-foreground) / 0.6);
+}
+
+.nw-kv {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.nw-kv-key {
+  flex-shrink: 0;
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  font-weight: 500;
+  color: hsl(var(--muted-foreground) / 0.7);
+  padding-top: 1px;
+}
+
+.nw-kv-val {
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 12px;
+  color: hsl(var(--foreground) / 0.85);
+  text-align: right;
+  word-break: break-all;
+}
+
+a.nw-kv-val.nw-link { color: hsl(var(--info)) !important; text-decoration: none; }
+a.nw-kv-val.nw-link:hover { text-decoration: underline; }
 
 /* ---------- 状态 / NS 双卡 ---------- */
 .nw-subgrid {
