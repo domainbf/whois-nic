@@ -1,9 +1,21 @@
 <head>
   <base href="<?= BASE; ?>">
   <meta charset="UTF-8">
+  <!-- 主题初始化：在样式加载前设置 data-theme，避免暗色模式闪烁 -->
+  <script>
+    (function () {
+      try {
+        var t = localStorage.getItem("theme");
+        if (!t) {
+          t = window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+        }
+        document.documentElement.setAttribute("data-theme", t);
+      } catch (e) {}
+    })();
+  </script>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="theme-color" content="#e1f9f9">
+  <meta name="theme-color" content="#ffffff">
   <meta name="description" content="<?= SITE_DESCRIPTION ?>">
   <meta name="keywords" content="<?= SITE_KEYWORDS ?>">
 
@@ -69,4 +81,7 @@
   <link rel="stylesheet" href="public/css/json.css">
   <?= CUSTOM_HEAD ?>
   <link rel="stylesheet" href="public/css/index-extra.css">
+  <!-- next-whois 风格主题层（最后加载，覆盖旧版样式）-->
+  <link rel="stylesheet" href="public/css/theme.css">
+  <script src="public/js/theme.js" defer></script>
 </head>

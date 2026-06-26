@@ -100,6 +100,7 @@ require __DIR__ . "/lib/share-meta.php";
   <?php require __DIR__ . "/partials/head.php"; ?>
 
 <body data-has-domain="<?= $domain ? "1" : "0"; ?>">
+  <?php require __DIR__ . "/partials/topbar.php"; ?>
   <?php require __DIR__ . "/partials/search-form.php"; ?>
   <main>
     <?php require __DIR__ . "/partials/result.php"; ?>
