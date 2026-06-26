@@ -1,12 +1,13 @@
-    <?php if ($whoisData && $rdapData): ?>
-      <section class="data-source">
-        <div class="segmented">
-          <button class="segmented-item segmented-item-selected" id="data-source-whois" type="button">WHOIS</button>
-          <button class="segmented-item" id="data-source-rdap" type="button">RDAP</button>
-        </div>
-      </section>
-    <?php endif; ?>
-    <?php if ($whoisData || $rdapData): ?>
+<?php // 已注册域名的原始数据已并入 result.php 的右侧栏；此处仅处理未注册 / 错误等情形 ?>
+    <?php if (!$parser->registered && ($whoisData || $rdapData)): ?>
+      <?php if ($whoisData && $rdapData): ?>
+        <section class="data-source">
+          <div class="segmented">
+            <button class="segmented-item segmented-item-selected" id="data-source-whois" type="button">WHOIS</button>
+            <button class="segmented-item" id="data-source-rdap" type="button">RDAP</button>
+          </div>
+        </section>
+      <?php endif; ?>
       <section class="raw-data">
         <?php if ($whoisData): ?>
           <div class="raw-data-container">

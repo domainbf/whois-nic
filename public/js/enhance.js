@@ -76,4 +76,26 @@
 
         if (rawDataWHOIS) linkifyRawData(rawDataWHOIS);
         if (rawDataRDAP) linkifyRawData(rawDataRDAP);
+
+        // 复制当前显示的原始数据（WHOIS / RDAP）
+        const rawCopyBtn = document.getElementById("raw-copy");
+        if (rawCopyBtn) {
+          rawCopyBtn.addEventListener("click", async () => {
+            const whoisVisible =
+              rawDataWHOIS && getComputedStyle(rawDataWHOIS).display !== "none";
+            const target = whoisVisible ? rawDataWHOIS : rawDataRDAP;
+            if (!target) return;
+            const text = target.innerText || target.textContent || "";
+            try {
+              await navigator.clipboard.writeText(text);
+              const original = rawCopyBtn.innerHTML;
+              rawCopyBtn.textContent = "已复制";
+              setTimeout(() => {
+                rawCopyBtn.innerHTML = original;
+              }, 1500);
+            } catch (e) {
+              /* 忽略复制失败 */
+            }
+          });
+        }
       });

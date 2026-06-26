@@ -1,255 +1,251 @@
-    <?php require_once __DIR__ . "/../lib/icons.php"; ?>
-    <?php if ($parser->registered): ?>
-      <section class="messages">
-        <div>
-          <div class="message message-positive">
-            <div class="message-data">
-              <h1 class="message-title">
-                  <svg width="1em" height="1em" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true" class="message-icon">
-                    <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14m0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16" />
-                    <path d="m10.97 4.97-.02.022-3.473 4.425-2.093-2.094a.75.75 0 0 0-1.06 1.06L6.97 11.03a.75.75 0 0 0 1.079-.02l3.992-4.99a.75.75 0 0 0-1.071-1.05" />
-                  </svg>
-                  <a href="http://<?= htmlspecialchars($domain, ENT_QUOTES, 'UTF-8'); ?>" rel="nofollow noopener noreferrer" target="_blank"><?= htmlspecialchars($domain, ENT_QUOTES, 'UTF-8'); ?></a>
-              </h1>
-              <?php if ($parser->registrar): ?>
-                <?php
-                  // 注册商官网：优先使用 WHOIS/RDAP 提供的 URL，缺失时用全球注册商映射智能识别
-                  require_once __DIR__ . "/../lib/registrar-map.php";
-                  $registrarLink = $parser->registrarURL ?: registrar_website($parser->registrar);
-                ?>
-                <div class="message-label">
-                  <span class="message-icon-leading">
-                    <?= inline_icon('credit-card'); ?>
-                  </span>
-                  注册平台
-                </div>
-                <div>
-                  <?php if ($registrarLink): ?>
-                    <a href="<?= htmlspecialchars($registrarLink, ENT_QUOTES, 'UTF-8'); ?>" rel="nofollow noopener noreferrer" target="_blank"><?= htmlspecialchars($parser->registrar, ENT_QUOTES, 'UTF-8'); ?></a>
-                  <?php else: ?>
-                    <?= htmlspecialchars($parser->registrar, ENT_QUOTES, 'UTF-8'); ?>
-                  <?php endif; ?>
-                </div>
-              <?php endif; ?>
-              <?php if ($parser->creationDate): ?>
-                <div class="message-label">
-                  <span class="message-icon-leading">
-                    <?= inline_icon('calendar-days'); ?>
-                  </span>
-                  创建日期
-                </div>
-                <div>
-                  <?php if ($parser->creationDateISO8601 === null): ?>
-                    <span><?= htmlspecialchars($parser->creationDate, ENT_QUOTES, 'UTF-8'); ?></span>
-                  <?php elseif (str_ends_with($parser->creationDateISO8601, "Z")): ?>
-                    <span id="creation-date" data-iso8601="<?= htmlspecialchars($parser->creationDateISO8601, ENT_QUOTES, 'UTF-8'); ?>">
-                      <?= htmlspecialchars($parser->creationDate, ENT_QUOTES, 'UTF-8'); ?>
-                    </span>
-                  <?php else: ?>
-                    <span id="creation-date" data-iso8601="<?= htmlspecialchars($parser->creationDateISO8601, ENT_QUOTES, 'UTF-8'); ?>">
-                      <?= htmlspecialchars($parser->creationDate, ENT_QUOTES, 'UTF-8'); ?>
-                    </span>
-                  <?php endif; ?>
-                </div>
-              <?php endif; ?>
-              <?php if ($parser->expirationDate): ?>
-                <div class="message-label">
-                  <span class="message-icon-leading">
-                    <?= inline_icon('calendar-xmark'); ?>
-                  </span>
-                  到期日期
-                </div>
-                <div>
-                  <?php if ($parser->expirationDateISO8601 === null): ?>
-                    <span><?= htmlspecialchars($parser->expirationDate, ENT_QUOTES, 'UTF-8'); ?></span>
-                  <?php elseif (str_ends_with($parser->expirationDateISO8601, "Z")): ?>
-                    <span id="expiration-date" data-iso8601="<?= htmlspecialchars($parser->expirationDateISO8601, ENT_QUOTES, 'UTF-8'); ?>">
-                      <?= htmlspecialchars($parser->expirationDate, ENT_QUOTES, 'UTF-8'); ?>
-                    </span>
-                  <?php else: ?>
-                    <span id="expiration-date" data-iso8601="<?= htmlspecialchars($parser->expirationDateISO8601, ENT_QUOTES, 'UTF-8'); ?>">
-                      <?= htmlspecialchars($parser->expirationDate, ENT_QUOTES, 'UTF-8'); ?>
-                    </span>
-                  <?php endif; ?>
-                </div>
-              <?php endif; ?>
-              <?php if ($parser->updatedDate): ?>
-                <div class="message-label">
-                  <span class="message-icon-leading">
-                    <?= inline_icon('rotate'); ?>
-                  </span>
-                  更新日期
-                </div>
-                <div>
-                  <?php if ($parser->updatedDateISO8601 === null): ?>
-                    <span><?= htmlspecialchars($parser->updatedDate, ENT_QUOTES, 'UTF-8'); ?></span>
-                  <?php elseif (str_ends_with($parser->updatedDateISO8601, "Z")): ?>
-                    <span id="updated-date" data-iso8601="<?= htmlspecialchars($parser->updatedDateISO8601, ENT_QUOTES, 'UTF-8'); ?>">
-                      <?= htmlspecialchars($parser->updatedDate, ENT_QUOTES, 'UTF-8'); ?>
-                    </span>
-                  <?php else: ?>
-                    <span id="updated-date" data-iso8601="<?= htmlspecialchars($parser->updatedDateISO8601, ENT_QUOTES, 'UTF-8'); ?>">
-                      <?= htmlspecialchars($parser->updatedDate, ENT_QUOTES, 'UTF-8'); ?>
-                    </span>
-                  <?php endif; ?>
-                </div>
-              <?php endif; ?>
-              <?php if ($parser->availableDate): ?>
-                <div class="message-label">
-                  <span class="message-icon-leading">
-                    <?= inline_icon('mobile-screen'); ?>
-                  </span>
-                  可用日期
-                </div>
-                <div>
-                  <?php if ($parser->availableDateISO8601 === null): ?>
-                    <span><?= htmlspecialchars($parser->availableDate, ENT_QUOTES, 'UTF-8'); ?></span>
-                  <?php elseif (str_ends_with($parser->availableDateISO8601, "Z")): ?>
-                    <span id="available-date" data-iso8601="<?= htmlspecialchars($parser->availableDateISO8601, ENT_QUOTES, 'UTF-8'); ?>">
-                      <?= htmlspecialchars($parser->availableDate, ENT_QUOTES, 'UTF-8'); ?>
-                    </span>
-                  <?php else: ?>
-                    <span id="available-date" data-iso8601="<?= htmlspecialchars($parser->availableDateISO8601, ENT_QUOTES, 'UTF-8'); ?>">
-                      <?= htmlspecialchars($parser->availableDate, ENT_QUOTES, 'UTF-8'); ?>
-                    </span>
-                  <?php endif; ?>
-                </div>
-              <?php endif; ?>
-              <?php if ($parser->status): ?>
-                <div class="message-label">
-  <span class="message-icon-leading">
-    <?= inline_icon('circle-check'); ?>
-  </span>
-  域名状态
-</div>
-<div class="message-value-status">
+<?php require_once __DIR__ . "/../lib/icons.php"; ?>
+<?php if ($parser->registered): ?>
   <?php
-  // 全面的状态码到中文映射，从 lib/status-map.php 载入
-  $statusMapping = require __DIR__ . "/../lib/status-map.php";
+    require_once __DIR__ . "/../lib/registrar-map.php";
+    $statusMapping = require __DIR__ . "/../lib/status-map.php";
+    $registrarLink = $parser->registrar ? ($parser->registrarURL ?: registrar_website($parser->registrar)) : "";
 
-  foreach ($parser->status as $status): ?>
-    <div>
-      <?php if ($status["url"]): ?>
-        <a href="<?= htmlspecialchars($status["url"], ENT_QUOTES, 'UTF-8'); ?>" rel="nofollow noopener noreferrer" target="_blank">
-          <?= htmlspecialchars(isset($statusMapping[$status["text"]]) ? $statusMapping[$status["text"]] : $status["text"], ENT_QUOTES, 'UTF-8'); ?>
-        </a>
-      <?php else: ?>
-        <?= htmlspecialchars(isset($statusMapping[$status["text"]]) ? $statusMapping[$status["text"]] : $status["text"], ENT_QUOTES, 'UTF-8'); ?>
-      <?php endif; ?>
-    </div>
-  <?php endforeach; ?>
-</div>
-              <?php endif; ?>
-              <?php if ($parser->nameServers): ?>
-                <div class="message-label">
-                  <span class="message-icon-leading">
-                    <?= inline_icon('server'); ?>
-                  </span>
-                  NS服务器
-                </div>
-                <div class="message-value-name-servers">
-                  <?php foreach ($parser->nameServers as $nameServer): ?>
-                    <div>
-                      <?= htmlspecialchars($nameServer, ENT_QUOTES, 'UTF-8'); ?>
-                    </div>
-                  <?php endforeach; ?>
-                </div>
-              <?php endif; ?>
+    // 域名状态 → 颜色（活跃 / 即将到期 / 已过期）
+    $remSec = $parser->remainingSeconds;
+    if ($remSec !== null && $remSec <= 0) {
+      $statusKey = 'expired'; $statusLabel = '已过期';
+    } elseif ($remSec !== null && $remSec <= 60 * 24 * 60 * 60) {
+      $statusKey = 'expiring'; $statusLabel = '即将到期';
+    } elseif ($remSec !== null) {
+      $statusKey = 'active'; $statusLabel = '活跃';
+    } else {
+      $statusKey = 'neutral'; $statusLabel = '已注册';
+    }
+
+    // 到期剩余颜色
+    if ($remSec !== null && $remSec <= 0) { $remColor = 'nw-text-bad'; }
+    elseif ($remSec !== null && $remSec <= 30 * 24 * 60 * 60) { $remColor = 'nw-text-bad'; }
+    elseif ($remSec !== null && $remSec <= 60 * 24 * 60 * 60) { $remColor = 'nw-text-warn'; }
+    else { $remColor = 'nw-text-ok'; }
+
+    // EPP 状态码 → 颜色点
+    $eppColor = function (string $code): string {
+      $c = strtolower($code);
+      if (strpos($c, 'prohibited') !== false) return '#f59e0b';
+      if (strpos($c, 'pending') !== false || strpos($c, 'hold') !== false ||
+          strpos($c, 'redemption') !== false || strpos($c, 'delete') !== false) return '#ef4444';
+      if ($c === 'ok' || $c === 'active') return '#10b981';
+      return '#71717a';
+    };
+
+    // NS 提供商识别（用于右侧小徽标）
+    $nsBrand = function (string $ns): string {
+      $n = strtolower($ns);
+      $map = [
+        'cloudflare' => 'Cloudflare', 'awsdns' => 'AWS', 'amazonaws' => 'AWS',
+        'azure-dns' => 'Azure', 'googledomains' => 'Google', 'google' => 'Google',
+        'dnspod' => 'DNSPod', 'alidns' => '阿里云', 'aliyun' => '阿里云',
+        'godaddy' => 'GoDaddy', 'domaincontrol' => 'GoDaddy', 'namecheap' => 'Namecheap',
+        'registrar-servers' => 'Namecheap', 'vercel-dns' => 'Vercel', 'name-services' => 'eNom',
+        'dnsowl' => 'NameSilo', 'nsone' => 'NS1', 'ns.cloudflare' => 'Cloudflare',
+        'hichina' => '阿里云', 'he.net' => 'HE', 'digitalocean' => 'DigitalOcean',
+      ];
+      foreach ($map as $k => $v) { if (strpos($n, $k) !== false) return $v; }
+      return '';
+    };
+
+    $displayDomain = $parser->domain ?: $domain;
+  ?>
+  <section class="nw-result">
+
+    <!-- 顶部价格 / 年龄标签行 -->
+    <?php if ($parser->age || $fetchPrices || $fetchBeiAn): ?>
+      <div class="nw-pills">
+        <?php if ($parser->age): ?>
+          <span class="nw-pill nw-pill-accent" id="age" data-seconds="<?= $parser->ageSeconds; ?>">
+            <svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+            <span>已注册 <?= htmlspecialchars($parser->age, ENT_QUOTES, 'UTF-8'); ?></span>
+          </span>
+        <?php endif; ?>
+        <?php if ($fetchPrices): ?>
+          <span class="nw-price-slot" id="message-price" data-domain="<?= htmlspecialchars($domain ?? '', ENT_QUOTES, 'UTF-8'); ?>">
+            <span class="nw-skeleton"></span>
+          </span>
+        <?php endif; ?>
+        <?php if ($fetchBeiAn): ?>
+          <span class="nw-beian-slot" id="message-beian" data-domain="<?= htmlspecialchars($domain ?? '', ENT_QUOTES, 'UTF-8'); ?>">
+            <span class="nw-skeleton"></span>
+          </span>
+        <?php endif; ?>
+      </div>
+    <?php endif; ?>
+
+    <div class="nw-grid">
+      <!-- ============ 左列 ============ -->
+      <div class="nw-col-main">
+
+        <!-- 域名主卡 -->
+        <div class="nw-card nw-domain-card">
+          <div class="nw-globe" aria-hidden="true">
+            <svg viewBox="0 0 100 100" fill="none" stroke="currentColor" stroke-width="1">
+              <circle cx="50" cy="50" r="45"/>
+              <ellipse cx="50" cy="50" rx="20" ry="45"/>
+              <ellipse cx="50" cy="50" rx="45" ry="20"/>
+              <line x1="5" y1="50" x2="95" y2="50"/>
+              <line x1="50" y1="5" x2="50" y2="95"/>
+            </svg>
+          </div>
+
+          <div class="nw-domain-inner">
+            <span class="nw-badge">DOMAIN</span>
+            <h1 class="nw-domain-name">
+              <a href="http://<?= htmlspecialchars($displayDomain, ENT_QUOTES, 'UTF-8'); ?>" rel="nofollow noopener noreferrer" target="_blank"><?= htmlspecialchars($displayDomain, ENT_QUOTES, 'UTF-8'); ?></a>
+            </h1>
+            <?php if ($parser->registrar): ?>
+              <p class="nw-domain-sub">
+                注册商：
+                <?php if ($registrarLink): ?>
+                  <a href="<?= htmlspecialchars($registrarLink, ENT_QUOTES, 'UTF-8'); ?>" rel="nofollow noopener noreferrer" target="_blank"><?= htmlspecialchars($parser->registrar, ENT_QUOTES, 'UTF-8'); ?></a>
+                <?php else: ?>
+                  <?= htmlspecialchars($parser->registrar, ENT_QUOTES, 'UTF-8'); ?>
+                <?php endif; ?>
+              </p>
+            <?php endif; ?>
+
+            <div class="nw-status-row">
+              <span class="nw-status-badge nw-status-<?= $statusKey; ?>">
+                <span class="nw-dot"></span><?= $statusLabel; ?>
+              </span>
             </div>
-            <?php if ($fetchPrices): ?>
-              <div class="message-price" id="message-price" data-domain="<?= htmlspecialchars($domain ?? '', ENT_QUOTES, 'UTF-8'); ?>">
-                <div class="skeleton"></div>
-              </div>
-            <?php endif; ?>
-            <?php if ($fetchBeiAn): ?>
-              <div class="message-beian" id="message-beian" data-domain="<?= htmlspecialchars($domain ?? '', ENT_QUOTES, 'UTF-8'); ?>">
-                <div class="skeleton"></div>
-              </div>
-            <?php endif; ?>
-            <?php if ($parser->age || $parser->remaining || $parser->pendingDelete || $parser->gracePeriod || $parser->redemptionPeriod): ?>
-              <?php if ($parser->age || $parser->remaining): ?>
-              <div class="message-tags message-tags-info">
-                <?php if ($parser->age): ?>
-                  <button class="message-tag message-tag-gray" id="age" data-seconds="<?= $parser->ageSeconds; ?>">
-                    <svg width="1em" height="1em" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true">
-                      <path d="M8 3.5a.5.5 0 0 0-1 0V9a.5.5 0 0 0 .252.434l3.5 2a.5.5 0 0 0 .496-.868L8 8.71z" />
-                      <path d="M8 16A8 8 0 1 0 8 0a8 8 0 0 0 0 16m7-8A7 7 0 1 1 1 8a7 7 0 0 1 14 0" />
-                    </svg>
-                    <span>已经注册：<?= htmlspecialchars($parser->age, ENT_QUOTES, 'UTF-8'); ?></span>
-                  </button>
-                <?php endif; ?>
-                <?php if ($parser->remaining): ?>
-                  <button class="message-tag message-tag-gray" id="remaining" data-seconds="<?= $parser->remainingSeconds; ?>">
-                    <svg width="1em" height="1em" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true">
-                      <path d="M2 1.5a.5.5 0 0 1 .5-.5h11a.5.5 0 0 1 0 1h-1v1a4.5 4.5 0 0 1-2.557 4.06c-.29.139-.443.377-.443.59v.7c0 .213.154.451.443.59A4.5 4.5 0 0 1 12.5 13v1h1a.5.5 0 0 1 0 1h-11a.5.5 0 1 1 0-1h1v-1a4.5 4.5 0 0 1 2.557-4.06c.29-.139.443-.377.443-.59v-.7c0-.213-.154-.451-.443-.59A4.5 4.5 0 0 1 3.5 3V2h-1a.5.5 0 0 1-.5-.5m2.5.5v1a3.5 3.5 0 0 0 1.989 3.158c.533.256 1.011.791 1.011 1.491v.702c0 .7-.478 1.235-1.011 1.491A3.5 3.5 0 0 0 4.5 13v1h7v-1a3.5 3.5 0 0 0-1.989-3.158C8.978 9.586 8.5 9.052 8.5 8.351v-.702c0-.7.478-1.235 1.011-1.491A3.5 3.5 0 0 0 11.5 3V2h-1a.5.5 0 0 1-.5-.5m5.393 5.962a.5.5 0 0 0-.5.5v7a.5.5 0 0 0 1 0v-7a.5.5 0 0 0-.5-.5" />
-                    </svg>
-                    <span>距离过期：<?= htmlspecialchars($parser->remaining, ENT_QUOTES, 'UTF-8'); ?></span>
-                  </button>
-                <?php endif; ?>
-              </div>
-              <?php endif; ?>
-<?php
-// 域名特征标签：基于二级域名标签（SLD），多维度识别长度与字符构成
-$sld = '';
-if (!empty($parser->domain)) {
-    $sldParts = explode('.', $parser->domain);
-    $sld = $sldParts[0] ?? '';
-}
-$sldLen = $sld === '' ? 0 : (function_exists('mb_strlen') ? mb_strlen($sld) : strlen($sld));
-$isAllDigits = $sld !== '' && preg_match('/^[0-9]+$/', $sld);
-$isAllLetters = $sld !== '' && preg_match('/^[a-zA-Z]+$/', $sld);
-$hasHyphen = $sld !== '' && strpos($sld, '-') !== false;
 
-// 先用输出缓冲收集所有特征标签，仅当确有标签时才渲染容器，避免出现空白分隔线
-ob_start();
-?>
-<?php if ($parser->ageSeconds && $parser->ageSeconds < 60 * 24 * 60 * 60): ?>
-  <span class="message-tag message-tag-green">新注册</span>
-<?php endif; ?>
-<?php if (($parser->remainingSeconds ?? -1) >= 0 && $parser->remainingSeconds < 30 * 24 * 60 * 60): ?>
-  <span class="message-tag message-tag-yellow">即将过期</span>
-<?php endif; ?>
-<?php if (($parser->ageSeconds ?? 0) >= 10 * 365 * 24 * 60 * 60): ?>
-  <span class="message-tag message-tag-red">古董域名</span>
-<?php endif; ?>
-<?php if (($parser->remainingSeconds ?? 0) >= 5 * 365 * 24 * 60 * 60): ?>
-  <span class="message-tag message-tag-blue">长期持有</span>
-<?php endif; ?>
-<?php if ($sldLen === 1): ?>
-  <span class="message-tag message-tag-blue">单字符</span>
-<?php elseif ($sldLen === 2): ?>
-  <span class="message-tag message-tag-blue">双字符</span>
-<?php elseif ($sldLen === 3): ?>
-  <span class="message-tag message-tag-indigo">三字符</span>
-<?php elseif ($sldLen === 4): ?>
-  <span class="message-tag message-tag-indigo">四字符</span>
-<?php endif; ?>
-<?php if ($isAllDigits): ?>
-  <span class="message-tag message-tag-purple"><?= $sldLen; ?>位纯数字</span>
-<?php elseif ($isAllLetters && $sldLen >= 2 && $sldLen <= 4): ?>
-  <span class="message-tag message-tag-green">纯字母</span>
-<?php endif; ?>
-<?php if ($hasHyphen): ?>
-  <span class="message-tag message-tag-gray">含连字符</span>
-<?php endif; ?>
-<?php if ($parser->pendingDelete): ?>
-  <span class="message-tag message-tag-red">待删除</span>
-<?php elseif ($parser->remainingSeconds < 0): ?>
-  <span class="message-tag message-tag-red">已过期</span>
-<?php endif; ?>
-<?php if ($parser->gracePeriod): ?>
-  <span class="message-tag message-tag-yellow">宽限期</span>
-<?php elseif ($parser->redemptionPeriod): ?>
-  <span class="message-tag message-tag-blue">赎回期</span>
-<?php endif; ?>
-<?php
-$featureTagsHtml = ob_get_clean();
-if (trim($featureTagsHtml) !== ''):
-?>
-              <div class="message-tags message-tags-feature"><?= $featureTagsHtml; ?></div>
-<?php endif; ?>
-<?php endif; ?>
+            <?php if ($parser->creationDate || $parser->expirationDate || $parser->updatedDate || $parser->availableDate): ?>
+              <div class="nw-dates">
+                <?php if ($parser->creationDate): ?>
+                  <div class="nw-date">
+                    <p class="nw-date-label">创建日期</p>
+                    <p class="nw-date-value" <?= $parser->creationDateISO8601 ? 'id="creation-date" data-iso8601="' . htmlspecialchars($parser->creationDateISO8601, ENT_QUOTES, 'UTF-8') . '"' : ''; ?>><?= htmlspecialchars($parser->creationDate, ENT_QUOTES, 'UTF-8'); ?></p>
+                  </div>
+                <?php endif; ?>
+                <?php if ($parser->expirationDate): ?>
+                  <div class="nw-date">
+                    <p class="nw-date-label">到期日期</p>
+                    <p class="nw-date-value" <?= $parser->expirationDateISO8601 ? 'id="expiration-date" data-iso8601="' . htmlspecialchars($parser->expirationDateISO8601, ENT_QUOTES, 'UTF-8') . '"' : ''; ?>><?= htmlspecialchars($parser->expirationDate, ENT_QUOTES, 'UTF-8'); ?></p>
+                    <?php if ($parser->remaining): ?>
+                      <p class="nw-date-sub <?= $remColor; ?>"><?= $remSec !== null && $remSec <= 0 ? '已过期' : '剩余 ' . htmlspecialchars($parser->remaining, ENT_QUOTES, 'UTF-8'); ?></p>
+                    <?php endif; ?>
+                  </div>
+                <?php endif; ?>
+                <?php if ($parser->updatedDate): ?>
+                  <div class="nw-date">
+                    <p class="nw-date-label">更新日期</p>
+                    <p class="nw-date-value" <?= $parser->updatedDateISO8601 ? 'id="updated-date" data-iso8601="' . htmlspecialchars($parser->updatedDateISO8601, ENT_QUOTES, 'UTF-8') . '"' : ''; ?>><?= htmlspecialchars($parser->updatedDate, ENT_QUOTES, 'UTF-8'); ?></p>
+                  </div>
+                <?php endif; ?>
+                <?php if ($parser->availableDate): ?>
+                  <div class="nw-date">
+                    <p class="nw-date-label">可用日期</p>
+                    <p class="nw-date-value" <?= $parser->availableDateISO8601 ? 'id="available-date" data-iso8601="' . htmlspecialchars($parser->availableDateISO8601, ENT_QUOTES, 'UTF-8') . '"' : ''; ?>><?= htmlspecialchars($parser->availableDate, ENT_QUOTES, 'UTF-8'); ?></p>
+                  </div>
+                <?php endif; ?>
+              </div>
+            <?php endif; ?>
           </div>
         </div>
-      </section>
-    <?php endif; ?>
+
+        <!-- 状态 + NS 双卡 -->
+        <div class="nw-subgrid">
+          <?php if ($parser->status): ?>
+            <div class="nw-card nw-list-card">
+              <h3 class="nw-card-title">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="m9 12 2 2 4-4"/></svg>
+                域名状态
+              </h3>
+              <div class="nw-status-list">
+                <?php foreach ($parser->status as $st):
+                  $code = $st["text"];
+                  $cn = $statusMapping[$code] ?? $code; ?>
+                  <div class="nw-status-item">
+                    <span class="nw-status-bullet" style="background-color: <?= $eppColor($code); ?>"></span>
+                    <div class="nw-status-item-body">
+                      <?php if ($st["url"]): ?>
+                        <a class="nw-status-name" href="<?= htmlspecialchars($st["url"], ENT_QUOTES, 'UTF-8'); ?>" rel="nofollow noopener noreferrer" target="_blank"><?= htmlspecialchars($cn, ENT_QUOTES, 'UTF-8'); ?></a>
+                      <?php else: ?>
+                        <span class="nw-status-name"><?= htmlspecialchars($cn, ENT_QUOTES, 'UTF-8'); ?></span>
+                      <?php endif; ?>
+                      <p class="nw-status-code"><?= htmlspecialchars($code, ENT_QUOTES, 'UTF-8'); ?></p>
+                    </div>
+                  </div>
+                <?php endforeach; ?>
+              </div>
+            </div>
+          <?php endif; ?>
+
+          <?php if ($parser->nameServers): ?>
+            <div class="nw-card nw-list-card">
+              <h3 class="nw-card-title">
+                <?= inline_icon('server'); ?>
+                NS 服务器
+              </h3>
+              <div class="nw-ns-list">
+                <?php foreach ($parser->nameServers as $ns): $brand = $nsBrand($ns); ?>
+                  <div class="nw-ns-item">
+                    <span class="nw-ns-dot"></span>
+                    <span class="nw-ns-name"><?= htmlspecialchars($ns, ENT_QUOTES, 'UTF-8'); ?></span>
+                    <?php if ($brand): ?><span class="nw-ns-brand"><?= htmlspecialchars($brand, ENT_QUOTES, 'UTF-8'); ?></span><?php endif; ?>
+                  </div>
+                <?php endforeach; ?>
+              </div>
+            </div>
+          <?php endif; ?>
+        </div>
+      </div>
+
+      <!-- ============ 右列 ============ -->
+      <div class="nw-col-side">
+
+        <!-- 注册商卡 -->
+        <?php if ($parser->registrar): ?>
+          <div class="nw-card nw-registrar-card">
+            <div class="nw-registrar-head">
+              <h3 class="nw-card-title nw-card-title-plain">注册商</h3>
+            </div>
+            <div class="nw-registrar-body">
+              <div class="nw-registrar-logo"><?= htmlspecialchars(mb_substr($parser->registrar, 0, 1), ENT_QUOTES, 'UTF-8'); ?></div>
+              <div class="nw-registrar-meta">
+                <p class="nw-registrar-name"><?= htmlspecialchars($parser->registrar, ENT_QUOTES, 'UTF-8'); ?></p>
+                <?php if ($registrarLink): ?>
+                  <a class="nw-registrar-url" href="<?= htmlspecialchars($registrarLink, ENT_QUOTES, 'UTF-8'); ?>" rel="nofollow noopener noreferrer" target="_blank"><?= htmlspecialchars($registrarLink, ENT_QUOTES, 'UTF-8'); ?></a>
+                <?php endif; ?>
+              </div>
+            </div>
+          </div>
+        <?php endif; ?>
+
+        <!-- 原始数据面板 -->
+        <?php if ($whoisData || $rdapData): ?>
+          <div class="nw-card nw-raw-panel">
+            <div class="nw-raw-head">
+              <div class="nw-raw-tabs">
+                <?php if ($whoisData): ?>
+                  <button class="nw-raw-tab segmented-item-selected" id="data-source-whois" type="button">WHOIS</button>
+                <?php endif; ?>
+                <?php if ($rdapData): ?>
+                  <button class="nw-raw-tab<?= $whoisData ? '' : ' segmented-item-selected'; ?>" id="data-source-rdap" type="button">RDAP</button>
+                <?php endif; ?>
+              </div>
+              <div class="nw-raw-actions">
+                <button class="nw-raw-action" id="raw-copy" type="button">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+                  复制
+                </button>
+              </div>
+            </div>
+            <div class="nw-raw-body">
+              <?php if ($whoisData): ?>
+                <pre class="raw-data-whois" id="raw-data-whois" tabindex="0"><?= htmlspecialchars($whoisData, ENT_QUOTES, 'UTF-8'); ?></pre>
+              <?php endif; ?>
+              <?php if ($rdapData): ?>
+                <pre class="raw-data-rdap" id="raw-data-rdap"<?= $whoisData ? ' style="display:none"' : ''; ?>><code class="language-json"><?= htmlspecialchars($rdapData, ENT_QUOTES, 'UTF-8'); ?></code></pre>
+              <?php endif; ?>
+            </div>
+          </div>
+        <?php endif; ?>
+      </div>
+    </div>
+  </section>
+<?php endif; ?>
