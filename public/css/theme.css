@@ -37,6 +37,27 @@
   --neutral-bg: 220 14% 96%;
 }
 
+/* 主题切换时的平滑过渡（仅在 JS 添加 .theme-transition 时生效，首屏加载不触发）。
+   使用统一缓动让黑白切换柔和淡入，消除硬切造成的晃眼闪屏。 */
+.theme-transition,
+.theme-transition *,
+.theme-transition *::before,
+.theme-transition *::after {
+  transition: background-color 0.3s ease, color 0.3s ease,
+    border-color 0.3s ease, fill 0.3s ease, stroke 0.3s ease,
+    box-shadow 0.3s ease !important;
+}
+
+/* 尊重减少动态偏好：直接硬切，不做过渡 */
+@media (prefers-reduced-motion: reduce) {
+  .theme-transition,
+  .theme-transition *,
+  .theme-transition *::before,
+  .theme-transition *::after {
+    transition: none !important;
+  }
+}
+
 [data-theme="dark"] {
   --background: 0 0% 0%;
   --foreground: 210 40% 98%;

@@ -54,9 +54,11 @@
 
     // 从原始 WHOIS 文本提取扩展字段（注册局 ID / WHOIS 服务器 / 注册人 / 滥用联系）
     $wRaw = $whoisData ?: '';
+    // 冒号后只允许同一行内的空格/制表符（[ \t]），值必须以非空白字符起始，
+    // 避免字段为空时把后续行（如下一标签或 Domain Status）误当成值。
     $grab = function ($labels) use ($wRaw) {
       foreach ((array) $labels as $lb) {
-        if (preg_match('/^\s*' . preg_quote($lb, '/') . '\s*:\s*(.+?)\s*$/mi', $wRaw, $m)) {
+        if (preg_match('/^[ \t]*' . preg_quote($lb, '/') . '[ \t]*:[ \t]*(\S.*?)[ \t]*\r?$/mi', $wRaw, $m)) {
           $v = trim($m[1]);
           if ($v !== '' && !preg_match('/redact|privacy|not disclosed|data protected|gdpr|statutory masking/i', $v)) {
             return $v;
@@ -65,12 +67,19 @@
       }
       return '';
     };
+    // 邮箱必须含 @ 且不含空白；电话必须含数字且不含 @，否则视为解析噪声丢弃
+    $cleanEmail = function ($v) {
+      return ($v !== '' && strpos($v, '@') !== false && !preg_match('/\s/', $v)) ? $v : '';
+    };
+    $cleanPhone = function ($v) {
+      return ($v !== '' && preg_match('/\d/', $v) && strpos($v, '@') === false) ? $v : '';
+    };
     $registryDomainId = $grab('Registry Domain ID');
     $whoisServerVal   = $grab(['Registrar WHOIS Server', 'WHOIS Server']);
-    $registrantEmail  = $grab(['Registrant Email', 'Registrant Contact Email']);
-    $registrantPhone  = $grab('Registrant Phone');
-    $abuseEmail       = $grab('Registrar Abuse Contact Email');
-    $abusePhone       = $grab('Registrar Abuse Contact Phone');
+    $registrantEmail  = $cleanEmail($grab(['Registrant Email', 'Registrant Contact Email']));
+    $registrantPhone  = $cleanPhone($grab('Registrant Phone'));
+    $abuseEmail       = $cleanEmail($grab('Registrar Abuse Contact Email'));
+    $abusePhone       = $cleanPhone($grab('Registrar Abuse Contact Phone'));
 
     $mailLink = function ($val) {
       if (strpos($val, '@') !== false) return 'mailto:' . $val;
