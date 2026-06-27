@@ -78,10 +78,20 @@
         <span class="nw-hotkey-item">清除 / 失焦 <kbd class="nw-kbd">Esc</kbd></span>
       </div>
       <?php if (!$domain): ?>
-      <!-- 首页：TODAY 历史查询列表（由 history.js 基于 localStorage 渲染）-->
+      <!-- 首页：历史查询列表（由 history.js 基于 localStorage 渲染，支持翻页）-->
       <div class="nw-history" id="search-history" hidden>
-        <div class="nw-history-divider"><span>TODAY</span></div>
+        <div class="nw-history-divider"><span id="search-history-label">查询历史</span></div>
         <ul class="nw-history-list" id="search-history-list"></ul>
+        <div class="nw-history-pager" id="search-history-pager" hidden>
+          <button class="nw-pager-btn" id="history-prev" type="button" aria-label="上一页">
+            <svg viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M10.354 3.646a.5.5 0 0 1 0 .708L6.707 8l3.647 3.646a.5.5 0 0 1-.708.708l-4-4a.5.5 0 0 1 0-.708l4-4a.5.5 0 0 1 .708 0"/></svg>
+          </button>
+          <span class="nw-pager-info" id="history-info"></span>
+          <button class="nw-pager-btn" id="history-next" type="button" aria-label="下一页">
+            <svg viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M5.646 3.646a.5.5 0 0 1 .708 0l4 4a.5.5 0 0 1 0 .708l-4 4a.5.5 0 0 1-.708-.708L9.293 8 5.646 4.354a.5.5 0 0 1 0-.708"/></svg>
+          </button>
+        </div>
+        <button class="nw-history-clear" id="history-clear" type="button">清除历史记录</button>
       </div>
       <?php endif; ?>
     </div>

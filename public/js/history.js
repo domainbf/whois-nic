@@ -72,6 +72,25 @@
     }
   }
 
+  function formatDay(ts) {
+    try {
+      var d = new Date(ts);
+      var now = new Date();
+      if (isToday(ts)) return "今天";
+      var y = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 1);
+      if (
+        d.getFullYear() === y.getFullYear() &&
+        d.getMonth() === y.getMonth() &&
+        d.getDate() === y.getDate()
+      ) {
+        return "昨天";
+      }
+      return d.getFullYear() + "-" + ("0" + (d.getMonth() + 1)).slice(-2) + "-" + ("0" + d.getDate()).slice(-2);
+    } catch (e) {
+      return "";
+    }
+  }
+
   var GLOBE_SVG =
     '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' +
     '<circle cx="12" cy="12" r="10"></circle>' +
@@ -79,24 +98,41 @@
     '<path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path>' +
     "</svg>";
 
+  var CHEVRON_SVG =
+    '<svg viewBox="0 0 16 16" fill="currentColor" aria-hidden="true">' +
+    '<path d="M5.646 3.646a.5.5 0 0 1 .708 0l4 4a.5.5 0 0 1 0 .708l-4 4a.5.5 0 0 1-.708-.708L9.293 8 5.646 4.354a.5.5 0 0 1 0-.708"/>' +
+    "</svg>";
+
+  var PAGE_SIZE = 6;
+  var currentPage = 1;
+
   function renderHistory() {
     var container = document.getElementById("search-history");
     var listEl = document.getElementById("search-history-list");
     if (!container || !listEl) return;
 
-    var today = loadHistory().filter(function (item) {
-      return item && isToday(item.ts);
+    // 展示全部历史（按时间倒序），不再仅限今天
+    var all = loadHistory().filter(function (item) {
+      return item && item.query;
     });
 
-    if (today.length === 0) {
+    if (all.length === 0) {
       container.hidden = true;
       return;
     }
 
     container.hidden = false;
+
+    var totalPages = Math.max(1, Math.ceil(all.length / PAGE_SIZE));
+    if (currentPage > totalPages) currentPage = totalPages;
+    if (currentPage < 1) currentPage = 1;
+
+    var start = (currentPage - 1) * PAGE_SIZE;
+    var pageItems = all.slice(start, start + PAGE_SIZE);
+
     listEl.innerHTML = "";
 
-    today.forEach(function (item) {
+    pageItems.forEach(function (item) {
       var li = document.createElement("li");
       li.className = "nw-history-item";
 
@@ -107,11 +143,15 @@
 
       link.innerHTML =
         '<span class="nw-history-icon">' + GLOBE_SVG + "</span>" +
+        '<span class="nw-history-body">' +
         '<span class="nw-history-name"></span>' +
-        '<span class="nw-history-meta">' +
+        '<span class="nw-history-sub">' +
         '<span class="nw-history-type">' + item.type + "</span>" +
-        '<span class="nw-history-time">' + formatTime(item.ts) + "</span>" +
-        "</span>";
+        '<span class="nw-history-dot">·</span>' +
+        '<span class="nw-history-time">' + formatDay(item.ts) + " " + formatTime(item.ts) + "</span>" +
+        "</span>" +
+        "</span>" +
+        '<span class="nw-history-chevron">' + CHEVRON_SVG + "</span>";
 
       // 安全地写入查询词文本
       link.querySelector(".nw-history-name").textContent = item.query;
@@ -119,6 +159,42 @@
       li.appendChild(link);
       listEl.appendChild(li);
     });
+
+    // 翻页控件
+    var pager = document.getElementById("search-history-pager");
+    var info = document.getElementById("history-info");
+    var prev = document.getElementById("history-prev");
+    var next = document.getElementById("history-next");
+    if (pager && info && prev && next) {
+      pager.hidden = totalPages <= 1;
+      info.textContent = currentPage + " / " + totalPages;
+      prev.disabled = currentPage <= 1;
+      next.disabled = currentPage >= totalPages;
+    }
+  }
+
+  function initHistoryControls() {
+    var prev = document.getElementById("history-prev");
+    var next = document.getElementById("history-next");
+    var clear = document.getElementById("history-clear");
+    if (prev) {
+      prev.addEventListener("click", function () {
+        if (currentPage > 1) { currentPage--; renderHistory(); }
+      });
+    }
+    if (next) {
+      next.addEventListener("click", function () {
+        currentPage++; renderHistory();
+      });
+    }
+    if (clear) {
+      clear.addEventListener("click", function () {
+        saveHistory([]);
+        currentPage = 1;
+        var container = document.getElementById("search-history");
+        if (container) container.hidden = true;
+      });
+    }
   }
 
   function initHotkeys() {
@@ -163,7 +239,8 @@
         recordSearch(input.value);
       }
     } else {
-      // 首页：渲染历史
+      // 首页：渲染历史 + 翻页控件
+      initHistoryControls();
       renderHistory();
     }
 

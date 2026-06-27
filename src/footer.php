@@ -1,28 +1,9 @@
-<!DOCTYPE html>
-<html lang="zh-CN">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>NIC.BN - 域名查询与出售</title>
-    <style>
-        html, body {
-            height: 100%;
-            margin: 0;
-        }
-        body {
-            background: #f8fafc;
-            color: #333;
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-        }
-        .container {
-            flex: 1;
-        }
+<style>
         .footer {
             width: 100%;
             position: relative;
             text-align: center;
+            margin-top: 48px;
         }
         .footer-bottomarea {
             width: 100%;
@@ -261,9 +242,6 @@
             }
         }
     </style>
-</head>
-<body>
-    <div class="container"></div>
     <footer class="footer">
         <div class="footer-bottomarea">
             <div class="footer-announcement-container">
@@ -374,5 +352,3 @@
             }
         }
     </script>
-</body>
-</html>
