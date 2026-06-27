@@ -125,13 +125,30 @@
                 <clipPath id="nw-globe-clip"><circle cx="50" cy="50" r="46"/></clipPath>
               </defs>
               <circle cx="50" cy="50" r="46" class="nw-globe-sphere"/>
-              <g class="nw-globe-grid" clip-path="url(#nw-globe-clip)">
-                <ellipse cx="50" cy="50" rx="15" ry="46"/>
-                <ellipse cx="50" cy="50" rx="31" ry="46"/>
-                <line x1="4" y1="50" x2="96" y2="50"/>
-                <line x1="9" y1="29" x2="91" y2="29"/>
-                <line x1="9" y1="71" x2="91" y2="71"/>
-                <line x1="50" y1="4" x2="50" y2="96"/>
+              <g clip-path="url(#nw-globe-clip)">
+                <!-- 纬线（静止，构成地平参考） -->
+                <g class="nw-globe-grid">
+                  <line x1="4" y1="50" x2="96" y2="50"/>
+                  <line x1="9" y1="29" x2="91" y2="29"/>
+                  <line x1="9" y1="71" x2="91" y2="71"/>
+                  <line x1="16" y1="14" x2="84" y2="14"/>
+                  <line x1="16" y1="86" x2="84" y2="86"/>
+                </g>
+                <!-- 经线（rx 周期变化，模拟地球绕竖轴自转） -->
+                <g class="nw-globe-grid nw-globe-meridians">
+                  <ellipse cx="50" cy="50" rx="46" ry="46">
+                    <animate attributeName="rx" values="46;0;46" keyTimes="0;0.5;1" dur="8s" repeatCount="indefinite" />
+                  </ellipse>
+                  <ellipse cx="50" cy="50" rx="32" ry="46">
+                    <animate attributeName="rx" values="46;0;46" keyTimes="0;0.5;1" begin="-2s" dur="8s" repeatCount="indefinite" />
+                  </ellipse>
+                  <ellipse cx="50" cy="50" rx="0" ry="46">
+                    <animate attributeName="rx" values="46;0;46" keyTimes="0;0.5;1" begin="-4s" dur="8s" repeatCount="indefinite" />
+                  </ellipse>
+                  <ellipse cx="50" cy="50" rx="32" ry="46">
+                    <animate attributeName="rx" values="46;0;46" keyTimes="0;0.5;1" begin="-6s" dur="8s" repeatCount="indefinite" />
+                  </ellipse>
+                </g>
               </g>
               <circle cx="50" cy="50" r="46" class="nw-globe-ring"/>
             </svg>
@@ -172,10 +189,11 @@
               </div>
             <?php endif; ?>
 
-            <!-- 数据来源行 -->
+            <!-- 数据来源行：查询耗时 · 数据来源 -->
             <?php if ($dataSourceLabel): ?>
+              <?php $elapsedText = (isset($queryElapsed) && $queryElapsed > 0) ? number_format($queryElapsed, 2) . 's · ' : ''; ?>
               <div class="nw-source-row">
-                <span class="nw-source-label">· <?= htmlspecialchars($dataSourceLabel, ENT_QUOTES, 'UTF-8'); ?></span>
+                <span class="nw-source-label"><?= htmlspecialchars($elapsedText . $dataSourceLabel, ENT_QUOTES, 'UTF-8'); ?></span>
               </div>
             <?php endif; ?>
 

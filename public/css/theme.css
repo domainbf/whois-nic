@@ -858,6 +858,20 @@ code a { color: hsl(var(--info)) !important; }
   stroke-width: 1;
 }
 
+/* 自转经线略淡，突出动态层次 */
+.nw-globe-meridians ellipse {
+  stroke: hsl(var(--muted-foreground) / 0.3);
+}
+
+/* 尊重用户的减少动态偏好：停止地球自转 */
+@media (prefers-reduced-motion: reduce) {
+  .nw-globe-meridians animate { display: none; }
+  .nw-globe-meridians ellipse:nth-child(1) { rx: 46px; }
+  .nw-globe-meridians ellipse:nth-child(2) { rx: 30px; }
+  .nw-globe-meridians ellipse:nth-child(3) { rx: 14px; }
+  .nw-globe-meridians ellipse:nth-child(4) { rx: 0px; }
+}
+
 @media (max-width: 420px) {
   .nw-globe { width: 92px; height: 92px; top: 14px; right: 12px; }
 }
@@ -977,6 +991,25 @@ code a { color: hsl(var(--info)) !important; }
   font-size: 14px;
   font-weight: 500;
   color: hsl(var(--foreground));
+}
+
+/* 可交互日期：悬停提示完整时分秒，点击展开/收起 */
+.nw-date-interactive {
+  cursor: pointer;
+  text-decoration: underline dotted hsl(var(--muted-foreground) / 0.5);
+  text-underline-offset: 3px;
+  border-radius: 4px;
+  transition: color 0.15s ease;
+}
+
+.nw-date-interactive:hover {
+  color: hsl(var(--primary));
+  text-decoration-color: hsl(var(--primary) / 0.6);
+}
+
+.nw-date-interactive:focus-visible {
+  outline: 2px solid hsl(var(--primary) / 0.5);
+  outline-offset: 2px;
 }
 
 .nw-date-sub {

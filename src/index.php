@@ -51,7 +51,9 @@ if ($domain) {
   $fetchBeiAn = filter_var($_GET["beian"] ?? 0, FILTER_VALIDATE_BOOL);
 
   try {
+    $queryStart = microtime(true);
     $lookup = new Lookup($domain, $dataSource);
+    $queryElapsed = microtime(true) - $queryStart;
     $domain = $lookup->domain;
     $whoisData = $lookup->whoisData;
     $rdapData = $lookup->rdapData;
