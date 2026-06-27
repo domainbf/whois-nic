@@ -3,7 +3,8 @@
             width: 100%;
             position: relative;
             text-align: center;
-            margin-top: 48px;
+            margin-top: auto;
+            padding-top: 40px;
         }
         .footer-bottomarea {
             width: 100%;

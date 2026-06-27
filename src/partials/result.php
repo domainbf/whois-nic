@@ -76,10 +76,107 @@
     };
     $registryDomainId = $grab('Registry Domain ID');
     $whoisServerVal   = $grab(['Registrar WHOIS Server', 'WHOIS Server']);
+    $registrarIanaId  = $grab(['Registrar IANA ID', 'IANA ID', 'Sponsoring Registrar IANA ID']);
+    // 注册商地址：拼接街道 / 城市 / 省州 / 邮编 / 国家（任一存在即显示）
+    $registrarAddrParts = array_filter([
+      $grab(['Registrar Street', 'Registrar Address']),
+      $grab('Registrar City'),
+      $grab(['Registrar State/Province', 'Registrar Province']),
+      $grab(['Registrar Postal Code', 'Registrar Postal']),
+      $grab('Registrar Country'),
+    ], function ($v) { return $v !== ''; });
+    $registrarAddress = implode(' · ', $registrarAddrParts);
     $registrantEmail  = $cleanEmail($grab(['Registrant Email', 'Registrant Contact Email']));
     $registrantPhone  = $cleanPhone($grab('Registrant Phone'));
     $abuseEmail       = $cleanEmail($grab('Registrar Abuse Contact Email'));
     $abusePhone       = $cleanPhone($grab('Registrar Abuse Contact Phone'));
+
+    // RDAP 结构化兜底：薄注册局 / RDAP-first 的 gTLD，IANA ID、注册商地址、滥用联系
+    // 往往不在原始 WHOIS 文本里，而在 RDAP 实体（registrar entity）的结构化字段中。
+    // 这里在不改动后端解析器的前提下，从 RDAP JSON 补全缺失字段，提升识别准确率。
+    $rdapJson = $rdapData ? json_decode($rdapData, true) : null;
+    if (is_array($rdapJson) && !empty($rdapJson['entities'])) {
+      // 递归查找指定 role 的实体（registrar 顶层、abuse 常为其子实体）
+      $findEntity = function ($entities, $role) use (&$findEntity) {
+        if (!is_array($entities)) return null;
+        foreach ($entities as $e) {
+          if (!is_array($e)) continue;
+          $roles = $e['roles'] ?? [];
+          if ((is_array($roles) && in_array($role, $roles, true)) || $roles === $role) {
+            return $e;
+          }
+          if (!empty($e['entities'])) {
+            $sub = $findEntity($e['entities'], $role);
+            if ($sub) return $sub;
+          }
+        }
+        return null;
+      };
+      $vcardEls = function ($entity) {
+        if (empty($entity['vcardArray'])) return [];
+        return $entity['vcardArray']['elements'] ?? ($entity['vcardArray'][1] ?? []);
+      };
+      $vcardGet = function ($els, $key) {
+        if (!is_array($els)) return null;
+        foreach ($els as $it) {
+          if (is_array($it) && ($it[0] ?? '') === $key) return $it;
+        }
+        return null;
+      };
+      $registrarEntity = $findEntity($rdapJson['entities'], 'registrar');
+      if ($registrarEntity) {
+        // 注册商名称兜底（WHOIS 缺失时用 RDAP vcard fn/org）
+        if ($parser->registrar === '') {
+          $fn = $vcardGet($vcardEls($registrarEntity), 'fn') ?: $vcardGet($vcardEls($registrarEntity), 'org');
+          if ($fn && !empty($fn[3]) && is_string($fn[3])) {
+            $parser->registrar = trim($fn[3]);
+            if ($registrarLink === '') {
+              $registrarLink = $parser->registrarURL ?: registrar_website($parser->registrar);
+            }
+          }
+        }
+        // Registrar IANA ID（publicIds，type 含 "IANA"）
+        if ($registrarIanaId === '' && !empty($registrarEntity['publicIds'])) {
+          foreach ($registrarEntity['publicIds'] as $pid) {
+            if (isset($pid['identifier']) && preg_match('/iana/i', $pid['type'] ?? '')) {
+              $registrarIanaId = trim((string) $pid['identifier']);
+              break;
+            }
+          }
+        }
+        // 注册商地址（vcard adr：优先 label 参数，其次 7 段结构化数组）
+        if ($registrarAddress === '') {
+          $adr = $vcardGet($vcardEls($registrarEntity), 'adr');
+          if ($adr) {
+            if (!empty($adr[1]['label']) && is_string($adr[1]['label'])) {
+              $registrarAddress = trim(preg_replace('/\s*\R\s*/', ' · ', $adr[1]['label']));
+            } elseif (isset($adr[3]) && is_array($adr[3])) {
+              $registrarAddress = implode(' · ', array_filter(
+                array_map(fn($v) => is_string($v) ? trim($v) : '', $adr[3]),
+                fn($v) => $v !== ''
+              ));
+            }
+          }
+        }
+        // 滥用联系（registrar 的 abuse 子实体 vcard email/tel）
+        if ($abuseEmail === '' || $abusePhone === '') {
+          $abuseEntity = !empty($registrarEntity['entities'])
+            ? $findEntity($registrarEntity['entities'], 'abuse')
+            : null;
+          if ($abuseEntity) {
+            $aEls = $vcardEls($abuseEntity);
+            if ($abuseEmail === '') {
+              $em = $vcardGet($aEls, 'email');
+              if ($em && isset($em[3])) $abuseEmail = $cleanEmail(trim((string) $em[3]));
+            }
+            if ($abusePhone === '') {
+              $tel = $vcardGet($aEls, 'tel');
+              if ($tel && isset($tel[3])) $abusePhone = $cleanPhone(trim((string) $tel[3]));
+            }
+          }
+        }
+      }
+    }
 
     $mailLink = function ($val) {
       if (strpos($val, '@') !== false) return 'mailto:' . $val;
@@ -89,7 +186,7 @@
 
     $hasRegistrant = $registrantEmail || $registrantPhone;
     $hasAbuse      = $abuseEmail || $abusePhone;
-    $hasRegTech    = $whoisServerVal || $registryDomainId;
+    $hasRegTech    = $whoisServerVal || $registryDomainId || $registrarIanaId || $registrarAddress;
     $dataSourceLabel = $whoisData ? 'whois' : ($rdapData ? 'rdap' : '');
 
     // NS 提供商识别（用于右侧小徽标）
@@ -349,6 +446,18 @@
                   <div class="nw-kv">
                     <span class="nw-kv-key">注册局 ID</span>
                     <span class="nw-kv-val"><?= htmlspecialchars($registryDomainId, ENT_QUOTES, 'UTF-8'); ?></span>
+                  </div>
+                <?php endif; ?>
+                <?php if ($registrarIanaId): ?>
+                  <div class="nw-kv">
+                    <span class="nw-kv-key">注册商 IANA ID</span>
+                    <span class="nw-kv-val"><?= htmlspecialchars($registrarIanaId, ENT_QUOTES, 'UTF-8'); ?></span>
+                  </div>
+                <?php endif; ?>
+                <?php if ($registrarAddress): ?>
+                  <div class="nw-kv">
+                    <span class="nw-kv-key">注册商地址</span>
+                    <span class="nw-kv-val"><?= htmlspecialchars($registrarAddress, ENT_QUOTES, 'UTF-8'); ?></span>
                   </div>
                 <?php endif; ?>
               </div>
