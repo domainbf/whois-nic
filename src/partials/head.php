@@ -10,6 +10,10 @@
           t = window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
         }
         document.documentElement.setAttribute("data-theme", t);
+        document.addEventListener("DOMContentLoaded", function () {
+          var m = document.querySelector('meta[name="theme-color"]');
+          if (m) m.setAttribute("content", t === "dark" ? "#0a0a0c" : "#ffffff");
+        });
       } catch (e) {}
     })();
   </script>
