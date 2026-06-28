@@ -72,7 +72,7 @@
         },
       };
 
-      // 构建并显示查询加载动画（提交后、页面跳转前展示，跳转完成后自然消失）
+      // 构建并显示查询加载动画（提交后、页面跳转前内联展示在内容区，跳转完成后自然消失）
       function showLoadingOverlay(domainValue) {
         if (document.querySelector(".nw-loading")) return;
         const overlay = document.createElement("div");
@@ -111,7 +111,19 @@
         steps[1].textContent = I18N.t("loading_step2");
         steps[2].textContent = I18N.t("loading_step3");
 
-        document.body.appendChild(overlay);
+        // 内联展示：清空内容区（移除旧结果），将加载卡放入页面主体，与整体风格一致
+        const mainEl = document.querySelector("main");
+        const historyEl = document.getElementById("search-history");
+        if (historyEl) historyEl.setAttribute("hidden", "");
+        // 移除上一次查询遗留的结果提示卡（位于搜索框下方、main 之外）
+        const staleInfo = document.querySelector(".domain-info-box");
+        if (staleInfo) staleInfo.remove();
+        if (mainEl) {
+          mainEl.innerHTML = "";
+          mainEl.appendChild(overlay);
+        } else {
+          document.body.appendChild(overlay);
+        }
 
         // 步骤依次点亮，模拟查询进度（实际进度取决于服务端响应）
         let idx = 0;

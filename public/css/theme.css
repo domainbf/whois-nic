@@ -1533,32 +1533,27 @@ a.nw-status-name:hover { text-decoration: underline; }
 
 /* ============ 查询加载动画（提交后、页面跳转前的过渡态） ============ */
 .nw-loading {
-  position: fixed;
-  inset: 0;
-  z-index: 200;
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   justify-content: center;
-  padding: 24px;
-  background: hsl(var(--background) / 0.82);
-  -webkit-backdrop-filter: blur(8px);
-  backdrop-filter: blur(8px);
+  padding: 8px 0 0;
   opacity: 0;
-  animation: nw-loading-fade 0.2s ease forwards;
+  transform: translateY(6px);
+  animation: nw-loading-fade 0.25s ease forwards;
 }
 
 @keyframes nw-loading-fade {
-  to { opacity: 1; }
+  to { opacity: 1; transform: translateY(0); }
 }
 
 .nw-loading-card {
   width: 100%;
-  max-width: 340px;
-  padding: 32px 28px;
+  max-width: 520px;
+  padding: 30px 28px;
   border-radius: var(--radius);
   border: 1px solid hsl(var(--border));
   background: hsl(var(--card));
-  box-shadow: 0 24px 60px -24px hsl(240 12% 8% / 0.4);
+  box-shadow: 0 12px 32px -20px hsl(240 12% 8% / 0.28);
   text-align: center;
 }
 
