@@ -8,13 +8,13 @@
     // 域名状态 → 颜色（活跃 / 即将到期 / 已过期）
     $remSec = $parser->remainingSeconds;
     if ($remSec !== null && $remSec <= 0) {
-      $statusKey = 'expired'; $statusLabel = '已过期';
+      $statusKey = 'expired'; $statusLabel = t('status_expired');
     } elseif ($remSec !== null && $remSec <= 60 * 24 * 60 * 60) {
-      $statusKey = 'expiring'; $statusLabel = '即将到期';
+      $statusKey = 'expiring'; $statusLabel = t('status_expiring');
     } elseif ($remSec !== null) {
-      $statusKey = 'active'; $statusLabel = '活跃';
+      $statusKey = 'active'; $statusLabel = t('status_active');
     } else {
-      $statusKey = 'neutral'; $statusLabel = '已注册';
+      $statusKey = 'neutral'; $statusLabel = t('status_registered');
     }
 
     // 到期剩余颜色 + 中文剩余文案
@@ -25,14 +25,14 @@
 
     $remText = '';
     if ($remSec !== null) {
-      $remText = $remSec <= 0 ? '已过期' : '剩余 ' . intval(ceil($remSec / 86400)) . ' 天';
+      $remText = $remSec <= 0 ? t('rem_expired') : t('rem_days', intval(ceil($remSec / 86400)));
     }
 
     // 域龄（年）→ 状态行小药丸
     $ageYears = '';
     if ($parser->ageSeconds !== null && $parser->ageSeconds > 0) {
       $y = floor($parser->ageSeconds / (365.25 * 86400));
-      $ageYears = $y < 1 ? '<1 年' : intval($y) . ' 年';
+      $ageYears = $y < 1 ? t('age_lt1') : t('age_years', intval($y));
     }
 
     // 日期：YYYY-MM-DD + 中文相对时间
@@ -42,14 +42,14 @@
     };
     $relPast = function ($iso) {
       if (!$iso) return '';
-      $t = strtotime($iso); if (!$t) return '';
-      $d = abs(time() - $t); $day = 86400;
-      if ($d < $day) return '今天';
+      $ts = strtotime($iso); if (!$ts) return '';
+      $d = abs(time() - $ts); $day = 86400;
+      if ($d < $day) return t('rel_today');
       $years = floor($d / (365.25 * $day));
-      if ($years >= 1) return intval($years) . '年前';
+      if ($years >= 1) return t('rel_years_ago', intval($years));
       $months = floor($d / (30.4 * $day));
-      if ($months >= 1) return intval($months) . '个月前';
-      return intval($d / $day) . '天前';
+      if ($months >= 1) return t('rel_months_ago', intval($months));
+      return t('rel_days_ago', intval($d / $day));
     };
 
     // 从原始 WHOIS 文本提取扩展字段（注册局 ID / WHOIS 服务器 / 注册人 / 滥用联系）
@@ -226,37 +226,25 @@
         <!-- 域名主卡 -->
         <div class="nw-card nw-domain-card">
           <div class="nw-globe" aria-hidden="true">
-            <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
-              <defs>
-                <clipPath id="nw-globe-clip"><circle cx="50" cy="50" r="46"/></clipPath>
-              </defs>
-              <circle cx="50" cy="50" r="46" class="nw-globe-sphere"/>
-              <g clip-path="url(#nw-globe-clip)">
-                <!-- 纬线（静止，构成地平参考） -->
-                <g class="nw-globe-grid">
-                  <line x1="4" y1="50" x2="96" y2="50"/>
-                  <line x1="9" y1="29" x2="91" y2="29"/>
-                  <line x1="9" y1="71" x2="91" y2="71"/>
-                  <line x1="16" y1="14" x2="84" y2="14"/>
-                  <line x1="16" y1="86" x2="84" y2="86"/>
-                </g>
-                <!-- 经线（rx 周期变化，模拟地球绕竖轴自转） -->
-                <g class="nw-globe-grid nw-globe-meridians">
-                  <ellipse cx="50" cy="50" rx="46" ry="46">
-                    <animate attributeName="rx" values="46;0;46" keyTimes="0;0.5;1" dur="8s" repeatCount="indefinite" />
-                  </ellipse>
-                  <ellipse cx="50" cy="50" rx="32" ry="46">
-                    <animate attributeName="rx" values="46;0;46" keyTimes="0;0.5;1" begin="-2s" dur="8s" repeatCount="indefinite" />
-                  </ellipse>
-                  <ellipse cx="50" cy="50" rx="0" ry="46">
-                    <animate attributeName="rx" values="46;0;46" keyTimes="0;0.5;1" begin="-4s" dur="8s" repeatCount="indefinite" />
-                  </ellipse>
-                  <ellipse cx="50" cy="50" rx="32" ry="46">
-                    <animate attributeName="rx" values="46;0;46" keyTimes="0;0.5;1" begin="-6s" dur="8s" repeatCount="indefinite" />
-                  </ellipse>
-                </g>
+            <svg viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg">
+              <!-- 球体本体 -->
+              <circle cx="60" cy="60" r="33" class="nw-globe-sphere"/>
+              <!-- 经纬网格（静止，干净的地球轮廓）-->
+              <g class="nw-globe-grid">
+                <circle cx="60" cy="60" r="33"/>
+                <line x1="27" y1="60" x2="93" y2="60"/>
+                <ellipse cx="60" cy="60" rx="33" ry="12"/>
+                <ellipse cx="60" cy="60" rx="33" ry="24"/>
+                <ellipse cx="60" cy="60" rx="12" ry="33"/>
+                <ellipse cx="60" cy="60" rx="24" ry="33"/>
               </g>
-              <circle cx="50" cy="50" r="46" class="nw-globe-ring"/>
+              <!-- 倾斜轨道 + 沿轨运行的卫星点（平滑旋转，替代生硬的自转）-->
+              <g class="nw-globe-orbit" transform="rotate(-20 60 60)">
+                <ellipse cx="60" cy="60" rx="52" ry="17" class="nw-globe-orbit-ring"/>
+                <circle r="3.2" class="nw-globe-orbit-dot">
+                  <animateMotion dur="6s" repeatCount="indefinite" path="M 8 60 a 52 17 0 1 0 104 0 a 52 17 0 1 0 -104 0"/>
+                </circle>
+              </g>
             </svg>
           </div>
 
@@ -308,7 +296,7 @@
               <div class="nw-dates">
                 <?php if ($parser->creationDate): ?>
                   <div class="nw-date">
-                    <p class="nw-date-label">创建日期</p>
+                    <p class="nw-date-label"><?= htmlspecialchars(t('date_creation'), ENT_QUOTES, 'UTF-8'); ?></p>
                     <p class="nw-date-value" <?= $parser->creationDateISO8601 ? 'id="creation-date" data-iso8601="' . htmlspecialchars($parser->creationDateISO8601, ENT_QUOTES, 'UTF-8') . '"' : ''; ?>><?= htmlspecialchars($isoDate($parser->creationDateISO8601, $parser->creationDate), ENT_QUOTES, 'UTF-8'); ?></p>
                     <?php if ($relPast($parser->creationDateISO8601)): ?>
                       <p class="nw-date-sub"><?= htmlspecialchars($relPast($parser->creationDateISO8601), ENT_QUOTES, 'UTF-8'); ?></p>
@@ -317,7 +305,7 @@
                 <?php endif; ?>
                 <?php if ($parser->expirationDate): ?>
                   <div class="nw-date">
-                    <p class="nw-date-label">到期日期</p>
+                    <p class="nw-date-label"><?= htmlspecialchars(t('date_expiration'), ENT_QUOTES, 'UTF-8'); ?></p>
                     <p class="nw-date-value" <?= $parser->expirationDateISO8601 ? 'id="expiration-date" data-iso8601="' . htmlspecialchars($parser->expirationDateISO8601, ENT_QUOTES, 'UTF-8') . '"' : ''; ?>><?= htmlspecialchars($isoDate($parser->expirationDateISO8601, $parser->expirationDate), ENT_QUOTES, 'UTF-8'); ?></p>
                     <?php if ($remText): ?>
                       <p class="nw-date-sub <?= $remColor; ?>"><?= htmlspecialchars($remText, ENT_QUOTES, 'UTF-8'); ?></p>
@@ -326,7 +314,7 @@
                 <?php endif; ?>
                 <?php if ($parser->updatedDate): ?>
                   <div class="nw-date nw-date-wide">
-                    <p class="nw-date-label">更新日期</p>
+                    <p class="nw-date-label"><?= htmlspecialchars(t('date_updated'), ENT_QUOTES, 'UTF-8'); ?></p>
                     <p class="nw-date-value" <?= $parser->updatedDateISO8601 ? 'id="updated-date" data-iso8601="' . htmlspecialchars($parser->updatedDateISO8601, ENT_QUOTES, 'UTF-8') . '"' : ''; ?>><?= htmlspecialchars($isoDate($parser->updatedDateISO8601, $parser->updatedDate), ENT_QUOTES, 'UTF-8'); ?></p>
                     <?php if ($relPast($parser->updatedDateISO8601)): ?>
                       <p class="nw-date-sub"><?= htmlspecialchars($relPast($parser->updatedDateISO8601), ENT_QUOTES, 'UTF-8'); ?></p>
@@ -335,7 +323,7 @@
                 <?php endif; ?>
                 <?php if ($parser->availableDate): ?>
                   <div class="nw-date">
-                    <p class="nw-date-label">可用日期</p>
+                    <p class="nw-date-label"><?= htmlspecialchars(t('date_available'), ENT_QUOTES, 'UTF-8'); ?></p>
                     <p class="nw-date-value" <?= $parser->availableDateISO8601 ? 'id="available-date" data-iso8601="' . htmlspecialchars($parser->availableDateISO8601, ENT_QUOTES, 'UTF-8') . '"' : ''; ?>><?= htmlspecialchars($isoDate($parser->availableDateISO8601, $parser->availableDate), ENT_QUOTES, 'UTF-8'); ?></p>
                   </div>
                 <?php endif; ?>
@@ -347,7 +335,7 @@
               <div class="nw-contact-grid">
                 <?php if ($registrantEmail): ?>
                   <div class="nw-contact">
-                    <p class="nw-date-label">注册人邮箱</p>
+                    <p class="nw-date-label"><?= htmlspecialchars(t('registrant_email'), ENT_QUOTES, 'UTF-8'); ?></p>
                     <?php $ml = $mailLink($registrantEmail); ?>
                     <?php if ($ml): ?>
                       <a class="nw-contact-value nw-link" href="<?= htmlspecialchars($ml, ENT_QUOTES, 'UTF-8'); ?>" rel="nofollow noopener noreferrer" target="_blank"><?= htmlspecialchars($registrantEmail, ENT_QUOTES, 'UTF-8'); ?></a>
@@ -358,7 +346,7 @@
                 <?php endif; ?>
                 <?php if ($registrantPhone): ?>
                   <div class="nw-contact">
-                    <p class="nw-date-label">注册人电话</p>
+                    <p class="nw-date-label"><?= htmlspecialchars(t('registrant_phone'), ENT_QUOTES, 'UTF-8'); ?></p>
                     <p class="nw-contact-value"><?= htmlspecialchars($registrantPhone, ENT_QUOTES, 'UTF-8'); ?></p>
                   </div>
                 <?php endif; ?>
@@ -373,7 +361,7 @@
             <div class="nw-card nw-list-card">
               <h3 class="nw-card-title">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="m9 12 2 2 4-4"/></svg>
-                域名状态
+                <?= htmlspecialchars(t('card_status'), ENT_QUOTES, 'UTF-8'); ?>
               </h3>
               <div class="nw-status-list">
                 <?php foreach ($parser->status as $st):
@@ -399,7 +387,7 @@
             <div class="nw-card nw-list-card">
               <h3 class="nw-card-title">
                 <?= inline_icon('server'); ?>
-                NS 服务器
+                <?= htmlspecialchars(t('card_ns'), ENT_QUOTES, 'UTF-8'); ?>
               </h3>
               <div class="nw-ns-list">
                 <?php foreach ($parser->nameServers as $ns): $brand = $nsBrand($ns); ?>
@@ -422,7 +410,7 @@
         <?php if ($parser->registrar): ?>
           <div class="nw-card nw-registrar-card">
             <div class="nw-registrar-head">
-              <h3 class="nw-card-title nw-card-title-plain">注册商</h3>
+              <h3 class="nw-card-title nw-card-title-plain"><?= htmlspecialchars(t('card_registrar'), ENT_QUOTES, 'UTF-8'); ?></h3>
             </div>
             <div class="nw-registrar-body">
               <div class="nw-registrar-logo"><?= htmlspecialchars($registrarInitial, ENT_QUOTES, 'UTF-8'); ?></div>
@@ -438,25 +426,25 @@
               <div class="nw-registrar-section">
                 <?php if ($whoisServerVal): ?>
                   <div class="nw-kv">
-                    <span class="nw-kv-key">WHOIS 服务器</span>
+                    <span class="nw-kv-key"><?= htmlspecialchars(t('whois_server'), ENT_QUOTES, 'UTF-8'); ?></span>
                     <span class="nw-kv-val"><?= htmlspecialchars($whoisServerVal, ENT_QUOTES, 'UTF-8'); ?></span>
                   </div>
                 <?php endif; ?>
                 <?php if ($registryDomainId): ?>
                   <div class="nw-kv">
-                    <span class="nw-kv-key">注册局 ID</span>
+                    <span class="nw-kv-key"><?= htmlspecialchars(t('registry_id'), ENT_QUOTES, 'UTF-8'); ?></span>
                     <span class="nw-kv-val"><?= htmlspecialchars($registryDomainId, ENT_QUOTES, 'UTF-8'); ?></span>
                   </div>
                 <?php endif; ?>
                 <?php if ($registrarIanaId): ?>
                   <div class="nw-kv">
-                    <span class="nw-kv-key">注册商 IANA ID</span>
+                    <span class="nw-kv-key"><?= htmlspecialchars(t('registrar_iana'), ENT_QUOTES, 'UTF-8'); ?></span>
                     <span class="nw-kv-val"><?= htmlspecialchars($registrarIanaId, ENT_QUOTES, 'UTF-8'); ?></span>
                   </div>
                 <?php endif; ?>
                 <?php if ($registrarAddress): ?>
                   <div class="nw-kv">
-                    <span class="nw-kv-key">注册商地址</span>
+                    <span class="nw-kv-key"><?= htmlspecialchars(t('registrar_address'), ENT_QUOTES, 'UTF-8'); ?></span>
                     <span class="nw-kv-val"><?= htmlspecialchars($registrarAddress, ENT_QUOTES, 'UTF-8'); ?></span>
                   </div>
                 <?php endif; ?>
@@ -465,16 +453,16 @@
 
             <?php if ($hasAbuse): ?>
               <div class="nw-registrar-section">
-                <p class="nw-section-title">滥用联系</p>
+                <p class="nw-section-title"><?= htmlspecialchars(t('abuse_contact'), ENT_QUOTES, 'UTF-8'); ?></p>
                 <?php if ($abuseEmail): ?>
                   <div class="nw-kv">
-                    <span class="nw-kv-key">邮箱</span>
+                    <span class="nw-kv-key"><?= htmlspecialchars(t('email'), ENT_QUOTES, 'UTF-8'); ?></span>
                     <a class="nw-kv-val nw-link" href="<?= htmlspecialchars($mailLink($abuseEmail) ?: '#', ENT_QUOTES, 'UTF-8'); ?>" rel="nofollow noopener noreferrer" target="_blank"><?= htmlspecialchars($abuseEmail, ENT_QUOTES, 'UTF-8'); ?></a>
                   </div>
                 <?php endif; ?>
                 <?php if ($abusePhone): ?>
                   <div class="nw-kv">
-                    <span class="nw-kv-key">电话</span>
+                    <span class="nw-kv-key"><?= htmlspecialchars(t('phone'), ENT_QUOTES, 'UTF-8'); ?></span>
                     <span class="nw-kv-val"><?= htmlspecialchars($abusePhone, ENT_QUOTES, 'UTF-8'); ?></span>
                   </div>
                 <?php endif; ?>
@@ -483,16 +471,16 @@
 
             <?php if ($hasRegistrant): ?>
               <div class="nw-registrar-section">
-                <p class="nw-section-title">注册人信息</p>
+                <p class="nw-section-title"><?= htmlspecialchars(t('registrant_info'), ENT_QUOTES, 'UTF-8'); ?></p>
                 <?php if ($registrantEmail): ?>
                   <div class="nw-kv">
-                    <span class="nw-kv-key">邮箱</span>
+                    <span class="nw-kv-key"><?= htmlspecialchars(t('email'), ENT_QUOTES, 'UTF-8'); ?></span>
                     <a class="nw-kv-val nw-link" href="<?= htmlspecialchars($mailLink($registrantEmail) ?: '#', ENT_QUOTES, 'UTF-8'); ?>" rel="nofollow noopener noreferrer" target="_blank"><?= htmlspecialchars($registrantEmail, ENT_QUOTES, 'UTF-8'); ?></a>
                   </div>
                 <?php endif; ?>
                 <?php if ($registrantPhone): ?>
                   <div class="nw-kv">
-                    <span class="nw-kv-key">电话</span>
+                    <span class="nw-kv-key"><?= htmlspecialchars(t('phone'), ENT_QUOTES, 'UTF-8'); ?></span>
                     <span class="nw-kv-val"><?= htmlspecialchars($registrantPhone, ENT_QUOTES, 'UTF-8'); ?></span>
                   </div>
                 <?php endif; ?>
@@ -516,7 +504,7 @@
               <div class="nw-raw-actions">
                 <button class="nw-raw-action" id="raw-copy" type="button">
                   <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
-                  复制
+                  <?= htmlspecialchars(t('copy'), ENT_QUOTES, 'UTF-8'); ?>
                 </button>
               </div>
             </div>

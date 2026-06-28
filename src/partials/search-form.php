@@ -18,20 +18,20 @@
                   id="domain"
                   inputmode="url"
                   name="domain"
-                  placeholder="输入域名进行查询，例如 NIC.RW"
+                  placeholder="<?= htmlspecialchars(t('search_placeholder'), ENT_QUOTES, 'UTF-8'); ?>"
                   required
                   type="text"
                   value="<?= htmlspecialchars($domain ?? '', ENT_QUOTES, 'UTF-8'); ?>">
-                <button class="search-clear" id="domain-clear" type="button" aria-label="清除">
+                <button class="search-clear" id="domain-clear" type="button" aria-label="<?= htmlspecialchars(t('clear'), ENT_QUOTES, 'UTF-8'); ?>">
                     <svg viewBox="0 0 16 16" fill="currentColor">
                         <path d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708" />
                     </svg>
                 </button>
-                <button class="button search-button" type="submit" aria-label="查询">
+                <button class="button search-button" type="submit" aria-label="<?= htmlspecialchars(t('search_button'), ENT_QUOTES, 'UTF-8'); ?>">
                     <svg viewBox="0 0 16 16" fill="currentColor" aria-hidden="true" id="search-icon">
                         <path d="M15.964.686a.5.5 0 0 0-.65-.65L.767 5.855H.766l-.452.18a.5.5 0 0 0-.082.887l.41.26.001.002 4.995 3.178 3.178 4.995.002.002.26.41a.5.5 0 0 0 .886-.083zm-1.833 1.89L6.637 10.07l-.215-.338a.5.5 0 0 0-.154-.154l-.338-.215 7.494-7.494 1.178-.471z" />
                     </svg>
-                    <span>查询</span>
+                    <span><?= htmlspecialchars(t('search_button'), ENT_QUOTES, 'UTF-8'); ?></span>
                 </button>
             </div>
         </div>
@@ -44,22 +44,22 @@
         $resultState = '';
         if ($domain) {
             if ($error) {
-                $resultMessage = "❌ 这是一个无效的域名，请检查格式后重试。";
+                $resultMessage = t('msg_invalid');
                 $resultState = 'invalid';
             } elseif ($parser->reserved) {
-                $resultMessage = "🔒 该域名已被注册局保留，暂不开放注册。";
+                $resultMessage = t('msg_reserved');
                 $resultState = 'reserved';
             } elseif ($parser->prohibited) {
-                $resultMessage = "🚫 该域名被注册局禁止或限制注册。";
+                $resultMessage = t('msg_prohibited');
                 $resultState = 'prohibited';
             } elseif ($parser->unknown) {
-                $resultMessage = "🔍 未找到该域名的注册信息。";
+                $resultMessage = t('msg_unknown');
                 $resultState = 'unknown';
             } elseif ($parser->registered) {
                 // 已注册：直接展示下方信息卡片，此处不再提示
                 $resultMessage = null;
             } else {
-                $resultMessage = "✅ 恭喜！该域名尚未注册，可以立即注册。";
+                $resultMessage = t('msg_available');
                 $resultState = 'available';
             }
         }
@@ -74,24 +74,24 @@
 <?php endif; ?>
       <!-- 搜索框下方快捷键提示行（复刻 next-whois）-->
       <div class="nw-hotkeys" aria-hidden="true">
-        <span class="nw-hotkey-item">查询 <kbd class="nw-kbd">/</kbd></span>
-        <span class="nw-hotkey-item">清除 / 失焦 <kbd class="nw-kbd">Esc</kbd></span>
+        <span class="nw-hotkey-item"><?= htmlspecialchars(t('hotkey_query'), ENT_QUOTES, 'UTF-8'); ?> <kbd class="nw-kbd">/</kbd></span>
+        <span class="nw-hotkey-item"><?= htmlspecialchars(t('hotkey_clear'), ENT_QUOTES, 'UTF-8'); ?> <kbd class="nw-kbd">Esc</kbd></span>
       </div>
       <?php if (!$domain): ?>
       <!-- 首页：历史查询列表（由 history.js 基于 localStorage 渲染，支持翻页）-->
       <div class="nw-history" id="search-history" hidden>
-        <div class="nw-history-divider"><span id="search-history-label">查询历史</span></div>
+        <div class="nw-history-divider"><span id="search-history-label"><?= htmlspecialchars(t('history_title'), ENT_QUOTES, 'UTF-8'); ?></span></div>
         <ul class="nw-history-list" id="search-history-list"></ul>
         <div class="nw-history-pager" id="search-history-pager" hidden>
-          <button class="nw-pager-btn" id="history-prev" type="button" aria-label="上一页">
+          <button class="nw-pager-btn" id="history-prev" type="button" aria-label="<?= htmlspecialchars(t('prev_page'), ENT_QUOTES, 'UTF-8'); ?>">
             <svg viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M10.354 3.646a.5.5 0 0 1 0 .708L6.707 8l3.647 3.646a.5.5 0 0 1-.708.708l-4-4a.5.5 0 0 1 0-.708l4-4a.5.5 0 0 1 .708 0"/></svg>
           </button>
           <span class="nw-pager-info" id="history-info"></span>
-          <button class="nw-pager-btn" id="history-next" type="button" aria-label="下一页">
+          <button class="nw-pager-btn" id="history-next" type="button" aria-label="<?= htmlspecialchars(t('next_page'), ENT_QUOTES, 'UTF-8'); ?>">
             <svg viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M5.646 3.646a.5.5 0 0 1 .708 0l4 4a.5.5 0 0 1 0 .708l-4 4a.5.5 0 0 1-.708-.708L9.293 8 5.646 4.354a.5.5 0 0 1 0-.708"/></svg>
           </button>
         </div>
-        <button class="nw-history-clear" id="history-clear" type="button">清除历史记录</button>
+        <button class="nw-history-clear" id="history-clear" type="button"><?= htmlspecialchars(t('history_clear'), ENT_QUOTES, 'UTF-8'); ?></button>
       </div>
       <?php endif; ?>
     </div>

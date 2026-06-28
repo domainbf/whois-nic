@@ -8,6 +8,17 @@ window.addEventListener("DOMContentLoaded", async () => {
   const startTime = Date.now();
   const domain = messagePrice.dataset.domain || "";
 
+  // 多语言访问器（缺失时回退中文）
+  const I18N = window.I18N || {
+    t: function (k) {
+      const zh = {
+        price_register: "注册", price_renew: "续费", price_transfer: "转移",
+        price_failed: "价格获取失败", price_nodata: "暂无数据", price_lowest: "最低价注册商",
+      };
+      return zh[k] != null ? zh[k] : k;
+    },
+  };
+
   // 货币符号映射（覆盖常见币种）
   const symbolOf = (cur) => {
     const map = {
@@ -42,7 +53,7 @@ window.addEventListener("DOMContentLoaded", async () => {
   // 解决外币大额数字（如 RWF 12,711.87）被误认为人民币价格的困惑。
   const formatTip = (entry, label) => {
     if (!entry) {
-      return `${label}: 暂无数据`;
+      return `${label}: ${I18N.t("price_nodata")}`;
     }
     const parts = [];
     if (entry.price !== null && entry.price !== undefined) {
@@ -55,9 +66,9 @@ window.addEventListener("DOMContentLoaded", async () => {
       parts.push(priceStr);
     }
     if (entry.registrar) {
-      parts.push(`最低价注册商: ${entry.registrar}`);
+      parts.push(`${I18N.t("price_lowest")}: ${entry.registrar}`);
     }
-    return `${label} | ${parts.join(" · ") || "暂无数据"}`;
+    return `${label} | ${parts.join(" · ") || I18N.t("price_nodata")}`;
   };
 
   const tag = (id, cls, icon, text) =>
@@ -91,9 +102,9 @@ window.addEventListener("DOMContentLoaded", async () => {
 
     const d = result.data;
     const items = [
-      { key: "register", cls: "message-tag-green", label: "注册" },
-      { key: "renew", cls: "message-tag-gray", label: "续费" },
-      { key: "transfer", cls: "message-tag-blue", label: "转移" },
+      { key: "register", cls: "message-tag-green", label: I18N.t("price_register") },
+      { key: "renew", cls: "message-tag-gray", label: I18N.t("price_renew") },
+      { key: "transfer", cls: "message-tag-blue", label: I18N.t("price_transfer") },
     ];
 
     let innerHTML = "";
@@ -131,6 +142,6 @@ window.addEventListener("DOMContentLoaded", async () => {
       }
     }, Math.max(0, 500 - (Date.now() - startTime)));
   } catch {
-    render(`<span class="message-tag message-tag-pink">价格获取失败</span>`);
+    render(`<span class="message-tag message-tag-pink">${I18N.t("price_failed")}</span>`);
   }
 });

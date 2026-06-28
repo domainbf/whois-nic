@@ -30,6 +30,10 @@ require_once __DIR__ . "/../vendor/autoload.php";
 // 自动加载器与请求辅助函数（checkPassword / cleanDomain / getDataSource）
 require_once __DIR__ . "/lib/helpers.php";
 
+// 多语言（i18n）：在任何输出前初始化，以便正确写入 lang cookie
+require_once __DIR__ . "/lib/i18n.php";
+i18n_init();
+
 use Pdp\SyntaxError;
 use Pdp\UnableToResolveDomain;
 
@@ -97,7 +101,7 @@ if ($domain) {
 require __DIR__ . "/lib/share-meta.php";
 ?>
   <!DOCTYPE html>
-  <html lang="en-US">
+  <html lang="<?= htmlspecialchars(i18n_html_lang(), ENT_QUOTES, 'UTF-8'); ?>">
 
   <?php require __DIR__ . "/partials/head.php"; ?>
 

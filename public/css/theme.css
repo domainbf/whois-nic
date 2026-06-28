@@ -252,6 +252,78 @@ body::before {
   height: 18px;
 }
 
+/* ============ 语言切换器 ============ */
+.lang-switch {
+  position: relative;
+  display: inline-flex;
+}
+
+.lang-switch.open .lang-toggle {
+  background: hsl(var(--muted));
+  color: hsl(var(--foreground));
+}
+
+.lang-menu {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  min-width: 148px;
+  padding: 6px;
+  border-radius: calc(var(--radius) - 0.1rem);
+  border: 1px solid hsl(var(--border));
+  background: hsl(var(--card));
+  box-shadow: 0 10px 30px -12px hsl(240 10% 10% / 0.35), 0 2px 8px -4px hsl(240 10% 10% / 0.2);
+  z-index: 60;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  transform-origin: top right;
+  animation: lang-menu-in 0.14s ease;
+}
+
+@keyframes lang-menu-in {
+  from { opacity: 0; transform: translateY(-4px) scale(0.97); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+.lang-option {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  width: 100%;
+  padding: 8px 10px;
+  border: none;
+  border-radius: calc(var(--radius) - 0.35rem);
+  background: transparent;
+  color: hsl(var(--muted-foreground));
+  font-size: 0.875rem;
+  text-align: left;
+  cursor: pointer;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+
+.lang-option:hover {
+  background: hsl(var(--muted));
+  color: hsl(var(--foreground));
+}
+
+.lang-option.is-active {
+  color: hsl(var(--foreground));
+  font-weight: 600;
+}
+
+.lang-option-check {
+  width: 14px;
+  height: 14px;
+  flex: none;
+  opacity: 0;
+}
+
+.lang-option.is-active .lang-option-check {
+  opacity: 1;
+}
+
 /* 太阳 / 月亮图标堆叠并以旋转 + 缩放 + 淡入做柔和交叉切换 */
 .theme-toggle {
   position: relative;
@@ -1011,41 +1083,34 @@ code a { color: hsl(var(--info)) !important; }
 }
 
 .nw-globe-sphere {
-  fill: hsl(var(--muted) / 0.55);
-}
-
-.nw-globe-land {
-  fill: hsl(var(--muted-foreground) / 0.45);
+  fill: hsl(var(--muted) / 0.5);
 }
 
 .nw-globe-grid {
   fill: none;
-  stroke: hsl(var(--muted-foreground) / 0.25);
-  stroke-width: 0.6;
+  stroke: hsl(var(--muted-foreground) / 0.28);
+  stroke-width: 0.7;
 }
 
-.nw-globe-ring {
+.nw-globe-orbit-ring {
   fill: none;
-  stroke: hsl(var(--border));
-  stroke-width: 1;
-}
-
-/* 自转经线略淡，突出动态层次 */
-.nw-globe-meridians ellipse {
   stroke: hsl(var(--muted-foreground) / 0.3);
+  stroke-width: 0.9;
+  stroke-dasharray: 2 4;
 }
 
-/* 尊重用户的减少动态偏好：停止地球自转 */
+.nw-globe-orbit-dot {
+  fill: hsl(var(--foreground));
+}
+
+/* 尊重减少动态偏好：停止卫星点运动，定格于轨道右端 */
 @media (prefers-reduced-motion: reduce) {
-  .nw-globe-meridians animate { display: none; }
-  .nw-globe-meridians ellipse:nth-child(1) { rx: 46px; }
-  .nw-globe-meridians ellipse:nth-child(2) { rx: 30px; }
-  .nw-globe-meridians ellipse:nth-child(3) { rx: 14px; }
-  .nw-globe-meridians ellipse:nth-child(4) { rx: 0px; }
+  .nw-globe-orbit-dot animateMotion { display: none; }
+  .nw-globe-orbit-dot { transform: translate(112px, 60px); }
 }
 
 @media (max-width: 420px) {
-  .nw-globe { width: 92px; height: 92px; top: 14px; right: 12px; }
+  .nw-globe { width: 96px; height: 96px; top: 14px; right: 12px; }
 }
 
 .nw-globe svg { width: 100%; height: 100%; }
@@ -1457,4 +1522,137 @@ a.nw-status-name:hover { text-decoration: underline; }
 @media (max-width: 1023px) {
   .nw-raw-panel { min-height: 0; }
   .nw-raw-body { max-height: 460px; }
+}
+
+/* ============ 查询加载动画（提交后、页面跳转前的过渡态） ============ */
+.nw-loading {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  background: hsl(var(--background) / 0.82);
+  -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: blur(8px);
+  opacity: 0;
+  animation: nw-loading-fade 0.2s ease forwards;
+}
+
+@keyframes nw-loading-fade {
+  to { opacity: 1; }
+}
+
+.nw-loading-card {
+  width: 100%;
+  max-width: 340px;
+  padding: 32px 28px;
+  border-radius: var(--radius);
+  border: 1px solid hsl(var(--border));
+  background: hsl(var(--card));
+  box-shadow: 0 24px 60px -24px hsl(240 12% 8% / 0.4);
+  text-align: center;
+}
+
+/* 加载用地球：球体 + 多层脉冲圆环 + 旋转弧 */
+.nw-loading-globe {
+  position: relative;
+  width: 96px;
+  height: 96px;
+  margin: 0 auto 22px;
+}
+
+.nw-loading-globe svg {
+  width: 100%;
+  height: 100%;
+}
+
+.nw-loading-globe .nw-lg-sphere { fill: hsl(var(--muted) / 0.5); }
+.nw-loading-globe .nw-lg-grid {
+  fill: none;
+  stroke: hsl(var(--muted-foreground) / 0.32);
+  stroke-width: 0.8;
+}
+.nw-loading-globe .nw-lg-arc {
+  fill: none;
+  stroke: hsl(var(--foreground));
+  stroke-width: 2.4;
+  stroke-linecap: round;
+  transform-origin: 60px 60px;
+  animation: nw-spin 1.1s linear infinite;
+}
+.nw-loading-globe .nw-lg-pulse {
+  fill: none;
+  stroke: hsl(var(--muted-foreground) / 0.35);
+  stroke-width: 1;
+  transform-origin: 60px 60px;
+  animation: nw-pulse-ring 1.8s ease-out infinite;
+}
+.nw-loading-globe .nw-lg-pulse:nth-of-type(2) { animation-delay: 0.6s; }
+
+@keyframes nw-spin { to { transform: rotate(360deg); } }
+@keyframes nw-pulse-ring {
+  0%   { transform: scale(0.7); opacity: 0.7; }
+  100% { transform: scale(1.25); opacity: 0; }
+}
+
+.nw-loading-title {
+  font-size: 1.05rem;
+  font-weight: 600;
+  color: hsl(var(--foreground));
+  word-break: break-all;
+  margin: 0 0 6px;
+}
+
+.nw-loading-sub {
+  font-size: 0.8rem;
+  letter-spacing: 0.04em;
+  color: hsl(var(--muted-foreground));
+  margin: 0 0 20px;
+}
+
+.nw-loading-steps {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  text-align: left;
+}
+
+.nw-loading-step {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 0.85rem;
+  color: hsl(var(--muted-foreground));
+  opacity: 0.45;
+  transition: opacity 0.3s ease, color 0.3s ease;
+}
+
+.nw-loading-step::before {
+  content: "";
+  width: 7px;
+  height: 7px;
+  border-radius: 9999px;
+  flex: none;
+  background: hsl(var(--muted-foreground) / 0.5);
+  transition: background 0.3s ease, box-shadow 0.3s ease;
+}
+
+.nw-loading-step.is-active {
+  opacity: 1;
+  color: hsl(var(--foreground));
+}
+
+.nw-loading-step.is-active::before {
+  background: hsl(var(--foreground));
+  box-shadow: 0 0 0 3px hsl(var(--foreground) / 0.12);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .nw-loading-globe .nw-lg-arc { animation-duration: 2.2s; }
+  .nw-loading-globe .nw-lg-pulse { animation: none; opacity: 0; }
 }

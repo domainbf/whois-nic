@@ -72,18 +72,20 @@
     }
   }
 
+  var I18N = window.I18N || { t: function (k) { return k === "history_today" ? "今天" : k === "history_yesterday" ? "昨天" : k; } };
+
   function formatDay(ts) {
     try {
       var d = new Date(ts);
       var now = new Date();
-      if (isToday(ts)) return "今天";
+      if (isToday(ts)) return I18N.t("history_today");
       var y = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 1);
       if (
         d.getFullYear() === y.getFullYear() &&
         d.getMonth() === y.getMonth() &&
         d.getDate() === y.getDate()
       ) {
-        return "昨天";
+        return I18N.t("history_yesterday");
       }
       return d.getFullYear() + "-" + ("0" + (d.getMonth() + 1)).slice(-2) + "-" + ("0" + d.getDate()).slice(-2);
     } catch (e) {
