@@ -213,9 +213,10 @@
         @media (max-width: 700px) {
             .footer-announcement { 
                 font-size: 0.72rem; 
-                padding: 6px 6px; 
+                padding: 6px 12px; 
                 height: 65px;
-                white-space: nowrap;
+                white-space: normal;
+                word-break: break-word;
             }
             .footer-announcement .speaker {
                 margin-right: 0.18em;

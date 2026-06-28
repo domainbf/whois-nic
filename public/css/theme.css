@@ -113,6 +113,7 @@
 /* ---------- 基础 ---------- */
 html {
   background-color: hsl(var(--background));
+  overflow-x: hidden;
 }
 
 body {
@@ -133,6 +134,8 @@ body {
   min-height: 100vh;
   display: flex;
   flex-direction: column;
+  overflow-x: hidden;
+  max-width: 100%;
 }
 
 /* 圆点背景（覆盖旧版网格背景）*/
@@ -279,6 +282,10 @@ body::before {
   gap: 2px;
   transform-origin: top right;
   animation: lang-menu-in 0.14s ease;
+}
+
+.lang-menu[hidden] {
+  display: none;
 }
 
 @keyframes lang-menu-in {
