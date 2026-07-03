@@ -495,7 +495,7 @@ form {
   height: 14px !important;
 }
 
-/* 提交按钮：圆形深色图标按钮，嵌在胶囊右侧 */
+/* 提交按钮：圆形深色图标按钮，嵌���胶囊右侧 */
 .search-button {
   flex-shrink: 0;
   width: 44px !important;
@@ -875,20 +875,19 @@ form {
 .message-tag-purple { background: hsl(270 80% 60% / 0.16) !important;    color: hsl(270 70% 68%) !important; }
 .message-tag-pink   { background: hsl(330 80% 60% / 0.16) !important;    color: hsl(330 70% 66%) !important; }
 
-/* 价格标签：统一中性风格，随主题亮暗自适应；注册价用前景色 + 描边轻量强调 */
-.message-tag-price {
+/* 价格标签：所有价格胶囊共用完全一致的中性底色与描边；注册价仅用更深字色强调 */
+.message-tag-price,
+.message-tag-price-primary {
   background: hsl(var(--muted)) !important;
   color: hsl(var(--muted-foreground)) !important;
   border: 1px solid hsl(var(--border)) !important;
 }
-.message-tag-price svg { color: hsl(var(--muted-foreground)) !important; }
+.message-tag-price svg,
+.message-tag-price-primary svg { color: hsl(var(--muted-foreground)) !important; }
 .message-tag-price-primary {
-  background: hsl(var(--muted)) !important;
   color: hsl(var(--foreground)) !important;
-  border-color: hsl(var(--border)) !important;
   font-weight: 600 !important;
 }
-.message-tag-price-primary svg { color: hsl(var(--foreground)) !important; }
 
 /* ---------- 原始数据区 ---------- */
 .raw-data-whois,
@@ -1290,7 +1289,7 @@ code a { color: hsl(var(--info)) !important; }
   color: hsl(var(--muted-foreground) / 0.7);
 }
 
-/* 注册人联系（主卡内） */
+/* 注册人联系（���卡内） */
 .nw-contact-grid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
@@ -1563,113 +1562,33 @@ a.nw-status-name:hover { text-decoration: underline; }
 
 .nw-loading-card {
   width: 100%;
-  max-width: 520px;
-  padding: 30px 28px;
-  border-radius: var(--radius);
-  border: 1px solid hsl(var(--border));
-  background: hsl(var(--card));
-  box-shadow: 0 12px 32px -20px hsl(240 12% 8% / 0.28);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+  padding: 48px 24px;
   text-align: center;
 }
 
-/* 加载用地球：球体 + 多层脉冲圆环 + 旋转弧 */
-.nw-loading-globe {
-  position: relative;
-  width: 96px;
-  height: 96px;
-  margin: 0 auto 22px;
+/* 极简加载：单圈旋转环 */
+.nw-loading-spinner {
+  width: 28px;
+  height: 28px;
+  border-radius: 9999px;
+  border: 2.5px solid hsl(var(--muted-foreground) / 0.2);
+  border-top-color: hsl(var(--foreground));
+  animation: nw-spin 0.7s linear infinite;
 }
-
-.nw-loading-globe svg {
-  width: 100%;
-  height: 100%;
-}
-
-.nw-loading-globe .nw-lg-sphere { fill: hsl(var(--muted) / 0.5); }
-.nw-loading-globe .nw-lg-grid {
-  fill: none;
-  stroke: hsl(var(--muted-foreground) / 0.32);
-  stroke-width: 0.8;
-}
-.nw-loading-globe .nw-lg-arc {
-  fill: none;
-  stroke: hsl(var(--foreground));
-  stroke-width: 2.4;
-  stroke-linecap: round;
-  transform-origin: 60px 60px;
-  animation: nw-spin 1.1s linear infinite;
-}
-.nw-loading-globe .nw-lg-pulse {
-  fill: none;
-  stroke: hsl(var(--muted-foreground) / 0.35);
-  stroke-width: 1;
-  transform-origin: 60px 60px;
-  animation: nw-pulse-ring 1.8s ease-out infinite;
-}
-.nw-loading-globe .nw-lg-pulse:nth-of-type(2) { animation-delay: 0.6s; }
 
 @keyframes nw-spin { to { transform: rotate(360deg); } }
-@keyframes nw-pulse-ring {
-  0%   { transform: scale(0.7); opacity: 0.7; }
-  100% { transform: scale(1.25); opacity: 0; }
-}
 
 .nw-loading-title {
-  font-size: 1.05rem;
-  font-weight: 600;
-  color: hsl(var(--foreground));
+  font-size: 0.9rem;
+  color: hsl(var(--muted-foreground));
   word-break: break-all;
-  margin: 0 0 6px;
-}
-
-.nw-loading-sub {
-  font-size: 0.8rem;
-  letter-spacing: 0.04em;
-  color: hsl(var(--muted-foreground));
-  margin: 0 0 20px;
-}
-
-.nw-loading-steps {
-  list-style: none;
   margin: 0;
-  padding: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  text-align: left;
-}
-
-.nw-loading-step {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  font-size: 0.85rem;
-  color: hsl(var(--muted-foreground));
-  opacity: 0.45;
-  transition: opacity 0.3s ease, color 0.3s ease;
-}
-
-.nw-loading-step::before {
-  content: "";
-  width: 7px;
-  height: 7px;
-  border-radius: 9999px;
-  flex: none;
-  background: hsl(var(--muted-foreground) / 0.5);
-  transition: background 0.3s ease, box-shadow 0.3s ease;
-}
-
-.nw-loading-step.is-active {
-  opacity: 1;
-  color: hsl(var(--foreground));
-}
-
-.nw-loading-step.is-active::before {
-  background: hsl(var(--foreground));
-  box-shadow: 0 0 0 3px hsl(var(--foreground) / 0.12);
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .nw-loading-globe .nw-lg-arc { animation-duration: 2.2s; }
-  .nw-loading-globe .nw-lg-pulse { animation: none; opacity: 0; }
+  .nw-loading-spinner { animation-duration: 1.6s; }
 }

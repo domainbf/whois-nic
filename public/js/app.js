@@ -21,10 +21,6 @@
         t: function (k, v) {
           var zh = {
             loading_title: "正在查询 " + (v || "") + "…",
-            loading_subtitle: "RDAP · WHOIS · DNS",
-            loading_step1: "连接 RDAP 服务器…",
-            loading_step2: "查询 WHOIS 数据库…",
-            loading_step3: "解析注册信息…",
           };
           return zh[k] != null ? zh[k] : k;
         },
@@ -74,35 +70,11 @@
     overlay.setAttribute("aria-live", "polite");
     overlay.innerHTML =
       '<div class="nw-loading-card">' +
-      '<div class="nw-loading-globe">' +
-      '<svg viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">' +
-      '<circle class="nw-lg-pulse" cx="60" cy="60" r="34"></circle>' +
-      '<circle class="nw-lg-pulse" cx="60" cy="60" r="34"></circle>' +
-      '<circle class="nw-lg-sphere" cx="60" cy="60" r="30"></circle>' +
-      '<g class="nw-lg-grid">' +
-      '<circle cx="60" cy="60" r="30"></circle>' +
-      '<line x1="30" y1="60" x2="90" y2="60"></line>' +
-      '<ellipse cx="60" cy="60" rx="30" ry="11"></ellipse>' +
-      '<ellipse cx="60" cy="60" rx="11" ry="30"></ellipse>' +
-      "</g>" +
-      '<path class="nw-lg-arc" d="M60 18 a42 42 0 0 1 38 24"></path>' +
-      "</svg>" +
-      "</div>" +
+      '<span class="nw-loading-spinner" aria-hidden="true"></span>' +
       '<p class="nw-loading-title"></p>' +
-      '<p class="nw-loading-sub"></p>' +
-      '<ul class="nw-loading-steps">' +
-      '<li class="nw-loading-step is-active"></li>' +
-      '<li class="nw-loading-step"></li>' +
-      '<li class="nw-loading-step"></li>' +
-      "</ul>" +
       "</div>";
 
     overlay.querySelector(".nw-loading-title").textContent = I18N.t("loading_title", domainValue);
-    overlay.querySelector(".nw-loading-sub").textContent = I18N.t("loading_subtitle");
-    var steps = overlay.querySelectorAll(".nw-loading-step");
-    steps[0].textContent = I18N.t("loading_step1");
-    steps[1].textContent = I18N.t("loading_step2");
-    steps[2].textContent = I18N.t("loading_step3");
 
     var mainEl = document.querySelector("main");
     var historyEl = document.getElementById("search-history");
@@ -115,18 +87,6 @@
     } else {
       document.body.appendChild(overlay);
     }
-
-    // 步骤依次点亮（纯 CSS 动画在 fetch 期间持续运行，不再被整页跳转冻结）
-    var idx = 0;
-    var timer = setInterval(function () {
-      idx++;
-      if (idx >= steps.length) {
-        clearInterval(timer);
-        return;
-      }
-      steps[idx].classList.add("is-active");
-    }, 900);
-    overlay._timer = timer;
   }
 
   // ---- 顺序加载脚本，保持原始顺序（库先于初始化脚本） ----

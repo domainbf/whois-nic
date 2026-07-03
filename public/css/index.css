@@ -511,22 +511,23 @@ button.message-tag > span {
   color: #c6005c;
 }
 
-/* 价格标签：与整体中性风格一致（浅灰底 + 深灰字），注册价用主色边框做轻量强调 */
-.message-tag-price {
-  background-color: #f5f6f7;
-  color: #364153;
+/* 价格标签：所有价格胶囊共用完全一致的浅灰底与描边；注册价仅用更深字色强调 */
+.message-tag-price,
+.message-tag-price-primary {
+  background-color: #f3f4f6;
+  color: #4a5565;
   border: 1px solid #e6e8eb;
 }
 
 .message-tag-price .message-icon-leading,
-.message-tag-price svg {
+.message-tag-price svg,
+.message-tag-price-primary .message-icon-leading,
+.message-tag-price-primary svg {
   color: #99a1af;
 }
 
 .message-tag-price-primary {
-  background-color: #f3f4f6;
   color: #1a1a1a;
-  border-color: #d5d8dc;
   font-weight: 600;
 }
 
