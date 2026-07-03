@@ -1,4 +1,4 @@
-      window.addEventListener("DOMContentLoaded", function() {
+      (window.nwReady || function (f) { window.addEventListener("DOMContentLoaded", f); })(function() {
         if (typeof tippy !== 'undefined') {
           tippy.setDefaultProps({
             arrow: false,

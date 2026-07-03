@@ -231,9 +231,9 @@
     });
   }
 
-  window.addEventListener("DOMContentLoaded", function () {
+  // 依据当前页面状态记录/渲染历史（首屏与 pjax 局部刷新后都会调用）
+  function syncForCurrentPage() {
     var hasDomain = document.body.dataset.hasDomain === "1";
-
     if (hasDomain) {
       // 结果页：记录本次查询
       var input = document.getElementById("domain");
@@ -245,7 +245,18 @@
       initHistoryControls();
       renderHistory();
     }
+  }
 
-    initHotkeys();
+  // 暴露给 app.js 的 pjax 流程：局部刷新后同步历史（翻页控件绑定于 renderHistory 所在容器，
+  // 每次首页重建后重新绑定；热键为全局，仅初始化一次）。
+  window.NWHistory = {
+    sync: syncForCurrentPage,
+    record: recordSearch,
+    render: renderHistory,
+  };
+
+  (window.nwReady || function (f) { window.addEventListener("DOMContentLoaded", f); })(function () {
+    syncForCurrentPage();
+    initHotkeys(); // 全局热键仅绑定一次（document 级）
   });
 })();

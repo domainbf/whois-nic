@@ -3,6 +3,19 @@
  * - 暴露 window.I18N.t(key, ...args)（基于 head 注入的 window.__I18N__）
  * - 驱动顶栏语言切换器：展开/收起菜单、切换语言（写 cookie + 重载，保留当前路径与查询）
  */
+
+/**
+ * nwReady：DOM 就绪即执行 fn；若 DOM 已就绪（如被 pjax 动态重新注入的脚本）则立即执行。
+ * 供各增强脚本（enhance/dates/price/beian）使用，使其在首次加载与 pjax 局部刷新后都能运行。
+ */
+window.nwReady = function (fn) {
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", fn);
+  } else {
+    fn();
+  }
+};
+
 (function () {
   "use strict";
 

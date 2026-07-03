@@ -1,4 +1,4 @@
-window.addEventListener("DOMContentLoaded", function () {
+(window.nwReady || function (f) { window.addEventListener("DOMContentLoaded", f); })(function () {
   // 多语言访问器（i18n.js 已暴露 window.I18N；缺失时回退到原中文）
   var I18N = window.I18N || {
     lang: "zh",

@@ -1,4 +1,4 @@
-window.addEventListener("DOMContentLoaded", async () => {
+(window.nwReady || function (f) { window.addEventListener("DOMContentLoaded", f); })(async () => {
     const messageBeiAn = document.getElementById("message-beian");
 
     if (!messageBeiAn) {
