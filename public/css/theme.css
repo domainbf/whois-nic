@@ -875,6 +875,21 @@ form {
 .message-tag-purple { background: hsl(270 80% 60% / 0.16) !important;    color: hsl(270 70% 68%) !important; }
 .message-tag-pink   { background: hsl(330 80% 60% / 0.16) !important;    color: hsl(330 70% 66%) !important; }
 
+/* 价格标签：统一中性风格，随主题亮暗自适应；注册价用前景色 + 描边轻量强调 */
+.message-tag-price {
+  background: hsl(var(--muted)) !important;
+  color: hsl(var(--muted-foreground)) !important;
+  border: 1px solid hsl(var(--border)) !important;
+}
+.message-tag-price svg { color: hsl(var(--muted-foreground)) !important; }
+.message-tag-price-primary {
+  background: hsl(var(--muted)) !important;
+  color: hsl(var(--foreground)) !important;
+  border-color: hsl(var(--border)) !important;
+  font-weight: 600 !important;
+}
+.message-tag-price-primary svg { color: hsl(var(--foreground)) !important; }
+
 /* ---------- 原始数据区 ---------- */
 .raw-data-whois,
 .raw-data-rdap {

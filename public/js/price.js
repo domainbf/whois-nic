@@ -86,7 +86,7 @@
   const render = (html) => {
     setTimeout(() => {
       messagePrice.innerHTML = html;
-    }, Math.max(0, 500 - (Date.now() - startTime)));
+    }, Math.max(0, 200 - (Date.now() - startTime)));
   };
 
   try {
@@ -102,9 +102,9 @@
 
     const d = result.data;
     const items = [
-      { key: "register", cls: "message-tag-green", label: I18N.t("price_register") },
-      { key: "renew", cls: "message-tag-gray", label: I18N.t("price_renew") },
-      { key: "transfer", cls: "message-tag-blue", label: I18N.t("price_transfer") },
+      { key: "register", cls: "message-tag-price message-tag-price-primary", label: I18N.t("price_register") },
+      { key: "renew", cls: "message-tag-price", label: I18N.t("price_renew") },
+      { key: "transfer", cls: "message-tag-price", label: I18N.t("price_transfer") },
     ];
 
     let innerHTML = "";
@@ -140,7 +140,7 @@
       if (typeof tippy === "function") {
         activeTips.forEach((t) => tippy(t.id, { content: t.content, placement: "bottom" }));
       }
-    }, Math.max(0, 500 - (Date.now() - startTime)));
+    }, Math.max(0, 200 - (Date.now() - startTime)));
   } catch {
     render(`<span class="message-tag message-tag-pink">${I18N.t("price_failed")}</span>`);
   }
