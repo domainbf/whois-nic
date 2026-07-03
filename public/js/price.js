@@ -5,7 +5,6 @@
     return;
   }
 
-  const startTime = Date.now();
   const domain = messagePrice.dataset.domain || "";
 
   // 多语言访问器（缺失时回退中文）
@@ -83,10 +82,9 @@
       '<svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: middle;"><polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg>',
   };
 
+  // 立即渲染，不再人为延迟（加载速度取决于后端聚合，前端不再额外等待）
   const render = (html) => {
-    setTimeout(() => {
-      messagePrice.innerHTML = html;
-    }, Math.max(0, 200 - (Date.now() - startTime)));
+    messagePrice.innerHTML = html;
   };
 
   try {
@@ -125,22 +123,21 @@
       throw new Error("empty price data");
     }
 
-    setTimeout(() => {
-      messagePrice.innerHTML = innerHTML;
+    // 立即渲染（不再人为延迟）
+    messagePrice.innerHTML = innerHTML;
 
-      // 价格行过长时，转移价格会被挤到第二行。检测到换行则移除转移价格，仅保留注册与续费。
-      const firstTag = messagePrice.querySelector("button.message-tag");
-      const transferEl = messagePrice.querySelector("#price-transfer");
-      let activeTips = tips;
-      if (firstTag && transferEl && transferEl.offsetTop > firstTag.offsetTop) {
-        transferEl.remove();
-        activeTips = tips.filter((t) => t.id !== "#price-transfer");
-      }
+    // 价格行过长时，转移价格会被挤到第二行。检测到换行则移除转移价格，仅保留注册与续费。
+    const firstTag = messagePrice.querySelector("button.message-tag");
+    const transferEl = messagePrice.querySelector("#price-transfer");
+    let activeTips = tips;
+    if (firstTag && transferEl && transferEl.offsetTop > firstTag.offsetTop) {
+      transferEl.remove();
+      activeTips = tips.filter((t) => t.id !== "#price-transfer");
+    }
 
-      if (typeof tippy === "function") {
-        activeTips.forEach((t) => tippy(t.id, { content: t.content, placement: "bottom" }));
-      }
-    }, Math.max(0, 200 - (Date.now() - startTime)));
+    if (typeof tippy === "function") {
+      activeTips.forEach((t) => tippy(t.id, { content: t.content, placement: "bottom" }));
+    }
   } catch {
     render(`<span class="message-tag message-tag-pink">${I18N.t("price_failed")}</span>`);
   }

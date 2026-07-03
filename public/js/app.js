@@ -237,8 +237,9 @@
     e.preventDefault();
     if (isLoading) return;
 
-    var searchIcon = document.getElementById("search-icon");
-    if (searchIcon) searchIcon.classList.add("searching");
+    // 查询按钮进入加载态：显示简洁旋转环（替代原先晃动的图标动画）
+    var searchBtn = document.querySelector(".search-button");
+    if (searchBtn) searchBtn.classList.add("is-loading");
 
     // 构造目标 URL（保留表单参数，如隐藏的 prices=1）
     var action = form.getAttribute("action") || window.location.pathname;

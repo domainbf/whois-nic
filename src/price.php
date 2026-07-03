@@ -35,7 +35,7 @@ if ($tld === "" || !preg_match("/^[a-z0-9.-]+$/", $tld)) {
 
 // ---- 并发 HTTP GET（curl_multi）---------------------------------------------
 // $requests: [key => url]；返回 [key => 解析后的数组|null]
-function price_http_multi(array $requests, $timeout = 6)
+function price_http_multi(array $requests, $timeout = 5)
 {
     $mh = curl_multi_init();
     $handles = [];
@@ -44,7 +44,7 @@ function price_http_multi(array $requests, $timeout = 6)
         curl_setopt_array($ch, [
             CURLOPT_RETURNTRANSFER => true,
             CURLOPT_TIMEOUT => $timeout,
-            CURLOPT_CONNECTTIMEOUT => 4,
+            CURLOPT_CONNECTTIMEOUT => 3,
             CURLOPT_FOLLOWLOCATION => true,
             CURLOPT_SSL_VERIFYPEER => false,
             CURLOPT_USERAGENT => "Mozilla/5.0 (compatible; WhoisNic/1.0)",
@@ -59,7 +59,7 @@ function price_http_multi(array $requests, $timeout = 6)
     do {
         curl_multi_exec($mh, $running);
         if ($running > 0) {
-            curl_multi_select($mh, 1.0);
+            curl_multi_select($mh, 0.5);
         }
     } while ($running > 0);
 

@@ -497,6 +497,7 @@ form {
 
 /* 提交按钮：圆形深色图标按钮，嵌���胶囊右侧 */
 .search-button {
+  position: relative;
   flex-shrink: 0;
   width: 44px !important;
   min-width: 44px !important;
@@ -510,6 +511,19 @@ form {
   justify-content: center !important;
   gap: 0 !important;
   transition: opacity 0.2s ease, transform 0.1s ease;
+}
+
+/* 查询加载态：隐藏放大镜，显示简洁旋转环（不再晃动） */
+.search-button.is-loading > svg { opacity: 0; }
+.search-button.is-loading::after {
+  content: "";
+  position: absolute;
+  width: 18px;
+  height: 18px;
+  border-radius: 9999px;
+  border: 2px solid hsl(var(--primary-foreground) / 0.35);
+  border-top-color: hsl(var(--primary-foreground));
+  animation: nw-spin 0.7s linear infinite;
 }
 
 .search-button:hover {
@@ -875,19 +889,22 @@ form {
 .message-tag-purple { background: hsl(270 80% 60% / 0.16) !important;    color: hsl(270 70% 68%) !important; }
 .message-tag-pink   { background: hsl(330 80% 60% / 0.16) !important;    color: hsl(330 70% 66%) !important; }
 
-/* 价格标签：所有价格胶囊共用完全一致的中性底色与描边；注册价仅用更深字色强调 */
-.message-tag-price,
-.message-tag-price-primary {
+/* 价格标签：与「年份药丸」同一套药丸语言，保持整行胶囊风格统一
+   - 续费/转移：中性描边药丸（同 --border / --muted）
+   - 注册价：主色描边药丸（与 .nw-age-pill 完全一致的主色淡底），做轻量强调 */
+.message-tag-price {
   background: hsl(var(--muted)) !important;
   color: hsl(var(--muted-foreground)) !important;
   border: 1px solid hsl(var(--border)) !important;
 }
-.message-tag-price svg,
-.message-tag-price-primary svg { color: hsl(var(--muted-foreground)) !important; }
+.message-tag-price svg { color: hsl(var(--muted-foreground)) !important; }
 .message-tag-price-primary {
-  color: hsl(var(--foreground)) !important;
+  background: hsl(var(--primary) / 0.06) !important;
+  color: hsl(var(--primary)) !important;
+  border: 1px solid hsl(var(--primary) / 0.3) !important;
   font-weight: 600 !important;
 }
+.message-tag-price-primary svg { color: hsl(var(--primary)) !important; }
 
 /* ---------- 原始数据区 ---------- */
 .raw-data-whois,
@@ -1030,18 +1047,23 @@ code a { color: hsl(var(--info)) !important; }
   display: inline-flex;
   align-items: center;
   gap: 5px;
-  padding: 4px 10px;
-  border-radius: 8px;
-  font-size: 12px;
+  padding: 3px 9px;
+  border-radius: 6px;
+  font-size: 11px;
+  line-height: 1.4;
   border: 1px solid transparent;
   cursor: default;
 }
 
+.nw-price-slot .message-tag svg,
+.nw-beian-slot .message-tag svg { width: 12px; height: 12px; }
+
+/* 加载骨架：尺寸与胶囊一致，圆角对齐年份/价格药丸 */
 .nw-skeleton {
   display: inline-block;
-  width: 96px;
-  height: 24px;
-  border-radius: 8px;
+  width: 72px;
+  height: 22px;
+  border-radius: 6px;
   background: hsl(var(--muted));
   animation: nw-pulse 1.4s ease-in-out infinite;
 }

@@ -198,19 +198,6 @@ form {
   font-size: 20px;
 }
 
-.searching {
-  animation: searching 1900ms infinite ease-in-out;
-}
-
-@keyframes searching {
-  0% {
-    transform: rotate(0deg) translateX(4px) rotate(0deg);
-  }
-  100% {
-    transform: rotate(360deg) translateX(4px) rotate(-360deg);
-  }
-}
-
 .checkboxes {
   display: flex;
   gap: 8px;
@@ -511,24 +498,28 @@ button.message-tag > span {
   color: #c6005c;
 }
 
-/* 价格标签：所有价格胶囊共用完全一致的浅灰底与描边；注册价仅用更深字色强调 */
-.message-tag-price,
-.message-tag-price-primary {
+/* 价格标签：与年份药丸同一套药丸语言。续费/转移为中性描边，注册价为主色淡底描边 */
+.message-tag-price {
   background-color: #f3f4f6;
   color: #4a5565;
   border: 1px solid #e6e8eb;
 }
 
 .message-tag-price .message-icon-leading,
-.message-tag-price svg,
-.message-tag-price-primary .message-icon-leading,
-.message-tag-price-primary svg {
+.message-tag-price svg {
   color: #99a1af;
 }
 
 .message-tag-price-primary {
+  background-color: rgba(26, 26, 26, 0.06);
   color: #1a1a1a;
+  border: 1px solid rgba(26, 26, 26, 0.28);
   font-weight: 600;
+}
+
+.message-tag-price-primary .message-icon-leading,
+.message-tag-price-primary svg {
+  color: #1a1a1a;
 }
 
 .data-source {
