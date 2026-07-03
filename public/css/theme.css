@@ -853,6 +853,7 @@ form {
 .domain-info-box--prohibited,
 .domain-info-box--invalid     { --state: var(--bad);  --state-bg: var(--bad-bg); }
 .domain-info-box--unknown    { --state: var(--muted-foreground); --state-bg: var(--neutral-bg); }
+.domain-info-box--taken      { --state: var(--foreground); --state-bg: var(--neutral-bg); }
 
 /* ---------- 结果卡片（玻璃）---------- */
 .messages {
@@ -1612,30 +1613,105 @@ a.nw-status-name:hover { text-decoration: underline; }
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 14px;
-  padding: 48px 24px;
+  gap: 18px;
+  padding: 44px 24px 48px;
   text-align: center;
 }
 
-/* 极简加载：单圈旋转环 */
-.nw-loading-spinner {
-  width: 28px;
-  height: 28px;
+/* 双环轨道 + 脉冲核心，营造"正在多源探测"的观感 */
+.nw-loading-orbit {
+  position: relative;
+  width: 60px;
+  height: 60px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.nw-loading-ring {
+  position: absolute;
+  inset: 0;
   border-radius: 9999px;
-  border: 2.5px solid hsl(var(--muted-foreground) / 0.2);
+  border: 2.5px solid transparent;
+}
+
+/* 外环：顺时针，主色弧 */
+.nw-loading-ring:nth-child(1) {
   border-top-color: hsl(var(--foreground));
-  animation: nw-spin 0.7s linear infinite;
+  border-right-color: hsl(var(--foreground) / 0.35);
+  animation: nw-spin 1s cubic-bezier(0.5, 0.1, 0.4, 0.9) infinite;
+}
+
+/* 内环：逆时针、稍小，弱化色，形成层次 */
+.nw-loading-ring:nth-child(2) {
+  inset: 9px;
+  border-bottom-color: hsl(var(--muted-foreground) / 0.9);
+  border-left-color: hsl(var(--muted-foreground) / 0.3);
+  animation: nw-spin-rev 1.4s cubic-bezier(0.5, 0.1, 0.4, 0.9) infinite;
+}
+
+/* 中心脉冲点 */
+.nw-loading-core {
+  width: 10px;
+  height: 10px;
+  border-radius: 9999px;
+  background: hsl(var(--foreground));
+  animation: nw-core-pulse 1.4s ease-in-out infinite;
 }
 
 @keyframes nw-spin { to { transform: rotate(360deg); } }
+@keyframes nw-spin-rev { to { transform: rotate(-360deg); } }
+@keyframes nw-core-pulse {
+  0%, 100% { transform: scale(0.7); opacity: 0.5; }
+  50%      { transform: scale(1);   opacity: 1; }
+}
 
 .nw-loading-title {
-  font-size: 0.9rem;
-  color: hsl(var(--muted-foreground));
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: hsl(var(--foreground));
   word-break: break-all;
   margin: 0;
 }
 
+/* 副标题：数据源标签 + 动态省略号 */
+.nw-loading-sub {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  margin: 0;
+  font-size: 0.78rem;
+  letter-spacing: 0.06em;
+  color: hsl(var(--muted-foreground) / 0.85);
+}
+
+.nw-loading-dots {
+  display: inline-flex;
+  align-items: flex-end;
+  gap: 3px;
+  margin-left: 2px;
+}
+
+.nw-loading-dots i {
+  width: 3px;
+  height: 3px;
+  border-radius: 9999px;
+  background: currentColor;
+  opacity: 0.3;
+  animation: nw-dot-blink 1.2s ease-in-out infinite;
+}
+
+.nw-loading-dots i:nth-child(2) { animation-delay: 0.2s; }
+.nw-loading-dots i:nth-child(3) { animation-delay: 0.4s; }
+
+@keyframes nw-dot-blink {
+  0%, 100% { opacity: 0.25; transform: translateY(0); }
+  50%      { opacity: 1;    transform: translateY(-2px); }
+}
+
 @media (prefers-reduced-motion: reduce) {
-  .nw-loading-spinner { animation-duration: 1.6s; }
+  .nw-loading-ring:nth-child(1) { animation-duration: 2s; }
+  .nw-loading-ring:nth-child(2) { animation-duration: 2.6s; }
+  .nw-loading-core,
+  .nw-loading-dots i { animation: none; }
 }

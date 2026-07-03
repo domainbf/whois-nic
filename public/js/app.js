@@ -72,11 +72,17 @@
     overlay.setAttribute("aria-live", "polite");
     overlay.innerHTML =
       '<div class="nw-loading-card">' +
-      '<span class="nw-loading-spinner" aria-hidden="true"></span>' +
+      '<span class="nw-loading-orbit" aria-hidden="true">' +
+      '<span class="nw-loading-ring"></span>' +
+      '<span class="nw-loading-ring"></span>' +
+      '<span class="nw-loading-core"></span>' +
+      "</span>" +
       '<p class="nw-loading-title"></p>' +
+      '<p class="nw-loading-sub"><span class="nw-loading-sub-text"></span><span class="nw-loading-dots" aria-hidden="true"><i></i><i></i><i></i></span></p>' +
       "</div>";
 
     overlay.querySelector(".nw-loading-title").textContent = I18N.t("loading_title", domainValue);
+    overlay.querySelector(".nw-loading-sub-text").textContent = I18N.t("loading_subtitle");
 
     var mainEl = document.querySelector("main");
     var historyEl = document.getElementById("search-history");

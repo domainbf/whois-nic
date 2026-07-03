@@ -52,12 +52,16 @@
             } elseif ($parser->prohibited) {
                 $resultMessage = t('msg_prohibited');
                 $resultState = 'prohibited';
-            } elseif ($parser->unknown) {
-                $resultMessage = t('msg_unknown');
-                $resultState = 'unknown';
             } elseif ($parser->registered) {
                 // 已注册：直接展示下方信息卡片，此处不再提示
                 $resultMessage = null;
+            } elseif (!empty($dnsActive)) {
+                // WHOIS/RDAP 查不到详情，但 DNS 检测到该域名已被注册/在用
+                $resultMessage = t('msg_taken');
+                $resultState = 'taken';
+            } elseif ($parser->unknown) {
+                $resultMessage = t('msg_unknown');
+                $resultState = 'unknown';
             } else {
                 $resultMessage = t('msg_available');
                 $resultState = 'available';
@@ -72,6 +76,7 @@
           'prohibited' => '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="m4.9 4.9 14.2 14.2"/></svg>',
           'invalid'    => '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="m15 9-6 6"/><path d="m9 9 6 6"/></svg>',
           'unknown'    => '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>',
+          'taken'      => '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M2 12h20"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>',
         ];
         $stateIcon  = $stateIcons[$resultState] ?? $stateIcons['unknown'];
         $stateTitle = t('title_' . $resultState);

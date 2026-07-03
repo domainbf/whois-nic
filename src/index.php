@@ -48,6 +48,7 @@ $whoisData = null;
 $rdapData = null;
 $parser = new Parser("");
 $error = null;
+$dnsActive = false; // DNS 层面是否检测到域名已被注册/在用
 
 if ($domain) {
   $dataSource = getDataSource();
@@ -66,6 +67,17 @@ if ($domain) {
 
     if ($lookup->extension === "iana") {
       $fetchPrices = false;
+    }
+
+    // 当 WHOIS/RDAP 判定为"未注册/未知"（既非已注册，也非保留/禁止）时，
+    // 追加 DNS 校验以提升准确性：若存在 NS/A/AAAA/MX 记录，说明域名其实已被注册。
+    if (
+      $lookup->extension !== "iana" &&
+      !$parser->registered &&
+      !$parser->reserved &&
+      !$parser->prohibited
+    ) {
+      $dnsActive = domainHasDnsRecords($domain);
     }
   } catch (Exception $e) {
     if ($e instanceof SyntaxError || $e instanceof UnableToResolveDomain) {

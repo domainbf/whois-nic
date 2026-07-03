@@ -70,6 +70,45 @@ function cleanDomain($inputDomain = null)
     return $domain;
 }
 
+/**
+ * 通过 DNS 记录判断域名是否实际"在用/已被注册"。
+ *
+ * 当 WHOIS / RDAP 查不到信息时（很多 ccTLD 无公开 WHOIS/RDAP），
+ * 仅凭"查不到"就判定为"可注册"并不准确。若域名存在权威 NS 记录
+ * （被委派），或存在 A/AAAA/MX 记录（正在解析/收发邮件），则该域名
+ * 几乎可以确定已被注册。此函数据此提供更可靠的补充判断。
+ *
+ * @return bool true 表示 DNS 层面检测到该域名已被注册/在用
+ */
+function domainHasDnsRecords($domain)
+{
+  if (!$domain || strpos($domain, ".") === false) {
+    return false;
+  }
+
+  // IDN 转 punycode，确保 DNS 查询可用
+  if (function_exists("idn_to_ascii")) {
+    $ascii = idn_to_ascii($domain, IDNA_DEFAULT, INTL_IDNA_VARIANT_UTS46);
+    if ($ascii) {
+      $domain = $ascii;
+    }
+  }
+
+  // NS 是最强信号：域名一旦被注册并委派，就会有权威 NS 记录
+  if (@checkdnsrr($domain, "NS")) {
+    return true;
+  }
+
+  // 退而求其次：存在解析/邮件记录也说明域名在用
+  foreach (["A", "AAAA", "MX"] as $type) {
+    if (@checkdnsrr($domain, $type)) {
+      return true;
+    }
+  }
+
+  return false;
+}
+
 function getDataSource()
 {
   $whois = filter_var($_GET["whois"] ?? 0, FILTER_VALIDATE_BOOL);
