@@ -64,12 +64,23 @@
             }
         }
       ?>
-      <?php if ($domain && $resultMessage): ?>
+      <?php if ($domain && $resultMessage):
+        // 状态 → 图标（内联 SVG，随卡片状态色着色）
+        $stateIcons = [
+          'available'  => '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="m9 12 2 2 4-4"/></svg>',
+          'reserved'   => '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>',
+          'prohibited' => '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="m4.9 4.9 14.2 14.2"/></svg>',
+          'invalid'    => '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="m15 9-6 6"/><path d="m9 9 6 6"/></svg>',
+          'unknown'    => '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>',
+        ];
+        $stateIcon  = $stateIcons[$resultState] ?? $stateIcons['unknown'];
+        $stateTitle = t('title_' . $resultState);
+      ?>
   <div class="domain-info-box domain-info-box--<?= htmlspecialchars($resultState, ENT_QUOTES, 'UTF-8'); ?>">
-    <a href="http://<?= htmlspecialchars($domain, ENT_QUOTES, 'UTF-8'); ?>" rel="nofollow noopener noreferrer" target="_blank">
-      <p style="margin-bottom: 5px; font-size: 1.2em; word-break: break-all; overflow-wrap: break-word;"><?= htmlspecialchars($domain, ENT_QUOTES, 'UTF-8'); ?></p>
-    </a>
-    <p><?= $resultMessage; ?></p>
+    <span class="domain-info-icon" aria-hidden="true"><?= $stateIcon; ?></span>
+    <a class="domain-info-name" href="http://<?= htmlspecialchars($domain, ENT_QUOTES, 'UTF-8'); ?>" rel="nofollow noopener noreferrer" target="_blank"><?= htmlspecialchars($domain, ENT_QUOTES, 'UTF-8'); ?></a>
+    <p class="domain-info-title"><?= htmlspecialchars($stateTitle, ENT_QUOTES, 'UTF-8'); ?></p>
+    <p class="domain-info-sub"><?= htmlspecialchars($resultMessage, ENT_QUOTES, 'UTF-8'); ?></p>
   </div>
 <?php endif; ?>
       <!-- 搜索框下方快捷键提示行（复刻 next-whois）-->

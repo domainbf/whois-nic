@@ -789,45 +789,70 @@ form {
 }
 
 /* ---------- 提示卡片（可注册 / 保留 / 禁止 / 未找到 / 无效）---------- */
+/* 居中卡片：状态图标（圆形徽章）+ 域名 + 标题 + 副标题；配色由各状态修饰类注入 */
 .domain-info-box {
+  --state: var(--muted-foreground);
+  --state-bg: var(--neutral-bg);
+  display: flex !important;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  text-align: center;
   border-radius: var(--radius) !important;
-  border: 1px solid hsl(var(--border)) !important;
-  background: hsl(var(--card) / 0.7) !important;
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
-  color: hsl(var(--card-foreground)) !important;
-  box-shadow: 0 1px 3px hsl(var(--foreground) / 0.05) !important;
-  padding: 16px 20px !important;
+  border: 1px solid hsl(var(--state) / 0.28) !important;
+  background: hsl(var(--state-bg) / 0.5) !important;
+  color: hsl(var(--foreground)) !important;
+  box-shadow: 0 1px 3px hsl(var(--foreground) / 0.04) !important;
+  padding: 28px 24px !important;
 }
 
-.domain-info-box a {
-  color: inherit;
+/* 状态图标圆形徽章 */
+.domain-info-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 52px;
+  height: 52px;
+  margin-bottom: 6px;
+  border-radius: 9999px;
+  background: hsl(var(--state) / 0.12);
+  color: hsl(var(--state));
+}
+.domain-info-icon svg { width: 28px; height: 28px; }
+
+/* 域名（可点击访问） */
+.domain-info-name {
+  font-size: 1.35rem;
+  font-weight: 700;
+  color: hsl(var(--foreground)) !important;
+  word-break: break-all;
+  overflow-wrap: break-word;
+  text-decoration: none;
+  line-height: 1.2;
+}
+.domain-info-name:hover { text-decoration: underline; }
+
+/* 主标题（状态结论） */
+.domain-info-title {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 600;
+  color: hsl(var(--foreground)) !important;
 }
 
-.domain-info-box--available {
-  border-color: hsl(var(--ok) / 0.5) !important;
-  background: hsl(var(--ok-bg) / 0.75) !important;
-  color: hsl(var(--ok)) !important;
-}
-
-.domain-info-box--reserved {
-  border-color: hsl(var(--warn) / 0.5) !important;
-  background: hsl(var(--warn-bg) / 0.75) !important;
-  color: hsl(var(--warn)) !important;
-}
-
-.domain-info-box--prohibited,
-.domain-info-box--invalid {
-  border-color: hsl(var(--bad) / 0.5) !important;
-  background: hsl(var(--bad-bg) / 0.75) !important;
-  color: hsl(var(--bad)) !important;
-}
-
-.domain-info-box--unknown {
-  border-color: hsl(var(--border)) !important;
-  background: hsl(var(--neutral-bg) / 0.75) !important;
+/* 副标题（补充说明） */
+.domain-info-sub {
+  margin: 0;
+  font-size: 0.875rem;
+  line-height: 1.5;
   color: hsl(var(--muted-foreground)) !important;
 }
+
+.domain-info-box--available  { --state: var(--ok);   --state-bg: var(--ok-bg); }
+.domain-info-box--reserved   { --state: var(--warn); --state-bg: var(--warn-bg); }
+.domain-info-box--prohibited,
+.domain-info-box--invalid     { --state: var(--bad);  --state-bg: var(--bad-bg); }
+.domain-info-box--unknown    { --state: var(--muted-foreground); --state-bg: var(--neutral-bg); }
 
 /* ---------- 结果卡片（玻璃）---------- */
 .messages {

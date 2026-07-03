@@ -59,6 +59,8 @@
   }
 
   var isLoading = false;
+  // 记录本次查询的域名，用于 pjax 替换 header 后确保搜索框回显（服务端归一化可能清空）
+  var lastQueryDomain = "";
 
   // ---- 加载动画（内联展示于内容区，全程流畅动画） ----
   function showLoadingOverlay(domainValue) {
@@ -155,6 +157,11 @@
           window.Prism.highlightAll();
         } catch (err) {}
       }
+      // 确保搜索框回显本次查询的域名（服务端归一化后可能为空）
+      var domainInput = document.getElementById("domain");
+      if (domainInput && !domainInput.value && lastQueryDomain) {
+        domainInput.value = lastQueryDomain;
+      }
       // 同步搜索框清除按钮状态 + 历史记录
       syncSearchBox();
       if (window.NWHistory && typeof window.NWHistory.sync === "function") {
@@ -178,6 +185,7 @@
     opts = opts || {};
     var push = opts.push !== false;
     var domainForLoader = opts.domain || "";
+    if (domainForLoader) lastQueryDomain = domainForLoader;
 
     if (push) history.pushState({ pjax: true }, "", url);
 

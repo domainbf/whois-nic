@@ -1,9 +1,8 @@
 <?php
-  // 已注册域名的原始数据已并入 result.php 的右侧栏；此处仅处理未注册情形。
-  // 错误类状态（无效 / 保留 / 禁止 / 未找到）上方已有说明卡片，原始 WHOIS 往往是
-  // 服务器报错或限流文本（如 "Server can't process your request"），属噪声，予以隐藏。
-  $rawErrorStates = ['invalid', 'unknown', 'reserved', 'prohibited'];
-  $suppressRaw = in_array($resultState ?? '', $rawErrorStates, true);
+  // 已注册域名的原始数据已并入 result.php 的右侧栏。
+  // 未注册（可注册 / 无效 / 保留 / 禁止 / 未找到）时，上方已有清晰的状态卡片，
+  // 原始 WHOIS 往往是 "Domain Not Found" / 服务器报错 / 限流文本，属噪声，一律隐藏。
+  $suppressRaw = !$parser->registered;
 ?>
     <?php if (!$parser->registered && !$suppressRaw && ($whoisData || $rdapData)): ?>
       <?php if ($whoisData && $rdapData): ?>

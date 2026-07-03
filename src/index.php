@@ -58,7 +58,8 @@ if ($domain) {
     $queryStart = microtime(true);
     $lookup = new Lookup($domain, $dataSource);
     $queryElapsed = microtime(true) - $queryStart;
-    $domain = $lookup->domain;
+    // 归一化后回填；若解析器未返回域名，则保留用户查询值，确保搜索框始终回显
+    $domain = $lookup->domain ?: $domain;
     $whoisData = $lookup->whoisData;
     $rdapData = $lookup->rdapData;
     $parser = $lookup->parser;
