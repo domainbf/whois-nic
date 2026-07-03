@@ -10,6 +10,10 @@
           t = window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
         }
         document.documentElement.setAttribute("data-theme", t);
+        document.addEventListener("DOMContentLoaded", function () {
+          var m = document.querySelector('meta[name="theme-color"]');
+          if (m) m.setAttribute("content", t === "dark" ? "#0a0a0c" : "#ffffff");
+        });
       } catch (e) {}
     })();
   </script>
@@ -83,5 +87,8 @@
   <link rel="stylesheet" href="public/css/index-extra.css">
   <!-- next-whois 风格主题层（最后加载，覆盖旧版样式）-->
   <link rel="stylesheet" href="public/css/theme.css">
+  <!-- 多语言：将当前语言译文负载暴露给前端脚本 -->
+  <script>window.__I18N__ = <?= i18n_js_payload(); ?>;</script>
   <script src="public/js/theme.js" defer></script>
+  <script src="public/js/i18n.js" defer></script>
 </head>

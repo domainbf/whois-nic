@@ -88,6 +88,17 @@ class RDAP
     curl_setopt_array($curl, [
       CURLOPT_RETURNTRANSFER => true,
       CURLOPT_TIMEOUT => 10,
+      // 更快失败：连接阶段超时单独限制，避免死服务器拖慢整体查询
+      CURLOPT_CONNECTTIMEOUT => 5,
+      // RDAP 引导服务器常以 30x 重定向到权威服务器，跟随重定向以提升准确性
+      CURLOPT_FOLLOWLOCATION => true,
+      CURLOPT_MAXREDIRS => 5,
+      // 启用压缩传输，减少数据量、加快响应
+      CURLOPT_ENCODING => "",
+      CURLOPT_HTTPHEADER => [
+        "Accept: application/rdap+json, application/json",
+      ],
+      CURLOPT_USERAGENT => "Mozilla/5.0 (compatible; WhoisLookup/1.0; +https://whois)",
     ]);
 
     $response = curl_exec($curl);

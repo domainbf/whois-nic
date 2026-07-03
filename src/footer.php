@@ -1,28 +1,17 @@
-<!DOCTYPE html>
-<html lang="zh-CN">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>NIC.BN - 域名查询与出售</title>
-    <style>
-        html, body {
-            height: 100%;
-            margin: 0;
-        }
-        body {
-            background: #f8fafc;
-            color: #333;
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-        }
-        .container {
-            flex: 1;
-        }
+<?php
+    // 确保多语言可用（footer 也被 login.php 单独引用，此时 i18n 可能尚未初始化）
+    require_once __DIR__ . "/lib/i18n.php";
+    if (!isset($GLOBALS["__LANG__"])) {
+        i18n_init();
+    }
+?>
+<style>
         .footer {
             width: 100%;
             position: relative;
             text-align: center;
+            margin-top: auto;
+            padding-top: 40px;
         }
         .footer-bottomarea {
             width: 100%;
@@ -224,9 +213,10 @@
         @media (max-width: 700px) {
             .footer-announcement { 
                 font-size: 0.72rem; 
-                padding: 6px 6px; 
+                padding: 6px 12px; 
                 height: 65px;
-                white-space: nowrap;
+                white-space: normal;
+                word-break: break-word;
             }
             .footer-announcement .speaker {
                 margin-right: 0.18em;
@@ -261,45 +251,28 @@
             }
         }
     </style>
-</head>
-<body>
-    <div class="container"></div>
     <footer class="footer">
         <div class="footer-bottomarea">
             <div class="footer-announcement-container">
                 <div class="footer-announcement-box">
-                    <div class="footer-announcement active">
+                    <?php
+                        $footerAnnouncements = [
+                            t('footer_ann1'),
+                            t('footer_ann2'),
+                            t('footer_ann3'),
+                            t('footer_ann4'),
+                        ];
+                        foreach ($footerAnnouncements as $idx => $ann):
+                    ?>
+                    <div class="footer-announcement<?= $idx === 0 ? ' active' : ''; ?>">
                         <span class="speaker">
                             <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
                                 <g><path d="M3 7v4h3l4 4V3L6 7H3z" fill="#2c2452"></path><path d="M14.5 9a4.5 4.5 0 0 0-2.5-4v8a4.5 4.5 0 0 0 2.5-4z" fill="#c7ff35"></path></g>
                             </svg>
                         </span>
-                        集成 RDAP+WHOIS 双核驱动提供精准域名注册数据。
+                        <?= htmlspecialchars($ann, ENT_QUOTES, 'UTF-8'); ?>
                     </div>
-                    <div class="footer-announcement">
-                        <span class="speaker">
-                            <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
-                                <g><path d="M3 7v4h3l4 4V3L6 7H3z" fill="#2c2452"></path><path d="M14.5 9a4.5 4.5 0 0 0-2.5-4v8a4.5 4.5 0 0 0 2.5-4z" fill="#c7ff35"></path></g>
-                            </svg>
-                        </span>
-                        本站提供域名查询服务，不储存任何搜索及查询数据信息。
-                    </div>
-                    <div class="footer-announcement">
-                        <span class="speaker">
-                            <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
-                                <g><path d="M3 7v4h3l4 4V3L6 7H3z" fill="#2c2452"></path><path d="M14.5 9a4.5 4.5 0 0 0-2.5-4v8a4.5 4.5 0 0 0 2.5-4z" fill="#c7ff35"></path></g>
-                            </svg>
-                        </span>
-                        在售的域名，可👇点击[NIC.BN]进入列表查看所有域名。
-                    </div>
-                    <div class="footer-announcement">
-                        <span class="speaker">
-                            <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
-                                <g><path d="M3 7v4h3l4 4V3L6 7H3z" fill="#2c2452"></path><path d="M14.5 9a4.5 4.5 0 0 0-2.5-4v8a4.5 4.5 0 0 0 2.5-4z" fill="#c7ff35"></path></g>
-                            </svg>
-                        </span>
-                        不记录·不储存·所有搜索查询数据仅保留在您本地浏览器。
-                    </div>
+                    <?php endforeach; ?>
                 </div>
             </div>
             <a href="https://hello.sn/domain" target="_blank" class="footer-logo-link">
@@ -315,27 +288,27 @@
                         </svg>
                     </span>
                     <span class="footer-badge-dot"></span>
-                    <span class="footer-badge-text" id="footer-badge-text">域名寻求合作</span>
+                    <span class="footer-badge-text" id="footer-badge-text"><?= htmlspecialchars(t('footer_badge'), ENT_QUOTES, 'UTF-8'); ?></span>
                 </span>
             </span>
         </div>
         <div class="footer-copyright">
-            &copy; 2025 NIC.BN. All rights reserved.
+            &copy; 2025 NIC.BN. <?= htmlspecialchars(t('footer_rights'), ENT_QUOTES, 'UTF-8'); ?>
         </div>
         <div class="footer-credits">
             <div class="footer-credits-divider"></div>
             <div class="footer-credits-line">
-                <span class="credit-label">域名价格数据由</span>
+                <span class="credit-label"><?= htmlspecialchars(t('footer_price_by'), ENT_QUOTES, 'UTF-8'); ?></span>
                 <a href="https://www.miqingju.com" target="_blank" rel="noopener noreferrer">米情局</a>
                 <span class="footer-credits-sep">·</span>
                 <a href="https://www.nazhumi.com" target="_blank" rel="noopener noreferrer">哪煮米</a>
-                <span class="credit-label">友情提供</span>
+                <span class="credit-label"><?= htmlspecialchars(t('footer_provided'), ENT_QUOTES, 'UTF-8'); ?></span>
             </div>
             <div class="footer-credits-line">
-                <span class="credit-label">鸣谢作者</span>
+                <span class="credit-label"><?= htmlspecialchars(t('footer_thanks'), ENT_QUOTES, 'UTF-8'); ?></span>
                 <a href="https://github.com/reg233/whois-domain-lookup" target="_blank" rel="noopener noreferrer">reg233</a>
                 <span class="footer-credits-sep">·</span>
-                <span class="credit-label">开源项目</span>
+                <span class="credit-label"><?= htmlspecialchars(t('footer_opensource'), ENT_QUOTES, 'UTF-8'); ?></span>
                 <a href="https://github.com/reg233/whois-domain-lookup" target="_blank" rel="noopener noreferrer">whois-domain-lookup</a>
             </div>
         </div>
@@ -370,9 +343,7 @@
                     '</span>';
             }else{
                 bg.className = 'footer-badge-bg available';
-                text.textContent = "域名寻求合作";
+                text.textContent = <?= json_encode(t('footer_badge'), JSON_UNESCAPED_UNICODE); ?>;
             }
         }
     </script>
-</body>
-</html>
