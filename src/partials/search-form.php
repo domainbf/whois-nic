@@ -45,7 +45,8 @@
               data-label-suggest="<?= htmlspecialchars(t('suggest_domains'), ENT_QUOTES, 'UTF-8'); ?>"
               data-label-registered="<?= htmlspecialchars(t('status_registered'), ENT_QUOTES, 'UTF-8'); ?>"
               data-label-available="<?= htmlspecialchars(t('status_available'), ENT_QUOTES, 'UTF-8'); ?>"
-              data-label-checking="<?= htmlspecialchars(t('status_checking'), ENT_QUOTES, 'UTF-8'); ?>"></div>
+              data-label-checking="<?= htmlspecialchars(t('status_checking'), ENT_QUOTES, 'UTF-8'); ?>"
+              data-label-unknown="<?= htmlspecialchars(t('status_unknown'), ENT_QUOTES, 'UTF-8'); ?>"></div>
         </div>
         <!-- 查询选项已按原版隐藏：默认同时使用 WHOIS + RDAP，并保留价格查询 -->
         <input type="hidden" name="prices" value="1">

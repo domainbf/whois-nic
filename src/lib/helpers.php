@@ -119,7 +119,9 @@ function domainHasDnsRecords($domain)
  */
 function domainDnsStatus($domain)
 {
-  $result = ["registered" => false, "site" => false];
+  // status: "registered" | "available" | "unknown"
+  // registered/site 保留布尔，兼容前端旧字段
+  $result = ["registered" => false, "site" => false, "status" => "unknown"];
 
   if (!$domain || strpos($domain, ".") === false) {
     return $result;
@@ -132,26 +134,91 @@ function domainDnsStatus($domain)
     }
   }
 
-  // NS 是最快、最权威的"是否已注册"信号：
-  // 已注册域名基本都有 NS 委派；未注册域名会返回 NXDOMAIN（很快）。
+  // NS 是最快、最权威的"是否已注册"正向信号：
+  // 已注册且已委派的域名都有 NS。命中即可确定"已注册"。
   if (@checkdnsrr($domain, "NS")) {
     $result["registered"] = true;
-    // 仅对已注册域名再查 A（用于判断"是否已建站" → 前端展示 favicon）
+    $result["status"] = "registered";
     if (@checkdnsrr($domain, "A") || @checkdnsrr($domain, "AAAA")) {
       $result["site"] = true;
     }
     return $result;
   }
 
-  // 极少数已注册但未委派 NS 的域名：用 A / MX 兜底一次
+  // 极少数已注册但未委派 NS 的域名：用 A / MX 兜底
   if (@checkdnsrr($domain, "A")) {
     $result["registered"] = true;
     $result["site"] = true;
-  } elseif (@checkdnsrr($domain, "MX")) {
+    $result["status"] = "registered";
+    return $result;
+  }
+  if (@checkdnsrr($domain, "MX")) {
     $result["registered"] = true;
+    $result["status"] = "registered";
+    return $result;
+  }
+
+  // 关键修复：DNS 无任何记录 ≠ 未注册。
+  // 很多已注册域名（尤其单字符/溢价域名，如 u.com、u.net）被停放、
+  // 未委派 NS，DNS 探测会漏判为"未注册"。此时用 RDAP 权威确认：
+  //   HTTP 200 → 已注册；404 → 确实未注册；其它/失败 → 未知（不谎报未注册）。
+  $rdap = domainRdapRegistered($domain);
+  if ($rdap === true) {
+    $result["registered"] = true;
+    $result["status"] = "registered";
+  } elseif ($rdap === false) {
+    $result["status"] = "available";
+  } else {
+    $result["status"] = "unknown";
   }
 
   return $result;
+}
+
+/**
+ * 用 RDAP 权威判断域名是否已注册（供 DNS 无记录时二次确认）。
+ *
+ * @return bool|null true=已注册, false=未注册, null=无法确定（无 RDAP 服务器/超时/异常）
+ */
+function domainRdapRegistered($domain)
+{
+  try {
+    $pslPath = __DIR__ . "/../data/public-suffix-list.dat";
+    if (!is_file($pslPath) || !class_exists("Pdp\\Rules")) {
+      return null;
+    }
+
+    $rules = \Pdp\Rules::fromPath($pslPath);
+    $d = \Pdp\Domain::fromIDNA2008($domain);
+
+    $registrable = $domain;
+    $extension = null;
+    $extensionTop = null;
+    try {
+      $dn = $rules->getPrivateDomain($d);
+      $registrable = $dn->registrableDomain()->toString();
+      $extension = $dn->suffix()->toString();
+    } catch (Throwable $t) {
+      $dn = $rules->getICANNDomain($d);
+      $registrable = $dn->registrableDomain()->toString();
+      $extension = $dn->suffix()->toString();
+      $extensionTop = $dn->domain()->label(0);
+    }
+
+    $rdap = new RDAP($registrable, $extension, $extensionTop);
+    [$code, $response] = $rdap->getData(true); // 快速模式（短超时）
+
+    if ($code === 200) {
+      return true;
+    }
+    if ($code === 404) {
+      return false;
+    }
+    return null; // 429/5xx/其它 → 无法确定
+  } catch (Throwable $t) {
+    // 无 RDAP 服务器（多数 ccTLD）或网络异常 → 无法确定
+    return null;
+  }
 }
 
 /**
@@ -169,7 +236,7 @@ function domainDnsStatusCached($domain)
 {
   $key = strtolower(trim($domain));
   if ($key === "" || strpos($key, ".") === false) {
-    return ["registered" => false, "site" => false];
+    return ["registered" => false, "site" => false, "status" => "unknown"];
   }
 
   $dir = sys_get_temp_dir() . "/nw-dns-cache";
@@ -184,6 +251,8 @@ function domainDnsStatusCached($domain)
         return [
           "registered" => !empty($data["registered"]),
           "site" => !empty($data["site"]),
+          // 兼容旧缓存（无 status 字段）：按 registered 推导
+          "status" => $data["status"] ?? (!empty($data["registered"]) ? "registered" : "available"),
         ];
       }
     }
@@ -191,7 +260,15 @@ function domainDnsStatusCached($domain)
 
   // 未命中 → 实时查询并写回缓存
   $status = domainDnsStatus($key);
-  $ttl = $status["registered"] ? 12 * 3600 : 30 * 60;
+  // TTL：已注册变动慢，长缓存；未注册可能随时被抢注，短缓存；
+  //      未知（查询失败）只缓存很短时间，尽快重试。
+  if ($status["status"] === "registered") {
+    $ttl = 12 * 3600;
+  } elseif ($status["status"] === "available") {
+    $ttl = 30 * 60;
+  } else {
+    $ttl = 5 * 60;
+  }
 
   if (!is_dir($dir)) {
     @mkdir($dir, 0777, true);
@@ -201,6 +278,7 @@ function domainDnsStatusCached($domain)
     json_encode([
       "registered" => $status["registered"],
       "site" => $status["site"],
+      "status" => $status["status"],
       "exp" => time() + $ttl,
     ]),
     LOCK_EX

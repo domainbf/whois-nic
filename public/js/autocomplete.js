@@ -100,10 +100,16 @@
   }
 
   function putCache(domain, st) {
-    var ttl = st.registered ? TTL_REGISTERED : TTL_AVAILABLE;
+    var status = st.status || (st.registered ? "registered" : "available");
+    // 未知（查询失败）只短暂缓存，尽快重试；已注册长缓存；未注册中等
+    var ttl;
+    if (status === "registered") ttl = TTL_REGISTERED;
+    else if (status === "available") ttl = TTL_AVAILABLE;
+    else ttl = 60 * 1000; // unknown: 1 分钟
     statusCache[domain] = {
       registered: !!st.registered,
       site: !!st.site,
+      status: status,
       exp: Date.now() + ttl,
     };
     saveCache();
@@ -337,23 +343,30 @@
   function applyStatus(record, st) {
     var registeredLabel = box.getAttribute("data-label-registered") || "";
     var availableLabel = box.getAttribute("data-label-available") || "";
+    var unknownLabel = box.getAttribute("data-label-unknown") || "";
     var s = record.statusEl;
     s.classList.remove("is-checking");
+    s.classList.remove("is-registered", "is-available", "is-unknown");
 
-    if (st.registered) {
+    // 三态：registered（已注册）/ available（未注册）/ unknown（无法确定）。
+    // status 缺失时按旧的 registered 布尔兜底，保证兼容。
+    var status = st.status || (st.registered ? "registered" : "available");
+
+    if (status === "registered") {
       s.textContent = registeredLabel;
       s.classList.add("is-registered");
-      s.classList.remove("is-available");
-    } else {
+    } else if (status === "available") {
       s.textContent = availableLabel;
       s.classList.add("is-available");
-      s.classList.remove("is-registered");
+    } else {
+      // 未知：不谎报"未注册"，展示中性提示
+      s.textContent = unknownLabel || availableLabel;
+      s.classList.add("is-unknown");
     }
 
-    // 只要已注册就尝试取网站图标：服务端代理会多源回退，取不到时返回
-    // 204，前端自动保留通用链接图标。不再要求必须有 A 记录（限制太严，
-    // 很多已注册域名因此拿不到图标）。
-    if (st.registered) {
+    // 已注册才尝试取网站图标：服务端代理多源回退，取不到返回 204，
+    // 前端自动保留通用链接图标。
+    if (status === "registered") {
       loadFavicon(record, faviconSources(record.domain), 0);
     }
   }
