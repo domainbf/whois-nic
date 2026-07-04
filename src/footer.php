@@ -277,7 +277,7 @@
                 </div>
             </div>
             <a href="https://hello.sn/domain" target="_blank" class="footer-logo-link">
-                <img class="footer-logo" src="/images/logo.png" alt="NIC.BN logo">
+                <img class="footer-logo" src="/images/domainbf.png" alt="DOMAIN.BF logo">
             </a>
             <span class="footer-badge-container">
                 <span class="footer-badge-bg available" id="footer-badge-bg" onclick="toggleBadge()">
