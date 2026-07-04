@@ -1013,7 +1013,8 @@ form {
 .domain-info-box--prohibited,
 .domain-info-box--invalid     { --state: var(--bad);  --state-bg: var(--bad-bg); }
 .domain-info-box--unknown    { --state: var(--muted-foreground); --state-bg: var(--neutral-bg); }
-.domain-info-box--taken      { --state: var(--foreground); --state-bg: var(--neutral-bg); }
+  .domain-info-box--taken      { --state: var(--foreground); --state-bg: var(--neutral-bg); }
+  .domain-info-box--error      { --state: var(--warn); --state-bg: var(--warn-bg); }
 
 /* ---------- 结果卡片（玻璃）---------- */
 .messages {

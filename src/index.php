@@ -151,6 +151,7 @@ $whoisData = null;
 $rdapData = null;
 $parser = new Parser("");
 $error = null;
+$invalidDomain = false; // 仅当域名格式/后缀真正非法时为 true
 $dnsActive = false; // DNS 层面是否检测到域名已被注册/在用
 
 if ($domain) {
@@ -187,9 +188,14 @@ if ($domain) {
     $queryElapsed = microtime(true) - $queryStart;
   } catch (Exception $e) {
     if ($e instanceof SyntaxError || $e instanceof UnableToResolveDomain) {
+      // 真正的格式/后缀非法：才算"无效域名"
+      $invalidDomain = true;
       $error = "'$domain' is not a valid domain";
     } else {
+      // WHOIS/RDAP 查询失败（服务器不可达、超时、注册局接口异常等）：
+      // 这不代表域名无效。退一步用 DNS 兜底判断是否已注册，尽量给出有用结果。
       $error = $e->getMessage();
+      $dnsActive = domainHasDnsRecords($domain);
     }
   }
 
@@ -216,7 +222,7 @@ if ($domain) {
   }
 }
 
-// 分享/Manifest 元数据（$manifestHref, $currentUrl, $shareImage, $shareTitle, $shareDescription）
+// 分享/Manifest 元数据��$manifestHref, $currentUrl, $shareImage, $shareTitle, $shareDescription）
 require __DIR__ . "/lib/share-meta.php";
 ?>
   <!DOCTYPE html>
