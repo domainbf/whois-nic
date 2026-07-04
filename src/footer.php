@@ -277,7 +277,7 @@
                 </div>
             </div>
             <a href="https://hello.sn/domain" target="_blank" class="footer-logo-link">
-                <img class="footer-logo" src="/images/logo.png" alt="NIC.BN logo">
+                <img class="footer-logo" src="/images/logo.png" alt="不讲李 logo">
             </a>
             <span class="footer-badge-container">
                 <span class="footer-badge-bg available" id="footer-badge-bg" onclick="toggleBadge()">
@@ -294,7 +294,7 @@
             </span>
         </div>
         <div class="footer-copyright">
-            &copy; 2025 NIC.BN. <?= htmlspecialchars(t('footer_rights'), ENT_QUOTES, 'UTF-8'); ?>
+            &copy; 2026 不讲李. <?= htmlspecialchars(t('footer_rights'), ENT_QUOTES, 'UTF-8'); ?>
         </div>
         <div class="footer-credits">
             <div class="footer-credits-divider"></div>
@@ -340,7 +340,7 @@
                 bg.className = 'footer-badge-bg mail';
                 text.innerHTML =
                     '<span class="footer-badge-inner">' +
-                    '<a href="mailto:domain@nic.bn">domain@nic.bn</a>' +
+                    '<a href="mailto:domain@nic.rw">非必要请勿联系</a>' +
                     '</span>';
             }else{
                 bg.className = 'footer-badge-bg available';
