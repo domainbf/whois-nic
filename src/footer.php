@@ -294,7 +294,7 @@
             </span>
         </div>
         <div class="footer-copyright">
-            &copy; 2025 NIC.BN. <?= htmlspecialchars(t('footer_rights'), ENT_QUOTES, 'UTF-8'); ?>
+            &copy; 2026 NIC.BN. <?= htmlspecialchars(t('footer_rights'), ENT_QUOTES, 'UTF-8'); ?>
         </div>
         <div class="footer-credits">
             <div class="footer-credits-divider"></div>
