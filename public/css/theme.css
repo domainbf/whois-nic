@@ -577,8 +577,9 @@ form {
 }
 
 /* 搜索框下方的快捷键提示行（右对齐）*/
+/* 键盘快捷键提示：仅在大屏 + 精确指针（鼠标）设备显示；移动/触屏设备隐藏 */
 .nw-hotkeys {
-  display: flex;
+  display: none;
   justify-content: flex-end;
   align-items: center;
   gap: 16px;
@@ -586,6 +587,10 @@ form {
   font-size: 11px;
   color: hsl(var(--muted-foreground) / 0.7);
   user-select: none;
+}
+
+@media (min-width: 768px) and (pointer: fine) {
+  .nw-hotkeys { display: flex; }
 }
 
 .nw-hotkey-item {
