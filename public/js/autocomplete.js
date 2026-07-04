@@ -11,8 +11,16 @@
 
   var HISTORY_KEY = "whois-search-history";
   var CACHE_KEY = "whois-dns-status-cache";
-  // 常见后缀（与参考设计一致，按热度排序）
-  var TLDS = ["com", "net", "org", "io", "dev", "ai", "co", "xyz", "app", "cn"];
+  // TLD 数据来自 tlds.js（window.NW_TLDS）；缺失时回退到内置常用后缀
+  function tldData() {
+    return (
+      window.NW_TLDS || {
+        popular: ["com", "net", "org", "io", "ai", "co", "dev", "app", "xyz", "cn"],
+        all: ["com", "net", "org", "io", "ai", "co", "dev", "app", "xyz", "cn"],
+        set: { com: 1, net: 1, org: 1, io: 1, ai: 1, co: 1, dev: 1, app: 1, xyz: 1, cn: 1 },
+      }
+    );
+  }
   var MAX_ITEMS = 8;
   var DEBOUNCE_MS = 180;
   var FETCH_TIMEOUT_MS = 4500; // 超时即回退，避免一直"检测中"
@@ -107,9 +115,18 @@
   }
 
   // 生成候选域名列表
+  //  - 纯标签（hello）           → hello + 热门后缀
+  //  - 标签 + 完整后缀（hello.com）→ 该域名置顶 + 其他后缀推荐
+  //  - 标签 + 后缀前缀（hello.c） → 智能推荐所有以 c 开头的真实后缀（com/co/cn/cc/club…）
+  //    此时绝不把 hello.c 当成可查询域名
   function buildCandidates(value) {
     var v = parseInput(value);
     if (!v) return [];
+
+    var data = tldData();
+    var TLDS = data.all;
+    var POPULAR = data.popular;
+    var TLD_SET = data.set;
 
     var result = [];
     var seen = {};
@@ -121,43 +138,67 @@
       }
     }
 
-    var dot = v.indexOf(".");
+    // 以最后一个点分割：label 为主体，rest 为后缀部分（可能不完整）
+    var dot = v.lastIndexOf(".");
+    var label = dot === -1 ? v : v.slice(0, dot);
+    var rest = dot === -1 ? "" : v.slice(dot + 1);
+
+    if (!label) return [];
+
     if (dot === -1) {
-      // 纯标签：拼接各常见后缀
-      for (var i = 0; i < TLDS.length; i++) push(v + "." + TLDS[i]);
+      // 纯标签：拼接热门后缀
+      for (var i = 0; i < POPULAR.length; i++) push(label + "." + POPULAR[i]);
+    } else if (rest === "") {
+      // "hello." → 等同纯标签，推荐热门后缀
+      for (var p = 0; p < POPULAR.length; p++) push(label + "." + POPULAR[p]);
+    } else if (TLD_SET[rest]) {
+      // 完整且真实的后缀 → 该域名置顶，再补充热门后缀
+      push(label + "." + rest);
+      for (var q = 0; q < POPULAR.length; q++) {
+        if (POPULAR[q] !== rest) push(label + "." + POPULAR[q]);
+      }
     } else {
-      var label = v.slice(0, dot);
-      var rest = v.slice(dot + 1);
-      // 用户已输入的完整域名优先
-      if (rest.indexOf(".") !== -1 || rest.length > 0) push(v);
-      // 相似推荐：同标签的其他后缀
-      if (label) {
-        for (var j = 0; j < TLDS.length; j++) {
-          if (TLDS[j] !== rest) push(label + "." + TLDS[j]);
+      // 后缀不完整/非法（如 .c）→ 前缀匹配所有以此开头的真实后缀
+      var matches = 0;
+      for (var m = 0; m < TLDS.length && matches < MAX_ITEMS; m++) {
+        if (TLDS[m].indexOf(rest) === 0) {
+          push(label + "." + TLDS[m]);
+          matches++;
         }
+      }
+      // 没有任何后缀以此开头 → 回退到热门后缀推荐（不展示非法域名）
+      if (matches === 0) {
+        for (var f = 0; f < POPULAR.length; f++) push(label + "." + POPULAR[f]);
       }
     }
 
     // 融合最近查询里以该标签开头的记录（去重后置顶）
-    var baseLabel = dot === -1 ? v : v.slice(0, dot);
     var hist = readHistory();
     var recent = [];
     for (var k = 0; k < hist.length; k++) {
-      var q = (hist[k].query || "").toLowerCase();
-      if (q && q.indexOf(".") !== -1 && q.indexOf(baseLabel) === 0 && !seen[q]) {
-        seen[q] = true;
-        recent.push(q);
+      var qq = (hist[k].query || "").toLowerCase();
+      if (qq && qq.indexOf(".") !== -1 && qq.indexOf(label) === 0 && !seen[qq]) {
+        // 仅当历史记录后缀真实存在时才纳入
+        var hdot = qq.lastIndexOf(".");
+        var htld = qq.slice(hdot + 1);
+        if (TLD_SET[htld]) {
+          seen[qq] = true;
+          recent.push(qq);
+        }
       }
     }
 
     return recent.concat(result).slice(0, MAX_ITEMS);
   }
 
-  function faviconUrl(domain) {
-    return (
-      "https://www.google.com/s2/favicons?sz=64&domain=" +
-      encodeURIComponent(domain)
-    );
+  // favicon 多源回退：不同网络环境下可用性不同，逐个尝试
+  function faviconSources(domain) {
+    var d = encodeURIComponent(domain);
+    return [
+      "https://www.google.com/s2/favicons?sz=64&domain=" + d,
+      "https://icons.duckduckgo.com/ip3/" + d + ".ico",
+      "https://favicon.im/" + d + "?larger=true",
+    ];
   }
 
   function clearBox() {
@@ -243,24 +284,34 @@
       s.classList.remove("is-registered");
     }
 
-    // 已建站 → 展示网站 favicon
+    // 已建站 → 展示网站 favicon（多源逐个回退，全部失败则保留通用图标）
     if (st.site) {
-      var img = new Image();
-      img.width = 16;
-      img.height = 16;
-      img.alt = "";
-      img.loading = "lazy";
-      img.referrerPolicy = "no-referrer";
-      img.onload = function () {
-        record.iconEl.innerHTML = "";
-        record.iconEl.appendChild(img);
-        record.iconEl.classList.add("has-favicon");
-      };
-      img.onerror = function () {
-        /* 保留通用图标 */
-      };
-      img.src = faviconUrl(record.domain);
+      loadFavicon(record, faviconSources(record.domain), 0);
     }
+  }
+
+  function loadFavicon(record, sources, idx) {
+    if (idx >= sources.length) return; // 全部失败 → 保留通用链接图标
+    var img = new Image();
+    img.width = 18;
+    img.height = 18;
+    img.alt = "";
+    img.loading = "lazy";
+    img.referrerPolicy = "no-referrer";
+    img.onload = function () {
+      // 有些服务失败时会返回 1x1 占位图，尺寸过小则视为无效
+      if (img.naturalWidth <= 1 || img.naturalHeight <= 1) {
+        loadFavicon(record, sources, idx + 1);
+        return;
+      }
+      record.iconEl.innerHTML = "";
+      record.iconEl.appendChild(img);
+      record.iconEl.classList.add("has-favicon");
+    };
+    img.onerror = function () {
+      loadFavicon(record, sources, idx + 1);
+    };
+    img.src = sources[idx];
   }
 
   function fetchStatuses(candidates) {
