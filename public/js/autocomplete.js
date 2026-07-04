@@ -191,13 +191,13 @@
     return recent.concat(result).slice(0, MAX_ITEMS);
   }
 
-  // favicon 多源回退：不同网络环境下可用性不同，逐个尝试
+  // favicon 多源回退：国内网络下 Google/DDG 常被墙，优先直连站点自身图标
   function faviconSources(domain) {
     var d = encodeURIComponent(domain);
     return [
-      "https://www.google.com/s2/favicons?sz=64&domain=" + d,
+      "https://" + domain + "/favicon.ico",
       "https://icons.duckduckgo.com/ip3/" + d + ".ico",
-      "https://favicon.im/" + d + "?larger=true",
+      "https://www.google.com/s2/favicons?sz=64&domain=" + d,
     ];
   }
 
@@ -298,7 +298,20 @@
     img.alt = "";
     img.loading = "lazy";
     img.referrerPolicy = "no-referrer";
+
+    var done = false;
+    // 单源超时：慢/被墙的图标源快速跳到下一个
+    var timer = setTimeout(function () {
+      if (done) return;
+      done = true;
+      img.src = ""; // 中止加载
+      loadFavicon(record, sources, idx + 1);
+    }, 2500);
+
     img.onload = function () {
+      if (done) return;
+      done = true;
+      clearTimeout(timer);
       // 有些服务失败时会返回 1x1 占位图，尺寸过小则视为无效
       if (img.naturalWidth <= 1 || img.naturalHeight <= 1) {
         loadFavicon(record, sources, idx + 1);
@@ -309,11 +322,82 @@
       record.iconEl.classList.add("has-favicon");
     };
     img.onerror = function () {
+      if (done) return;
+      done = true;
+      clearTimeout(timer);
       loadFavicon(record, sources, idx + 1);
     };
     img.src = sources[idx];
   }
 
+  // DNS-over-HTTPS 解析器（返回 JSON，兼容 Google 格式：{Status, Answer}）。
+  // 按国内可用性排序：阿里 → 腾讯 doh.pub → Cloudflare → Google，逐个回退。
+  var DOH_ENDPOINTS = [
+    "https://dns.alidns.com/resolve",
+    "https://doh.pub/dns-query",
+    "https://cloudflare-dns.com/dns-query",
+    "https://dns.google/resolve",
+  ];
+
+  // 单次 DoH 查询：返回 {status, hasAnswer}；失败抛错以便切换下一个解析器
+  function dohQuery(domain, type, epIdx) {
+    epIdx = epIdx || 0;
+    if (epIdx >= DOH_ENDPOINTS.length) return Promise.reject(new Error("doh"));
+
+    var url =
+      DOH_ENDPOINTS[epIdx] +
+      "?name=" +
+      encodeURIComponent(domain) +
+      "&type=" +
+      type;
+
+    var controller =
+      typeof AbortController !== "undefined" ? new AbortController() : null;
+    var timer = setTimeout(function () {
+      if (controller) controller.abort();
+    }, FETCH_TIMEOUT_MS);
+
+    return fetch(url, {
+      headers: { accept: "application/dns-json" },
+      signal: controller ? controller.signal : undefined,
+    })
+      .then(function (r) {
+        clearTimeout(timer);
+        if (!r.ok) throw new Error("http");
+        return r.json();
+      })
+      .then(function (j) {
+        return {
+          status: typeof j.Status === "number" ? j.Status : -1,
+          hasAnswer: Array.isArray(j.Answer) && j.Answer.length > 0,
+        };
+      })
+      .catch(function () {
+        clearTimeout(timer);
+        // 换下一个解析器重试
+        return dohQuery(domain, type, epIdx + 1);
+      });
+  }
+
+  // 判定单个域名状态：NS 记录判断是否注册，A 记录判断是否已建站
+  function checkStatus(domain) {
+    return dohQuery(domain, "NS").then(function (ns) {
+      // NXDOMAIN(3) 明确未注册；有 NS 应答则已注册
+      if (ns.status === 3) return { registered: false, site: false };
+      var registered = ns.hasAnswer || ns.status === 0;
+      if (!registered) return { registered: false, site: false };
+      // 已注册 → 再查 A 记录判断是否建站
+      return dohQuery(domain, "A")
+        .then(function (a) {
+          return { registered: true, site: a.hasAnswer };
+        })
+        .catch(function () {
+          return { registered: true, site: false };
+        });
+    });
+  }
+
+  // 并行检测：每个域名独立请求、独立更新对应行，避免"一个慢拖垮全部"
   function fetchStatuses(candidates) {
     var need = candidates.filter(function (d) {
       return !getCached(d);
@@ -321,62 +405,31 @@
     if (!need.length) return;
 
     var seq = ++reqSeq;
-    var form = document.getElementById("form");
-    var action = (form && form.getAttribute("action")) || window.location.pathname;
-    var apiUrl;
-    try {
-      apiUrl = new URL(action, window.location.href);
-    } catch (err) {
-      apiUrl = new URL(window.location.href);
-    }
-    apiUrl.search = "";
-    apiUrl.searchParams.set("api", "domain-status");
-    apiUrl.searchParams.set("domains", need.join(","));
-
-    // 超时控制：到点即中止，避免下拉一直停在"检测中"
-    var controller =
-      typeof AbortController !== "undefined" ? new AbortController() : null;
-    var timedOut = false;
-    var timer = setTimeout(function () {
-      timedOut = true;
-      if (controller) controller.abort();
-      if (seq === reqSeq) markUnresolved();
-    }, FETCH_TIMEOUT_MS);
-
-    fetch(apiUrl.toString(), {
-      headers: { Accept: "application/json" },
-      signal: controller ? controller.signal : undefined,
-    })
-      .then(function (r) {
-        return r.ok ? r.json() : {};
-      })
-      .then(function (data) {
-        clearTimeout(timer);
-        if (seq !== reqSeq) return; // 已有更新的请求，丢弃过期结果
-        Object.keys(data).forEach(function (d) {
-          putCache(d, data[d]);
+    need.forEach(function (domain) {
+      checkStatus(domain)
+        .then(function (st) {
+          putCache(domain, st);
+          if (seq !== reqSeq) return; // 有更新的输入，丢弃过期结果
+          items.forEach(function (rec) {
+            if (rec.domain === domain) applyStatus(rec, st);
+          });
+        })
+        .catch(function () {
+          if (seq !== reqSeq) return;
+          items.forEach(function (rec) {
+            if (rec.domain === domain) markUnresolved(rec);
+          });
         });
-        items.forEach(function (rec) {
-          var c = getCached(rec.domain);
-          if (c) applyStatus(rec, c);
-        });
-        markUnresolved(); // 未返回的项也给出兜底展示
-      })
-      .catch(function () {
-        clearTimeout(timer);
-        if (!timedOut && seq === reqSeq) markUnresolved();
-      });
+    });
   }
 
-  // 把仍处于"检测中"的项标记为未知（隐藏标签），避免永远转圈
-  function markUnresolved() {
-    items.forEach(function (rec) {
-      if (rec.statusEl.classList.contains("is-checking")) {
-        rec.statusEl.classList.remove("is-checking");
-        rec.statusEl.classList.add("is-unknown");
-        rec.statusEl.textContent = "";
-      }
-    });
+  // 把某一行的"检测中"标记为未知（隐藏标签），避免永远转圈
+  function markUnresolved(rec) {
+    if (rec.statusEl.classList.contains("is-checking")) {
+      rec.statusEl.classList.remove("is-checking");
+      rec.statusEl.classList.add("is-unknown");
+      rec.statusEl.textContent = "";
+    }
   }
 
   function setActive(idx) {
