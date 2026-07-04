@@ -54,7 +54,7 @@ if (isset($_GET["api"]) && $_GET["api"] === "domain-status") {
     if (!preg_match('/^[a-z0-9\x{4e00}-\x{9fa5}]([a-z0-9\x{4e00}-\x{9fa5}-]{0,61}[a-z0-9\x{4e00}-\x{9fa5}])?(\.[a-z0-9\x{4e00}-\x{9fa5}]([a-z0-9\x{4e00}-\x{9fa5}-]{0,61}[a-z0-9\x{4e00}-\x{9fa5}])?)+$/u', $clean)) {
       continue;
     }
-    $out[$d] = domainDnsStatus($clean);
+    $out[$d] = domainDnsStatusCached($clean);
   }
 
   echo json_encode($out, JSON_UNESCAPED_UNICODE);

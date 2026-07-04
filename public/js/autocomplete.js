@@ -10,10 +10,15 @@
   "use strict";
 
   var HISTORY_KEY = "whois-search-history";
+  var CACHE_KEY = "whois-dns-status-cache";
   // 常见后缀（与参考设计一致，按热度排序）
   var TLDS = ["com", "net", "org", "io", "dev", "ai", "co", "xyz", "app", "cn"];
   var MAX_ITEMS = 8;
   var DEBOUNCE_MS = 180;
+  var FETCH_TIMEOUT_MS = 4500; // 超时即回退，避免一直"检测中"
+  // 客户端缓存 TTL：已注册变动慢、未注册可能随时被注册
+  var TTL_REGISTERED = 12 * 3600 * 1000;
+  var TTL_AVAILABLE = 30 * 60 * 1000;
 
   var LINK_SVG =
     '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">' +
@@ -24,8 +29,9 @@
   var items = []; // 当前渲染的候选 [{domain, el, statusEl, iconEl}]
   var activeIndex = -1;
   var debounceTimer = null;
-  var statusCache = {}; // domain -> {registered, site}
+  var statusCache = {}; // domain -> {registered, site, exp}  内存 + localStorage 双层
   var reqSeq = 0;
+  var cacheLoaded = false;
 
   function readHistory() {
     try {
@@ -35,6 +41,61 @@
     } catch (e) {
       return [];
     }
+  }
+
+  // ---- 智能缓存：localStorage 持久化 DNS 状态，避免重复联网 ----
+  function loadCache() {
+    if (cacheLoaded) return;
+    cacheLoaded = true;
+    try {
+      var raw = localStorage.getItem(CACHE_KEY);
+      var data = raw ? JSON.parse(raw) : {};
+      var now = Date.now();
+      Object.keys(data).forEach(function (d) {
+        if (data[d] && data[d].exp > now) statusCache[d] = data[d];
+      });
+    } catch (e) {
+      /* 忽略损坏缓存 */
+    }
+  }
+
+  var saveTimer = null;
+  function saveCache() {
+    clearTimeout(saveTimer);
+    saveTimer = setTimeout(function () {
+      try {
+        // 清理过期项后写回，限制体积
+        var now = Date.now();
+        var clean = {};
+        var keys = Object.keys(statusCache).filter(function (d) {
+          return statusCache[d] && statusCache[d].exp > now;
+        });
+        // 最多保留最近 300 条
+        keys.slice(-300).forEach(function (d) {
+          clean[d] = statusCache[d];
+        });
+        localStorage.setItem(CACHE_KEY, JSON.stringify(clean));
+      } catch (e) {
+        /* 配额不足等：忽略 */
+      }
+    }, 400);
+  }
+
+  // 读取仍然有效的缓存状态；过期或缺失返回 null
+  function getCached(domain) {
+    var c = statusCache[domain];
+    if (c && c.exp > Date.now()) return c;
+    return null;
+  }
+
+  function putCache(domain, st) {
+    var ttl = st.registered ? TTL_REGISTERED : TTL_AVAILABLE;
+    statusCache[domain] = {
+      registered: !!st.registered,
+      site: !!st.site,
+      exp: Date.now() + ttl,
+    };
+    saveCache();
   }
 
   // 从输入推断"标签"（SLD）与是否已含后缀
@@ -146,8 +207,9 @@
       var record = { domain: domain, el: row, statusEl: status, iconEl: icon };
       items.push(record);
 
-      // 已有缓存直接套用
-      if (statusCache[domain]) applyStatus(record, statusCache[domain]);
+      // 已有有效缓存直接套用（秒开，无需联网）
+      var cached = getCached(domain);
+      if (cached) applyStatus(record, cached);
 
       row.addEventListener("mousedown", function (e) {
         // mousedown 早于 blur，避免下拉先关闭
@@ -203,7 +265,7 @@
 
   function fetchStatuses(candidates) {
     var need = candidates.filter(function (d) {
-      return !statusCache[d];
+      return !getCached(d);
     });
     if (!need.length) return;
 
@@ -220,22 +282,50 @@
     apiUrl.searchParams.set("api", "domain-status");
     apiUrl.searchParams.set("domains", need.join(","));
 
-    fetch(apiUrl.toString(), { headers: { Accept: "application/json" } })
+    // 超时控制：到点即中止，避免下拉一直停在"检测中"
+    var controller =
+      typeof AbortController !== "undefined" ? new AbortController() : null;
+    var timedOut = false;
+    var timer = setTimeout(function () {
+      timedOut = true;
+      if (controller) controller.abort();
+      if (seq === reqSeq) markUnresolved();
+    }, FETCH_TIMEOUT_MS);
+
+    fetch(apiUrl.toString(), {
+      headers: { Accept: "application/json" },
+      signal: controller ? controller.signal : undefined,
+    })
       .then(function (r) {
         return r.ok ? r.json() : {};
       })
       .then(function (data) {
+        clearTimeout(timer);
         if (seq !== reqSeq) return; // 已有更新的请求，丢弃过期结果
         Object.keys(data).forEach(function (d) {
-          statusCache[d] = data[d];
+          putCache(d, data[d]);
         });
         items.forEach(function (rec) {
-          if (statusCache[rec.domain]) applyStatus(rec, statusCache[rec.domain]);
+          var c = getCached(rec.domain);
+          if (c) applyStatus(rec, c);
         });
+        markUnresolved(); // 未返回的项也给出兜底展示
       })
       .catch(function () {
-        /* 网络失败：保持"检测中"或忽略 */
+        clearTimeout(timer);
+        if (!timedOut && seq === reqSeq) markUnresolved();
       });
+  }
+
+  // 把仍处于"检测中"的项标记为未知（隐藏标签），避免永远转圈
+  function markUnresolved() {
+    items.forEach(function (rec) {
+      if (rec.statusEl.classList.contains("is-checking")) {
+        rec.statusEl.classList.remove("is-checking");
+        rec.statusEl.classList.add("is-unknown");
+        rec.statusEl.textContent = "";
+      }
+    });
   }
 
   function setActive(idx) {
@@ -300,6 +390,8 @@
   }
 
   function bind() {
+    loadCache(); // 启动时载入本地 DNS 状态缓存
+
     // 事件委托：绑定到 document，pjax 替换 DOM 后仍然有效
     document.addEventListener("input", function (e) {
       if (!e.target || e.target.id !== "domain") return;

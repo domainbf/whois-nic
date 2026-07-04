@@ -132,18 +132,81 @@ function domainDnsStatus($domain)
     }
   }
 
-  $hasSite = @checkdnsrr($domain, "A") || @checkdnsrr($domain, "AAAA");
-  if ($hasSite) {
+  // NS 是最快、最权威的"是否已注册"信号：
+  // 已注册域名基本都有 NS 委派；未注册域名会返回 NXDOMAIN（很快）。
+  if (@checkdnsrr($domain, "NS")) {
     $result["registered"] = true;
-    $result["site"] = true;
+    // 仅对已注册域名再查 A（用于判断"是否已建站" → 前端展示 favicon）
+    if (@checkdnsrr($domain, "A") || @checkdnsrr($domain, "AAAA")) {
+      $result["site"] = true;
+    }
     return $result;
   }
 
-  if (@checkdnsrr($domain, "NS") || @checkdnsrr($domain, "MX")) {
+  // 极少数已注册但未委派 NS 的域名：用 A / MX 兜底一次
+  if (@checkdnsrr($domain, "A")) {
+    $result["registered"] = true;
+    $result["site"] = true;
+  } elseif (@checkdnsrr($domain, "MX")) {
     $result["registered"] = true;
   }
 
   return $result;
+}
+
+/**
+ * 带缓存的 DNS 状态查询：避免每次联想都重新做 DNS 连接。
+ *
+ * 缓存写入 /tmp（Vercel PHP 运行时可写），按域名单文件存储。
+ * TTL 策略——已注册域名变动很慢，可长时间缓存；未注册域名
+ * 随时可能被注册，缓存较短：
+ *   - 已注册：12 小时
+ *   - 未注册：30 分钟
+ *
+ * @return array{registered:bool, site:bool}
+ */
+function domainDnsStatusCached($domain)
+{
+  $key = strtolower(trim($domain));
+  if ($key === "" || strpos($key, ".") === false) {
+    return ["registered" => false, "site" => false];
+  }
+
+  $dir = sys_get_temp_dir() . "/nw-dns-cache";
+  $file = $dir . "/" . sha1($key) . ".json";
+
+  // 命中未过期缓存 → 直接返回
+  if (is_file($file)) {
+    $raw = @file_get_contents($file);
+    if ($raw !== false) {
+      $data = json_decode($raw, true);
+      if (is_array($data) && isset($data["exp"]) && $data["exp"] > time()) {
+        return [
+          "registered" => !empty($data["registered"]),
+          "site" => !empty($data["site"]),
+        ];
+      }
+    }
+  }
+
+  // 未命中 → 实时查询并写回缓存
+  $status = domainDnsStatus($key);
+  $ttl = $status["registered"] ? 12 * 3600 : 30 * 60;
+
+  if (!is_dir($dir)) {
+    @mkdir($dir, 0777, true);
+  }
+  @file_put_contents(
+    $file,
+    json_encode([
+      "registered" => $status["registered"],
+      "site" => $status["site"],
+      "exp" => time() + $ttl,
+    ]),
+    LOCK_EX
+  );
+
+  return $status;
 }
 
 function getDataSource()
