@@ -149,11 +149,9 @@ body::before {
   background-size: 22px 22px !important;
   background-color: hsl(var(--background)) !important;
   opacity: 1;
-  /* 圆点铺满整个视口（fixed 定位，滚动时始终覆盖全屏）。
-     仅在顶部略微加强、底部保留柔和渐隐，但绝不完全透明，
-     确保页脚/鸣谢区背后也能看到圆点背景。 */
-  -webkit-mask-image: linear-gradient(to bottom, #000 0%, rgba(0, 0, 0, 0.75) 100%);
-  mask-image: linear-gradient(to bottom, #000 0%, rgba(0, 0, 0, 0.75) 100%);
+  /* 圆点均匀铺满整个视口：fixed 定位在滚动时始终覆盖全屏，
+     不再使用任何渐隐蒙版，确保顶部到页脚（公告/鸣谢/版权）背后
+     都能完整看到圆点背景。 */
 }
 
 ::selection {
