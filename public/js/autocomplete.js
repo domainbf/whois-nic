@@ -204,16 +204,23 @@
     return recent.concat(result).slice(0, limit);
   }
 
-  // favicon 多源回退：国内网络下 Google/DDG 常被墙，优先使用国内可访问的
-  // favicon 服务，再直连站点自身图标，最后回退国际服务。
+  // favicon 走同源服务端代理 ?api=favicon：服务端在 Vercel(美国)抓取
+  // Google/DDG/站点图标再以同源图片返回，国内不被墙、无 CORS、可被浏览器缓存。
+  // 这是唯一稳定可用的方案，故只需一个 URL（服务端已内置多源回退）。
   function faviconSources(domain) {
-    var d = encodeURIComponent(domain);
-    return [
-      "https://api.iowen.cn/favicon/" + domain + ".png",
-      "https://" + domain + "/favicon.ico",
-      "https://icons.duckduckgo.com/ip3/" + d + ".ico",
-      "https://www.google.com/s2/favicons?sz=64&domain=" + d,
-    ];
+    var form = document.getElementById("form");
+    var action =
+      (form && form.getAttribute("action")) || window.location.pathname;
+    var url;
+    try {
+      url = new URL(action, window.location.href);
+    } catch (e) {
+      url = new URL(window.location.href);
+    }
+    url.search = "";
+    url.searchParams.set("api", "favicon");
+    url.searchParams.set("domain", domain);
+    return [url.toString()];
   }
 
   function resetPending() {
@@ -359,13 +366,13 @@
     img.referrerPolicy = "no-referrer";
 
     var done = false;
-    // 单源超时：慢/被墙的图标源快速跳到下一个
+    // 服务端代理内部已做多源回退（每源最多 5s），这里给足 8s 再放弃
     var timer = setTimeout(function () {
       if (done) return;
       done = true;
       img.src = ""; // 中止加载
       loadFavicon(record, sources, idx + 1);
-    }, 2500);
+    }, 8000);
 
     img.onload = function () {
       if (done) return;
@@ -472,7 +479,7 @@
     if (!flushTimer) flushTimer = setTimeout(flushQueue, 60);
   }
 
-  // 把某一行的"检测中"标记为未知（隐藏标签），避免永远转圈
+  // 把某一行的"检测中"标记为未知（隐��标签），避免永远转圈
   function markUnresolved(rec) {
     if (rec.statusEl.classList.contains("is-checking")) {
       rec.statusEl.classList.remove("is-checking");

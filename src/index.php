@@ -61,6 +61,69 @@ if (isset($_GET["api"]) && $_GET["api"] === "domain-status") {
   exit;
 }
 
+// ---- 网站图标代理接口（?api=favicon&domain=example.com）----
+// 为什么需要服务端代理：Google / DuckDuckGo 的 favicon 服务在国内浏览器常被墙，
+// 直连站点 /favicon.ico 又受 HTTPS 证书 / 跨域 / 无图标等问题困扰，导致图标加载失败。
+// 本接口在 Vercel（美国）服务端抓取图标再以"同源图片"返回，国内一定可达、无 CORS，
+// 浏览器还能长期缓存。前端只需 <img src="?api=favicon&domain=x">。
+if (isset($_GET["api"]) && $_GET["api"] === "favicon") {
+  $d = isset($_GET["domain"]) ? strtolower(trim($_GET["domain"])) : "";
+
+  // 严格校验域名，避免 SSRF（只允许合法域名字符）
+  if (!preg_match('/^[a-z0-9]([a-z0-9-]{0,61}[a-z0-9])?(\.[a-z0-9]([a-z0-9-]{0,61}[a-z0-9])?)+$/', $d)) {
+    http_response_code(400);
+    exit;
+  }
+
+  // 多源逐个尝试：Google（清晰、覆盖广）→ DuckDuckGo → 站点自身 /favicon.ico
+  $sources = [
+    "https://www.google.com/s2/favicons?sz=64&domain=" . urlencode($d),
+    "https://icons.duckduckgo.com/ip3/" . urlencode($d) . ".ico",
+    "https://" . $d . "/favicon.ico",
+  ];
+
+  $img = null;
+  $ctype = "image/png";
+  foreach ($sources as $src) {
+    $ch = curl_init($src);
+    curl_setopt_array($ch, [
+      CURLOPT_RETURNTRANSFER => true,
+      CURLOPT_FOLLOWLOCATION => true,
+      CURLOPT_MAXREDIRS => 3,
+      CURLOPT_CONNECTTIMEOUT => 3,
+      CURLOPT_TIMEOUT => 5,
+      CURLOPT_SSL_VERIFYPEER => false, // 站点证书不规范时也尽量取到图标
+      CURLOPT_USERAGENT => "Mozilla/5.0 (compatible; WhoisFaviconBot/1.0)",
+    ]);
+    $body = curl_exec($ch);
+    $code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+    $type = curl_getinfo($ch, CURLINFO_CONTENT_TYPE);
+    curl_close($ch);
+
+    // 有效图标：HTTP 200、内容非空、且不是 1x1 占位（Google 失败会返回极小图）
+    if ($body !== false && $code >= 200 && $code < 300 && strlen($body) > 100) {
+      $img = $body;
+      if ($type && stripos($type, "image/") === 0) {
+        $ctype = explode(";", $type)[0];
+      }
+      break;
+    }
+  }
+
+  if ($img === null) {
+    // 全部失败：返回 204，前端据此保留通用链接图标
+    header("Cache-Control: public, max-age=86400");
+    http_response_code(204);
+    exit;
+  }
+
+  header("Content-Type: " . $ctype);
+  header("Cache-Control: public, max-age=604800"); // 缓存 7 天，避免重复抓取
+  header("Content-Length: " . strlen($img));
+  echo $img;
+  exit;
+}
+
 checkPassword();
 
 $domain = cleanDomain($domain);
