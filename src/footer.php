@@ -41,7 +41,7 @@
             background: transparent;
             box-shadow: none;
             font-size: 0.95rem;
-            color: #25304a;
+            color: hsl(var(--foreground));
             font-weight: 600;
             display: flex;
             justify-content: center;
@@ -110,11 +110,12 @@
             align-items: center;
             border-radius: 999px;
             font-weight: 700;
-            box-shadow: 0 4px 16px rgba(44,36,82,0.13);
+            box-shadow: 0 4px 16px hsl(var(--foreground) / 0.13);
             font-size: 0.98rem;
             padding: 0.42rem 0.88rem;
             background: #2c2452;
             color: #fff;
+            border: 1px solid hsl(var(--border));
             transition: all 0.3s;
             position: relative;
             cursor: pointer;
@@ -154,7 +155,7 @@
         
         .footer-copyright {
             font-size: 0.82rem;
-            color: #718096;
+            color: hsl(var(--muted-foreground));
             width: 100%;
             text-align: center;
             padding: 10px 0;
@@ -177,32 +178,32 @@
             width: 48px;
             height: 2px;
             border-radius: 2px;
-            background: #e2e8f0;
+            background: hsl(var(--border));
             margin-bottom: 4px;
         }
         .footer-credits-line {
             font-size: 0.8rem;
             line-height: 1.5;
-            color: #64748b;
+            color: hsl(var(--muted-foreground));
             text-align: center;
         }
         .footer-credits-line .credit-label {
-            color: #94a3b8;
+            color: hsl(var(--muted-foreground) / 0.75);
             margin-right: 0.2em;
         }
         .footer-credits-line a {
-            color: #2c2452;
+            color: hsl(var(--foreground));
             text-decoration: none;
             font-weight: 600;
-            border-bottom: 1px dashed #c7c2e0;
+            border-bottom: 1px dashed hsl(var(--border-hover, var(--border)));
             transition: color 0.2s, border-color 0.2s;
         }
         .footer-credits-line a:hover {
-            color: #5b4bb7;
-            border-color: #5b4bb7;
+            color: hsl(var(--primary));
+            border-color: hsl(var(--primary));
         }
         .footer-credits-sep {
-            color: #cbd5e1;
+            color: hsl(var(--border));
             margin: 0 0.45em;
         }
         @media (max-width: 700px) {
