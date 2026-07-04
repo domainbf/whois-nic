@@ -10,7 +10,8 @@
   "use strict";
 
   var HISTORY_KEY = "whois-search-history";
-  var CACHE_KEY = "whois-dns-status-cache";
+  // v2：改用服务端 DNS 状态接口后升级键名，丢弃旧的（可能错误的）客户端 DoH 缓存
+  var CACHE_KEY = "whois-dns-status-cache-v2";
   // TLD 数据来自 tlds.js（window.NW_TLDS）；缺失时回退到内置常用后缀
   function tldData() {
     return (
@@ -183,12 +184,13 @@
       }
     }
 
-    // 融合最近查询里以该标签开头的记录（去重后置顶）
+    // 融合最近查询记录：必须以"完整输入值"开头，避免输入 hello.s 时
+    // 把历史里的 hello.cc 误置顶（之前只按 label 前缀匹配才会串扰）。
     var hist = readHistory();
     var recent = [];
     for (var k = 0; k < hist.length; k++) {
       var qq = (hist[k].query || "").toLowerCase();
-      if (qq && qq.indexOf(".") !== -1 && qq.indexOf(label) === 0 && !seen[qq]) {
+      if (qq && qq.indexOf(".") !== -1 && qq.indexOf(v) === 0 && !seen[qq]) {
         // 仅当历史记录后缀真实存在时才纳入
         var hdot = qq.lastIndexOf(".");
         var htld = qq.slice(hdot + 1);
@@ -214,11 +216,20 @@
     ];
   }
 
+  function resetPending() {
+    pendingQueue = [];
+    if (flushTimer) {
+      clearTimeout(flushTimer);
+      flushTimer = null;
+    }
+  }
+
   function clearBox() {
     if (statusObserver) {
       statusObserver.disconnect();
       statusObserver = null;
     }
+    resetPending();
     box.innerHTML = "";
     box.hidden = true;
     items = [];
@@ -241,6 +252,7 @@
 
     // 懒检测：仅当行滚动进入视口时才发起 DNS 查询，避免一次性查几十个域名
     reqSeq++;
+    resetPending();
     if (typeof IntersectionObserver !== "undefined") {
       statusObserver = new IntersectionObserver(
         function (entries) {
@@ -377,26 +389,37 @@
     img.src = sources[idx];
   }
 
-  // DNS-over-HTTPS 解析器（返回 JSON，兼容 Google 格式：{Status, Answer}）。
-  // 按国内可用性排序：阿里 → 腾讯 doh.pub → Cloudflare → Google，逐个回退。
-  var DOH_ENDPOINTS = [
-    "https://dns.alidns.com/resolve",
-    "https://doh.pub/dns-query",
-    "https://cloudflare-dns.com/dns-query",
-    "https://dns.google/resolve",
-  ];
+  // ---- 状态检测：走同源服务端接口 ?api=domain-status ----
+  // 服务端在 Vercel（美国）用 checkdnsrr 判断 NS/A 记录，权威可靠，
+  // 且同源无 CORS、国内不被墙——比客户端 DoH 稳定得多（修复 .cc 等误判）。
+  var pendingQueue = [];   // 待检测域名 {domain}
+  var flushTimer = null;
+  var BATCH_SIZE = 12;     // 服务端单次最多处理 12 个
 
-  // 单次 DoH 查询：返回 {status, hasAnswer}；失败抛错以便切换下一个解析器
-  function dohQuery(domain, type, epIdx) {
-    epIdx = epIdx || 0;
-    if (epIdx >= DOH_ENDPOINTS.length) return Promise.reject(new Error("doh"));
+  function apiUrlFor(domains) {
+    var form = document.getElementById("form");
+    var action = (form && form.getAttribute("action")) || window.location.pathname;
+    var url;
+    try {
+      url = new URL(action, window.location.href);
+    } catch (e) {
+      url = new URL(window.location.href);
+    }
+    url.search = "";
+    url.searchParams.set("api", "domain-status");
+    url.searchParams.set("domains", domains.join(","));
+    return url.toString();
+  }
 
-    var url =
-      DOH_ENDPOINTS[epIdx] +
-      "?name=" +
-      encodeURIComponent(domain) +
-      "&type=" +
-      type;
+  function flushQueue() {
+    flushTimer = null;
+    if (!pendingQueue.length) return;
+
+    var batch = pendingQueue.splice(0, BATCH_SIZE);
+    var domains = batch.map(function (b) {
+      return b.domain;
+    });
+    var seq = reqSeq;
 
     var controller =
       typeof AbortController !== "undefined" ? new AbortController() : null;
@@ -404,65 +427,49 @@
       if (controller) controller.abort();
     }, FETCH_TIMEOUT_MS);
 
-    return fetch(url, {
-      headers: { accept: "application/dns-json" },
+    fetch(apiUrlFor(domains), {
+      headers: { Accept: "application/json" },
       signal: controller ? controller.signal : undefined,
     })
       .then(function (r) {
         clearTimeout(timer);
-        if (!r.ok) throw new Error("http");
-        return r.json();
+        return r.ok ? r.json() : {};
       })
-      .then(function (j) {
-        return {
-          status: typeof j.Status === "number" ? j.Status : -1,
-          hasAnswer: Array.isArray(j.Answer) && j.Answer.length > 0,
-        };
+      .then(function (data) {
+        if (seq !== reqSeq) return; // 输入已变，丢弃过期结果
+        batch.forEach(function (b) {
+          var st = data[b.domain];
+          if (st) {
+            putCache(b.domain, st);
+            applyStatus(b.record, st);
+          } else {
+            markUnresolved(b.record);
+          }
+        });
       })
       .catch(function () {
         clearTimeout(timer);
-        // 换下一个解析器重试
-        return dohQuery(domain, type, epIdx + 1);
-      });
-  }
-
-  // 判定单个域名状态：NS 记录判断是否注册，A 记录判断是否已建站
-  function checkStatus(domain) {
-    return dohQuery(domain, "NS").then(function (ns) {
-      // NXDOMAIN(3) 明确未注册；有 NS 应答则已注册
-      if (ns.status === 3) return { registered: false, site: false };
-      var registered = ns.hasAnswer || ns.status === 0;
-      if (!registered) return { registered: false, site: false };
-      // 已注册 → 再查 A 记录判断是否建站
-      return dohQuery(domain, "A")
-        .then(function (a) {
-          return { registered: true, site: a.hasAnswer };
-        })
-        .catch(function () {
-          return { registered: true, site: false };
+        if (seq !== reqSeq) return;
+        batch.forEach(function (b) {
+          markUnresolved(b.record);
         });
-    });
+      });
+
+    // 队列里还有则继续下一批
+    if (pendingQueue.length) {
+      flushTimer = setTimeout(flushQueue, 0);
+    }
   }
 
-  // 单行懒检测：由 IntersectionObserver 在行进入视口时调用，独立更新该行
+  // 单行懒检测：行进入视口时入队，合批请求服务端接口
   function detectRecord(record) {
-    var domain = record.domain;
-    var cached = getCached(domain);
+    var cached = getCached(record.domain);
     if (cached) {
       applyStatus(record, cached);
       return;
     }
-    var seq = reqSeq;
-    checkStatus(domain)
-      .then(function (st) {
-        putCache(domain, st);
-        if (seq !== reqSeq) return; // 输入已变，丢弃过期结果
-        applyStatus(record, st);
-      })
-      .catch(function () {
-        if (seq !== reqSeq) return;
-        markUnresolved(record);
-      });
+    pendingQueue.push({ domain: record.domain, record: record });
+    if (!flushTimer) flushTimer = setTimeout(flushQueue, 60);
   }
 
   // 把某一行的"检测中"标记为未知（隐藏标签），避免永远转圈

@@ -94,16 +94,16 @@ function domainHasDnsRecords($domain)
     }
   }
 
-  // NS 是最强信号：域名一旦被注册并委派，就会有权威 NS 记录
+  // 性能优化：原先最多做 NS+A+AAAA+MX 四次串行 DNS 查询，未注册域名会
+  // 依次全部超时，导致"0.13s 查询"后页面仍要多等好几秒。收敛为两次：
+  //   1) NS —— 最强信号：域名注册并委派后必有权威 NS 记录
+  //   2) A  —— 兜底：极少数未委派 NS 但已解析的域名
+  // 这样可将最坏耗时减半，而对绝大多数域名判断结果不变。
   if (@checkdnsrr($domain, "NS")) {
     return true;
   }
-
-  // 退而求其次：存在解析/邮件记录也说明域名在用
-  foreach (["A", "AAAA", "MX"] as $type) {
-    if (@checkdnsrr($domain, $type)) {
-      return true;
-    }
+  if (@checkdnsrr($domain, "A")) {
+    return true;
   }
 
   return false;

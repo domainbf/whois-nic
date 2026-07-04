@@ -82,7 +82,6 @@ if ($domain) {
   try {
     $queryStart = microtime(true);
     $lookup = new Lookup($domain, $dataSource);
-    $queryElapsed = microtime(true) - $queryStart;
     // 归一化后回填；若解析器未返回域名，则保留用户查询值，确保搜索框始终回显
     $domain = $lookup->domain ?: $domain;
     $whoisData = $lookup->whoisData;
@@ -103,6 +102,10 @@ if ($domain) {
     ) {
       $dnsActive = domainHasDnsRecords($domain);
     }
+
+    // 计时覆盖 WHOIS/RDAP + DNS 兜底的完整服务端查询耗时，
+    // 使显示的耗时与真实等待一致（此前仅计 Lookup，未含 DNS 兜底）。
+    $queryElapsed = microtime(true) - $queryStart;
   } catch (Exception $e) {
     if ($e instanceof SyntaxError || $e instanceof UnableToResolveDomain) {
       $error = "'$domain' is not a valid domain";

@@ -90,13 +90,15 @@ class WHOIS
       $query = str_replace("{domain}", $domain, $this->server["query"]);
     }
 
-    $socket = @stream_socket_client("tcp://$host:43", $errno, $errstr, 10);
+    // 连接与读取超时收紧到 6s：部分 registry 的 43 端口较慢或限流，
+    // 过长的超时会让"查询加载"卡住数秒，6s 足够正常应答又能快速失败回退。
+    $socket = @stream_socket_client("tcp://$host:43", $errno, $errstr, 6);
 
     if (!$socket) {
       throw new RuntimeException($errstr);
     }
 
-    stream_set_timeout($socket, 10);
+    stream_set_timeout($socket, 6);
 
     fwrite($socket, $query);
 
