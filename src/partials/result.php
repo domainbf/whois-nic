@@ -401,9 +401,9 @@
                 <?= htmlspecialchars(t('card_ns'), ENT_QUOTES, 'UTF-8'); ?>
               </h3>
               <div class="nw-ns-list">
-                <?php foreach ($parser->nameServers as $ns): $brand = $nsBrand($ns); ?>
+                <?php foreach ($parser->nameServers as $nsIndex => $ns): $brand = $nsBrand($ns); ?>
                   <div class="nw-ns-item">
-                    <span class="nw-ns-dot"></span>
+                    <span class="nw-ns-label">NS<?= $nsIndex + 1; ?>:</span>
                     <span class="nw-ns-name"><?= htmlspecialchars($ns, ENT_QUOTES, 'UTF-8'); ?></span>
                     <?php if ($brand): ?><span class="nw-ns-brand"><?= htmlspecialchars($brand, ENT_QUOTES, 'UTF-8'); ?></span><?php endif; ?>
                   </div>

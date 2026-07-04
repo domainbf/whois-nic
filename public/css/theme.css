@@ -204,10 +204,65 @@ body::before {
   letter-spacing: 0.02em;
 }
 
+/* 动态 logo：持续的流光扫过 + 轻微呼吸缩放 */
+.brand-logo.is-animated {
+  position: relative;
+  overflow: hidden;
+  background: linear-gradient(
+    135deg,
+    hsl(var(--primary)) 0%,
+    hsl(var(--primary) / 0.78) 50%,
+    hsl(var(--primary)) 100%
+  );
+  background-size: 200% 200%;
+  animation: brand-logo-breathe 3.2s ease-in-out infinite,
+             brand-logo-flow 4.5s ease infinite;
+}
+
+/* 斜向流光高光 */
+.brand-logo.is-animated::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    120deg,
+    transparent 30%,
+    hsl(var(--primary-foreground) / 0.35) 50%,
+    transparent 70%
+  );
+  transform: translateX(-120%);
+  animation: brand-logo-shine 3.2s ease-in-out infinite;
+}
+
+@keyframes brand-logo-breathe {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.08); }
+}
+
+@keyframes brand-logo-flow {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+@keyframes brand-logo-shine {
+  0%, 60% { transform: translateX(-120%); }
+  100% { transform: translateX(120%); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .brand-logo.is-animated {
+    animation: none;
+  }
+  .brand-logo.is-animated::after {
+    display: none;
+  }
+}
+
 .brand-name {
   font-weight: 700;
   font-size: 14px;
-  letter-spacing: 0.14em;
+  letter-spacing: 0.1em;
 }
 
 .brand-badge {
@@ -664,7 +719,7 @@ form {
   height: 17px;
 }
 
-/* 竖排主体：域名在上，类型·时间在下 */
+/* 竖排主体：域�����在上，类型·时间在下 */
 .nw-history-body {
   display: flex;
   flex-direction: column;
@@ -1451,9 +1506,13 @@ a.nw-status-name:hover { text-decoration: underline; }
   background: hsl(var(--muted) / 0.4);
 }
 
-.nw-ns-dot {
-  width: 7px; height: 7px; border-radius: 9999px;
-  background: #10b981; flex-shrink: 0;
+.nw-ns-label {
+  flex-shrink: 0;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 12px;
+  font-weight: 600;
+  color: hsl(var(--foreground) / 0.75);
+  letter-spacing: 0.02em;
 }
 
 .nw-ns-name {
