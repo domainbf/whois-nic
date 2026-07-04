@@ -109,6 +109,43 @@ function domainHasDnsRecords($domain)
   return false;
 }
 
+/**
+ * 为搜索联想返回域名的 DNS 状态：是否已注册、是否已建站。
+ *
+ * - registered：存在 NS（已委派）或 A/AAAA/MX（在用）→ 视为已注册
+ * - site：存在 A / AAAA 记录 → 视为已建站（前端据此展示 favicon）
+ *
+ * @return array{registered:bool, site:bool}
+ */
+function domainDnsStatus($domain)
+{
+  $result = ["registered" => false, "site" => false];
+
+  if (!$domain || strpos($domain, ".") === false) {
+    return $result;
+  }
+
+  if (function_exists("idn_to_ascii")) {
+    $ascii = idn_to_ascii($domain, IDNA_DEFAULT, INTL_IDNA_VARIANT_UTS46);
+    if ($ascii) {
+      $domain = $ascii;
+    }
+  }
+
+  $hasSite = @checkdnsrr($domain, "A") || @checkdnsrr($domain, "AAAA");
+  if ($hasSite) {
+    $result["registered"] = true;
+    $result["site"] = true;
+    return $result;
+  }
+
+  if (@checkdnsrr($domain, "NS") || @checkdnsrr($domain, "MX")) {
+    $result["registered"] = true;
+  }
+
+  return $result;
+}
+
 function getDataSource()
 {
   $whois = filter_var($_GET["whois"] ?? 0, FILTER_VALIDATE_BOOL);

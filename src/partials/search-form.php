@@ -34,6 +34,18 @@
                     <span><?= htmlspecialchars(t('search_button'), ENT_QUOTES, 'UTF-8'); ?></span>
                 </button>
             </div>
+            <!-- 搜索联想下拉（由 autocomplete.js 动态渲染）-->
+            <div
+              class="nw-suggest"
+              id="nw-suggest"
+              role="listbox"
+              aria-label="<?= htmlspecialchars(t('suggest_aria'), ENT_QUOTES, 'UTF-8'); ?>"
+              hidden
+              data-label-recent="<?= htmlspecialchars(t('suggest_recent'), ENT_QUOTES, 'UTF-8'); ?>"
+              data-label-suggest="<?= htmlspecialchars(t('suggest_domains'), ENT_QUOTES, 'UTF-8'); ?>"
+              data-label-registered="<?= htmlspecialchars(t('status_registered'), ENT_QUOTES, 'UTF-8'); ?>"
+              data-label-available="<?= htmlspecialchars(t('status_available'), ENT_QUOTES, 'UTF-8'); ?>"
+              data-label-checking="<?= htmlspecialchars(t('status_checking'), ENT_QUOTES, 'UTF-8'); ?>"></div>
         </div>
         <!-- 查询选项已按原版隐藏：默认同时使用 WHOIS + RDAP，并保留价格查询 -->
         <input type="hidden" name="prices" value="1">
