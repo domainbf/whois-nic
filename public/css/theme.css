@@ -25,6 +25,19 @@
   --radius: 0.75rem;
   --nav-h: 64px;
 
+  /* 统一自然缓动（easeOutQuint 近似，收尾柔和），全站过渡/入场复用 */
+  --ease-natural: cubic-bezier(0.22, 1, 0.36, 1);
+
+  /* 阴影：采用略带冷调的深色（真实光影偏冷），比纯中性更自然耐看。
+     统一的分层景深令牌，供卡片/搜索框/浮层复用，保证质感一致。 */
+  --shadow-color: 235 42% 16%;
+  --elev-1: 0 1px 2px hsl(var(--shadow-color) / 0.05),
+            0 2px 6px -2px hsl(var(--shadow-color) / 0.06);
+  --elev-2: 0 1px 3px hsl(var(--shadow-color) / 0.06),
+            0 10px 28px -18px hsl(var(--shadow-color) / 0.22);
+  --elev-3: 0 2px 6px hsl(var(--shadow-color) / 0.07),
+            0 22px 48px -24px hsl(var(--shadow-color) / 0.32);
+
   /* 状态色（提示卡片 / 标签）*/
   --ok: 142 71% 29%;
   --ok-bg: 138 76% 97%;
@@ -98,6 +111,15 @@
   --primary-foreground: 240 8% 6%;
 
   --ring: 240 5% 55%;
+
+  /* 暗色下阴影需更深更实（近纯黑），才能在深色卡片上形成可感知的景深 */
+  --shadow-color: 240 60% 2%;
+  --elev-1: 0 1px 2px hsl(var(--shadow-color) / 0.4),
+            0 2px 6px -2px hsl(var(--shadow-color) / 0.45);
+  --elev-2: 0 1px 3px hsl(var(--shadow-color) / 0.5),
+            0 12px 30px -18px hsl(var(--shadow-color) / 0.7);
+  --elev-3: 0 2px 8px hsl(var(--shadow-color) / 0.55),
+            0 24px 52px -24px hsl(var(--shadow-color) / 0.8);
 
   --ok: 142 60% 55%;
   --ok-bg: 142 40% 12%;
@@ -475,13 +497,15 @@ form {
   background: hsl(var(--card) / 0.7) !important;
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
-  box-shadow: 0 1px 2px hsl(var(--foreground) / 0.04);
-  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  box-shadow: var(--elev-1);
+  transition: border-color 0.25s var(--ease-natural),
+              box-shadow 0.25s var(--ease-natural);
 }
 
 .search-box:focus-within {
   border-color: hsl(var(--foreground) / 0.45) !important;
-  box-shadow: 0 0 0 4px hsl(var(--ring) / 0.18);
+  /* 焦点环 + 轻微抬升，聚焦时更有回应与浮起感 */
+  box-shadow: 0 0 0 4px hsl(var(--ring) / 0.18), var(--elev-2);
 }
 
 .search-input,
@@ -712,6 +736,14 @@ form {
   background: hsl(var(--muted) / 0.6);
   color: hsl(var(--muted-foreground));
   flex-shrink: 0;
+  transition: background 0.25s var(--ease-natural),
+              color 0.25s var(--ease-natural);
+}
+
+/* 悬停时图标微微向主色靠拢，细腻地强化"可点击"的反馈 */
+.nw-history-link:hover .nw-history-icon {
+  background: hsl(var(--primary) / 0.08);
+  color: hsl(var(--foreground));
 }
 
 .nw-history-icon svg {
@@ -1167,8 +1199,7 @@ code a { color: hsl(var(--info)) !important; }
   background: hsl(var(--card) / 0.7);
   backdrop-filter: blur(8px);
   -webkit-backdrop-filter: blur(8px);
-  box-shadow: 0 1px 3px hsl(var(--foreground) / 0.05),
-    0 8px 24px -16px hsl(var(--foreground) / 0.15);
+  box-shadow: var(--elev-2);
 }
 
 .nw-card-title {
@@ -1188,6 +1219,15 @@ code a { color: hsl(var(--info)) !important; }
   position: relative;
   overflow: hidden;
   padding: 28px;
+  /* 英雄卡：更强景深 + 顶部内高光，营造玻璃通透质感 */
+  box-shadow: var(--elev-3),
+    inset 0 1px 0 hsl(0 0% 100% / 0.5);
+}
+
+[data-theme="dark"] .nw-domain-card {
+  /* 暗色玻璃高光更克制，避免边缘发白 */
+  box-shadow: var(--elev-3),
+    inset 0 1px 0 hsl(0 0% 100% / 0.06);
 }
 
 .nw-globe {
@@ -1850,8 +1890,7 @@ a.nw-status-name:hover { text-decoration: underline; }
   }
   main .nw-card:hover {
     transform: translateY(-3px);
-    box-shadow: 0 2px 6px hsl(var(--foreground) / 0.06),
-                0 18px 40px -20px hsl(var(--foreground) / 0.22);
+    box-shadow: var(--elev-3);
   }
 
   /* 历史项悬停改用自然缓动，浮起更顺滑 */
