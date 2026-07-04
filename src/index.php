@@ -75,12 +75,28 @@ if (isset($_GET["api"]) && $_GET["api"] === "favicon") {
     exit;
   }
 
-  // 多源逐个尝试：Google（清晰、覆盖广）→ DuckDuckGo → 站点自身 /favicon.ico
+  // 多源逐个尝试：Google（清晰、覆盖广，sz=128 更锐利）→ DuckDuckGo → 站点自身 /favicon.ico
   $sources = [
-    "https://www.google.com/s2/favicons?sz=64&domain=" . urlencode($d),
+    "https://www.google.com/s2/favicons?sz=128&domain=" . urlencode($d),
     "https://icons.duckduckgo.com/ip3/" . urlencode($d) . ".ico",
     "https://" . $d . "/favicon.ico",
   ];
+
+  // 校验二进制是否为真图片：按魔数识别 PNG/ICO/GIF/JPEG/WebP/SVG，
+  // 避免把 HTML 错误页当作图标缓存下来。
+  $looksLikeImage = function ($bin) {
+    if (strlen($bin) < 24) {
+      return false;
+    }
+    $h = substr($bin, 0, 12);
+    if (substr($h, 0, 8) === "\x89PNG\r\n\x1a\n") return "image/png";           // PNG
+    if (substr($h, 0, 4) === "\x00\x00\x01\x00") return "image/x-icon";          // ICO
+    if (substr($h, 0, 3) === "GIF") return "image/gif";                          // GIF
+    if (substr($h, 0, 2) === "\xff\xd8") return "image/jpeg";                    // JPEG
+    if (substr($h, 0, 4) === "RIFF" && substr($bin, 8, 4) === "WEBP") return "image/webp"; // WebP
+    if (stripos($bin, "<svg") !== false) return "image/svg+xml";                 // SVG
+    return false;
+  };
 
   $img = null;
   $ctype = "image/png";
@@ -97,16 +113,16 @@ if (isset($_GET["api"]) && $_GET["api"] === "favicon") {
     ]);
     $body = curl_exec($ch);
     $code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-    $type = curl_getinfo($ch, CURLINFO_CONTENT_TYPE);
     curl_close($ch);
 
-    // 有效图标：HTTP 200、内容非空、且不是 1x1 占位（Google 失败会返回极小图）
-    if ($body !== false && $code >= 200 && $code < 300 && strlen($body) > 100) {
-      $img = $body;
-      if ($type && stripos($type, "image/") === 0) {
-        $ctype = explode(";", $type)[0];
+    // 有效图标：HTTP 2xx、内容够大、且魔数确认是真图片
+    if ($body !== false && $code >= 200 && $code < 300 && strlen($body) > 70) {
+      $detected = $looksLikeImage($body);
+      if ($detected) {
+        $img = $body;
+        $ctype = $detected;
+        break;
       }
-      break;
     }
   }
 

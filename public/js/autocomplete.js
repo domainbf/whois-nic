@@ -350,8 +350,10 @@
       s.classList.remove("is-registered");
     }
 
-    // 已建站 → 展示网站 favicon（多源逐个回退，全部失败则保留通用图标）
-    if (st.site) {
+    // 只要已注册就尝试取网站图标：服务端代理会多源回退，取不到时返回
+    // 204，前端自动保留通用链接图标。不再要求必须有 A 记录（限制太严，
+    // 很多已注册域名因此拿不到图标）。
+    if (st.registered) {
       loadFavicon(record, faviconSources(record.domain), 0);
     }
   }
