@@ -37,30 +37,6 @@ i18n_init();
 use Pdp\SyntaxError;
 use Pdp\UnableToResolveDomain;
 
-// ---- 搜索联想：批量 DNS 状态查询接口（?api=domain-status&domains=a.com,b.net）----
-// 供 autocomplete.js 判断每个候选域名是否"已注册 / 已建站"，仅做轻量 DNS 探测。
-if (isset($_GET["api"]) && $_GET["api"] === "domain-status") {
-  header("Content-Type: application/json; charset=utf-8");
-  header("Cache-Control: public, max-age=60");
-
-  $raw = isset($_GET["domains"]) ? (string) $_GET["domains"] : "";
-  $list = array_filter(array_map("trim", explode(",", $raw)));
-  $list = array_slice(array_unique($list), 0, 12); // 限制单次数量，避免滥用
-
-  $out = [];
-  foreach ($list as $d) {
-    $clean = strtolower($d);
-    // 基本格式校验，避免对无效输入做 DNS 查询
-    if (!preg_match('/^[a-z0-9\x{4e00}-\x{9fa5}]([a-z0-9\x{4e00}-\x{9fa5}-]{0,61}[a-z0-9\x{4e00}-\x{9fa5}])?(\.[a-z0-9\x{4e00}-\x{9fa5}]([a-z0-9\x{4e00}-\x{9fa5}-]{0,61}[a-z0-9\x{4e00}-\x{9fa5}])?)+$/u', $clean)) {
-      continue;
-    }
-    $out[$d] = domainDnsStatusCached($clean);
-  }
-
-  echo json_encode($out, JSON_UNESCAPED_UNICODE);
-  exit;
-}
-
 // ---- 网站图标代理接口（?api=favicon&domain=example.com）----
 // 为什么需要服务端代理：Google / DuckDuckGo 的 favicon 服务在国内浏览器常被墙，
 // 直连站点 /favicon.ico 又受 HTTPS 证书 / 跨域 / 无图标等问题困扰，导致图标加载失败。

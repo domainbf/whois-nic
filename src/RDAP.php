@@ -81,18 +81,17 @@ class RDAP
     return $server;
   }
 
-  public function getData($fast = false)
+  public function getData()
   {
     $curl = curl_init("{$this->server}domain/{$this->domain}");
 
     curl_setopt_array($curl, [
       CURLOPT_RETURNTRANSFER => true,
-      // 正常查询 8s（此前 10s）：RDAP 为 HTTPS 接口，正常应答均在 1~2s 内，
-      // 8s 足够慢速注册局应答，又能让无接口/死服务器更快失败、加快结果展示。
-      // $fast=true 为搜索联想的轻量确认用（更短）。
-      CURLOPT_TIMEOUT => $fast ? 4 : 8,
+      // 总超时 8s：RDAP 为 HTTPS 接口，正常应答均在 1~2s 内，8s 足够慢速
+      // 注册局应答，又能让无接口/死服务器更快失败、加快结果展示。
+      CURLOPT_TIMEOUT => 8,
       // 更快失败：连接阶段超时单独限制，避免死服务器拖慢整体查询
-      CURLOPT_CONNECTTIMEOUT => $fast ? 3 : 4,
+      CURLOPT_CONNECTTIMEOUT => 4,
       // RDAP 引导服务器常以 30x 重定向到权威服务器，跟随重定向以提升准确性
       CURLOPT_FOLLOWLOCATION => true,
       CURLOPT_MAXREDIRS => 5,

@@ -399,10 +399,6 @@
             flex-grow: 1;
         }
 
-        .domain-status-message {
-            margin-top: 8px;
-        }
-        
         /* 移动端进一步优化 */
         .domain-info-box {
             max-width: 95% !important;
