@@ -277,7 +277,7 @@
                 </div>
             </div>
             <a href="https://hello.sn/domain" target="_blank" class="footer-logo-link">
-                <img class="footer-logo" src="/images/logo.png" alt="不讲李 logo">
+                <img class="footer-logo" src="/images/domainbf.png" alt="DOMAIN.BF logo">
             </a>
             <span class="footer-badge-container">
                 <span class="footer-badge-bg available" id="footer-badge-bg" onclick="toggleBadge()">
@@ -294,7 +294,7 @@
             </span>
         </div>
         <div class="footer-copyright">
-            &copy; 2026 不讲李. <?= htmlspecialchars(t('footer_rights'), ENT_QUOTES, 'UTF-8'); ?>
+            &copy; 2026 不讲·李. <?= htmlspecialchars(t('footer_rights'), ENT_QUOTES, 'UTF-8'); ?>
         </div>
         <div class="footer-credits">
             <div class="footer-credits-divider"></div>

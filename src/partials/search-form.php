@@ -3,11 +3,6 @@
       <form action="<?= BASE; ?>" id="form" method="get">
         <div class="search-and-button-container">
             <div class="search-box">
-                <span class="search-leading" aria-hidden="true">
-                    <svg viewBox="0 0 16 16" fill="currentColor">
-                        <path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001q.044.06.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1 1 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0" />
-                    </svg>
-                </span>
                 <kbd class="nw-kbd nw-kbd-inline" id="slash-hint" aria-hidden="true">/</kbd>
                 <input
                   autocapitalize="off"
@@ -34,19 +29,7 @@
                     <span><?= htmlspecialchars(t('search_button'), ENT_QUOTES, 'UTF-8'); ?></span>
                 </button>
             </div>
-            <!-- 搜索联想下拉（由 autocomplete.js 动态渲染）-->
-            <div
-              class="nw-suggest"
-              id="nw-suggest"
-              role="listbox"
-              aria-label="<?= htmlspecialchars(t('suggest_aria'), ENT_QUOTES, 'UTF-8'); ?>"
-              hidden
-              data-label-recent="<?= htmlspecialchars(t('suggest_recent'), ENT_QUOTES, 'UTF-8'); ?>"
-              data-label-suggest="<?= htmlspecialchars(t('suggest_domains'), ENT_QUOTES, 'UTF-8'); ?>"
-              data-label-registered="<?= htmlspecialchars(t('status_registered'), ENT_QUOTES, 'UTF-8'); ?>"
-              data-label-available="<?= htmlspecialchars(t('status_available'), ENT_QUOTES, 'UTF-8'); ?>"
-              data-label-checking="<?= htmlspecialchars(t('status_checking'), ENT_QUOTES, 'UTF-8'); ?>"
-              data-label-unknown="<?= htmlspecialchars(t('status_unknown'), ENT_QUOTES, 'UTF-8'); ?>"></div>
+            <!-- 已取消搜索联想下拉（后缀推荐 + 注册状态检测） -->
         </div>
         <!-- 查询选项已按原版隐藏：默认同时使用 WHOIS + RDAP，并保留价格查询 -->
         <input type="hidden" name="prices" value="1">
