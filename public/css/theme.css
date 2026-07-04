@@ -664,7 +664,7 @@ form {
   height: 17px;
 }
 
-/* 竖排主体：域名在上，类型·时间在下 */
+/* 竖排主体：域���在上，类型·时间在下 */
 .nw-history-body {
   display: flex;
   flex-direction: column;
@@ -1451,9 +1451,13 @@ a.nw-status-name:hover { text-decoration: underline; }
   background: hsl(var(--muted) / 0.4);
 }
 
-.nw-ns-dot {
-  width: 7px; height: 7px; border-radius: 9999px;
-  background: #10b981; flex-shrink: 0;
+.nw-ns-label {
+  flex-shrink: 0;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 12px;
+  font-weight: 600;
+  color: hsl(var(--foreground) / 0.75);
+  letter-spacing: 0.02em;
 }
 
 .nw-ns-name {
