@@ -319,7 +319,7 @@
                     <p class="nw-date-label"><?= htmlspecialchars(t('date_expiration'), ENT_QUOTES, 'UTF-8'); ?></p>
                     <p class="nw-date-value" <?= $parser->expirationDateISO8601 ? 'id="expiration-date" data-iso8601="' . htmlspecialchars($parser->expirationDateISO8601, ENT_QUOTES, 'UTF-8') . '"' : ''; ?>><?= htmlspecialchars($isoDate($parser->expirationDateISO8601, $parser->expirationDate), ENT_QUOTES, 'UTF-8'); ?></p>
                     <?php if ($remText): ?>
-                      <p class="nw-date-sub <?= $remColor; ?>"><?= htmlspecialchars($remText, ENT_QUOTES, 'UTF-8'); ?></p>
+                      <p class="nw-date-sub <?= $remColor; ?>"<?= $remSec !== null ? ' id="remaining" data-seconds="' . intval($remSec) . '"' : ''; ?>><span><?= htmlspecialchars($remText, ENT_QUOTES, 'UTF-8'); ?></span></p>
                     <?php endif; ?>
                   </div>
                 <?php endif; ?>
