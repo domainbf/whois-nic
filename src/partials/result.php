@@ -217,6 +217,17 @@
 
     $displayDomain = $parser->domain ?: $domain;
     $registrarInitial = $parser->registrar ? mb_substr($parser->registrar, 0, 1) : '';
+    // 注册商图标：从注册商官网 URL 取主机名，走同源 favicon 代理获取真实站点图标；
+    // 取不到时前端 onerror 会回退到字母头像。
+    $registrarFavicon = '';
+    if ($registrarLink !== '') {
+      $rHost = parse_url($registrarLink, PHP_URL_HOST);
+      if ($rHost) {
+        $rHost = preg_replace('/^www\./', '', strtolower($rHost));
+        // 用根路径，避免与 /:domain 重写规则的 domain 查询参数冲突
+        $registrarFavicon = '/?api=favicon&domain=' . rawurlencode($rHost);
+      }
+    }
   ?>
   <section class="nw-result">
     <div class="nw-grid">
@@ -413,7 +424,13 @@
               <h3 class="nw-card-title nw-card-title-plain"><?= htmlspecialchars(t('card_registrar'), ENT_QUOTES, 'UTF-8'); ?></h3>
             </div>
             <div class="nw-registrar-body">
-              <div class="nw-registrar-logo"><?= htmlspecialchars($registrarInitial, ENT_QUOTES, 'UTF-8'); ?></div>
+              <div class="nw-registrar-logo">
+            <span class="nw-registrar-initial"><?= htmlspecialchars($registrarInitial, ENT_QUOTES, 'UTF-8'); ?></span>
+            <?php if ($registrarFavicon !== ''): ?>
+              <?php /* 加载成功则覆盖字母头像；失败(onerror)则自我移除，露出字母 */ ?>
+              <img class="nw-registrar-favicon" src="<?= htmlspecialchars($registrarFavicon, ENT_QUOTES, 'UTF-8'); ?>" alt="" width="28" height="28" loading="lazy" referrerpolicy="no-referrer" onload="this.parentNode.classList.add('has-favicon')" onerror="this.remove()">
+            <?php endif; ?>
+          </div>
               <div class="nw-registrar-meta">
                 <p class="nw-registrar-name"><?= htmlspecialchars($parser->registrar, ENT_QUOTES, 'UTF-8'); ?></p>
                 <?php if ($registrarLink): ?>

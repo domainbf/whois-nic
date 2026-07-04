@@ -21,10 +21,6 @@
         t: function (k, v) {
           var zh = {
             loading_title: "正在查询 " + (v || "") + "…",
-            loading_subtitle: "RDAP · WHOIS · DNS",
-            loading_step1: "连接 RDAP 服务器…",
-            loading_step2: "查询 WHOIS 数据库…",
-            loading_step3: "解析注册信息…",
           };
           return zh[k] != null ? zh[k] : k;
         },
@@ -63,6 +59,8 @@
   }
 
   var isLoading = false;
+  // 记录本次查询的域名，用于 pjax 替换 header 后确保搜索框回显（服务端归一化可能清空）
+  var lastQueryDomain = "";
 
   // ---- 加载动画（内联展示于内容区，全程流畅动画） ----
   function showLoadingOverlay(domainValue) {
@@ -74,35 +72,17 @@
     overlay.setAttribute("aria-live", "polite");
     overlay.innerHTML =
       '<div class="nw-loading-card">' +
-      '<div class="nw-loading-globe">' +
-      '<svg viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">' +
-      '<circle class="nw-lg-pulse" cx="60" cy="60" r="34"></circle>' +
-      '<circle class="nw-lg-pulse" cx="60" cy="60" r="34"></circle>' +
-      '<circle class="nw-lg-sphere" cx="60" cy="60" r="30"></circle>' +
-      '<g class="nw-lg-grid">' +
-      '<circle cx="60" cy="60" r="30"></circle>' +
-      '<line x1="30" y1="60" x2="90" y2="60"></line>' +
-      '<ellipse cx="60" cy="60" rx="30" ry="11"></ellipse>' +
-      '<ellipse cx="60" cy="60" rx="11" ry="30"></ellipse>' +
-      "</g>" +
-      '<path class="nw-lg-arc" d="M60 18 a42 42 0 0 1 38 24"></path>' +
-      "</svg>" +
-      "</div>" +
+      '<span class="nw-loading-orbit" aria-hidden="true">' +
+      '<span class="nw-loading-ring"></span>' +
+      '<span class="nw-loading-ring"></span>' +
+      '<span class="nw-loading-core"></span>' +
+      "</span>" +
       '<p class="nw-loading-title"></p>' +
-      '<p class="nw-loading-sub"></p>' +
-      '<ul class="nw-loading-steps">' +
-      '<li class="nw-loading-step is-active"></li>' +
-      '<li class="nw-loading-step"></li>' +
-      '<li class="nw-loading-step"></li>' +
-      "</ul>" +
+      '<p class="nw-loading-sub"><span class="nw-loading-sub-text"></span><span class="nw-loading-dots" aria-hidden="true"><i></i><i></i><i></i></span></p>' +
       "</div>";
 
     overlay.querySelector(".nw-loading-title").textContent = I18N.t("loading_title", domainValue);
-    overlay.querySelector(".nw-loading-sub").textContent = I18N.t("loading_subtitle");
-    var steps = overlay.querySelectorAll(".nw-loading-step");
-    steps[0].textContent = I18N.t("loading_step1");
-    steps[1].textContent = I18N.t("loading_step2");
-    steps[2].textContent = I18N.t("loading_step3");
+    overlay.querySelector(".nw-loading-sub-text").textContent = I18N.t("loading_subtitle");
 
     var mainEl = document.querySelector("main");
     var historyEl = document.getElementById("search-history");
@@ -115,18 +95,6 @@
     } else {
       document.body.appendChild(overlay);
     }
-
-    // 步骤依次点亮（纯 CSS 动画在 fetch 期间持续运行，不再被整页跳转冻结）
-    var idx = 0;
-    var timer = setInterval(function () {
-      idx++;
-      if (idx >= steps.length) {
-        clearInterval(timer);
-        return;
-      }
-      steps[idx].classList.add("is-active");
-    }, 900);
-    overlay._timer = timer;
   }
 
   // ---- 顺序加载脚本，保持原始顺序（库先于初始化脚本） ----
@@ -195,6 +163,11 @@
           window.Prism.highlightAll();
         } catch (err) {}
       }
+      // 确保搜索框回显本次查询的域名（服务端归一化后可能为空）
+      var domainInput = document.getElementById("domain");
+      if (domainInput && !domainInput.value && lastQueryDomain) {
+        domainInput.value = lastQueryDomain;
+      }
       // 同步搜索框清除按钮状态 + 历史记录
       syncSearchBox();
       if (window.NWHistory && typeof window.NWHistory.sync === "function") {
@@ -218,6 +191,7 @@
     opts = opts || {};
     var push = opts.push !== false;
     var domainForLoader = opts.domain || "";
+    if (domainForLoader) lastQueryDomain = domainForLoader;
 
     if (push) history.pushState({ pjax: true }, "", url);
 
@@ -277,8 +251,9 @@
     e.preventDefault();
     if (isLoading) return;
 
-    var searchIcon = document.getElementById("search-icon");
-    if (searchIcon) searchIcon.classList.add("searching");
+    // 查询按钮进入加载态：显示简洁旋转环（替代原先晃动的图标动画）
+    var searchBtn = document.querySelector(".search-button");
+    if (searchBtn) searchBtn.classList.add("is-loading");
 
     // 构造目标 URL（保留表单参数，如隐藏的 prices=1）
     var action = form.getAttribute("action") || window.location.pathname;

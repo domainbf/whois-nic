@@ -28,13 +28,25 @@
                     </svg>
                 </button>
                 <button class="button search-button" type="submit" aria-label="<?= htmlspecialchars(t('search_button'), ENT_QUOTES, 'UTF-8'); ?>">
-                    <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" id="search-icon">
-                        <path d="M2.5 8h11" />
-                        <path d="M9 3.5 13.5 8 9 12.5" />
+                    <svg viewBox="0 0 16 16" fill="currentColor" aria-hidden="true" id="search-icon">
+                        <path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001q.044.06.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1 1 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0" />
                     </svg>
                     <span><?= htmlspecialchars(t('search_button'), ENT_QUOTES, 'UTF-8'); ?></span>
                 </button>
             </div>
+            <!-- 搜索联想下拉（由 autocomplete.js 动态渲染）-->
+            <div
+              class="nw-suggest"
+              id="nw-suggest"
+              role="listbox"
+              aria-label="<?= htmlspecialchars(t('suggest_aria'), ENT_QUOTES, 'UTF-8'); ?>"
+              hidden
+              data-label-recent="<?= htmlspecialchars(t('suggest_recent'), ENT_QUOTES, 'UTF-8'); ?>"
+              data-label-suggest="<?= htmlspecialchars(t('suggest_domains'), ENT_QUOTES, 'UTF-8'); ?>"
+              data-label-registered="<?= htmlspecialchars(t('status_registered'), ENT_QUOTES, 'UTF-8'); ?>"
+              data-label-available="<?= htmlspecialchars(t('status_available'), ENT_QUOTES, 'UTF-8'); ?>"
+              data-label-checking="<?= htmlspecialchars(t('status_checking'), ENT_QUOTES, 'UTF-8'); ?>"
+              data-label-unknown="<?= htmlspecialchars(t('status_unknown'), ENT_QUOTES, 'UTF-8'); ?>"></div>
         </div>
         <!-- 查询选项已按原版隐藏：默认同时使用 WHOIS + RDAP，并保留价格查询 -->
         <input type="hidden" name="prices" value="1">
@@ -44,33 +56,59 @@
         $resultMessage = null;
         $resultState = '';
         if ($domain) {
-            if ($error) {
+            if ($error && !empty($invalidDomain)) {
+                // 仅格式/后缀真正非法时才提示"无效域名"
                 $resultMessage = t('msg_invalid');
                 $resultState = 'invalid';
+            } elseif ($error && !empty($dnsActive)) {
+                // 查询接口失败，但 DNS 显示该域名已被注册/在用
+                $resultMessage = t('msg_taken');
+                $resultState = 'taken';
+            } elseif ($error) {
+                // 查询失败（注册局/网络问题），非域名无效——提示稍后重试
+                $resultMessage = t('msg_error');
+                $resultState = 'error';
             } elseif ($parser->reserved) {
                 $resultMessage = t('msg_reserved');
                 $resultState = 'reserved';
             } elseif ($parser->prohibited) {
                 $resultMessage = t('msg_prohibited');
                 $resultState = 'prohibited';
-            } elseif ($parser->unknown) {
-                $resultMessage = t('msg_unknown');
-                $resultState = 'unknown';
             } elseif ($parser->registered) {
                 // 已注册：直接展示下方信息卡片，此处不再提示
                 $resultMessage = null;
+            } elseif (!empty($dnsActive)) {
+                // WHOIS/RDAP 查不到详情，但 DNS 检测到该域名已被注册/在用
+                $resultMessage = t('msg_taken');
+                $resultState = 'taken';
+            } elseif ($parser->unknown) {
+                $resultMessage = t('msg_unknown');
+                $resultState = 'unknown';
             } else {
                 $resultMessage = t('msg_available');
                 $resultState = 'available';
             }
         }
       ?>
-      <?php if ($domain && $resultMessage): ?>
+      <?php if ($domain && $resultMessage):
+        // 状态 → 图标（内联 SVG，随卡片状态色着色）
+        $stateIcons = [
+          'available'  => '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="m9 12 2 2 4-4"/></svg>',
+          'reserved'   => '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>',
+          'prohibited' => '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="m4.9 4.9 14.2 14.2"/></svg>',
+          'invalid'    => '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="m15 9-6 6"/><path d="m9 9 6 6"/></svg>',
+          'unknown'    => '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>',
+          'taken'      => '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M2 12h20"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>',
+          'error'      => '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>',
+        ];
+        $stateIcon  = $stateIcons[$resultState] ?? $stateIcons['unknown'];
+        $stateTitle = t('title_' . $resultState);
+      ?>
   <div class="domain-info-box domain-info-box--<?= htmlspecialchars($resultState, ENT_QUOTES, 'UTF-8'); ?>">
-    <a href="http://<?= htmlspecialchars($domain, ENT_QUOTES, 'UTF-8'); ?>" rel="nofollow noopener noreferrer" target="_blank">
-      <p style="margin-bottom: 5px; font-size: 1.2em; word-break: break-all; overflow-wrap: break-word;"><?= htmlspecialchars($domain, ENT_QUOTES, 'UTF-8'); ?></p>
-    </a>
-    <p><?= $resultMessage; ?></p>
+    <span class="domain-info-icon" aria-hidden="true"><?= $stateIcon; ?></span>
+    <a class="domain-info-name" href="http://<?= htmlspecialchars($domain, ENT_QUOTES, 'UTF-8'); ?>" rel="nofollow noopener noreferrer" target="_blank"><?= htmlspecialchars($domain, ENT_QUOTES, 'UTF-8'); ?></a>
+    <p class="domain-info-title"><?= htmlspecialchars($stateTitle, ENT_QUOTES, 'UTF-8'); ?></p>
+    <p class="domain-info-sub"><?= htmlspecialchars($resultMessage, ENT_QUOTES, 'UTF-8'); ?></p>
   </div>
 <?php endif; ?>
       <!-- 搜索框下方快捷键提示行（复刻 next-whois）-->

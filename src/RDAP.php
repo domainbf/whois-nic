@@ -81,15 +81,16 @@ class RDAP
     return $server;
   }
 
-  public function getData()
+  public function getData($fast = false)
   {
     $curl = curl_init("{$this->server}domain/{$this->domain}");
 
     curl_setopt_array($curl, [
       CURLOPT_RETURNTRANSFER => true,
-      CURLOPT_TIMEOUT => 10,
+      // $fast=true 用于搜索联想的轻量注册状态确认：更短超时，避免拖慢下拉
+      CURLOPT_TIMEOUT => $fast ? 4 : 10,
       // 更快失败：连接阶段超时单独限制，避免死服务器拖慢整体查询
-      CURLOPT_CONNECTTIMEOUT => 5,
+      CURLOPT_CONNECTTIMEOUT => $fast ? 3 : 5,
       // RDAP 引导服务器常以 30x 重定向到权威服务器，跟随重定向以提升准确性
       CURLOPT_FOLLOWLOCATION => true,
       CURLOPT_MAXREDIRS => 5,
