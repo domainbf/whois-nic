@@ -1,8 +1,8 @@
 <nav class="topbar">
   <div class="topbar-inner">
     <a class="brand" href="<?= BASE; ?>" aria-label="<?= htmlspecialchars(t('nav_home'), ENT_QUOTES, 'UTF-8'); ?>">
-      <span class="brand-logo">W</span>
-      <span class="brand-name">WHOIS</span>
+      <span class="brand-logo is-animated" aria-hidden="true">W</span>
+      <span class="brand-name">WHOIS+RDAP</span>
       <span class="brand-badge"><?= htmlspecialchars(t('brand_badge'), ENT_QUOTES, 'UTF-8'); ?></span>
     </a>
     <span class="topbar-divider" aria-hidden="true"></span>
