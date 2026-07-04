@@ -429,20 +429,6 @@ form {
   box-shadow: 0 0 0 4px hsl(var(--ring) / 0.18);
 }
 
-.search-leading {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  color: hsl(var(--muted-foreground));
-  margin-right: 10px;
-  flex-shrink: 0;
-}
-
-.search-leading svg {
-  width: 18px;
-  height: 18px;
-}
-
 .search-input,
 .search-box .input {
   flex: 1 !important;
