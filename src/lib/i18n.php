@@ -18,7 +18,7 @@ if (!defined("I18N_LOADED")) {
             "zh"    => "简体中文",
             "zh-TW" => "繁體中文",
             "en"    => "English",
-            "ja"    => "日本語",
+            "ja"    => "日本鬼子",
         ];
     }
 
@@ -152,16 +152,16 @@ if (!defined("I18N_LOADED")) {
                 "title_reserved"   => "该域名已被保留",
                 "title_prohibited" => "该域名禁止注册",
                 "title_unknown"    => "未找到注册信息",
-                "title_available"  => "该域名目前未注册",
+                "title_available"  => "域名未注册。",
                 "title_taken"      => "该域名已被注册",
                 "title_error"      => "查询暂时失败",
                 "msg_invalid"      => "请检查域名格式后重试。",
                 "msg_reserved"     => "该域名已被注册局保留，暂不开放注册。",
-                "msg_prohibited"   => "该域名被注册局禁止或限制注册。",
+                "msg_prohibited"   => "该域名被注册局禁止或限制注册，你可以联系注册局咨询具体情况。",
                 "msg_unknown"      => "未找到该域名的注册信息。",
-                "msg_available"    => "未查询到注册记录，您可以尝试注册；能否成功以注册局及注册商的实际政策为准。",
+                "msg_available"    => "未查询到注册记录，您可以尝试注册；具体以注册局及注册商为准。",
                 "msg_taken"        => "未获取到 WHOIS/RDAP 详情，但 DNS 记录显示该域名已被注册。",
-                "msg_error"        => "该后缀有效，但注册局 WHOIS/RDAP 接口暂时无法访问，请稍后重试。",
+                "msg_error"        => "注册局没有WHOIS/RDAP接口，很抱歉无法为你获取详细信息。",
                 // 结果卡
                 "status_expired"   => "已过期",
                 "status_expiring"  => "即将到期",
@@ -226,9 +226,9 @@ if (!defined("I18N_LOADED")) {
                 // 页脚
                 "footer_ann1"      => "集成 RDAP+WHOIS 双核驱动提供精准域名注册数据。",
                 "footer_ann2"      => "本站提供域名查询服务，不储存任何搜索及查询数据信息。",
-                "footer_ann3"      => "在售的域名，可👇点击[NIC.BN]进入列表查看所有域名。",
+                "footer_ann3"      => "更多域名，可通过[DOMAIM.BF]进入列表查看所有域名。",
                 "footer_ann4"      => "不记录·不储存·所有搜索查询数据仅保留在您本地浏览器。",
-                "footer_badge"     => "域名寻求合作",
+                "footer_badge"     => "每个域名都有一个故事",
                 "footer_price_by"  => "域名价格数据由",
                 "footer_provided"  => "友情提供",
                 "footer_thanks"    => "鸣谢作者",
