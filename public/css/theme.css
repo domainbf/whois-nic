@@ -149,8 +149,11 @@ body::before {
   background-size: 22px 22px !important;
   background-color: hsl(var(--background)) !important;
   opacity: 1;
-  -webkit-mask-image: radial-gradient(ellipse 80% 60% at 50% 0%, #000 55%, transparent 100%);
-  mask-image: radial-gradient(ellipse 80% 60% at 50% 0%, #000 55%, transparent 100%);
+  /* 圆点铺满整个视口（fixed 定位，滚动时始终覆盖全屏）。
+     仅在顶部略微加强、底部保留柔和渐隐，但绝不完全透明，
+     确保页脚/鸣谢区背后也能看到圆点背景。 */
+  -webkit-mask-image: linear-gradient(to bottom, #000 0%, rgba(0, 0, 0, 0.75) 100%);
+  mask-image: linear-gradient(to bottom, #000 0%, rgba(0, 0, 0, 0.75) 100%);
 }
 
 ::selection {
