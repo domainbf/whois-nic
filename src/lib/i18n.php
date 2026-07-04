@@ -132,7 +132,7 @@ if (!defined("I18N_LOADED")) {
                 "nav_theme"        => "切换深色 / 浅色模式",
                 "nav_lang"         => "切换语言",
                 // 搜索区
-                "search_placeholder" => "输入域名进行查询，例如 NIC.RW",
+                "search_placeholder" => "输入域名进行查询",
                 "search_button"    => "查询",
                 "status_registered" => "已注册",
                 "clear"            => "清除",
@@ -143,7 +143,7 @@ if (!defined("I18N_LOADED")) {
                 "prev_page"        => "上一页",
                 "next_page"        => "下一页",
                 // 结果状态提示
-                "title_invalid"    => "无效的域名",
+                "title_invalid"    => "无效的域名后缀",
                 "title_reserved"   => "该域名已被保留",
                 "title_prohibited" => "该域名禁止注册",
                 "title_unknown"    => "未找到注册信息",
@@ -160,7 +160,7 @@ if (!defined("I18N_LOADED")) {
                 // 结果卡
                 "status_expired"   => "已过期",
                 "status_expiring"  => "即将到期",
-                "status_active"    => "活跃",
+                "status_active"    => "正常",
                 "status_registered" => "已注册",
                 "rem_expired"      => "已过期",
                 "rem_days"         => "剩余 %d 天",
@@ -177,7 +177,7 @@ if (!defined("I18N_LOADED")) {
                 "card_registrar"   => "注册商",
                 "whois_server"     => "WHOIS 服务器",
                 "registry_id"      => "注册局 ID",
-                "registrar_iana"   => "注册商 IANA ID",
+                "registrar_iana"   => "注册商 ID",
                 "registrar_address" => "注册商地址",
                 "abuse_contact"    => "滥用联系",
                 "registrant_info"  => "注册人信息",
@@ -221,7 +221,7 @@ if (!defined("I18N_LOADED")) {
                 // 页脚
                 "footer_ann1"      => "集成 RDAP+WHOIS 双核驱动提供精准域名注册数据。",
                 "footer_ann2"      => "本站提供域名查询服务，不储存任何搜索及查询数据信息。",
-                "footer_ann3"      => "更多域名，可通过[DOMAIM.BF]进入列表查看所有域名。",
+                "footer_ann3"      => "更多域名，可通过[DOMAIN.BF]进入列表查看所有域名。",
                 "footer_ann4"      => "不记录·不储存·所有搜索查询数据仅保留在您本地浏览器。",
                 "footer_badge"     => "每个域名都有一个故事",
                 "footer_price_by"  => "域名价格数据由",
@@ -289,7 +289,7 @@ if (!defined("I18N_LOADED")) {
                 "copied"           => "已複製",
                 "rel_today"        => "今天",
                 "rel_years_ago"    => "%d年前",
-                "rel_months_ago"   => "%d個月前",
+                "rel_months_ago"   => "%d個月��",
                 "rel_days_ago"     => "%d天前",
                 "rel_yesterday"    => "昨天",
                 "dur_year"         => "%d年",
