@@ -21,7 +21,8 @@
       }
     );
   }
-  var MAX_ITEMS = 8;
+  var MAX_ITEMS = 10; // 默认（纯标签/完整后缀）展示条数
+  var MAX_PREFIX_ITEMS = 40; // 后缀前缀匹配时展示更多，配合下拉滚动查看
   var DEBOUNCE_MS = 180;
   var FETCH_TIMEOUT_MS = 4500; // 超时即回退，避免一直"检测中"
   // 客户端缓存 TTL：已注册变动慢、未注册可能随时被注册
@@ -40,6 +41,7 @@
   var statusCache = {}; // domain -> {registered, site, exp}  内存 + localStorage 双层
   var reqSeq = 0;
   var cacheLoaded = false;
+  var statusObserver = null; // IntersectionObserver：行进入视口才检测状态
 
   function readHistory() {
     try {
@@ -145,6 +147,8 @@
 
     if (!label) return [];
 
+    var limit = MAX_ITEMS;
+
     if (dot === -1) {
       // 纯标签：拼接热门后缀
       for (var i = 0; i < POPULAR.length; i++) push(label + "." + POPULAR[i]);
@@ -158,17 +162,24 @@
         if (POPULAR[q] !== rest) push(label + "." + POPULAR[q]);
       }
     } else {
-      // 后缀不完整/非法（如 .c）→ 前缀匹配所有以此开头的真实后缀
-      var matches = 0;
-      for (var m = 0; m < TLDS.length && matches < MAX_ITEMS; m++) {
-        if (TLDS[m].indexOf(rest) === 0) {
-          push(label + "." + TLDS[m]);
-          matches++;
-        }
+      // 后缀不完整（如 .s / .c）→ 前缀匹配真实后缀，可滚动查看更多
+      // 以新顶级域（gTLD，多为 3+ 字母）为主，国别后缀（ccTLD，2 字母）其次
+      limit = MAX_PREFIX_ITEMS;
+      var gtld = [];
+      var cctld = [];
+      for (var m = 0; m < TLDS.length; m++) {
+        var t = TLDS[m];
+        if (t.indexOf(rest) !== 0) continue;
+        // 含点的多级后缀（com.cn 等）归为次要
+        if (t.replace(/\./g, "").length === 2) cctld.push(t);
+        else gtld.push(t);
       }
+      var ordered = gtld.concat(cctld);
+      for (var o = 0; o < ordered.length; o++) push(label + "." + ordered[o]);
       // 没有任何后缀以此开头 → 回退到热门后缀推荐（不展示非法域名）
-      if (matches === 0) {
+      if (ordered.length === 0) {
         for (var f = 0; f < POPULAR.length; f++) push(label + "." + POPULAR[f]);
+        limit = MAX_ITEMS;
       }
     }
 
@@ -188,13 +199,15 @@
       }
     }
 
-    return recent.concat(result).slice(0, MAX_ITEMS);
+    return recent.concat(result).slice(0, limit);
   }
 
-  // favicon 多源回退：国内网络下 Google/DDG 常被墙，优先直连站点自身图标
+  // favicon 多源回退：国内网络下 Google/DDG 常被墙，优先使用国内可访问的
+  // favicon 服务，再直连站点自身图标，最后回退国际服务。
   function faviconSources(domain) {
     var d = encodeURIComponent(domain);
     return [
+      "https://api.iowen.cn/favicon/" + domain + ".png",
       "https://" + domain + "/favicon.ico",
       "https://icons.duckduckgo.com/ip3/" + d + ".ico",
       "https://www.google.com/s2/favicons?sz=64&domain=" + d,
@@ -202,6 +215,10 @@
   }
 
   function clearBox() {
+    if (statusObserver) {
+      statusObserver.disconnect();
+      statusObserver = null;
+    }
     box.innerHTML = "";
     box.hidden = true;
     items = [];
@@ -209,6 +226,10 @@
   }
 
   function render(candidates) {
+    if (statusObserver) {
+      statusObserver.disconnect();
+      statusObserver = null;
+    }
     box.innerHTML = "";
     items = [];
     activeIndex = -1;
@@ -216,6 +237,22 @@
     if (!candidates.length) {
       box.hidden = true;
       return;
+    }
+
+    // 懒检测：仅当行滚动进入视口时才发起 DNS 查询，避免一次性查几十个域名
+    reqSeq++;
+    if (typeof IntersectionObserver !== "undefined") {
+      statusObserver = new IntersectionObserver(
+        function (entries) {
+          entries.forEach(function (entry) {
+            if (!entry.isIntersecting) return;
+            var rec = entry.target.__rec;
+            statusObserver.unobserve(entry.target);
+            if (rec) detectRecord(rec);
+          });
+        },
+        { root: box, rootMargin: "120px 0px" }
+      );
     }
 
     var checkingLabel = box.getAttribute("data-label-checking") || "";
@@ -247,10 +284,15 @@
 
       var record = { domain: domain, el: row, statusEl: status, iconEl: icon };
       items.push(record);
+      row.__rec = record;
 
-      // 已有有效缓存直接套用（秒开，无需联网）
+      // 已有有效缓存直接套用（秒开，无需联网）；否则挂到观察器懒检测
       var cached = getCached(domain);
-      if (cached) applyStatus(record, cached);
+      if (cached) {
+        applyStatus(record, cached);
+      } else if (statusObserver) {
+        statusObserver.observe(row);
+      }
 
       row.addEventListener("mousedown", function (e) {
         // mousedown 早于 blur，避免下拉先关闭
@@ -265,7 +307,12 @@
     box.appendChild(frag);
     box.hidden = false;
 
-    fetchStatuses(candidates);
+    // 不支持 IntersectionObserver 的浏览器：退回一次性检测（仍受缓存约束）
+    if (!statusObserver) {
+      items.forEach(function (rec) {
+        if (!getCached(rec.domain)) detectRecord(rec);
+      });
+    }
   }
 
   function applyStatus(record, st) {
@@ -397,30 +444,25 @@
     });
   }
 
-  // 并行检测：每个域名独立请求、独立更新对应行，避免"一个慢拖垮全部"
-  function fetchStatuses(candidates) {
-    var need = candidates.filter(function (d) {
-      return !getCached(d);
-    });
-    if (!need.length) return;
-
-    var seq = ++reqSeq;
-    need.forEach(function (domain) {
-      checkStatus(domain)
-        .then(function (st) {
-          putCache(domain, st);
-          if (seq !== reqSeq) return; // 有更新的输入，丢弃过期结果
-          items.forEach(function (rec) {
-            if (rec.domain === domain) applyStatus(rec, st);
-          });
-        })
-        .catch(function () {
-          if (seq !== reqSeq) return;
-          items.forEach(function (rec) {
-            if (rec.domain === domain) markUnresolved(rec);
-          });
-        });
-    });
+  // 单行懒检测：由 IntersectionObserver 在行进入视口时调用，独立更新该行
+  function detectRecord(record) {
+    var domain = record.domain;
+    var cached = getCached(domain);
+    if (cached) {
+      applyStatus(record, cached);
+      return;
+    }
+    var seq = reqSeq;
+    checkStatus(domain)
+      .then(function (st) {
+        putCache(domain, st);
+        if (seq !== reqSeq) return; // 输入已变，丢弃过期结果
+        applyStatus(record, st);
+      })
+      .catch(function () {
+        if (seq !== reqSeq) return;
+        markUnresolved(record);
+      });
   }
 
   // 把某一行的"检测中"标记为未知（隐藏标签），避免永远转圈
