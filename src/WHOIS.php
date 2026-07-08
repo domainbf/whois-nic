@@ -109,7 +109,12 @@ class WHOIS
       $query = str_replace("{domain}", $domain, $this->server["query"]);
     }
 
+    // 瞬时连接故障（连接被重置 / registry 限流）自动重试一次，消除偶发失败。
     $socket = @stream_socket_client("tcp://$host:43", $errno, $errstr, 6);
+    if (!$socket) {
+      usleep(200000); // 200ms 退避
+      $socket = @stream_socket_client("tcp://$host:43", $errno, $errstr, 6);
+    }
 
     if (!$socket) {
       throw new RuntimeException($errstr);
