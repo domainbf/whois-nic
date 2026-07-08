@@ -1470,14 +1470,25 @@ code a { color: hsl(var(--info)) !important; }
 .nw-multi-tag {
   display: inline-flex;
   align-items: center;
-  padding: 2px 8px;
+  flex: 0 0 auto;
+  margin-right: 10px;
+  padding: 4px 10px;
   border-radius: 8px;
-  font-size: 11px;
+  font-size: 12px;
   font-weight: 700;
   letter-spacing: 0.02em;
   color: hsl(var(--primary-foreground));
   background-color: hsl(var(--foreground));
   white-space: nowrap;
+}
+
+/* 多域名模式下，搜索框左内边距收紧，给标签+输入更舒展的呼吸空间 */
+.search-box--multi {
+  padding-left: 12px !important;
+}
+
+.search-box--multi .search-input {
+  padding-left: 2px !important;
 }
 
 .nw-multi {

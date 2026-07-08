@@ -4,7 +4,7 @@
   //  2) $multiData ：已输入后缀 → 展示 34 个域名的紧凑列表（可点击进入详情）
 
   // 状态 → 展示配置（文案在 i18n）
-  // SSL/DNS 探测只能确认“已注册/在用”；无法确认的为“未知”，用琥珀色提示可点击核实。
+  // DoH/SSL 探测三态：可注册(绿)、已注册/在用(灰)、未知(琥珀，点击可精确核实)。
   $multiStateMeta = [
     "available"  => ["dot" => "#16a34a", "key" => "multi_state_available"],
     "registered" => ["dot" => "#9ca3af", "key" => "multi_state_registered"],
@@ -31,11 +31,13 @@
     $source = $multiData["source"];
     $elapsed = $multiData["elapsed"] ?? 0;
 
-    // 汇总计数：SSL/DNS 只区分「已注册/在用」与「未知（待点击核实）」
+    // 汇总计数：可注册 / 已注册 / 未知（待点击核实）
+    $countAvailable = 0;
     $countRegistered = 0;
     $countUnknown = 0;
     foreach ($items as $it) {
-      if ($it["state"] === "registered") $countRegistered++;
+      if ($it["state"] === "available") $countAvailable++;
+      elseif ($it["state"] === "registered") $countRegistered++;
       elseif ($it["state"] === "unknown") $countUnknown++;
     }
   ?>
@@ -47,8 +49,11 @@
         <span class="nw-multi-count"><?= count($items); ?> <?= htmlspecialchars(t('multi_domains_unit'), ENT_QUOTES, 'UTF-8'); ?></span>
       </div>
       <div class="nw-multi-summary">
+        <span class="nw-multi-sum-item"><span class="nw-status-bullet" style="background-color:#16a34a"></span><?= $countAvailable; ?> <?= htmlspecialchars(t('multi_state_available'), ENT_QUOTES, 'UTF-8'); ?></span>
         <span class="nw-multi-sum-item"><span class="nw-status-bullet" style="background-color:#9ca3af"></span><?= $countRegistered; ?> <?= htmlspecialchars(t('multi_state_registered'), ENT_QUOTES, 'UTF-8'); ?></span>
-        <span class="nw-multi-sum-item"><span class="nw-status-bullet" style="background-color:#f59e0b"></span><?= $countUnknown; ?> <?= htmlspecialchars(t('multi_state_unknown'), ENT_QUOTES, 'UTF-8'); ?></span>
+        <?php if ($countUnknown > 0): ?>
+          <span class="nw-multi-sum-item"><span class="nw-status-bullet" style="background-color:#f59e0b"></span><?= $countUnknown; ?> <?= htmlspecialchars(t('multi_state_unknown'), ENT_QUOTES, 'UTF-8'); ?></span>
+        <?php endif; ?>
       </div>
     </div>
 

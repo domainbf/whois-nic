@@ -202,9 +202,12 @@
           window.Prism.highlightAll();
         } catch (err) {}
       }
-      // 确保搜索框回显本次查询的域名（服务端归一化后可能为空）
+      // 确保搜索框回显本次查询的域名（服务端归一化后可能为空）。
+      // 多域名模式除外：后缀值由服务端渲染，且暗号 "0" 不应回填到输入框，
+      // 否则进入批量模式后输入框会残留 "0"。
       var domainInput = document.getElementById("domain");
-      if (domainInput && !domainInput.value && lastQueryDomain) {
+      var isMultiPage = !!document.querySelector('input[name="multi"], .search-box--multi');
+      if (!isMultiPage && domainInput && !domainInput.value && lastQueryDomain) {
         domainInput.value = lastQueryDomain;
       }
       // 同步搜索框清除按钮状态 + 历史记录

@@ -95,42 +95,139 @@ function multiDomainLookup($suffix)
 /**
  * SSL + DNS 批量探测（不碰 RDAP/WHOIS，规避注册局限流）。
  *
- * 判定规则（任一命中即“已注册/在用”）：
- *   1) SSL：443 端口 TLS 握手成功 → 有在线 HTTPS 服务
- *   2) DNS：存在 NS 或 A 记录     → 域名已委派/在解析
- * 两者都无法确认 → “未知”（由用户点击该域名再走完整查询）。
- *
- * SSL 探测用 curl_multi 全部并行（面向各目标主机，非注册局，无限流风险）；
- * 未被 SSL 确认的域名再做一次 DNS 记录检查作为补充信号。
+ * 关键：DNS 必须**并行**。此前用 PHP 阻塞式 checkdnsrr 逐个查询 34 个域名，
+ * 对不存在的子域每次都要等满解析器超时，累计远超函数时限 → 504 超时崩溃。
+ * 现改用**并行 DNS-over-HTTPS(DoH)**（curl_multi 一次性并发），秒级返回，
+ * 且能干净区分三态：
+ *   - DoH 有 NS 应答(Status 0)  → 已委派 → registered（已注册）
+ *   - DoH NXDOMAIN(Status 3)    → 域名不存在 → available（可注册）
+ *   - DoH 其它(SERVFAIL/NODATA/错误) → 未定，转 SSL 复核
+ * SSL 复核同样并行：443 TLS 握手成功 → registered（在用）；否则 unknown。
  */
 function multiViaSslDns(array $domains)
 {
-    // 第一遍：DNS NS/A 记录检查（最可靠的注册信号，NXDOMAIN 立即返回，极快）。
-    // 绝大多数已注册域名都有 NS 委派，这一步即可确认。
-    $confirmed = [];   // label => true（已确认注册）
-    $undetermined = []; // label => domain（DNS 未命中，进入 SSL 复核）
+    // 第一遍：并行 DoH（NS 记录）。返回 label => 'registered'|'available'|'undetermined'
+    $doh = multiDohProbe($domains);
+
+    $confirmed = [];    // label => state（已确定：registered / available）
+    $undetermined = []; // label => domain（需 SSL 复核）
     foreach ($domains as $label => $domain) {
-        if (domainHasDnsRecords($domain)) {
-            $confirmed[$label] = true;
+        $state = $doh[$label] ?? "undetermined";
+        if ($state === "registered" || $state === "available") {
+            $confirmed[$label] = $state;
         } else {
             $undetermined[$label] = $domain;
         }
     }
 
-    // 第二遍：仅对 DNS 未命中的少数域名并行做 SSL/TLS 握手复核（捕获无 NS 但
-    // 有在线 HTTPS 服务的边缘情况）。目标是各主机，非注册局，无限流风险。
+    // 第二遍：仅对未定域名并行 SSL/TLS 握手复核（捕获无 NS 但有在线 HTTPS 的情况）
     $sslOk = !empty($undetermined) ? multiSslProbe($undetermined) : [];
 
     $items = [];
     foreach ($domains as $label => $domain) {
-        $registered = !empty($confirmed[$label]) || !empty($sslOk[$label]);
+        if (isset($confirmed[$label])) {
+            $state = $confirmed[$label];
+        } elseif (!empty($sslOk[$label])) {
+            $state = "registered";
+        } else {
+            $state = "unknown";
+        }
         $items[] = [
             "label" => $label,
             "domain" => $domain,
-            "state" => $registered ? "registered" : "unknown",
+            "state" => $state,
         ];
     }
     return $items;
+}
+
+/**
+ * 并行 DNS-over-HTTPS 探测（Cloudflare DoH JSON 接口）。
+ * 对每个域名并发查询 NS 记录，解析 DoH 返回的 Status/Answer：
+ *   - Status 0 且含 NS 应答 → registered
+ *   - Status 3 (NXDOMAIN)   → available
+ *   - 其它（2 SERVFAIL / NODATA / HTTP 错误 / 解析失败） → undetermined
+ *
+ * @return array label => 'registered'|'available'|'undetermined'
+ */
+function multiDohProbe(array $domains)
+{
+    $keyOf = function ($ch) {
+        return is_object($ch) ? spl_object_id($ch) : (int) $ch;
+    };
+
+    $mh = curl_multi_init();
+    $active = [];
+    $out = [];
+
+    foreach ($domains as $label => $domain) {
+        $host = $domain;
+        if (function_exists("idn_to_ascii")) {
+            $converted = idn_to_ascii($domain, IDNA_DEFAULT, INTL_IDNA_VARIANT_UTS46);
+            if ($converted) {
+                $host = $converted;
+            }
+        }
+
+        $ch = curl_init();
+        curl_setopt_array($ch, [
+            CURLOPT_URL => "https://cloudflare-dns.com/dns-query?name=" . rawurlencode($host) . "&type=NS",
+            CURLOPT_HTTPHEADER => ["accept: application/dns-json"],
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_TIMEOUT => 8,
+            CURLOPT_CONNECTTIMEOUT => 4,
+            CURLOPT_ENCODING => "",
+            CURLOPT_NOSIGNAL => true,
+        ]);
+        curl_multi_add_handle($mh, $ch);
+        $active[$keyOf($ch)] = ["label" => $label, "ch" => $ch];
+        $out[$label] = "undetermined";
+    }
+
+    do {
+        curl_multi_exec($mh, $running);
+
+        while ($info = curl_multi_info_read($mh)) {
+            $ch = $info["handle"];
+            $k = $keyOf($ch);
+            $meta = $active[$k] ?? null;
+            if ($meta) {
+                $code = (int) curl_getinfo($ch, CURLINFO_HTTP_CODE);
+                $body = curl_multi_getcontent($ch);
+                if ($code === 200 && $body) {
+                    $json = json_decode($body, true);
+                    if (is_array($json) && isset($json["Status"])) {
+                        $status = (int) $json["Status"];
+                        $hasNs = false;
+                        if (!empty($json["Answer"]) && is_array($json["Answer"])) {
+                            foreach ($json["Answer"] as $ans) {
+                                if ((int) ($ans["type"] ?? 0) === 2) { // 2 = NS
+                                    $hasNs = true;
+                                    break;
+                                }
+                            }
+                        }
+                        if ($status === 0 && $hasNs) {
+                            $out[$meta["label"]] = "registered";
+                        } elseif ($status === 3) {
+                            $out[$meta["label"]] = "available";
+                        }
+                        // 其它保持 undetermined
+                    }
+                }
+                unset($active[$k]);
+            }
+            curl_multi_remove_handle($mh, $ch);
+            curl_close($ch);
+        }
+
+        if ($running) {
+            curl_multi_select($mh, 1.0);
+        }
+    } while ($running);
+
+    curl_multi_close($mh);
+    return $out;
 }
 
 /**
