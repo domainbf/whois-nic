@@ -580,8 +580,9 @@ form {
   transition: opacity 0.2s ease, transform 0.1s ease;
 }
 
-/* 查询加载态：隐藏放大镜，显示简洁旋转环（不再晃动） */
+/* 查询加载态：隐藏放大镜，显示旋转环 + 居中停止方块（提示可点击取消） */
 .search-button.is-loading > svg { opacity: 0; }
+.search-button.is-loading { cursor: pointer; }
 .search-button.is-loading::after {
   content: "";
   position: absolute;
@@ -591,6 +592,16 @@ form {
   border: 2px solid hsl(var(--primary-foreground) / 0.35);
   border-top-color: hsl(var(--primary-foreground));
   animation: nw-spin 0.7s linear infinite;
+}
+/* 居中停止方块：明确暗示点击按钮可暂停/取消查询 */
+.search-button.is-loading::before {
+  content: "";
+  position: absolute;
+  width: 7px;
+  height: 7px;
+  border-radius: 1.5px;
+  background: hsl(var(--primary-foreground));
+  z-index: 1;
 }
 
 .search-button:hover {

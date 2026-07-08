@@ -88,7 +88,15 @@
   };
 
   try {
-    const response = await fetch(`/price?domain=${encodeURIComponent(domain)}`);
+    // 客户端超时保护：上游偶发卡顿时不让价格骨架无限停留（10s 后判失败）
+    const ctrl = typeof AbortController === "function" ? new AbortController() : null;
+    const timer = ctrl ? setTimeout(() => ctrl.abort(), 10000) : null;
+    let response;
+    try {
+      response = await fetch(`/price?domain=${encodeURIComponent(domain)}`, ctrl ? { signal: ctrl.signal } : undefined);
+    } finally {
+      if (timer) clearTimeout(timer);
+    }
     if (!response.ok) {
       throw new Error("price request failed");
     }

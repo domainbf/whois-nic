@@ -33,6 +33,34 @@ if ($tld === "" || !preg_match("/^[a-z0-9.-]+$/", $tld)) {
     exit;
 }
 
+// ---- 服务端缓存（按 TLD）----------------------------------------------------
+// 价格几乎按天变动，缓存聚合结果可将同后缀的后续查询从数秒降到毫秒级，
+// 这是价格加载最主要的提速手段（上游米情局/哪煮米本身较慢且无 CORS）。
+define("PRICE_CACHE_TTL", 43200); // 12 小时
+$cacheDir = sys_get_temp_dir() . "/nw_price_cache";
+$cacheFile = $cacheDir . "/" . preg_replace("/[^a-z0-9.-]/", "_", $tld) . ".json";
+
+// 命中新鲜缓存：直接返回，附带 X-Price-Cache: HIT 便于排查
+if (is_file($cacheFile) && (time() - filemtime($cacheFile)) < PRICE_CACHE_TTL) {
+    $cached = file_get_contents($cacheFile);
+    if ($cached !== false && $cached !== "") {
+        header("X-Price-Cache: HIT");
+        echo $cached;
+        exit;
+    }
+}
+
+// 将聚合结果写入缓存（成功结果才缓存）
+function price_write_cache($dir, $file, $payload)
+{
+    if (!is_dir($dir)) {
+        @mkdir($dir, 0777, true);
+    }
+    if (is_dir($dir)) {
+        @file_put_contents($file, $payload, LOCK_EX);
+    }
+}
+
 // ---- 并发 HTTP GET（curl_multi）---------------------------------------------
 // $requests: [key => url]；返回 [key => 解析后的数组|null]
 function price_http_multi(array $requests, $timeout = 5)
@@ -207,9 +235,14 @@ if (empty($data)) {
     exit;
 }
 
-echo json_encode([
+$payload = json_encode([
     "code" => 200,
     "source" => implode("+", array_keys($usedSources)) ?: "unknown",
     "tld" => $tld,
     "data" => $data,
 ], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+
+// 写入缓存后返回（附 X-Price-Cache: MISS）
+price_write_cache($cacheDir, $cacheFile, $payload);
+header("X-Price-Cache: MISS");
+echo $payload;

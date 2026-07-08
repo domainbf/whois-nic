@@ -61,6 +61,11 @@
   var isLoading = false;
   // 记录本次查询的域名，用于 pjax 替换 header 后确保搜索框回显（服务端归一化可能清空）
   var lastQueryDomain = "";
+  // 取消查询支持：当前请求控制器 + 查询前的内容快照与地址，用于点击停止后恢复
+  var currentController = null;
+  var savedMainHTML = null;
+  var prevURL = "";
+  var wasCanceled = false;
 
   // ---- 加载动画（内联展示于内容区，全程流畅动画） ----
   function showLoadingOverlay(domainValue) {
@@ -90,11 +95,45 @@
     var staleInfo = document.querySelector(".domain-info-box");
     if (staleInfo) staleInfo.remove();
     if (mainEl) {
+      // 保存查询前的主内容，取消查询时可原样恢复
+      savedMainHTML = mainEl.innerHTML;
       mainEl.innerHTML = "";
       mainEl.appendChild(overlay);
     } else {
+      savedMainHTML = null;
       document.body.appendChild(overlay);
     }
+  }
+
+  // 结束加载态：清理旋转环 class（成功/取消/失败通用）
+  function clearLoadingState() {
+    isLoading = false;
+    currentController = null;
+    var searchBtn = document.querySelector(".search-button");
+    if (searchBtn) searchBtn.classList.remove("is-loading");
+  }
+
+  // 取消进行中的查询：中止请求 → 恢复查询前内容与地址栏
+  function cancelLoad() {
+    if (!isLoading) return;
+    wasCanceled = true;
+    if (currentController) {
+      try { currentController.abort(); } catch (e) {}
+    }
+    var mainEl = document.querySelector("main");
+    if (mainEl) {
+      if (savedMainHTML !== null) {
+        mainEl.innerHTML = savedMainHTML;
+      } else {
+        var loadingEl = mainEl.querySelector(".nw-loading");
+        if (loadingEl) loadingEl.remove();
+      }
+    }
+    // 地址栏回退到查询前的 URL，保持前进/后退一致
+    if (prevURL) {
+      try { history.replaceState({ pjax: true }, "", prevURL); } catch (e) {}
+    }
+    clearLoadingState();
   }
 
   // ---- 顺序加载脚本，保持原始顺序（库先于初始化脚本） ----
@@ -193,6 +232,10 @@
     var domainForLoader = opts.domain || "";
     if (domainForLoader) lastQueryDomain = domainForLoader;
 
+    // 记录查询前地址，供取消时回退（在 pushState 之前捕获）
+    prevURL = window.location.href;
+    wasCanceled = false;
+
     if (push) history.pushState({ pjax: true }, "", url);
 
     // 命中缓存：瞬时展示（仍显示极短加载态以保持一致体验则可省略）
@@ -201,12 +244,10 @@
       applyDocument(pageCache[url])
         .then(function () {
           window.scrollTo({ top: 0, behavior: "auto" });
+          clearLoadingState();
         })
         .catch(function () {
           window.location.href = url;
-        })
-        .finally(function () {
-          isLoading = false;
         });
       return;
     }
@@ -214,9 +255,12 @@
     isLoading = true;
     showLoadingOverlay(domainForLoader);
 
+    currentController = typeof AbortController === "function" ? new AbortController() : null;
+
     fetch(url, {
       headers: { "X-Requested-With": "fetch" },
       credentials: "same-origin",
+      signal: currentController ? currentController.signal : undefined,
     })
       .then(function (res) {
         if (!res.ok) throw new Error("pjax fetch failed: " + res.status);
@@ -228,13 +272,15 @@
       })
       .then(function () {
         window.scrollTo({ top: 0, behavior: "auto" });
+        clearLoadingState();
       })
-      .catch(function () {
-        // 任意失败：回退为整页导航，保证可用性
+      .catch(function (err) {
+        // 用户主动取消：已在 cancelLoad 中恢复，不再回退导航
+        if (wasCanceled || (err && err.name === "AbortError")) {
+          return;
+        }
+        // 其他失败：回退为整页导航，保证可用性
         window.location.href = url;
-      })
-      .finally(function () {
-        isLoading = false;
       });
   }
 
@@ -244,14 +290,20 @@
     if (!form || form.id !== "form") return;
     if (!PJAX_OK) return; // 回退整页导航
 
+    // 正在查询时点击按钮 = 暂停/取消查询（优先于输入校验）
+    if (isLoading) {
+      e.preventDefault();
+      cancelLoad();
+      return;
+    }
+
     var input = form.querySelector("#domain");
     var val = input ? input.value.trim() : "";
     if (!val) return; // 交给原生 required 校验
 
     e.preventDefault();
-    if (isLoading) return;
 
-    // 查询按钮进入加载态：显示简洁旋转环（替代原先晃动的图标动画）
+    // 查询按钮进入加载态：显示可点击的停止图标（点击可取消查询）
     var searchBtn = document.querySelector(".search-button");
     if (searchBtn) searchBtn.classList.add("is-loading");
 
