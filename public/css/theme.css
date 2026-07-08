@@ -226,18 +226,20 @@ body::before {
   letter-spacing: 0.02em;
 }
 
-/* 动态 logo：持续的流光扫过 + 轻微呼吸缩放 */
+/* 动态 logo：呼吸缩放 + 光晕脉动 + 斜向流光扫过 */
 .brand-logo.is-animated {
   position: relative;
   overflow: hidden;
   background: linear-gradient(
     135deg,
     hsl(var(--primary)) 0%,
-    hsl(var(--primary) / 0.78) 50%,
+    hsl(var(--primary) / 0.72) 50%,
     hsl(var(--primary)) 100%
   );
   background-size: 200% 200%;
-  animation: brand-logo-breathe 3.2s ease-in-out infinite,
+  transform-origin: center;
+  will-change: transform;
+  animation: brand-logo-breathe 3s ease-in-out infinite,
              brand-logo-flow 4.5s ease infinite;
 }
 
@@ -248,17 +250,23 @@ body::before {
   inset: 0;
   background: linear-gradient(
     120deg,
-    transparent 30%,
-    hsl(var(--primary-foreground) / 0.35) 50%,
-    transparent 70%
+    transparent 28%,
+    hsl(var(--primary-foreground) / 0.5) 50%,
+    transparent 72%
   );
-  transform: translateX(-120%);
-  animation: brand-logo-shine 3.2s ease-in-out infinite;
+  transform: translateX(-130%);
+  animation: brand-logo-shine 3s ease-in-out infinite;
 }
 
 @keyframes brand-logo-breathe {
-  0%, 100% { transform: scale(1); }
-  50% { transform: scale(1.08); }
+  0%, 100% {
+    transform: scale(1);
+    box-shadow: 0 0 0 0 hsl(var(--primary) / 0);
+  }
+  50% {
+    transform: scale(1.1);
+    box-shadow: 0 0 14px 1px hsl(var(--primary) / 0.35);
+  }
 }
 
 @keyframes brand-logo-flow {
@@ -268,8 +276,8 @@ body::before {
 }
 
 @keyframes brand-logo-shine {
-  0%, 60% { transform: translateX(-120%); }
-  100% { transform: translateX(120%); }
+  0%, 55% { transform: translateX(-130%); }
+  100% { transform: translateX(130%); }
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -285,6 +293,40 @@ body::before {
   font-weight: 700;
   font-size: 14px;
   letter-spacing: 0.1em;
+}
+
+/* 文字标光束：一道高光沿字面横向滑过（用渐变 + background-clip 实现） */
+.brand-name.is-shine {
+  position: relative;
+  background: linear-gradient(
+    100deg,
+    hsl(var(--foreground)) 0%,
+    hsl(var(--foreground)) 38%,
+    hsl(var(--foreground) / 0.35) 50%,
+    hsl(var(--foreground)) 62%,
+    hsl(var(--foreground)) 100%
+  );
+  background-size: 220% 100%;
+  background-position: 120% 0;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: transparent;
+  animation: brand-name-shine 4.5s ease-in-out infinite;
+}
+
+@keyframes brand-name-shine {
+  0% { background-position: 120% 0; }
+  55%, 100% { background-position: -40% 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .brand-name.is-shine {
+    animation: none;
+    background: none;
+    -webkit-text-fill-color: currentColor;
+    color: hsl(var(--foreground));
+  }
 }
 
 .brand-badge {
@@ -409,7 +451,7 @@ body::before {
   opacity: 1;
 }
 
-/* 太阳 / 月亮图��堆叠并以旋转 + 缩放 + 淡入做柔和交叉切换 */
+/* 太阳 / 月亮图标堆叠并以旋转 + 缩放 + 淡入做柔和交叉切换 */
 .theme-toggle {
   position: relative;
 }
@@ -1251,19 +1293,33 @@ code a { color: hsl(var(--info)) !important; }
   opacity: 0.9;
 }
 
-.nw-globe-sphere {
-  fill: hsl(var(--muted) / 0.5);
+/* 深色渐变球体的三段色标（跟随明暗主题的 foreground） */
+.nw-globe-stop-hi { stop-color: hsl(var(--foreground) / 0.92); }
+.nw-globe-stop-mid { stop-color: hsl(var(--foreground) / 0.82); }
+.nw-globe-stop-lo { stop-color: hsl(var(--foreground) / 0.62); }
+
+/* 球面经纬线：浅色（用背景色着色，在深色球面上显现） */
+.nw-globe-lines {
+  fill: none;
+  stroke: hsl(var(--background) / 0.4);
+  stroke-width: 0.9;
 }
 
-.nw-globe-grid {
+/* 左上柔和高光 */
+.nw-globe-gloss {
+  fill: hsl(var(--background) / 0.28);
+}
+
+/* 球体边缘描边 */
+.nw-globe-rim {
   fill: none;
-  stroke: hsl(var(--muted-foreground) / 0.28);
-  stroke-width: 0.7;
+  stroke: hsl(var(--foreground) / 0.25);
+  stroke-width: 1;
 }
 
 .nw-globe-orbit-ring {
   fill: none;
-  stroke: hsl(var(--muted-foreground) / 0.3);
+  stroke: hsl(var(--muted-foreground) / 0.32);
   stroke-width: 0.9;
   stroke-dasharray: 2 4;
 }

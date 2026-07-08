@@ -316,21 +316,41 @@
         <div class="nw-card nw-domain-card">
           <div class="nw-globe" aria-hidden="true">
             <svg viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg">
-              <!-- 球体本体 -->
-              <circle cx="60" cy="60" r="33" class="nw-globe-sphere"/>
-              <!-- 经纬网格（静止，干净的地球轮廓）-->
-              <g class="nw-globe-grid">
-                <circle cx="60" cy="60" r="33"/>
+              <defs>
+                <!-- 深色渐变球体（左上受光，右下沉入阴影，营造立体感）-->
+                <radialGradient id="nwGlobeFill" cx="38%" cy="32%" r="78%">
+                  <stop offset="0%" class="nw-globe-stop-hi"/>
+                  <stop offset="55%" class="nw-globe-stop-mid"/>
+                  <stop offset="100%" class="nw-globe-stop-lo"/>
+                </radialGradient>
+                <!-- 只在球体内部显示经纬线的裁剪 -->
+                <clipPath id="nwGlobeClip">
+                  <circle cx="60" cy="60" r="33"/>
+                </clipPath>
+              </defs>
+
+              <!-- 渐变实心球 -->
+              <circle cx="60" cy="60" r="33" fill="url(#nwGlobeFill)"/>
+
+              <!-- 球面经纬线（裁剪进球体，浅色描边）-->
+              <g class="nw-globe-lines" clip-path="url(#nwGlobeClip)">
                 <line x1="27" y1="60" x2="93" y2="60"/>
-                <ellipse cx="60" cy="60" rx="33" ry="12"/>
-                <ellipse cx="60" cy="60" rx="33" ry="24"/>
-                <ellipse cx="60" cy="60" rx="12" ry="33"/>
-                <ellipse cx="60" cy="60" rx="24" ry="33"/>
+                <ellipse cx="60" cy="60" rx="33" ry="11"/>
+                <ellipse cx="60" cy="60" rx="33" ry="23"/>
+                <ellipse cx="60" cy="60" rx="11" ry="33"/>
+                <ellipse cx="60" cy="60" rx="23" ry="33"/>
               </g>
-              <!-- 倾斜轨道 + 沿轨运行的卫星点（平滑旋转，替代生硬的自转）-->
+
+              <!-- 左上高光点缀 -->
+              <circle cx="48" cy="46" r="9" class="nw-globe-gloss"/>
+
+              <!-- 球体边缘描边 -->
+              <circle cx="60" cy="60" r="33" class="nw-globe-rim"/>
+
+              <!-- 倾斜轨道 + 沿轨运行的卫星点 -->
               <g class="nw-globe-orbit" transform="rotate(-20 60 60)">
                 <ellipse cx="60" cy="60" rx="52" ry="17" class="nw-globe-orbit-ring"/>
-                <circle r="3.2" class="nw-globe-orbit-dot">
+                <circle r="3" class="nw-globe-orbit-dot">
                   <animateMotion dur="6s" repeatCount="indefinite" path="M 8 60 a 52 17 0 1 0 104 0 a 52 17 0 1 0 -104 0"/>
                 </circle>
               </g>

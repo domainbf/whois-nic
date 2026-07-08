@@ -170,11 +170,27 @@
   }
 
   // ---- 用新文档替换 <header> 与 <main>，并刷新标题/状态 ----
-  function applyDocument(html) {
+  function applyDocument(html, opts) {
+    opts = opts || {};
+    var preserveInput = !!opts.preserveInput;
+
     var doc = new DOMParser().parseFromString(html, "text/html");
     var newHeader = doc.querySelector("header");
     var newMain = doc.querySelector("main");
     if (!newMain) throw new Error("pjax: main not found");
+
+    // 替换 header 前，快照当前搜索框状态（值 + 是否聚焦 + 光标位置），
+    // 以便替换后无缝恢复用户正在输入的内容与光标，实现连续再查询。
+    var inputSnapshot = null;
+    var oldInput = document.getElementById("domain");
+    if (oldInput) {
+      inputSnapshot = {
+        value: oldInput.value,
+        focused: document.activeElement === oldInput,
+        selStart: oldInput.selectionStart,
+        selEnd: oldInput.selectionEnd,
+      };
+    }
 
     var curHeader = document.querySelector("header");
     if (newHeader && curHeader) {
@@ -202,13 +218,27 @@
           window.Prism.highlightAll();
         } catch (err) {}
       }
-      // 确保搜索框回显本次查询的域名（服务端归一化后可能为空）。
-      // 多域名模式除外：后缀值由服务端渲染，且暗号 "0" 不应回填到输入框，
-      // 否则进入批量模式后输入框会残留 "0"。
+      // 恢复/回显搜索框内容：
+      // 1) 多域名模式：一律采用服务端渲染的后缀值，绝不回填暗号 "0"；
+      // 2) 保留模式（用户提交查询）：还原用户刚输入的原文 + 焦点 + 光标，
+      //    使结果出现后可直接编辑并再次查询，无缝切换；
+      // 3) 其它（前进/后退、历史点击）：服务端值为空时回填上次查询域名。
       var domainInput = document.getElementById("domain");
       var isMultiPage = !!document.querySelector('input[name="multi"], .search-box--multi');
-      if (!isMultiPage && domainInput && !domainInput.value && lastQueryDomain) {
-        domainInput.value = lastQueryDomain;
+      if (domainInput) {
+        if (isMultiPage) {
+          // 保持服务端渲染值，不做任何回填
+        } else if (preserveInput && inputSnapshot) {
+          domainInput.value = inputSnapshot.value;
+          if (inputSnapshot.focused) {
+            try {
+              domainInput.focus({ preventScroll: true });
+              domainInput.setSelectionRange(inputSnapshot.selStart, inputSnapshot.selEnd);
+            } catch (e) {}
+          }
+        } else if (!domainInput.value && lastQueryDomain) {
+          domainInput.value = lastQueryDomain;
+        }
       }
       // 同步搜索框清除按钮状态 + 历史记录
       syncSearchBox();
@@ -233,6 +263,7 @@
     opts = opts || {};
     var push = opts.push !== false;
     var domainForLoader = opts.domain || "";
+    var preserveInput = !!opts.preserveInput;
     if (domainForLoader) lastQueryDomain = domainForLoader;
 
     // 记录查询前地址，供取消时回退（在 pushState 之前捕获）
@@ -244,7 +275,7 @@
     // 命中缓存：瞬时展示（仍显示极短加载态以保持一致体验则可省略）
     if (pageCache[url]) {
       isLoading = true;
-      applyDocument(pageCache[url])
+      applyDocument(pageCache[url], { preserveInput: preserveInput })
         .then(function () {
           window.scrollTo({ top: 0, behavior: "auto" });
           clearLoadingState();
@@ -271,7 +302,7 @@
       })
       .then(function (html) {
         cachePut(url, html);
-        return applyDocument(html);
+        return applyDocument(html, { preserveInput: preserveInput });
       })
       .then(function () {
         window.scrollTo({ top: 0, behavior: "auto" });
@@ -325,7 +356,7 @@
     });
     url.search = params.toString();
 
-    pjaxLoad(url.toString(), { push: true, domain: val });
+    pjaxLoad(url.toString(), { push: true, domain: val, preserveInput: true });
   });
 
   // ---- 事件委托：搜索框输入切换清除按钮 ----
