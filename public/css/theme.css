@@ -562,7 +562,7 @@ form {
   height: 14px !important;
 }
 
-/* 提交按钮：圆形深色图标按钮，嵌���胶囊右侧 */
+/* 提交按钮：圆形深色图标按钮，嵌入胶囊右侧 */
 .search-button {
   position: relative;
   flex-shrink: 0;
@@ -762,7 +762,7 @@ form {
   height: 17px;
 }
 
-/* 竖排主体：域�����在上，类型·时间在下 */
+/* 竖排主体：域名在上，类型·时间在下 */
 .nw-history-body {
   display: flex;
   flex-direction: column;
@@ -1777,7 +1777,7 @@ body.is-embed main {
   padding: 12px;
 }
 
-/* 注册人联系（���卡内） */
+/* 注册人联系（卡内） */
 .nw-contact-grid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);

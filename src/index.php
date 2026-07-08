@@ -202,7 +202,7 @@ if ($domain) {
       $invalidDomain = true;
       $error = "'$domain' is not a valid domain";
     } else {
-      // WHOIS/RDAP 查询失败（服务器不可达、超时、注册局��口异常等）：
+      // WHOIS/RDAP 查询失败（服务器不可达、超时、注册局接口异常等）：
       // 这不代表域名无效。退一步用 DNS 兜底判断是否已注册，尽量给出有用结果。
       $error = $e->getMessage();
       $dnsActive = domainHasDnsRecords($domain);
@@ -232,7 +232,7 @@ if ($domain) {
   }
 }
 
-// 分享/Manifest 元数据��$manifestHref, $currentUrl, $shareImage, $shareTitle, $shareDescription）
+// 分享/Manifest 元数据（$manifestHref, $currentUrl, $shareImage, $shareTitle, $shareDescription）
 require __DIR__ . "/lib/share-meta.php";
 ?>
   <!DOCTYPE html>
