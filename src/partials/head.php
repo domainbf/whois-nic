@@ -19,7 +19,11 @@
   </script>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
   <meta name="theme-color" content="#ffffff">
+  <!-- 预连接批量查询所用的 Cloudflare DoH，加速首个 DNS-over-HTTPS 请求 -->
+  <link rel="preconnect" href="https://cloudflare-dns.com" crossorigin>
+  <link rel="dns-prefetch" href="https://cloudflare-dns.com">
   <meta name="description" content="<?= SITE_DESCRIPTION ?>">
   <meta name="keywords" content="<?= SITE_KEYWORDS ?>">
 

@@ -425,15 +425,27 @@
   });
 
   // ---- 返回顶部按钮显隐（滚动监听） ----
-  window.addEventListener("scroll", function () {
-    var backToTop = document.getElementById("back-to-top");
-    if (!backToTop) return;
-    if (document.documentElement.scrollTop > 360) {
-      backToTop.classList.add("visible");
-    } else {
-      backToTop.classList.remove("visible");
-    }
-  });
+  // passive:true 让浏览器无需等待回调即可滚动，消除移动端滚动卡顿；
+  // 用 rAF 节流，避免每个滚动事件都触发布局读写。
+  var scrollTicking = false;
+  window.addEventListener(
+    "scroll",
+    function () {
+      if (scrollTicking) return;
+      scrollTicking = true;
+      window.requestAnimationFrame(function () {
+        scrollTicking = false;
+        var backToTop = document.getElementById("back-to-top");
+        if (!backToTop) return;
+        if (document.documentElement.scrollTop > 360) {
+          backToTop.classList.add("visible");
+        } else {
+          backToTop.classList.remove("visible");
+        }
+      });
+    },
+    { passive: true }
+  );
 
   // ---- 首屏初始化搜索框状态 ----
   (window.nwReady || function (f) { window.addEventListener("DOMContentLoaded", f); })(function () {
