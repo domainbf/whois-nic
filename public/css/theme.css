@@ -1554,6 +1554,11 @@ code a { color: hsl(var(--info)) !important; }
   color: hsl(var(--muted-foreground));
 }
 
+/* 概览行圆点：覆盖 nw-status-bullet 的 margin-top，使其在行内垂直居中 */
+.nw-multi-sum-item .nw-status-bullet {
+  margin-top: 0;
+}
+
 /* 紧凑列表 */
 .nw-multi-list {
   list-style: none;
