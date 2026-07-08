@@ -315,137 +315,14 @@
         <!-- 域名主卡 -->
         <div class="nw-card nw-domain-card">
           <div class="nw-globe" aria-hidden="true">
-            <svg viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg">
-              <defs>
-                <!-- 球体背后的柔和辉光，让点阵球从卡片中轻盈浮起 -->
-                <radialGradient id="nwGlobeGlow" cx="50%" cy="46%" r="56%">
-                  <stop offset="0%" class="nw-globe-glow-in"/>
-                  <stop offset="100%" class="nw-globe-glow-out"/>
-                </radialGradient>
-              </defs>
-
-              <!-- 辉光底 -->
-              <circle cx="60" cy="58" r="44" fill="url(#nwGlobeGlow)"/>
-
-              <!-- 点阵球面：正面点更大更实、背面更小更淡，形成立体景深；
-                   与全站圆点背景呼应，纯矢量、随明暗主题自动着色 -->
-              <g class="nw-globe-dots">
-                <circle cx="60.16" cy="57.04" r="0.5" opacity="0.13"/>
-                <circle cx="66.2" cy="66.13" r="0.52" opacity="0.14"/>
-                <circle cx="52.11" cy="66.27" r="0.53" opacity="0.14"/>
-                <circle cx="54.1" cy="48.55" r="0.55" opacity="0.15"/>
-                <circle cx="68.23" cy="48.72" r="0.56" opacity="0.16"/>
-                <circle cx="45.9" cy="58.12" r="0.56" opacity="0.16"/>
-                <circle cx="74.4" cy="58.17" r="0.56" opacity="0.16"/>
-                <circle cx="64.02" cy="74.49" r="0.56" opacity="0.16"/>
-                <circle cx="50.57" cy="75.03" r="0.59" opacity="0.18"/>
-                <circle cx="60.16" cy="40.5" r="0.61" opacity="0.19"/>
-                <circle cx="78.87" cy="68.24" r="0.63" opacity="0.19"/>
-                <circle cx="40.99" cy="50.36" r="0.64" opacity="0.2"/>
-                <circle cx="39.83" cy="68.64" r="0.65" opacity="0.2"/>
-                <circle cx="80.93" cy="50.84" r="0.66" opacity="0.21"/>
-                <circle cx="54.47" cy="82.17" r="0.66" opacity="0.21"/>
-                <circle cx="76.2" cy="76.52" r="0.67" opacity="0.21"/>
-                <circle cx="45.9" cy="41.59" r="0.67" opacity="0.21"/>
-                <circle cx="74.4" cy="41.64" r="0.67" opacity="0.21"/>
-                <circle cx="67.45" cy="82.44" r="0.68" opacity="0.22"/>
-                <circle cx="34.43" cy="61.22" r="0.71" opacity="0.24"/>
-                <circle cx="85.78" cy="61.31" r="0.72" opacity="0.24"/>
-                <circle cx="66.2" cy="34.18" r="0.73" opacity="0.25"/>
-                <circle cx="40.11" cy="77.97" r="0.74" opacity="0.25"/>
-                <circle cx="52.11" cy="34.32" r="0.74" opacity="0.25"/>
-                <circle cx="63.86" cy="88.16" r="0.78" opacity="0.27"/>
-                <circle cx="44.72" cy="85.12" r="0.81" opacity="0.28"/>
-                <circle cx="31.17" cy="53.84" r="0.81" opacity="0.29"/>
-                <circle cx="87.21" cy="72.13" r="0.82" opacity="0.29"/>
-                <circle cx="34.43" cy="44.68" r="0.82" opacity="0.29"/>
-                <circle cx="85.78" cy="44.77" r="0.83" opacity="0.29"/>
-                <circle cx="78.87" cy="36.29" r="0.84" opacity="0.3"/>
-                <circle cx="76.07" cy="85.78" r="0.84" opacity="0.3"/>
-                <circle cx="90.02" cy="54.54" r="0.85" opacity="0.3"/>
-                <circle cx="32.17" cy="72.68" r="0.85" opacity="0.3"/>
-                <circle cx="52.09" cy="89.54" r="0.85" opacity="0.3"/>
-                <circle cx="39.83" cy="36.69" r="0.86" opacity="0.31"/>
-                <circle cx="64.02" cy="29.3" r="0.87" opacity="0.31"/>
-                <circle cx="83.23" cy="80.48" r="0.87" opacity="0.31"/>
-                <circle cx="50.57" cy="29.84" r="0.89" opacity="0.33"/>
-                <circle cx="28.02" cy="65.72" r="0.94" opacity="0.35"/>
-                <circle cx="92.05" cy="65.82" r="0.95" opacity="0.35"/>
-                <circle cx="35.97" cy="82.38" r="0.96" opacity="0.36"/>
-                <circle cx="76.2" cy="31.33" r="0.97" opacity="0.36"/>
-                <circle cx="67.91" cy="92.18" r="0.99" opacity="0.37"/>
-                <circle cx="54.47" cy="26.83" r="1.03" opacity="0.39"/>
-                <circle cx="43.93" cy="89.56" r="1.04" opacity="0.4"/>
-                <circle cx="87.21" cy="40.18" r="1.04" opacity="0.4"/>
-                <circle cx="40.11" cy="32.79" r="1.04" opacity="0.4"/>
-                <circle cx="26.33" cy="58.38" r="1.04" opacity="0.4"/>
-                <circle cx="67.45" cy="27.1" r="1.05" opacity="0.4"/>
-                <circle cx="28.02" cy="49.18" r="1.05" opacity="0.4"/>
-                <circle cx="56.14" cy="93.57" r="1.06" opacity="0.41"/>
-                <circle cx="92.05" cy="49.29" r="1.06" opacity="0.41"/>
-                <circle cx="89.32" cy="76.89" r="1.06" opacity="0.41"/>
-                <circle cx="32.17" cy="40.73" r="1.07" opacity="0.41"/>
-                <circle cx="75.28" cy="90.22" r="1.07" opacity="0.41"/>
-                <circle cx="93.92" cy="59.19" r="1.08" opacity="0.42"/>
-                <circle cx="30.89" cy="77.48" r="1.09" opacity="0.42"/>
-                <circle cx="82.89" cy="85.11" r="1.1" opacity="0.43"/>
-                <circle cx="83.23" cy="35.29" r="1.17" opacity="0.46"/>
-                <circle cx="44.72" cy="29.78" r="1.18" opacity="0.47"/>
-                <circle cx="39.45" cy="86.86" r="1.19" opacity="0.47"/>
-                <circle cx="27.95" cy="70.71" r="1.19" opacity="0.47"/>
-                <circle cx="63.86" cy="26.43" r="1.19" opacity="0.47"/>
-                <circle cx="91.98" cy="70.82" r="1.2" opacity="0.48"/>
-                <circle cx="52.55" cy="92.9" r="1.2" opacity="0.48"/>
-                <circle cx="76.07" cy="30.44" r="1.21" opacity="0.48"/>
-                <circle cx="65.53" cy="93.17" r="1.22" opacity="0.49"/>
-                <circle cx="52.09" cy="27.82" r="1.26" opacity="0.51"/>
-                <circle cx="35.97" cy="37.2" r="1.27" opacity="0.51"/>
-                <circle cx="89.32" cy="44.94" r="1.28" opacity="0.52"/>
-                <circle cx="27.32" cy="63.21" r="1.29" opacity="0.52"/>
-                <circle cx="75.28" cy="88.94" r="1.29" opacity="0.52"/>
-                <circle cx="84.72" cy="81.45" r="1.29" opacity="0.52"/>
-                <circle cx="27.95" cy="54.18" r="1.3" opacity="0.53"/>
-                <circle cx="30.89" cy="45.53" r="1.31" opacity="0.53"/>
-                <circle cx="91.98" cy="54.28" r="1.31" opacity="0.53"/>
-                <circle cx="36.27" cy="81.94" r="1.32" opacity="0.54"/>
-                <circle cx="91.95" cy="63.98" r="1.33" opacity="0.54"/>
-                <circle cx="49.46" cy="89.98" r="1.35" opacity="0.55"/>
-                <circle cx="62.82" cy="90.76" r="1.39" opacity="0.57"/>
-                <circle cx="67.91" cy="30.46" r="1.4" opacity="0.58"/>
-                <circle cx="82.89" cy="39.92" r="1.4" opacity="0.58"/>
-                <circle cx="43.93" cy="34.22" r="1.41" opacity="0.58"/>
-                <circle cx="34.22" cy="75.23" r="1.42" opacity="0.59"/>
-                <circle cx="85.57" cy="75.32" r="1.43" opacity="0.59"/>
-                <circle cx="75.28" cy="34.88" r="1.44" opacity="0.6"/>
-                <circle cx="74.45" cy="84.75" r="1.46" opacity="0.61"/>
-                <circle cx="56.14" cy="31.84" r="1.47" opacity="0.61"/>
-                <circle cx="47.09" cy="85.03" r="1.48" opacity="0.61"/>
-                <circle cx="39.45" cy="41.68" r="1.49" opacity="0.62"/>
-                <circle cx="33.95" cy="67.47" r="1.5" opacity="0.63"/>
-                <circle cx="84.72" cy="49.5" r="1.51" opacity="0.63"/>
-                <circle cx="60.87" cy="86.04" r="1.53" opacity="0.64"/>
-                <circle cx="34.22" cy="58.69" r="1.53" opacity="0.64"/>
-                <circle cx="84.46" cy="68.08" r="1.53" opacity="0.64"/>
-                <circle cx="36.27" cy="49.99" r="1.53" opacity="0.64"/>
-                <circle cx="85.57" cy="58.78" r="1.54" opacity="0.64"/>
-                <circle cx="52.55" cy="37.56" r="1.57" opacity="0.66"/>
-                <circle cx="45.6" cy="78.36" r="1.58" opacity="0.67"/>
-                <circle cx="74.1" cy="78.41" r="1.58" opacity="0.67"/>
-                <circle cx="65.53" cy="37.83" r="1.59" opacity="0.67"/>
-                <circle cx="75.28" cy="43.76" r="1.6" opacity="0.67"/>
-                <circle cx="59.84" cy="79.5" r="1.64" opacity="0.69"/>
-                <circle cx="49.46" cy="44.8" r="1.65" opacity="0.7"/>
-                <circle cx="45.1" cy="70.45" r="1.65" opacity="0.7"/>
-                <circle cx="72.74" cy="70.78" r="1.67" opacity="0.71"/>
-                <circle cx="74.45" cy="52.8" r="1.68" opacity="0.71"/>
-                <circle cx="62.82" cy="45.57" r="1.69" opacity="0.72"/>
-                <circle cx="47.09" cy="53.08" r="1.69" opacity="0.72"/>
-                <circle cx="45.6" cy="61.83" r="1.69" opacity="0.72"/>
-                <circle cx="74.1" cy="61.88" r="1.69" opacity="0.72"/>
-                <circle cx="58.81" cy="71.62" r="1.71" opacity="0.73"/>
-                <circle cx="60.87" cy="54.09" r="1.74" opacity="0.75"/>
-                <circle cx="59.84" cy="62.96" r="1.75" opacity="0.75"/>
-              </g>
+            <svg viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg" fill="none"
+                 stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round">
+              <!-- 与顶栏同款的极简细线地球，做得更精致：外圈 + 赤道 + 两条纬线 + 中经线 + 两条弧形经线 -->
+              <circle cx="24" cy="24" r="17" class="nw-globe-ring"/>
+              <line x1="7" y1="24" x2="41" y2="24" class="nw-globe-line"/>
+              <path d="M24 7v34" class="nw-globe-line"/>
+              <path d="M8.6 17.5h30.8M8.6 30.5h30.8" class="nw-globe-line-soft"/>
+              <path d="M24 7c5.4 4.4 8.2 10.6 8.2 17s-2.8 12.6-8.2 17c-5.4-4.4-8.2-10.6-8.2-17S18.6 11.4 24 7z" class="nw-globe-line"/>
             </svg>
           </div>
 
