@@ -1421,9 +1421,37 @@ code a { color: hsl(var(--info)) !important; }
 /* 数据来源行 */
 .nw-source-row {
   margin-top: 16px;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
   font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
   font-size: 11px;
   color: hsl(var(--muted-foreground) / 0.7);
+}
+
+/* 智能状态徽章 */
+.nw-smart-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 3px 10px;
+  border-radius: 999px;
+  font-family: var(--font-sans, ui-sans-serif, system-ui, sans-serif);
+  font-size: 11px;
+  line-height: 1.4;
+  font-weight: 500;
+  color: hsl(var(--muted-foreground));
+  background-color: hsl(var(--muted) / 0.7);
+  border: 1px solid hsl(var(--border) / 0.6);
+  white-space: nowrap;
+}
+
+/* 高亮徽章：黑色胶囊 + 粗体（停放 / 出售 / HOLD / 正在转移 等） */
+.nw-smart-badge-strong {
+  font-weight: 700;
+  color: hsl(var(--primary-foreground));
+  background-color: hsl(var(--foreground));
+  border-color: hsl(var(--foreground));
 }
 
 /* 注册人联系（���卡内） */

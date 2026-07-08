@@ -215,6 +215,84 @@
       return '#71717a';
     };
 
+    // ===== 智能状态徽章：在数据来源行后方，基于 NS / 状态码 / 事件日期做简单判断提示 =====
+    // 每项：['text' => 文案, 'strong' => 是否用黑色胶囊高亮]
+    $smartBadges = [];
+
+    // 1) 停放 / 出售：基于 NS 提供商域名特征识别
+    $nsJoined = strtolower(implode(' ', $parser->nameServers ?: []));
+    $forSaleNs = [
+      'dan.com', 'undeveloped.com', 'afternic', 'hugedomains', 'uniregistrymarket',
+      'buydomains', 'brandbucket', 'sav.com', 'domainmarket',
+    ];
+    $parkingNs = [
+      'bodis.com', 'parkingcrew', 'sedoparking', 'sedo.com', 'above.com',
+      'cashparking', 'parklogic', 'voodoo.com', 'fabulous.com', 'parking',
+      'dnspark', 'trafficclub', 'domainsponsor', 'skenzo', 'rookdns',
+    ];
+    $isForSale = false;
+    $isParked = false;
+    if ($nsJoined !== '') {
+      foreach ($forSaleNs as $k) { if (strpos($nsJoined, $k) !== false) { $isForSale = true; break; } }
+      if (!$isForSale) {
+        foreach ($parkingNs as $k) { if (strpos($nsJoined, $k) !== false) { $isParked = true; break; } }
+      }
+    }
+    if ($isForSale) {
+      $smartBadges[] = ['text' => t('badge_for_sale'), 'strong' => true];
+    } elseif ($isParked) {
+      $smartBadges[] = ['text' => t('badge_parked'), 'strong' => true];
+    }
+
+    // 2) EPP 状态码判断：HOLD / 正在转移 / 赎回期 / 即将删除
+    $statusCodes = array_map(
+      fn($s) => strtolower(is_array($s) ? ($s['text'] ?? '') : (string) $s),
+      $parser->status ?: []
+    );
+    $hasCode = function (string $needle) use ($statusCodes): bool {
+      foreach ($statusCodes as $c) { if (strpos($c, $needle) !== false) return true; }
+      return false;
+    };
+    if ($hasCode('hold')) {
+      $smartBadges[] = ['text' => t('badge_hold'), 'strong' => true];
+    }
+    if ($hasCode('pendingtransfer')) {
+      $smartBadges[] = ['text' => t('badge_transferring'), 'strong' => true];
+    }
+    if ($hasCode('redemption')) {
+      $smartBadges[] = ['text' => t('badge_redemption'), 'strong' => true];
+    } elseif ($hasCode('pendingdelete')) {
+      $smartBadges[] = ['text' => t('badge_pending_delete'), 'strong' => true];
+    }
+
+    // 3) 日期 / 事件判断：新注册 / 近期转移 / 近期更新（近 30 天）
+    $withinDays = function (?string $iso, int $days): bool {
+      if (!$iso) return false;
+      $ts = strtotime($iso);
+      if (!$ts) return false;
+      $diff = time() - $ts;
+      return $diff >= 0 && $diff <= $days * 86400;
+    };
+    if ($withinDays($parser->creationDateISO8601, 30)) {
+      $smartBadges[] = ['text' => t('badge_new_reg'), 'strong' => false];
+    } else {
+      // 近期转移：优先看 RDAP events 中的 transfer 事件（更准确）
+      $transferRecent = false;
+      if (is_array($rdapJson) && !empty($rdapJson['events'])) {
+        foreach ($rdapJson['events'] as $ev) {
+          if (
+            !empty($ev['eventAction']) && stripos($ev['eventAction'], 'transfer') !== false &&
+            !empty($ev['eventDate']) && $withinDays($ev['eventDate'], 30)
+          ) { $transferRecent = true; break; }
+        }
+      }
+      if ($transferRecent) {
+        $smartBadges[] = ['text' => t('badge_recently_transferred'), 'strong' => false];
+      } elseif ($withinDays($parser->updatedDateISO8601, 30)) {
+        $smartBadges[] = ['text' => t('badge_recently_updated'), 'strong' => false];
+      }
+    }
+
     $displayDomain = $parser->domain ?: $domain;
     $registrarInitial = $parser->registrar ? mb_substr($parser->registrar, 0, 1) : '';
     // 注册商图标：从注册商官网 URL 取主机名，走同源 favicon 代理获取真实站点图标；
@@ -294,11 +372,16 @@
               </div>
             <?php endif; ?>
 
-            <!-- 数据来源行：查询耗时 · 数据来源 -->
-            <?php if ($dataSourceLabel): ?>
+            <!-- 数据来源行：查询耗时 · 数据来源 · 智能状态徽章 -->
+            <?php if ($dataSourceLabel || $smartBadges): ?>
               <?php $elapsedText = (isset($queryElapsed) && $queryElapsed > 0) ? number_format($queryElapsed, 2) . 's · ' : ''; ?>
               <div class="nw-source-row">
-                <span class="nw-source-label"><?= htmlspecialchars($elapsedText . $dataSourceLabel, ENT_QUOTES, 'UTF-8'); ?></span>
+                <?php if ($dataSourceLabel): ?>
+                  <span class="nw-source-label"><?= htmlspecialchars($elapsedText . $dataSourceLabel, ENT_QUOTES, 'UTF-8'); ?></span>
+                <?php endif; ?>
+                <?php foreach ($smartBadges as $badge): ?>
+                  <span class="nw-smart-badge<?= $badge['strong'] ? ' nw-smart-badge-strong' : ''; ?>"><?= htmlspecialchars($badge['text'], ENT_QUOTES, 'UTF-8'); ?></span>
+                <?php endforeach; ?>
               </div>
             <?php endif; ?>
 
