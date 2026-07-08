@@ -28,6 +28,8 @@ class ParserRDAP extends Parser
 
     $this->getNameServers();
 
+    $this->getDNSSEC();
+
     $this->age = $this->getDateDiffText($this->creationDateISO8601, "now");
     $this->ageSeconds = $this->getDateDiffSeconds($this->creationDateISO8601, "now");
     $this->remaining = $this->getDateDiffText("now", $this->expirationDateISO8601);
@@ -45,9 +47,21 @@ class ParserRDAP extends Parser
 
   protected function getDomain()
   {
-    if (!empty($this->json["ldhName"])) {
-      $this->domain = idn_to_utf8(strtolower($this->json["ldhName"]));
+    // 优先 ldhName（ASCII/punycode），缺失时回落 unicodeName（部分注册局只给这个）
+    $name = "";
+    if (!empty($this->json["ldhName"]) && is_string($this->json["ldhName"])) {
+      $name = strtolower(trim($this->json["ldhName"]));
+    } elseif (!empty($this->json["unicodeName"]) && is_string($this->json["unicodeName"])) {
+      $name = strtolower(trim($this->json["unicodeName"]));
     }
+
+    if ($name === "") {
+      return;
+    }
+
+    // idn_to_utf8 对非 punycode 或异常输入可能返回 false，需回落原值
+    $utf8 = idn_to_utf8($name);
+    $this->domain = ($utf8 !== false) ? $utf8 : $name;
   }
 
   protected function getRegistrar()
@@ -236,9 +250,49 @@ class ParserRDAP extends Parser
       return;
     }
 
-    $this->nameServers = array_unique(array_map(
-      fn($item) => idn_to_utf8(strtolower(explode(" ", $item["ldhName"])[0])),
-      $this->json["nameservers"]
-    ));
+    $servers = [];
+    foreach ($this->json["nameservers"] as $item) {
+      if (!is_array($item)) {
+        continue;
+      }
+
+      // 部分注册局的 nameserver 对象缺少 ldhName，只提供 unicodeName
+      $name = "";
+      if (!empty($item["ldhName"]) && is_string($item["ldhName"])) {
+        $name = $item["ldhName"];
+      } elseif (!empty($item["unicodeName"]) && is_string($item["unicodeName"])) {
+        $name = $item["unicodeName"];
+      }
+
+      $host = strtolower(explode(" ", trim($name))[0]);
+      if ($host === "") {
+        continue;
+      }
+
+      $utf8 = idn_to_utf8($host);
+      $servers[] = ($utf8 !== false) ? $utf8 : $host;
+    }
+
+    $this->nameServers = array_values(array_unique($servers));
+  }
+
+  protected function getDNSSEC()
+  {
+    if (empty($this->json["secureDNS"]) || !is_array($this->json["secureDNS"])) {
+      return;
+    }
+
+    $secureDNS = $this->json["secureDNS"];
+
+    // RDAP 权威字段：delegationSigned 明确表示是否已签名委派
+    if (array_key_exists("delegationSigned", $secureDNS)) {
+      $this->dnssec = $secureDNS["delegationSigned"] ? "signed" : "unsigned";
+      return;
+    }
+
+    // 无 delegationSigned 时，存在 DS/Key 记录也视为已签名
+    if (!empty($secureDNS["dsData"]) || !empty($secureDNS["keyData"])) {
+      $this->dnssec = "signed";
+    }
   }
 }

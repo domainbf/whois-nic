@@ -197,6 +197,7 @@ class Lookup
       "availableDateISO8601",
       "status",
       "nameServers",
+      "dnssec",
       "age",
       "remaining",
       "gracePeriod",

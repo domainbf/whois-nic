@@ -45,6 +45,8 @@ class Parser
 
   public $nameServers = [];
 
+  public $dnssec = "";
+
   public $age = "";
 
   public $ageSeconds = null;
@@ -105,6 +107,8 @@ class Parser
     $this->setStatusUrl();
 
     $this->nameServers = $this->getNameServers();
+
+    $this->dnssec = $this->getDNSSEC();
 
     $this->age = $this->getDateDiffText($this->creationDateISO8601, "now");
     $this->ageSeconds = $this->getDateDiffSeconds($this->creationDateISO8601, "now");
@@ -632,6 +636,67 @@ class Parser
     }
 
     return [];
+  }
+
+  private const DNSSEC_KEYWORDS = [
+    "dnssec", // com
+    "dnssec status", // generic
+    "dnssec signed", // generic
+    "signing key", // generic
+  ];
+
+  // 归一化为 signed / unsigned / ""（未知）。
+  private const DNSSEC_SIGNED_VALUES = [
+    "signed",
+    "signeddelegation",
+    "signed delegation",
+    "yes",
+    "active",
+    "true",
+    "enabled",
+  ];
+
+  private const DNSSEC_UNSIGNED_VALUES = [
+    "unsigned",
+    "unsigneddelegation",
+    "unsigned delegation",
+    "no",
+    "inactive",
+    "false",
+    "disabled",
+    "no dnssec",
+    "not signed",
+  ];
+
+  protected function getDNSSECRegExp()
+  {
+    return $this->getBaseRegExp(implode("|", self::DNSSEC_KEYWORDS));
+  }
+
+  protected function getDNSSEC()
+  {
+    if (preg_match($this->getDNSSECRegExp(), $this->data, $matches)) {
+      $value = strtolower(trim($matches[1]));
+
+      if ($value === "") {
+        return "";
+      }
+
+      if (in_array($value, self::DNSSEC_UNSIGNED_VALUES, true)) {
+        return "unsigned";
+      }
+
+      if (in_array($value, self::DNSSEC_SIGNED_VALUES, true)) {
+        return "signed";
+      }
+
+      // 出现 DS/DNSKEY 记录等信息通常代表已签名
+      if (strpos($value, "signeddelegation") !== false || strpos($value, "ds ") !== false) {
+        return "signed";
+      }
+    }
+
+    return "";
   }
 
   protected const GRACE_PERIOD_KEYWORDS = [

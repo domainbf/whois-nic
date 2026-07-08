@@ -411,6 +411,27 @@
               </div>
             </div>
           <?php endif; ?>
+
+          <?php if (!empty($parser->dnssec)):
+            $isSigned = $parser->dnssec === 'signed';
+            $dnssecLabel = $isSigned ? t('dnssec_signed') : t('dnssec_unsigned');
+            $dnssecColor = $isSigned ? '#16a34a' : '#9ca3af'; ?>
+            <div class="nw-card nw-list-card">
+              <h3 class="nw-card-title">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+                <?= htmlspecialchars(t('card_dnssec'), ENT_QUOTES, 'UTF-8'); ?>
+              </h3>
+              <div class="nw-status-list">
+                <div class="nw-status-item">
+                  <span class="nw-status-bullet" style="background-color: <?= $dnssecColor; ?>"></span>
+                  <div class="nw-status-item-body">
+                    <span class="nw-status-name"><?= htmlspecialchars($dnssecLabel, ENT_QUOTES, 'UTF-8'); ?></span>
+                    <p class="nw-status-code"><?= htmlspecialchars($parser->dnssec === 'signed' ? 'signedDelegation' : 'unsigned', ENT_QUOTES, 'UTF-8'); ?></p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          <?php endif; ?>
         </div>
       </div>
 
