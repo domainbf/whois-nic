@@ -85,11 +85,13 @@ function price_http_multi(array $requests, $timeout = 5)
     // 并发执行，直到全部完成
     $running = null;
     do {
-        curl_multi_exec($mh, $running);
-        if ($running > 0) {
-            curl_multi_select($mh, 0.5);
+        $mrc = curl_multi_exec($mh, $running);
+        // select 无描述符时会立即返回 -1，需短暂休眠避免 CPU 空转；
+        // $mrc === CURLM_OK 作为护栏，避免 libcurl 出错时死循环。
+        if ($running > 0 && curl_multi_select($mh, 0.5) === -1) {
+            usleep(1000);
         }
-    } while ($running > 0);
+    } while ($running > 0 && $mrc === CURLM_OK);
 
     $out = [];
     foreach ($handles as $key => $ch) {

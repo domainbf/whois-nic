@@ -185,7 +185,7 @@ function multiDohProbe(array $domains)
     }
 
     do {
-        curl_multi_exec($mh, $running);
+        $mrc = curl_multi_exec($mh, $running);
 
         while ($info = curl_multi_info_read($mh)) {
             $ch = $info["handle"];
@@ -221,10 +221,12 @@ function multiDohProbe(array $domains)
             curl_close($ch);
         }
 
-        if ($running) {
-            curl_multi_select($mh, 1.0);
+        // 防止 curl_multi_select 在无描述符时立即返回 -1 造成 CPU 空转；
+        // 同时以 $mrc === CURLM_OK 作为循环护栏，避免出错时死循环。
+        if ($running > 0 && curl_multi_select($mh, 1.0) === -1) {
+            usleep(1000);
         }
-    } while ($running);
+    } while ($running > 0 && $mrc === CURLM_OK);
 
     curl_multi_close($mh);
     return $out;
@@ -276,7 +278,7 @@ function multiSslProbe(array $domains)
 
     // 全部并行执行
     do {
-        curl_multi_exec($mh, $running);
+        $mrc = curl_multi_exec($mh, $running);
 
         while ($info = curl_multi_info_read($mh)) {
             $ch = $info["handle"];
@@ -291,10 +293,12 @@ function multiSslProbe(array $domains)
             curl_close($ch);
         }
 
-        if ($running) {
-            curl_multi_select($mh, 1.0);
+        // 防止 curl_multi_select 在无描述符时立即返回 -1 造成 CPU 空转；
+        // 同时以 $mrc === CURLM_OK 作为循环护栏，避免出错时死循环。
+        if ($running > 0 && curl_multi_select($mh, 1.0) === -1) {
+            usleep(1000);
         }
-    } while ($running);
+    } while ($running > 0 && $mrc === CURLM_OK);
 
     curl_multi_close($mh);
     return $ok;

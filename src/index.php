@@ -142,13 +142,25 @@ if ($rawDomain === "0") {
   $multiMode = true;
   $multiEntry = true;
   $domain = "";
-} elseif ($multiFlag && $rawDomain !== "") {
-  // 多域名模式下已输入后缀：执行批量查询
-  $multiMode = true;
-  $multiSuffix = sanitizeSuffix($rawDomain);
-  $multiData = multiDomainLookup($multiSuffix);
-  $domain = "";
-}
+  } elseif ($multiFlag && $rawDomain !== "") {
+    // 多域名模式下已输入后缀：执行批量查询。
+    // 用 try/catch 兜底：探测涉及网络/DNS，任何异常都不应让整页 500 崩溃，
+    // 而是退化为“空结果”让前端优雅提示（与单域名查询同等健壮）。
+    $multiMode = true;
+    $multiSuffix = sanitizeSuffix($rawDomain);
+    try {
+      $multiData = multiDomainLookup($multiSuffix);
+    } catch (Throwable $t) {
+      $multiData = [
+        "suffix" => $multiSuffix,
+        "extension" => $multiSuffix,
+        "source" => "error",
+        "items" => [],
+        "elapsed" => 0.0,
+      ];
+    }
+    $domain = "";
+  }
 
 // 多域名模式下强制清空域名，避免 cleanDomain 回退读取 $_GET["domain"]（如 "0"/"com"）
 // 从而误触发单域名查询；非多域名模式保持原有行为。
