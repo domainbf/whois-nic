@@ -1285,60 +1285,40 @@ code a { color: hsl(var(--info)) !important; }
 
 .nw-globe {
   position: absolute;
-  top: 16px;
-  right: 14px;
-  width: 116px;
-  height: 116px;
+  top: 14px;
+  right: 12px;
+  width: 122px;
+  height: 122px;
   pointer-events: none;
-  opacity: 0.9;
+  animation: nw-globe-float 9s var(--ease-natural) infinite;
 }
 
-/* 深色渐变球体的三段色标（跟随明暗主题的 foreground） */
-.nw-globe-stop-hi { stop-color: hsl(var(--foreground) / 0.92); }
-.nw-globe-stop-mid { stop-color: hsl(var(--foreground) / 0.82); }
-.nw-globe-stop-lo { stop-color: hsl(var(--foreground) / 0.62); }
-
-/* 球面经纬线：浅色（用背景色着色，在深色球面上显现） */
-.nw-globe-lines {
-  fill: none;
-  stroke: hsl(var(--background) / 0.4);
-  stroke-width: 0.9;
-}
-
-/* 左上柔和高光 */
-.nw-globe-gloss {
-  fill: hsl(var(--background) / 0.28);
-}
-
-/* 球体边缘描边 */
-.nw-globe-rim {
-  fill: none;
-  stroke: hsl(var(--foreground) / 0.25);
-  stroke-width: 1;
-}
-
-.nw-globe-orbit-ring {
-  fill: none;
-  stroke: hsl(var(--muted-foreground) / 0.32);
-  stroke-width: 0.9;
-  stroke-dasharray: 2 4;
-}
-
-.nw-globe-orbit-dot {
+/* 点阵球面：整组用主题前景色统一着色，景深由各点自带 opacity 表达 */
+.nw-globe-dots {
   fill: hsl(var(--foreground));
 }
 
-/* 尊重减少动态偏好：停止卫星点运动，定格于轨道右端 */
+/* 背后辉光：极淡的前景色径向渐变，让点阵球轻盈浮起 */
+.nw-globe-glow-in { stop-color: hsl(var(--foreground) / 0.07); }
+.nw-globe-glow-out { stop-color: hsl(var(--foreground) / 0); }
+
+[data-theme="dark"] .nw-globe-glow-in { stop-color: hsl(var(--foreground) / 0.1); }
+
+/* 极缓的上下浮动，让点阵球有轻微的“悬浮呼吸”生命感 */
+@keyframes nw-globe-float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-4px); }
+}
+
 @media (prefers-reduced-motion: reduce) {
-  .nw-globe-orbit-dot animateMotion { display: none; }
-  .nw-globe-orbit-dot { transform: translate(112px, 60px); }
+  .nw-globe { animation: none; }
 }
 
 @media (max-width: 420px) {
-  .nw-globe { width: 96px; height: 96px; top: 14px; right: 12px; }
+  .nw-globe { width: 100px; height: 100px; top: 12px; right: 10px; }
 }
 
-.nw-globe svg { width: 100%; height: 100%; }
+.nw-globe svg { width: 100%; height: 100%; overflow: visible; }
 
 .nw-domain-inner { position: relative; z-index: 1; }
 
