@@ -4,10 +4,11 @@
   //  2) $multiData ：已输入后缀 → 展示 34 个域名的紧凑列表（可点击进入详情）
 
   // 状态 → 展示配置（文案在 i18n）
+  // SSL/DNS 探测只能确认“已注册/在用”；无法确认的为“未知”，用琥珀色提示可点击核实。
   $multiStateMeta = [
     "available"  => ["dot" => "#16a34a", "key" => "multi_state_available"],
     "registered" => ["dot" => "#9ca3af", "key" => "multi_state_registered"],
-    "unknown"    => ["dot" => "#d1d5db", "key" => "multi_state_unknown"],
+    "unknown"    => ["dot" => "#f59e0b", "key" => "multi_state_unknown"],
   ];
 ?>
 
@@ -30,12 +31,12 @@
     $source = $multiData["source"];
     $elapsed = $multiData["elapsed"] ?? 0;
 
-    // 汇总计数
-    $countAvailable = 0;
+    // 汇总计数：SSL/DNS 只区分「已注册/在用」与「未知（待点击核实）」
     $countRegistered = 0;
+    $countUnknown = 0;
     foreach ($items as $it) {
-      if ($it["state"] === "available") $countAvailable++;
-      elseif ($it["state"] === "registered") $countRegistered++;
+      if ($it["state"] === "registered") $countRegistered++;
+      elseif ($it["state"] === "unknown") $countUnknown++;
     }
   ?>
   <section class="nw-multi">
@@ -46,8 +47,8 @@
         <span class="nw-multi-count"><?= count($items); ?> <?= htmlspecialchars(t('multi_domains_unit'), ENT_QUOTES, 'UTF-8'); ?></span>
       </div>
       <div class="nw-multi-summary">
-        <span class="nw-multi-sum-item"><span class="nw-status-bullet" style="background-color:#16a34a"></span><?= $countAvailable; ?> <?= htmlspecialchars(t('multi_state_available'), ENT_QUOTES, 'UTF-8'); ?></span>
         <span class="nw-multi-sum-item"><span class="nw-status-bullet" style="background-color:#9ca3af"></span><?= $countRegistered; ?> <?= htmlspecialchars(t('multi_state_registered'), ENT_QUOTES, 'UTF-8'); ?></span>
+        <span class="nw-multi-sum-item"><span class="nw-status-bullet" style="background-color:#f59e0b"></span><?= $countUnknown; ?> <?= htmlspecialchars(t('multi_state_unknown'), ENT_QUOTES, 'UTF-8'); ?></span>
       </div>
     </div>
 
@@ -74,10 +75,8 @@
 
     <!-- 来源 / 耗时 -->
     <p class="nw-multi-foot">
-      <?= number_format($elapsed, 2); ?>s · <?= htmlspecialchars($source === 'rdap' ? 'rdap' : ($source === 'dns' ? 'dns' : '—'), ENT_QUOTES, 'UTF-8'); ?>
-      <?php if ($source === 'dns'): ?>
-        · <?= htmlspecialchars(t('multi_dns_note'), ENT_QUOTES, 'UTF-8'); ?>
-      <?php endif; ?>
+      <?= number_format($elapsed, 2); ?>s · <?= htmlspecialchars($source, ENT_QUOTES, 'UTF-8'); ?>
+      · <?= htmlspecialchars(t('multi_dns_note'), ENT_QUOTES, 'UTF-8'); ?>
     </p>
   </section>
 

@@ -4,11 +4,15 @@
  * 多域名批量查询（暗号 "0" 触发）。
  *
  * 固定前缀：26 个英文字母 a-z + nic/www/com/net/org/dns/api/pay，
- * 与用户输入的后缀拼接为 34 个域名，批量探测“已注册 / 可注册”状态。
+ * 与用户输入的后缀拼接为 34 个域名，批量探测状态。
  *
- * 性能关键：34 个域名共享同一个后缀（TLD），因此 RDAP 服务器只需解析一次，
- * 再用 curl_multi 并行发起 34 个请求，总耗时约等于单次 RDAP 查询。
- * 对没有 RDAP 接口的后缀，回退到 DNS(NS) 探测（有记录=已注册）。
+ * 探测方式：**只用 SSL 握手 + DNS**，不碰 RDAP/WHOIS。
+ * 原因：批量并发打 RDAP/WHOIS 会触发注册局限流（如 .ke 大量 429），
+ * 结果不准。SSL/DNS 走的是公共解析器与目标主机，不受注册局限流约束：
+ *   - DNS 有 NS/A 记录  → 域名已委派/在解析 → 已注册
+ *   - SSL(443) 握手成功 → 有在线 HTTPS 服务   → 已注册（在用）
+ *   - 两者都无法确认    → 标记“未知”，由用户点击该域名再走完整查询
+ * 这样批量结果快且不会被限流；“未知”项交给用户按需精确核实。
  */
 
 // 固定前缀集合（去重后 34 个）。
@@ -60,7 +64,7 @@ function multiDomainLookup($suffix)
 
     $prefixes = multiDomainPrefixes();
 
-    // 1) 解析后缀 → extension（复用 Lookup 的域名解析，dataSource 为空则不发起任何查询）
+    // 1) 校验后缀可解析（复用 Lookup 的域名解析，dataSource 为空则不发起任何查询）
     $extension = $suffix;
     try {
         $probe = new Lookup("a." . $suffix, []);
@@ -80,147 +84,100 @@ function multiDomainLookup($suffix)
         $domains[$prefix] = $prefix . "." . $suffix;
     }
 
-    // 3) 解析 RDAP 服务器（只解析一次，同后缀共用）
-    $serverBase = "";
-    try {
-        $rdap = new RDAP("a." . $suffix, $extension, "");
-        $serverBase = $rdap->getServerBase();
-    } catch (Throwable $t) {
-        $serverBase = "";
-    }
-
-    if ($serverBase !== "") {
-        $result["source"] = "rdap";
-        $result["items"] = multiViaRdap($serverBase, $domains);
-    } else {
-        // 无 RDAP 接口：DNS 兜底
-        $result["source"] = "dns";
-        $result["items"] = multiViaDns($domains);
-    }
+    // 3) SSL + DNS 探测（不碰 RDAP/WHOIS，避免注册局限流）
+    $result["source"] = "ssl+dns";
+    $result["items"] = multiViaSslDns($domains);
 
     $result["elapsed"] = microtime(true) - $start;
     return $result;
 }
 
 /**
- * RDAP 探测：HTTP 200=已注册，404=可注册，其它=未知/待重试。
+ * SSL + DNS 批量探测（不碰 RDAP/WHOIS，规避注册局限流）。
  *
- * 关键：注册局（如 .ke）对短时间大量请求会返回 429 限流，一次性并发 34
- * 个请求会导致后半段大量被拒 → "未知"。实测仅降并发仍会大面积 429，
- * 因此采用「**限流并发 + 多轮退避重试**」：
- *   1) 每轮以较低并发（4）处理待办域名；
- *   2) 把 429 / 连接失败（瞬时故障）的域名收集到下一轮；
- *   3) 轮次间递增退避（0.6s、1.2s…），最多 3 轮；
- *   4) 仍未判定的域名再用 DNS(NS/A) 兜底。
- * 这样能在注册局限流下把"未知"降到最少，显著提升准确性。
+ * 判定规则（任一命中即“已注册/在用”）：
+ *   1) SSL：443 端口 TLS 握手成功 → 有在线 HTTPS 服务
+ *   2) DNS：存在 NS 或 A 记录     → 域名已委派/在解析
+ * 两者都无法确认 → “未知”（由用户点击该域名再走完整查询）。
+ *
+ * SSL 探测用 curl_multi 全部并行（面向各目标主机，非注册局，无限流风险）；
+ * 未被 SSL 确认的域名再做一次 DNS 记录检查作为补充信号。
  */
-function multiViaRdap($serverBase, array $domains)
+function multiViaSslDns(array $domains)
 {
-    $serverBase = rtrim($serverBase, "/");
-    $maxConcurrent = 4;   // 每轮并发上限（较低以规避限流）
-    $maxRounds = 3;       // 最多重试轮数
-
-    $labels = array_keys($domains);
-    $results = [];        // label => item
-    $pending = $labels;   // 本轮待查询的 label 列表
-
-    for ($round = 0; $round < $maxRounds && !empty($pending); $round++) {
-        if ($round > 0) {
-            // 轮次间退避，给注册局限流窗口恢复时间
-            usleep(600000 * $round); // 0.6s, 1.2s
-        }
-
-        $roundDomains = [];
-        foreach ($pending as $label) {
-            $roundDomains[$label] = $domains[$label];
-        }
-        $roundResult = multiRdapRound($serverBase, $roundDomains, $maxConcurrent);
-
-        // 收集本轮结果，把瞬时故障（retry=true）留到下一轮
-        $pending = [];
-        foreach ($roundResult as $label => $r) {
-            if (!empty($r["retry"])) {
-                $pending[] = $label;
-            } else {
-                $results[$label] = [
-                    "label" => $label,
-                    "domain" => $domains[$label],
-                    "state" => $r["state"],
-                ];
-            }
+    // 第一遍：DNS NS/A 记录检查（最可靠的注册信号，NXDOMAIN 立即返回，极快）。
+    // 绝大多数已注册域名都有 NS 委派，这一步即可确认。
+    $confirmed = [];   // label => true（已确认注册）
+    $undetermined = []; // label => domain（DNS 未命中，进入 SSL 复核）
+    foreach ($domains as $label => $domain) {
+        if (domainHasDnsRecords($domain)) {
+            $confirmed[$label] = true;
+        } else {
+            $undetermined[$label] = $domain;
         }
     }
 
-    // 多轮后仍未判定的域名：标记为未知，交由 DNS 兜底
-    foreach ($pending as $label) {
-        $results[$label] = [
+    // 第二遍：仅对 DNS 未命中的少数域名并行做 SSL/TLS 握手复核（捕获无 NS 但
+    // 有在线 HTTPS 服务的边缘情况）。目标是各主机，非注册局，无限流风险。
+    $sslOk = !empty($undetermined) ? multiSslProbe($undetermined) : [];
+
+    $items = [];
+    foreach ($domains as $label => $domain) {
+        $registered = !empty($confirmed[$label]) || !empty($sslOk[$label]);
+        $items[] = [
             "label" => $label,
-            "domain" => $domains[$label],
-            "state" => "unknown",
+            "domain" => $domain,
+            "state" => $registered ? "registered" : "unknown",
         ];
     }
-
-    // DNS 兜底：对 RDAP 未能判定的域名，用 NS/A 记录再判一次（有记录=已注册）
-    foreach ($results as $label => $r) {
-        if ($r["state"] === "unknown" && domainHasDnsRecords($r["domain"])) {
-            $results[$label]["state"] = "registered";
-        }
-    }
-
-    // 按原始前缀顺序输出
-    $ordered = [];
-    foreach ($labels as $label) {
-        if (isset($results[$label])) {
-            $ordered[] = $results[$label];
-        }
-    }
-    return $ordered;
+    return $items;
 }
 
 /**
- * 单轮 RDAP 限流并发查询。
- * 返回 label => ['state'=>..., 'retry'=>bool]，retry=true 表示瞬时故障需重试。
- *   - HTTP 200 → registered
- *   - HTTP 404 → available
- *   - HTTP 429 / 连接失败(code 0) → retry=true
- *   - 其它 → unknown
+ * 并行 SSL/TLS 握手探测：对每个域名尝试与其 443 端口建立 TLS 连接。
+ * 握手成功即视为“在用”。使用 CURLOPT_CONNECT_ONLY 只做连接（含 TLS），
+ * 不发送 HTTP 请求；不校验证书有效性（只关心对端是否响应 TLS）。
+ *
+ * @return array label => bool（true 表示握手成功）
  */
-function multiRdapRound($serverBase, array $domains, $maxConcurrent)
+function multiSslProbe(array $domains)
 {
     $keyOf = function ($ch) {
         return is_object($ch) ? spl_object_id($ch) : (int) $ch;
     };
 
-    $queue = array_keys($domains);
-    $active = [];
-    $out = [];
-
     $mh = curl_multi_init();
+    $active = [];
+    $ok = [];
 
-    $addNext = function () use (&$queue, &$active, $mh, $domains, $serverBase, $keyOf) {
-        if (empty($queue)) {
-            return;
-        }
-        $label = array_shift($queue);
-        $domain = $domains[$label];
-
-        $ascii = $domain;
+    foreach ($domains as $label => $domain) {
+        $host = $domain;
         if (function_exists("idn_to_ascii")) {
             $converted = idn_to_ascii($domain, IDNA_DEFAULT, INTL_IDNA_VARIANT_UTS46);
             if ($converted) {
-                $ascii = $converted;
+                $host = $converted;
             }
         }
-        $url = $serverBase . "/domain/" . rawurlencode($ascii);
-        $ch = RDAP::buildHandleForUrl($url);
-        curl_multi_add_handle($mh, $ch);
-        $active[$keyOf($ch)] = ["label" => $label, "domain" => $domain];
-    };
 
-    for ($i = 0; $i < $maxConcurrent; $i++) {
-        $addNext();
+        $ch = curl_init();
+        curl_setopt_array($ch, [
+            CURLOPT_URL => "https://" . $host . "/",
+            // 只建立连接（含 TLS 握手），不发送/接收 HTTP 数据 —— 最轻量的“在用”探测
+            CURLOPT_CONNECT_ONLY => true,
+            // 仅作为 DNS 未命中的少量复核，收紧超时避免拖慢整体
+            CURLOPT_TIMEOUT => 4,
+            CURLOPT_CONNECTTIMEOUT => 3,
+            // 只关心对端是否能完成 TLS 握手，不校验证书是否可信/匹配
+            CURLOPT_SSL_VERIFYPEER => false,
+            CURLOPT_SSL_VERIFYHOST => 0,
+            CURLOPT_NOSIGNAL => true,
+        ]);
+        curl_multi_add_handle($mh, $ch);
+        $active[$keyOf($ch)] = ["label" => $label, "ch" => $ch];
+        $ok[$label] = false;
     }
 
+    // 全部并行执行
     do {
         curl_multi_exec($mh, $running);
 
@@ -229,46 +186,19 @@ function multiRdapRound($serverBase, array $domains, $maxConcurrent)
             $k = $keyOf($ch);
             $meta = $active[$k] ?? null;
             if ($meta) {
-                $code = (int) curl_getinfo($ch, CURLINFO_HTTP_CODE);
-                $entry = ["state" => "unknown", "retry" => false];
-                if ($code === 200) {
-                    $entry["state"] = "registered";
-                } elseif ($code === 404) {
-                    $entry["state"] = "available";
-                } elseif ($code === 429 || $code === 0 || ($code >= 500 && $code <= 599)) {
-                    // 限流 / 连接失败 / 服务端错误：瞬时故障，下一轮重试
-                    $entry["retry"] = true;
-                }
-                $out[$meta["label"]] = $entry;
+                // CURLE_OK(0) 表示 TCP+TLS 连接已建立
+                $ok[$meta["label"]] = ((int) $info["result"] === 0);
                 unset($active[$k]);
             }
             curl_multi_remove_handle($mh, $ch);
             curl_close($ch);
-            $addNext();
         }
 
-        if ($running || !empty($queue) || !empty($active)) {
+        if ($running) {
             curl_multi_select($mh, 1.0);
         }
-    } while ($running || !empty($queue) || !empty($active));
+    } while ($running);
 
     curl_multi_close($mh);
-    return $out;
-}
-
-/**
- * DNS 兜底探测：存在 NS 记录=已注册，否则未知（DNS 无记录不足以断定可注册）。
- */
-function multiViaDns(array $domains)
-{
-    $items = [];
-    foreach ($domains as $label => $domain) {
-        $state = domainHasDnsRecords($domain) ? "registered" : "unknown";
-        $items[] = [
-            "label" => $label,
-            "domain" => $domain,
-            "state" => $state,
-        ];
-    }
-    return $items;
+    return $ok;
 }
