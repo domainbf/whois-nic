@@ -409,7 +409,7 @@ body::before {
   opacity: 1;
 }
 
-/* 太阳 / 月亮图标堆叠并以旋转 + 缩放 + 淡入做柔和交叉切换 */
+/* 太阳 / 月亮图��堆叠并以旋转 + 缩放 + 淡入做柔和交叉切换 */
 .theme-toggle {
   position: relative;
 }
@@ -1719,6 +1719,11 @@ code a { color: hsl(var(--info)) !important; }
 .nw-modal-close:hover {
   color: hsl(var(--foreground));
   background-color: hsl(var(--muted));
+}
+
+/* 关闭按钮内的 SVG 图标不拦截点击，确保点到图标也能触发按钮的关闭逻辑 */
+.nw-modal-close svg {
+  pointer-events: none;
 }
 
 .nw-modal-body {
