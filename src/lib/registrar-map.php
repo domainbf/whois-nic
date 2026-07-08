@@ -596,40 +596,21 @@ function registrar_website(string $name): string
     $normName = registrar_normalize($name);
     $lower = mb_strtolower($name);
 
-    // 1) 归一化精确匹配（最高优先级）
+    // 1) 归一化精确匹配
     foreach ($map as $kw => $url) {
         if (registrar_normalize($kw) === $normName) {
             return $url;
         }
     }
 
-    // 2) 关键词包含匹配。
-    //    先按关键词长度从长到短排序，确保更具体的关键词优先命中，
-    //    避免 "google" 抢先于 "google registry"、或短关键词误伤长名称。
-    $candidates = [];
+    // 2) 关键词包含匹配（原始小写串包含关键词，或归一化串互相包含）
     foreach ($map as $kw => $url) {
-        $kwLower = mb_strtolower(trim($kw));
+        $kwLower = mb_strtolower($kw);
         $kwNorm = registrar_normalize($kw);
-        if ($kwLower === '' || $kwNorm === '') {
+        if ($kwNorm === '') {
             continue;
         }
-        $candidates[] = [$kwLower, $kwNorm, $url];
-    }
-    usort($candidates, static function ($a, $b) {
-        return mb_strlen($b[1]) <=> mb_strlen($a[1]);
-    });
-
-    foreach ($candidates as [$kwLower, $kwNorm, $url]) {
-        // 原始小写串包含关键词（保留标点，能区分 "name.com" 等）
-        if (strpos($lower, $kwLower) !== false) {
-            return $url;
-        }
-        // 归一化包含匹配：为避免误伤，短关键词（<4）要求完全相等而非子串
-        if (mb_strlen($kwNorm) < 4) {
-            if ($kwNorm === $normName) {
-                return $url;
-            }
-        } elseif (strpos($normName, $kwNorm) !== false) {
+        if (strpos($lower, $kwLower) !== false || ($kwNorm !== '' && strpos($normName, $kwNorm) !== false)) {
             return $url;
         }
     }
