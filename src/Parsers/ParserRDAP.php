@@ -57,34 +57,30 @@ class ParserRDAP extends Parser
     }
 
     foreach ($this->json["entities"] as $entity) {
-      $roles = $entity["roles"];
+      $roles = $entity["roles"] ?? [];
 
       if (
         (is_string($roles) && $roles === "registrar") ||
         (is_array($roles) && in_array("registrar", $roles))
       ) {
-        if (empty($entity["vcardArray"])) {
-          // ar, cz
-          if (!empty($entity["handle"])) {
-            $this->registrar = $entity["handle"];
-          }
-        } else {
-          $vcardArray = isset($entity["vcardArray"]["elements"])
-            ? $entity["vcardArray"]["elements"]
-            : $entity["vcardArray"][1];
-          foreach ($vcardArray as $item) {
-            switch ($item[0]) {
-              case "fn":
-              case "org":
-                if (!$this->registrar) {
-                  $this->registrar = $item[3];
-                }
-                break;
-              case "url":
-                $this->registrarURL = $this->formatURL($item[3]);
-                break;
-            }
-          }
+        // 1) 优先从 registrar 实体自身的 vcard 读取 fn/org 与 url
+        [$name, $url] = $this->extractVcardNameUrl($entity);
+
+        // 2) 名称缺失时，递归查子实体的 vcard fn/org。
+        //    部分注册局（如 KENIC/.ke）把注册商名放在嵌套的 abuse/technical
+        //    子实体里，顶层 registrar 实体只有一个 handle（如 "VIC2"）。
+        if ($name === "" && !empty($entity["entities"])) {
+          $name = $this->findVcardNameInEntities($entity["entities"]);
+        }
+
+        // 3) 仍无名称时，才退回 handle（ar, cz 等）
+        if ($name === "" && !empty($entity["handle"])) {
+          $name = $entity["handle"];
+        }
+
+        $this->registrar = $name;
+        if ($url !== "") {
+          $this->registrarURL = $url;
         }
 
         if (empty($this->registrarURL)) {
@@ -107,6 +103,73 @@ class ParserRDAP extends Parser
         break;
       }
     }
+  }
+
+  // 兼容 vcardArray 的两种形态：["elements" => [...]] 或 ["vcard", [...]]
+  private function getVcardElements($entity)
+  {
+    if (empty($entity["vcardArray"])) {
+      return [];
+    }
+
+    return $entity["vcardArray"]["elements"] ?? ($entity["vcardArray"][1] ?? []);
+  }
+
+  // 从单个实体的 vcard 提取 [名称(fn 优先，其次 org), url]
+  private function extractVcardNameUrl($entity)
+  {
+    $name = "";
+    $url = "";
+
+    foreach ($this->getVcardElements($entity) as $item) {
+      if (!is_array($item) || !isset($item[0])) {
+        continue;
+      }
+
+      switch ($item[0]) {
+        case "fn":
+        case "org":
+          if ($name === "" && !empty($item[3]) && is_string($item[3])) {
+            $name = trim($item[3]);
+          }
+          break;
+        case "url":
+          if ($url === "" && !empty($item[3]) && is_string($item[3])) {
+            $url = $this->formatURL($item[3]);
+          }
+          break;
+      }
+    }
+
+    return [$name, $url];
+  }
+
+  // 递归在子实体中查找第一个可用的 vcard fn/org 名称
+  private function findVcardNameInEntities($entities)
+  {
+    if (!is_array($entities)) {
+      return "";
+    }
+
+    foreach ($entities as $sub) {
+      if (!is_array($sub)) {
+        continue;
+      }
+
+      [$name] = $this->extractVcardNameUrl($sub);
+      if ($name !== "") {
+        return $name;
+      }
+
+      if (!empty($sub["entities"])) {
+        $deep = $this->findVcardNameInEntities($sub["entities"]);
+        if ($deep !== "") {
+          return $deep;
+        }
+      }
+    }
+
+    return "";
   }
 
   private function formatURL($url)
