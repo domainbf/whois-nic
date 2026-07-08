@@ -1647,6 +1647,136 @@ code a { color: hsl(var(--info)) !important; }
   color: hsl(var(--muted-foreground) / 0.7);
 }
 
+/* ---- 详情弹窗 ---- */
+.nw-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+}
+
+.nw-modal-backdrop {
+  position: absolute;
+  inset: 0;
+  background: hsl(0 0% 0% / 0.5);
+  backdrop-filter: blur(2px);
+  animation: nw-modal-fade 0.15s ease;
+}
+
+.nw-modal-panel {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  max-width: 560px;
+  height: min(80vh, 720px);
+  background-color: hsl(var(--background));
+  border: 1px solid hsl(var(--border));
+  border-radius: 16px;
+  box-shadow: 0 20px 50px hsl(0 0% 0% / 0.25);
+  overflow: hidden;
+  animation: nw-modal-pop 0.18s ease;
+}
+
+.nw-modal-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px 12px 12px 18px;
+  border-bottom: 1px solid hsl(var(--border) / 0.7);
+  flex: 0 0 auto;
+}
+
+.nw-modal-title {
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 14px;
+  font-weight: 700;
+  color: hsl(var(--foreground));
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.nw-modal-close {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  flex: 0 0 auto;
+  border: none;
+  border-radius: 9px;
+  cursor: pointer;
+  color: hsl(var(--muted-foreground));
+  background-color: hsl(var(--muted) / 0.6);
+  transition: background-color 0.15s ease, color 0.15s ease;
+}
+
+.nw-modal-close:hover {
+  color: hsl(var(--foreground));
+  background-color: hsl(var(--muted));
+}
+
+.nw-modal-body {
+  position: relative;
+  flex: 1 1 auto;
+  min-height: 0;
+}
+
+.nw-modal-frame {
+  width: 100%;
+  height: 100%;
+  border: 0;
+  display: block;
+  background-color: hsl(var(--background));
+}
+
+.nw-modal-loading {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.nw-modal-spinner {
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  border: 3px solid hsl(var(--muted-foreground) / 0.25);
+  border-top-color: hsl(var(--foreground));
+  animation: nw-spin 0.7s linear infinite;
+}
+
+body.nw-modal-open {
+  overflow: hidden;
+}
+
+@keyframes nw-modal-fade {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes nw-modal-pop {
+  from { opacity: 0; transform: translateY(8px) scale(0.98); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+/* ---- 嵌入模式（iframe 内）：去除外层留白，仅展示结果卡片 ---- */
+body.is-embed {
+  padding: 0;
+  background-color: hsl(var(--background));
+}
+
+body.is-embed main {
+  margin: 0;
+  padding: 12px;
+}
+
 /* 注册人联系（���卡内） */
 .nw-contact-grid {
   display: grid;

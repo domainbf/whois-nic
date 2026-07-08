@@ -103,15 +103,107 @@ function multiDomainLookup($suffix)
 }
 
 /**
- * RDAP 并行探测：HTTP 200=已注册，404=可注册，其它=未知。
+ * RDAP 探测：HTTP 200=已注册，404=可注册，其它=未知/待重试。
+ *
+ * 关键：注册局（如 .ke）对短时间大量请求会返回 429 限流，一次性并发 34
+ * 个请求会导致后半段大量被拒 → "未知"。实测仅降并发仍会大面积 429，
+ * 因此采用「**限流并发 + 多轮退避重试**」：
+ *   1) 每轮以较低并发（4）处理待办域名；
+ *   2) 把 429 / 连接失败（瞬时故障）的域名收集到下一轮；
+ *   3) 轮次间递增退避（0.6s、1.2s…），最多 3 轮；
+ *   4) 仍未判定的域名再用 DNS(NS/A) 兜底。
+ * 这样能在注册局限流下把"未知"降到最少，显著提升准确性。
  */
 function multiViaRdap($serverBase, array $domains)
 {
-    $items = [];
-    $mh = curl_multi_init();
-    $handles = [];
+    $serverBase = rtrim($serverBase, "/");
+    $maxConcurrent = 4;   // 每轮并发上限（较低以规避限流）
+    $maxRounds = 3;       // 最多重试轮数
 
-    foreach ($domains as $label => $domain) {
+    $labels = array_keys($domains);
+    $results = [];        // label => item
+    $pending = $labels;   // 本轮待查询的 label 列表
+
+    for ($round = 0; $round < $maxRounds && !empty($pending); $round++) {
+        if ($round > 0) {
+            // 轮次间退避，给注册局限流窗口恢复时间
+            usleep(600000 * $round); // 0.6s, 1.2s
+        }
+
+        $roundDomains = [];
+        foreach ($pending as $label) {
+            $roundDomains[$label] = $domains[$label];
+        }
+        $roundResult = multiRdapRound($serverBase, $roundDomains, $maxConcurrent);
+
+        // 收集本轮结果，把瞬时故障（retry=true）留到下一轮
+        $pending = [];
+        foreach ($roundResult as $label => $r) {
+            if (!empty($r["retry"])) {
+                $pending[] = $label;
+            } else {
+                $results[$label] = [
+                    "label" => $label,
+                    "domain" => $domains[$label],
+                    "state" => $r["state"],
+                ];
+            }
+        }
+    }
+
+    // 多轮后仍未判定的域名：标记为未知，交由 DNS 兜底
+    foreach ($pending as $label) {
+        $results[$label] = [
+            "label" => $label,
+            "domain" => $domains[$label],
+            "state" => "unknown",
+        ];
+    }
+
+    // DNS 兜底：对 RDAP 未能判定的域名，用 NS/A 记录再判一次（有记录=已注册）
+    foreach ($results as $label => $r) {
+        if ($r["state"] === "unknown" && domainHasDnsRecords($r["domain"])) {
+            $results[$label]["state"] = "registered";
+        }
+    }
+
+    // 按原始前缀顺序输出
+    $ordered = [];
+    foreach ($labels as $label) {
+        if (isset($results[$label])) {
+            $ordered[] = $results[$label];
+        }
+    }
+    return $ordered;
+}
+
+/**
+ * 单轮 RDAP 限流并发查询。
+ * 返回 label => ['state'=>..., 'retry'=>bool]，retry=true 表示瞬时故障需重试。
+ *   - HTTP 200 → registered
+ *   - HTTP 404 → available
+ *   - HTTP 429 / 连接失败(code 0) → retry=true
+ *   - 其它 → unknown
+ */
+function multiRdapRound($serverBase, array $domains, $maxConcurrent)
+{
+    $keyOf = function ($ch) {
+        return is_object($ch) ? spl_object_id($ch) : (int) $ch;
+    };
+
+    $queue = array_keys($domains);
+    $active = [];
+    $out = [];
+
+    $mh = curl_multi_init();
+
+    $addNext = function () use (&$queue, &$active, $mh, $domains, $serverBase, $keyOf) {
+        if (empty($queue)) {
+            return;
+        }
+        $label = array_shift($queue);
+        $domain = $domains[$label];
+
         $ascii = $domain;
         if (function_exists("idn_to_ascii")) {
             $converted = idn_to_ascii($domain, IDNA_DEFAULT, INTL_IDNA_VARIANT_UTS46);
@@ -119,43 +211,49 @@ function multiViaRdap($serverBase, array $domains)
                 $ascii = $converted;
             }
         }
-        $url = rtrim($serverBase, "/") . "/domain/" . rawurlencode($ascii);
+        $url = $serverBase . "/domain/" . rawurlencode($ascii);
         $ch = RDAP::buildHandleForUrl($url);
         curl_multi_add_handle($mh, $ch);
-        $handles[$label] = ["ch" => $ch, "domain" => $domain];
+        $active[$keyOf($ch)] = ["label" => $label, "domain" => $domain];
+    };
+
+    for ($i = 0; $i < $maxConcurrent; $i++) {
+        $addNext();
     }
 
-    // 并行执行所有请求
     do {
-        $status = curl_multi_exec($mh, $running);
-        if ($running) {
+        curl_multi_exec($mh, $running);
+
+        while ($info = curl_multi_info_read($mh)) {
+            $ch = $info["handle"];
+            $k = $keyOf($ch);
+            $meta = $active[$k] ?? null;
+            if ($meta) {
+                $code = (int) curl_getinfo($ch, CURLINFO_HTTP_CODE);
+                $entry = ["state" => "unknown", "retry" => false];
+                if ($code === 200) {
+                    $entry["state"] = "registered";
+                } elseif ($code === 404) {
+                    $entry["state"] = "available";
+                } elseif ($code === 429 || $code === 0 || ($code >= 500 && $code <= 599)) {
+                    // 限流 / 连接失败 / 服务端错误：瞬时故障，下一轮重试
+                    $entry["retry"] = true;
+                }
+                $out[$meta["label"]] = $entry;
+                unset($active[$k]);
+            }
+            curl_multi_remove_handle($mh, $ch);
+            curl_close($ch);
+            $addNext();
+        }
+
+        if ($running || !empty($queue) || !empty($active)) {
             curl_multi_select($mh, 1.0);
         }
-    } while ($running && $status === CURLM_OK);
-
-    foreach ($handles as $label => $h) {
-        $ch = $h["ch"];
-        $code = (int) curl_getinfo($ch, CURLINFO_HTTP_CODE);
-
-        $state = "unknown";
-        if ($code === 200) {
-            $state = "registered";
-        } elseif ($code === 404) {
-            $state = "available";
-        }
-
-        $items[] = [
-            "label" => $label,
-            "domain" => $h["domain"],
-            "state" => $state,
-        ];
-
-        curl_multi_remove_handle($mh, $ch);
-        curl_close($ch);
-    }
+    } while ($running || !empty($queue) || !empty($active));
 
     curl_multi_close($mh);
-    return $items;
+    return $out;
 }
 
 /**

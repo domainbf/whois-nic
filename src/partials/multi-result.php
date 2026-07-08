@@ -60,7 +60,7 @@
         $detailHref = BASE . "?domain=" . urlencode($item["domain"]);
       ?>
         <li class="nw-multi-row nw-multi-row--<?= htmlspecialchars($state, ENT_QUOTES, 'UTF-8'); ?>">
-          <a class="nw-multi-link" href="<?= htmlspecialchars($detailHref, ENT_QUOTES, 'UTF-8'); ?>">
+          <a class="nw-multi-link js-multi-detail" href="<?= htmlspecialchars($detailHref, ENT_QUOTES, 'UTF-8'); ?>" data-domain="<?= htmlspecialchars($item["domain"], ENT_QUOTES, 'UTF-8'); ?>">
             <span class="nw-multi-dot" style="background-color: <?= $meta["dot"]; ?>" aria-hidden="true"></span>
             <span class="nw-multi-domain">
               <span class="nw-multi-prefix"><?= htmlspecialchars($item["label"], ENT_QUOTES, 'UTF-8'); ?></span><span class="nw-multi-tld">.<?= htmlspecialchars($suffix, ENT_QUOTES, 'UTF-8'); ?></span>
@@ -80,6 +80,25 @@
       <?php endif; ?>
     </p>
   </section>
+
+  <!-- 详情弹窗：点击列表项在此弹窗内以 iframe 加载该域名的完整查询结果 -->
+  <div class="nw-modal" id="multi-modal" hidden aria-hidden="true" role="dialog" aria-modal="true" aria-labelledby="multi-modal-title">
+    <div class="nw-modal-backdrop" data-close="1"></div>
+    <div class="nw-modal-panel">
+      <div class="nw-modal-head">
+        <span class="nw-modal-title" id="multi-modal-title"></span>
+        <button type="button" class="nw-modal-close" data-close="1" aria-label="<?= htmlspecialchars(t('multi_modal_close'), ENT_QUOTES, 'UTF-8'); ?>">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
+      </div>
+      <div class="nw-modal-body">
+        <div class="nw-modal-loading" id="multi-modal-loading">
+          <span class="nw-modal-spinner" aria-hidden="true"></span>
+        </div>
+        <iframe class="nw-modal-frame" id="multi-modal-frame" title="" hidden></iframe>
+      </div>
+    </div>
+  </div>
 
 <?php else: ?>
   <!-- 无有效后缀 / 空结果 -->

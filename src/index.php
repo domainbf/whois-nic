@@ -133,6 +133,10 @@ $multiData = null;    // 批量查询结果
 $rawDomain = isset($_GET["domain"]) ? trim((string) $_GET["domain"]) : "";
 $multiFlag = filter_var($_GET["multi"] ?? 0, FILTER_VALIDATE_BOOL);
 
+// 嵌入模式：多域名列表点击某项时，在弹窗 iframe 内加载该域名的完整查询结果，
+// 隐藏顶栏 / 搜索框 / 页脚等外层 chrome，仅展示结果卡片。
+$embed = filter_var($_GET["embed"] ?? 0, FILTER_VALIDATE_BOOL);
+
 if ($rawDomain === "0") {
   // 暗号触发：进入多域名模式入口，等待用户输入后缀
   $multiMode = true;
@@ -198,7 +202,7 @@ if ($domain) {
       $invalidDomain = true;
       $error = "'$domain' is not a valid domain";
     } else {
-      // WHOIS/RDAP 查询失败（服务器不可达、超时、注册局接口异常等）：
+      // WHOIS/RDAP 查询失败（服务器不可达、超时、注册局��口异常等）：
       // 这不代表域名无效。退一步用 DNS 兜底判断是否已注册，尽量给出有用结果。
       $error = $e->getMessage();
       $dnsActive = domainHasDnsRecords($domain);
@@ -236,9 +240,11 @@ require __DIR__ . "/lib/share-meta.php";
 
   <?php require __DIR__ . "/partials/head.php"; ?>
 
-<body data-has-domain="<?= $domain ? "1" : "0"; ?>">
-  <?php require __DIR__ . "/partials/topbar.php"; ?>
-  <?php require __DIR__ . "/partials/search-form.php"; ?>
+<body data-has-domain="<?= $domain ? "1" : "0"; ?>"<?= $embed ? ' class="is-embed"' : ''; ?>>
+  <?php if (!$embed): ?>
+    <?php require __DIR__ . "/partials/topbar.php"; ?>
+    <?php require __DIR__ . "/partials/search-form.php"; ?>
+  <?php endif; ?>
   <main>
     <?php if ($multiMode): ?>
       <?php require __DIR__ . "/partials/multi-result.php"; ?>
@@ -247,12 +253,14 @@ require __DIR__ . "/lib/share-meta.php";
       <?php require __DIR__ . "/partials/raw-data.php"; ?>
     <?php endif; ?>
   </main>
-  <?php require_once __DIR__ . "/footer.php"; ?>
-  <button class="back-to-top" id="back-to-top">
-    <svg width="1em" height="1em" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true">
-      <path d="M8 12a.5.5 0 0 0 .5-.5V5.707l2.146 2.147a.5.5 0 0 0 .708-.708l-3-3a.5.5 0 0 0-.708 0l-3 3a.5.5 0 1 0 .708.708L7.5 5.707V11.5a.5.5 0 0 0 .5.5" fill-rule="evenodd" />
-    </svg>
-  </button>
+  <?php if (!$embed): ?>
+    <?php require_once __DIR__ . "/footer.php"; ?>
+    <button class="back-to-top" id="back-to-top">
+      <svg width="1em" height="1em" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true">
+        <path d="M8 12a.5.5 0 0 0 .5-.5V5.707l2.146 2.147a.5.5 0 0 0 .708-.708l-3-3a.5.5 0 0 0-.708 0l-3 3a.5.5 0 1 0 .708.708L7.5 5.707V11.5a.5.5 0 0 0 .5.5" fill-rule="evenodd" />
+      </svg>
+    </button>
+  <?php endif; ?>
   <?php require __DIR__ . "/partials/scripts.php"; ?>
   <?= CUSTOM_SCRIPT ?>
 </body>
