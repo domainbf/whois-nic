@@ -87,10 +87,17 @@ class RDAP
     return "{$this->server}domain/{$this->domain}";
   }
 
-  // 构建配置好的 curl easy handle（不执行），供 getData 与并行 curl_multi 共用。
-  public function buildHandle()
+  // 已解析出的 RDAP 服务器基址，供多域名批量查询复用（同后缀共用一个服务器）。
+  public function getServerBase()
   {
-    $curl = curl_init($this->getURL());
+    return $this->server;
+  }
+
+  // 为任意 URL 构建配置好的 curl easy handle（不执行）。
+  // 供 buildHandle() 与多域名批量查询（curl_multi）共用，保证超时/头部一致。
+  public static function buildHandleForUrl($url)
+  {
+    $curl = curl_init($url);
 
     curl_setopt_array($curl, [
       CURLOPT_RETURNTRANSFER => true,
@@ -111,6 +118,12 @@ class RDAP
     ]);
 
     return $curl;
+  }
+
+  // 构建配置好的 curl easy handle（不执行），供 getData 与并行 curl_multi 共用。
+  public function buildHandle()
+  {
+    return self::buildHandleForUrl($this->getURL());
   }
 
   // 归一化一个已执行的 handle 的结果为 [code, response]。

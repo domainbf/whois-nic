@@ -1454,6 +1454,183 @@ code a { color: hsl(var(--info)) !important; }
   border-color: hsl(var(--foreground));
 }
 
+/* ===================== 多域名批量查询（暗号 0） ===================== */
+/* 搜索框内的“多域名”标签，替代 / 快捷键提示 */
+.nw-multi-tag {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 8px;
+  border-radius: 8px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  color: hsl(var(--primary-foreground));
+  background-color: hsl(var(--foreground));
+  white-space: nowrap;
+}
+
+.nw-multi {
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 0 16px;
+}
+
+/* 引导 / 空态卡片 */
+.nw-multi-intro {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 10px;
+  padding: 40px 24px;
+  border: 1px solid hsl(var(--border));
+  border-radius: var(--radius, 16px);
+  background-color: hsl(var(--card));
+}
+
+.nw-multi-intro-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  color: hsl(var(--muted-foreground));
+  background-color: hsl(var(--muted) / 0.7);
+}
+
+.nw-multi-intro-title {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 700;
+  color: hsl(var(--foreground));
+}
+
+.nw-multi-intro-desc {
+  margin: 0;
+  max-width: 460px;
+  font-size: 13px;
+  line-height: 1.6;
+  color: hsl(var(--muted-foreground));
+}
+
+/* 结果概览行 */
+.nw-multi-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.nw-multi-head-title {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+}
+
+.nw-multi-suffix {
+  font-size: 20px;
+  font-weight: 800;
+  color: hsl(var(--foreground));
+}
+
+.nw-multi-count {
+  font-size: 12px;
+  color: hsl(var(--muted-foreground));
+}
+
+.nw-multi-summary {
+  display: flex;
+  gap: 14px;
+}
+
+.nw-multi-sum-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  color: hsl(var(--muted-foreground));
+}
+
+/* 紧凑列表 */
+.nw-multi-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  border: 1px solid hsl(var(--border));
+  border-radius: var(--radius, 14px);
+  overflow: hidden;
+  background-color: hsl(var(--card));
+}
+
+.nw-multi-row + .nw-multi-row {
+  border-top: 1px solid hsl(var(--border) / 0.7);
+}
+
+.nw-multi-link {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 11px 14px;
+  text-decoration: none;
+  color: hsl(var(--foreground));
+  transition: background-color 0.15s ease;
+}
+
+.nw-multi-link:hover {
+  background-color: hsl(var(--muted) / 0.5);
+}
+
+.nw-multi-dot {
+  flex: 0 0 auto;
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+}
+
+.nw-multi-domain {
+  flex: 1 1 auto;
+  min-width: 0;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 14px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.nw-multi-prefix {
+  font-weight: 700;
+  color: hsl(var(--foreground));
+}
+
+.nw-multi-tld {
+  color: hsl(var(--muted-foreground));
+}
+
+.nw-multi-state {
+  flex: 0 0 auto;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.nw-multi-state--available { color: #16a34a; }
+.nw-multi-state--registered { color: hsl(var(--muted-foreground)); }
+.nw-multi-state--unknown { color: hsl(var(--muted-foreground) / 0.7); }
+
+.nw-multi-arrow {
+  flex: 0 0 auto;
+  color: hsl(var(--muted-foreground) / 0.6);
+}
+
+.nw-multi-foot {
+  margin: 12px 2px 0;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 11px;
+  color: hsl(var(--muted-foreground) / 0.7);
+}
+
 /* 注册人联系（���卡内） */
 .nw-contact-grid {
   display: grid;

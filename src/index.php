@@ -30,6 +30,9 @@ require_once __DIR__ . "/../vendor/autoload.php";
 // 自动加载器与请求辅助函数（checkPassword / cleanDomain / getDataSource）
 require_once __DIR__ . "/lib/helpers.php";
 
+// 多域名批量查询（暗号 "0" 触发）
+require_once __DIR__ . "/lib/multi-lookup.php";
+
 // 多语言（i18n）：在任何输出前初始化，以便正确写入 lang cookie
 require_once __DIR__ . "/lib/i18n.php";
 i18n_init();
@@ -118,7 +121,34 @@ if (isset($_GET["api"]) && $_GET["api"] === "favicon") {
 
 checkPassword();
 
-$domain = cleanDomain($domain);
+// ---- 暗号：多域名批量查询（输入 "0" 触发）----
+// 交互：输入 0 → 点击查询 → 进入多域名模式（搜索框提示输入后缀）→
+//       输入后缀 → 查询 34 个固定前缀域名（a-z + nic/www/com/net/org/dns/api/pay）。
+$multiMode = false;   // 是否处于多域名模式
+$multiEntry = false;  // 仅输入 0、尚未输入后缀（模式入口）
+$multiSuffix = "";    // 用户输入的后缀
+$multiData = null;    // 批量查询结果
+// 注意：不能用 $domain，因为 PHP 的 empty("0") 为 true，顶部过滤会让输入 "0"
+// 时 $domain 变成 null。这里直接读取原始 GET 参数以正确捕获暗号 "0"。
+$rawDomain = isset($_GET["domain"]) ? trim((string) $_GET["domain"]) : "";
+$multiFlag = filter_var($_GET["multi"] ?? 0, FILTER_VALIDATE_BOOL);
+
+if ($rawDomain === "0") {
+  // 暗号触发：进入多域名模式入口，等待用户输入后缀
+  $multiMode = true;
+  $multiEntry = true;
+  $domain = "";
+} elseif ($multiFlag && $rawDomain !== "") {
+  // 多域名模式下已输入后缀：执行批量查询
+  $multiMode = true;
+  $multiSuffix = sanitizeSuffix($rawDomain);
+  $multiData = multiDomainLookup($multiSuffix);
+  $domain = "";
+}
+
+// 多域名模式下强制清空域名，避免 cleanDomain 回退读取 $_GET["domain"]（如 "0"/"com"）
+// 从而误触发单域名查询；非多域名模式保持原有行为。
+$domain = $multiMode ? "" : cleanDomain($domain);
 
 $dataSource = [];
 $fetchPrices = false;
@@ -210,8 +240,12 @@ require __DIR__ . "/lib/share-meta.php";
   <?php require __DIR__ . "/partials/topbar.php"; ?>
   <?php require __DIR__ . "/partials/search-form.php"; ?>
   <main>
-    <?php require __DIR__ . "/partials/result.php"; ?>
-    <?php require __DIR__ . "/partials/raw-data.php"; ?>
+    <?php if ($multiMode): ?>
+      <?php require __DIR__ . "/partials/multi-result.php"; ?>
+    <?php else: ?>
+      <?php require __DIR__ . "/partials/result.php"; ?>
+      <?php require __DIR__ . "/partials/raw-data.php"; ?>
+    <?php endif; ?>
   </main>
   <?php require_once __DIR__ . "/footer.php"; ?>
   <button class="back-to-top" id="back-to-top">

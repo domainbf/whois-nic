@@ -1,22 +1,34 @@
+  <?php
+    // 多域名模式：切换搜索框占位符/回显值，并携带 multi=1 使后续查询走批量逻辑
+    $isMulti = !empty($multiMode);
+    $searchValue = $isMulti ? ($multiSuffix ?? '') : ($domain ?? '');
+    $searchPlaceholder = $isMulti ? t('multi_placeholder') : t('search_placeholder');
+    $shouldAutofocus = $isMulti ? true : !$domain;
+  ?>
   <header>
     <div>
       <form action="<?= BASE; ?>" id="form" method="get">
         <div class="search-and-button-container">
-            <div class="search-box">
-                <kbd class="nw-kbd nw-kbd-inline" id="slash-hint" aria-hidden="true">/</kbd>
+            <div class="search-box<?= $isMulti ? ' search-box--multi' : ''; ?>">
+                <?php if ($isMulti): ?>
+                  <span class="nw-multi-tag" aria-hidden="true"><?= htmlspecialchars(t('multi_tag'), ENT_QUOTES, 'UTF-8'); ?></span>
+                  <input type="hidden" name="multi" value="1">
+                <?php else: ?>
+                  <kbd class="nw-kbd nw-kbd-inline" id="slash-hint" aria-hidden="true">/</kbd>
+                <?php endif; ?>
                 <input
                   autocapitalize="off"
                   autocomplete="domain"
                   autocorrect="off"
-                  <?= $domain ? "" : "autofocus"; ?>
+                  <?= $shouldAutofocus ? "autofocus" : ""; ?>
                   class="input search-input"
                   id="domain"
                   inputmode="url"
                   name="domain"
-                  placeholder="<?= htmlspecialchars(t('search_placeholder'), ENT_QUOTES, 'UTF-8'); ?>"
+                  placeholder="<?= htmlspecialchars($searchPlaceholder, ENT_QUOTES, 'UTF-8'); ?>"
                   required
                   type="text"
-                  value="<?= htmlspecialchars($domain ?? '', ENT_QUOTES, 'UTF-8'); ?>">
+                  value="<?= htmlspecialchars($searchValue, ENT_QUOTES, 'UTF-8'); ?>">
                 <button class="search-clear" id="domain-clear" type="button" aria-label="<?= htmlspecialchars(t('clear'), ENT_QUOTES, 'UTF-8'); ?>">
                     <svg viewBox="0 0 16 16" fill="currentColor">
                         <path d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708" />
@@ -99,7 +111,7 @@
         <span class="nw-hotkey-item"><?= htmlspecialchars(t('hotkey_query'), ENT_QUOTES, 'UTF-8'); ?> <kbd class="nw-kbd">/</kbd></span>
         <span class="nw-hotkey-item"><?= htmlspecialchars(t('hotkey_clear'), ENT_QUOTES, 'UTF-8'); ?> <kbd class="nw-kbd">Esc</kbd></span>
       </div>
-      <?php if (!$domain): ?>
+      <?php if (!$domain && empty($multiMode)): ?>
       <!-- 首页：历史查询列表（由 history.js 基于 localStorage 渲染，支持翻页）-->
       <div class="nw-history" id="search-history" hidden>
         <div class="nw-history-divider"><span id="search-history-label"><?= htmlspecialchars(t('history_title'), ENT_QUOTES, 'UTF-8'); ?></span></div>
