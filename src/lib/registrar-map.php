@@ -339,6 +339,246 @@ function registrar_keyword_map(): array
         '1st domains' => 'https://www.1stdomains.nz',
         'discount domains' => 'https://www.discountdomains.co.nz',
         'metaname' => 'https://www.metaname.net',
+
+        // ============ 增强：北美 / 全球大型平台与批发商 ============
+        'publicdomainregistry' => 'https://publicdomainregistry.com',
+        'pdr ltd' => 'https://publicdomainregistry.com',
+        'endurance' => 'https://newfold.com',
+        'newfold' => 'https://newfold.com',
+        'wild west domains' => 'https://www.wildwestdomains.com',
+        'secureserver' => 'https://www.godaddy.com',
+        'amazon registrar' => 'https://registrar.amazon.com',
+        'route 53' => 'https://aws.amazon.com/route53',
+        'onlinenic' => 'https://www.onlinenic.com',
+        'eranet' => 'https://www.eranet.com',
+        'instra' => 'https://www.instra.com',
+        'marcaria' => 'https://www.marcaria.com',
+        'internet.bs' => 'https://internetbs.net',
+        'internetbs' => 'https://internetbs.net',
+        'encirca' => 'https://www.encirca.com',
+        'gkg.net' => 'https://www.gkg.net',
+        'cosmotown' => 'https://www.cosmotown.com',
+        '1api' => 'https://www.1api.net',
+        'brandit' => 'https://www.brandit.com',
+        'nameserver.com' => 'https://www.nameserver.com',
+        'siteground' => 'https://www.siteground.com',
+        'a2 hosting' => 'https://www.a2hosting.com',
+        'a2hosting' => 'https://www.a2hosting.com',
+        'inmotion' => 'https://www.inmotionhosting.com',
+        'greengeeks' => 'https://www.greengeeks.com',
+        'namecheap.com' => 'https://www.namecheap.com',
+        'onlydomains' => 'https://www.onlydomains.com',
+
+        // ============ 增强：加拿大 ============
+        'easydns' => 'https://easydns.com',
+        'domainpeople' => 'https://www.domainpeople.com',
+        'namespro' => 'https://www.namespro.ca',
+        'webnames.ca' => 'https://www.webnames.ca',
+        'hostpapa' => 'https://www.hostpapa.com',
+        'internic.ca' => 'https://www.cira.ca',
+
+        // ============ 增强：英国 / 爱尔兰 ============
+        'inwx' => 'https://www.inwx.com',
+        'netistrar' => 'https://www.netistrar.com',
+        '20i' => 'https://www.20i.com',
+        'heart internet' => 'https://www.heartinternet.uk',
+        'names.co.uk' => 'https://www.names.co.uk',
+        'uk2' => 'https://www.uk2.net',
+        'tsohost' => 'https://www.tsohost.com',
+        'domainmonster' => 'https://www.domainmonster.com',
+        'blacknight' => 'https://www.blacknight.com',
+        'register365' => 'https://www.register365.com',
+
+        // ============ 增强：德语区 ============
+        'netcup' => 'https://www.netcup.de',
+        'domainfactory' => 'https://www.df.eu',
+        'df.eu' => 'https://www.df.eu',
+        'host europe' => 'https://www.hosteurope.de',
+        'hosteurope' => 'https://www.hosteurope.de',
+        'all-inkl' => 'https://all-inkl.com',
+        'manitu' => 'https://www.manitu.de',
+        'variomedia' => 'https://www.variomedia.de',
+        'united internet' => 'https://www.ionos.de',
+        'hosttech' => 'https://www.hosttech.eu',
+        'metanet' => 'https://www.metanet.ch',
+        'infomaniak.ch' => 'https://www.infomaniak.com',
+
+        // ============ 增强：法国 ============
+        'ikoula' => 'https://www.ikoula.com',
+        'scaleway' => 'https://www.scaleway.com',
+        'online.net' => 'https://www.scaleway.com',
+        'bookmyname' => 'https://www.bookmyname.com',
+        'ovh.com' => 'https://www.ovhcloud.com',
+        'hostinger.fr' => 'https://www.hostinger.fr',
+
+        // ============ 增强：南欧（意/西/葡） ============
+        'netsons' => 'https://www.netsons.com',
+        'keliweb' => 'https://www.keliweb.it',
+        'tophost' => 'https://www.tophost.it',
+        'seeweb' => 'https://www.seeweb.it',
+        'raiola networks' => 'https://raiolanetworks.es',
+        'webempresa' => 'https://www.webempresa.com',
+        'hostalia' => 'https://www.hostalia.com',
+        'gigas' => 'https://gigas.com',
+        'dinahosting' => 'https://dinahosting.com',
+        'ptisp' => 'https://www.ptisp.pt',
+        'amen.pt' => 'https://www.amen.pt',
+
+        // ============ 增强：北欧 ============
+        'binero' => 'https://www.binero.se',
+        'oderland' => 'https://www.oderland.se',
+        'gratisdns' => 'https://gratisdns.dk',
+        'ports group' => 'https://portsgroup.com',
+        'abion' => 'https://www.abion.com',
+        'curanet' => 'https://curanet.dk',
+
+        // ============ 增强：中东欧 / 波兰 / 捷克 ============
+        'cyberfolks' => 'https://cyberfolks.pl',
+        'zenbox' => 'https://zenbox.pl',
+        'dhosting' => 'https://dhosting.pl',
+        'ovh.pl' => 'https://www.ovhcloud.com/pl',
+        'webglobe' => 'https://www.webglobe.sk',
+        'gransy' => 'https://subreg.cz',
+        'ignum' => 'https://www.ignum.cz',
+        'websupport' => 'https://www.websupport.sk',
+        'active24.hu' => 'https://www.active24.hu',
+        'rackhost' => 'https://www.rackhost.hu',
+        'mchost' => 'https://mchost.ru',
+        'sprinthost' => 'https://sprinthost.ru',
+        'jino' => 'https://jino.ru',
+        'fozzy' => 'https://fozzy.com',
+        'ukraine.com.ua' => 'https://www.ukraine.com.ua',
+        'regery' => 'https://regery.com',
+        '2domains' => 'https://2domains.ru',
+        'domenus' => 'https://domenus.ru',
+
+        // ============ 增强：土耳其 / 希腊 ============
+        'ihs telekom' => 'https://www.ihs.com.tr',
+        'guzel hosting' => 'https://www.guzel.net.tr',
+        'radore' => 'https://www.radore.com',
+        'top.host' => 'https://top.host',
+        'dnhost' => 'https://dnhost.gr',
+
+        // ============ 增强：中东 ============
+        'hostsailor' => 'https://www.hostsailor.com',
+        'srsplus' => 'https://www.srsplus.com',
+        'netvision' => 'https://www.013net.net',
+        'domainthenet' => 'https://www.domainthenet.com',
+
+        // ============ 增强：中国大陆 ============
+        '4.cn' => 'https://www.4.cn',
+        'dnsla' => 'https://www.dns.la',
+        'quyu' => 'https://www.quyu.net',
+        '中资源' => 'https://www.zzy.cn',
+        'zzy.cn' => 'https://www.zzy.cn',
+        'idcps' => 'https://www.idcps.com',
+        '72e' => 'https://www.72e.net',
+
+        // ============ 增强：日本 ============
+        'conoha' => 'https://www.conoha.jp',
+        'star-domain' => 'https://www.star-domain.jp',
+        'netowl' => 'https://www.netowl.jp',
+        'xserver' => 'https://www.xserver.ne.jp',
+        'xdomain' => 'https://www.xdomain.ne.jp',
+        'lolipop' => 'https://lolipop.jp',
+        'kagoya' => 'https://www.kagoya.jp',
+        'wadax' => 'https://www.wadax.ne.jp',
+
+        // ============ 增强：韩国 ============
+        'asadal' => 'https://www.asadal.com',
+        'mireene' => 'https://www.mireene.com',
+        'megazone' => 'https://www.hosting.kr',
+        'dotname' => 'https://www.dotname.co.kr',
+        'i2i' => 'https://www.i2i.co.kr',
+
+        // ============ 增强：台湾 / 香港 ============
+        'seednet' => 'https://domain.seed.net.tw',
+        'hinet' => 'https://domain.hinet.net',
+        'so-net' => 'https://domain.so-net.net.tw',
+        'newweb' => 'https://www.newweb.hk',
+
+        // ============ 增强：东南亚 ============
+        'webnic' => 'https://www.webnic.cc',
+        'ipserverone' => 'https://www.ipserverone.com',
+        'serverfreak' => 'https://www.serverfreak.com',
+        'shinjiru.com.my' => 'https://www.shinjiru.com.my',
+        'z.com' => 'https://www.z.com',
+        'vinahost' => 'https://www.vinahost.vn',
+        'tenten' => 'https://tenten.vn',
+        'bkns' => 'https://www.bkns.vn',
+        'digistar' => 'https://digistar.vn',
+        'nhanhoa' => 'https://nhanhoa.com',
+        'vodien.com' => 'https://www.vodien.com',
+        'signetique' => 'https://www.signetique.com',
+
+        // ============ 增强：南亚（印度 / 孟加拉 / 巴基斯坦 / 斯里兰卡） ============
+        'hostkarle' => 'https://hostkarle.in',
+        'hostinger.in' => 'https://www.hostinger.in',
+        'bodhost' => 'https://www.bodhost.com',
+        'exabytes.my' => 'https://www.exabytes.my',
+        'itnut' => 'https://itnut.com.bd',
+        'exonhost' => 'https://exonhost.com',
+        'hostever' => 'https://hostever.com',
+        'navicosoft' => 'https://www.navicosoft.com',
+
+        // ============ 增强：非洲 ============
+        'webafrica' => 'https://www.webafrica.com',
+        '1-grid' => 'https://www.1-grid.com',
+        'onegrid'  => 'https://www.1-grid.com',
+        'diadem' => 'https://www.diadem.co.za',
+        'gridhost' => 'https://www.gridhost.co.za',
+        'axxess' => 'https://www.axxess.co.za',
+        'smartweb' => 'https://www.smartweb.com.ng',
+        'garanntor' => 'https://www.garanntor.com',
+        'upperlink' => 'https://www.upperlink.ng',
+        'cyberspace' => 'https://www.cyberspace.net.ng',
+        'menara' => 'https://www.menara.ma',
+        'genious' => 'https://www.genious.net',
+        'egypt network' => 'https://www.egyptnetwork.com',
+        'safaricom' => 'https://www.safaricom.co.ke',
+        'sasahost' => 'https://sasahost.co.ke',
+
+        // ============ 增强：拉丁美洲 ============
+        'hostgator.com.br' => 'https://www.hostgator.com.br',
+        'hostnet.com.br' => 'https://www.hostnet.com.br',
+        'valuehost' => 'https://www.valuehost.com.br',
+        'hostmidia' => 'https://www.hostmidia.com.br',
+        'redehost' => 'https://www.redehost.com.br',
+        'colombia hosting' => 'https://www.colombiahosting.com.co',
+        'colombiahosting' => 'https://www.colombiahosting.com.co',
+        'ferozo' => 'https://www.ferozo.com',
+        'nic.pe' => 'https://punto.pe',
+        'nic.co' => 'https://www.cointernet.com.co',
+        'hostname.cl' => 'https://www.hostname.cl',
+        'planetahosting' => 'https://www.planetahosting.com.ar',
+        'antel' => 'https://www.antel.com.uy',
+        'dattatec' => 'https://www.dattatec.com',
+
+        // ============ 增强：大洋洲 ============
+        'webcentral' => 'https://www.webcentral.au',
+        'dreamscape networks' => 'https://www.dreamscapenetworks.com',
+        'conetix' => 'https://www.conetix.com.au',
+        'micron21' => 'https://www.micron21.com',
+        'panthur' => 'https://www.panthur.com.au',
+        'ventraip.com.au' => 'https://ventraip.com.au',
+        'umbrellar' => 'https://umbrellar.com',
+        'sitehost' => 'https://www.sitehost.nz',
+        'iwantmyname' => 'https://iwantmyname.com',
+        'voyager' => 'https://www.voyager.nz',
+
+        // ============ 增强：注册局 / 品牌保护 / 平台 ============
+        'identity digital' => 'https://www.identity.digital',
+        'donuts' => 'https://www.identity.digital',
+        'afilias' => 'https://www.identity.digital',
+        'centralnic' => 'https://www.centralnic.com',
+        'radix' => 'https://radix.website',
+        'neustar' => 'https://www.neustar.biz',
+        'google registry' => 'https://www.registry.google',
+        'nic.io'  => 'https://nic.io',
+        'freenom' => 'https://www.freenom.com',
+        'gname.com' => 'https://www.gname.com',
+        'key-systems.net' => 'https://www.key-systems.net',
+        'rrpproxy' => 'https://www.rrpproxy.net',
     ];
 }
 
@@ -356,21 +596,40 @@ function registrar_website(string $name): string
     $normName = registrar_normalize($name);
     $lower = mb_strtolower($name);
 
-    // 1) 归一化精确匹配
+    // 1) 归一化精确匹配（最高优先级）
     foreach ($map as $kw => $url) {
         if (registrar_normalize($kw) === $normName) {
             return $url;
         }
     }
 
-    // 2) 关键词包含匹配（原始小写串包含关键词，或归一化串互相包含）
+    // 2) 关键词包含匹配。
+    //    先按关键词长度从长到短排序，确保更具体的关键词优先命中，
+    //    避免 "google" 抢先于 "google registry"、或短关键词误伤长名称。
+    $candidates = [];
     foreach ($map as $kw => $url) {
-        $kwLower = mb_strtolower($kw);
+        $kwLower = mb_strtolower(trim($kw));
         $kwNorm = registrar_normalize($kw);
-        if ($kwNorm === '') {
+        if ($kwLower === '' || $kwNorm === '') {
             continue;
         }
-        if (strpos($lower, $kwLower) !== false || ($kwNorm !== '' && strpos($normName, $kwNorm) !== false)) {
+        $candidates[] = [$kwLower, $kwNorm, $url];
+    }
+    usort($candidates, static function ($a, $b) {
+        return mb_strlen($b[1]) <=> mb_strlen($a[1]);
+    });
+
+    foreach ($candidates as [$kwLower, $kwNorm, $url]) {
+        // 原始小写串包含关键词（保留标点，能区分 "name.com" 等）
+        if (strpos($lower, $kwLower) !== false) {
+            return $url;
+        }
+        // 归一化包含匹配：为避免误伤，短关键词（<4）要求完全相等而非子串
+        if (mb_strlen($kwNorm) < 4) {
+            if ($kwNorm === $normName) {
+                return $url;
+            }
+        } elseif (strpos($normName, $kwNorm) !== false) {
             return $url;
         }
     }
