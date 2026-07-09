@@ -220,7 +220,14 @@ class Parser
 
   protected function getBaseRegExp($pattern)
   {
-    return "/^[\t ]*(?:$pattern):(.+)$/im";
+    // 字段名内部的空格匹配任意数量的空白（含制表符），并容忍冒号前的空白。
+    // 许多国别域名（ccTLD）registry 采用“按列对齐”的输出格式，字段名内会出现
+    // 多个空格，例如 nic.md 的 "Domain  name:"（Domain 与 name 之间为两个空格）。
+    // 原正则要求字段名与冒号严格相连且内部为单空格，导致这类字段整体匹配失败
+    // （域名、状态等显示为空）。这里将关键词中的空格替换为 [\t ]+ 使匹配更健壮。
+    $pattern = str_replace(" ", "[\\t ]+", $pattern);
+
+    return "/^[\t ]*(?:$pattern)[\t ]*:(.+)$/im";
   }
 
   private const DOMAIN_KEYWORDS = [
@@ -524,6 +531,8 @@ class Parser
     "status", // ae
     "registration status", // bg
     "registry status", // укр
+    "domain state", // md
+    "eppstatus", // fr / re / pm / yt / tf / wf（AFNIC：EPP 锁定状态单列于 eppstatus 行）
   ];
 
   protected const STATUS_MAP = [
