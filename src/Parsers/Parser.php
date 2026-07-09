@@ -63,6 +63,14 @@ class Parser
 
   public function __construct($data)
   {
+    // 清除部分 registry 响应开头的 UTF-8 BOM 与零宽字符。
+    // 若不清除，BOM 会附着到首个数据行，使该行字段（常为域名）匹配失败并返回空。
+    // 保留原始 whoisData 用于“原始记录”展示，仅对参与解析的 data 做清洗。
+    if (is_string($data) && $data !== "") {
+      $data = preg_replace('/^\xEF\xBB\xBF/', '', $data); // UTF-8 BOM
+      $data = preg_replace('/^[\x{FEFF}\x{200B}\x{200E}\x{200F}]+/u', '', $data); // 零宽/方向标记
+    }
+
     $this->data = $data;
     $this->whoisData = $data;
 
