@@ -104,6 +104,69 @@
     <a class="domain-info-name" href="http://<?= htmlspecialchars($domain, ENT_QUOTES, 'UTF-8'); ?>" rel="nofollow noopener noreferrer" target="_blank"><?= htmlspecialchars($domain, ENT_QUOTES, 'UTF-8'); ?></a>
     <p class="domain-info-title"><?= htmlspecialchars($stateTitle, ENT_QUOTES, 'UTF-8'); ?></p>
     <p class="domain-info-sub"><?= htmlspecialchars($resultMessage, ENT_QUOTES, 'UTF-8'); ?></p>
+    <?php
+      // DNS 兜底增强：WHOIS/RDAP 无详情但 DNS 确认已注册时，展示实时 DNS 记录，
+      // 让用户即使在注册局接口不可用时也能拿到有用信息（NS / IP / 邮件服务器）。
+      $hasDnsInfo = $resultState === 'taken' && !empty($dnsInfo) && (
+        !empty($dnsInfo['ns']) || !empty($dnsInfo['a']) || !empty($dnsInfo['aaaa']) || !empty($dnsInfo['mx'])
+      );
+      if ($hasDnsInfo):
+        require_once __DIR__ . "/../lib/dns-provider-map.php";
+        // 识别 DNS 提供商（取第一个可识别的 NS 品牌）
+        $dnsProv = '';
+        $dnsProvUrl = '';
+        foreach ($dnsInfo['ns'] as $nsHost) {
+          $info = dns_provider_detect($nsHost);
+          if ($info['name'] !== '') { $dnsProv = $info['name']; $dnsProvUrl = $info['url']; break; }
+        }
+        $ipList = array_merge($dnsInfo['a'] ?? [], $dnsInfo['aaaa'] ?? []);
+    ?>
+    <div class="domain-dns-fallback">
+      <p class="domain-dns-note"><?= htmlspecialchars(t('dns_fallback_note'), ENT_QUOTES, 'UTF-8'); ?></p>
+      <?php if ($dnsProv !== ''): ?>
+        <div class="domain-dns-row">
+          <span class="domain-dns-label"><?= htmlspecialchars(t('dns_provider'), ENT_QUOTES, 'UTF-8'); ?></span>
+          <span class="domain-dns-val">
+            <?php if ($dnsProvUrl !== ''): ?>
+              <a href="<?= htmlspecialchars($dnsProvUrl, ENT_QUOTES, 'UTF-8'); ?>" target="_blank" rel="noopener nofollow"><?= htmlspecialchars($dnsProv, ENT_QUOTES, 'UTF-8'); ?></a>
+            <?php else: ?>
+              <?= htmlspecialchars($dnsProv, ENT_QUOTES, 'UTF-8'); ?>
+            <?php endif; ?>
+          </span>
+        </div>
+      <?php endif; ?>
+      <?php if (!empty($dnsInfo['ns'])): ?>
+        <div class="domain-dns-row">
+          <span class="domain-dns-label"><?= htmlspecialchars(t('card_ns'), ENT_QUOTES, 'UTF-8'); ?></span>
+          <span class="domain-dns-val domain-dns-mono">
+            <?php foreach ($dnsInfo['ns'] as $nsHost): ?>
+              <span class="domain-dns-chip"><?= htmlspecialchars($nsHost, ENT_QUOTES, 'UTF-8'); ?></span>
+            <?php endforeach; ?>
+          </span>
+        </div>
+      <?php endif; ?>
+      <?php if (!empty($ipList)): ?>
+        <div class="domain-dns-row">
+          <span class="domain-dns-label"><?= htmlspecialchars(t('card_ip'), ENT_QUOTES, 'UTF-8'); ?></span>
+          <span class="domain-dns-val domain-dns-mono">
+            <?php foreach ($ipList as $ip): ?>
+              <span class="domain-dns-chip"><?= htmlspecialchars($ip, ENT_QUOTES, 'UTF-8'); ?></span>
+            <?php endforeach; ?>
+          </span>
+        </div>
+      <?php endif; ?>
+      <?php if (!empty($dnsInfo['mx'])): ?>
+        <div class="domain-dns-row">
+          <span class="domain-dns-label"><?= htmlspecialchars(t('card_mx'), ENT_QUOTES, 'UTF-8'); ?></span>
+          <span class="domain-dns-val domain-dns-mono">
+            <?php foreach ($dnsInfo['mx'] as $mxHost): ?>
+              <span class="domain-dns-chip"><?= htmlspecialchars($mxHost, ENT_QUOTES, 'UTF-8'); ?></span>
+            <?php endforeach; ?>
+          </span>
+        </div>
+      <?php endif; ?>
+    </div>
+    <?php endif; ?>
   </div>
 <?php endif; ?>
       <!-- 搜索框下方快捷键提示行（复刻 next-whois）-->

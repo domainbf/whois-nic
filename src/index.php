@@ -184,6 +184,7 @@ $parser = new Parser("");
 $error = null;
 $invalidDomain = false; // 仅当域名格式/后缀真正非法时为 true
 $dnsActive = false; // DNS 层面是否检测到域名已被注册/在用
+$dnsInfo = null; // WHOIS/RDAP 缺失时，DNS 兜底拉取到的实际记录（NS/A/AAAA/MX）
 
 if ($domain) {
   $dataSource = getDataSource();
@@ -206,6 +207,7 @@ if ($domain) {
       $rdapData = $cached["rdapData"];
       $parser = $cached["parser"];
       $dnsActive = $cached["dnsActive"];
+      $dnsInfo = $cached["dnsInfo"] ?? null;
       if (($cached["extension"] ?? "") === "iana") {
         $fetchPrices = false;
       }
@@ -230,6 +232,10 @@ if ($domain) {
         !$parser->prohibited
       ) {
         $dnsActive = domainHasDnsRecords($domain);
+        // 已确认在用但无 WHOIS/RDAP 详情：补拉实际 DNS 记录用于展示
+        if ($dnsActive) {
+          $dnsInfo = domainDnsRecords($domain);
+        }
       }
 
       // 写入缓存（仅缓存确定性结果；错误在 catch 分支不会写入）
@@ -239,6 +245,7 @@ if ($domain) {
         "rdapData" => $rdapData,
         "parser" => $parser,
         "dnsActive" => $dnsActive,
+        "dnsInfo" => $dnsInfo,
         "extension" => $lookup->extension,
       ]);
     }
@@ -261,6 +268,9 @@ if ($domain) {
       // 这不代表域名无效。退一步用 DNS 兜底判断是否已注册，尽量给出有用结果。
       $error = $e->getMessage();
       $dnsActive = domainHasDnsRecords($domain);
+      if ($dnsActive) {
+        $dnsInfo = domainDnsRecords($domain);
+      }
     }
   }
 
@@ -285,6 +295,11 @@ if ($domain) {
       }
       header("Cache-Control: public, max-age=0, s-maxage={$sMaxAge}, stale-while-revalidate=86400");
       $value = ["code" => 0, "msg" => "Query successful", "data" => $parser];
+      // WHOIS/RDAP 无详情但 DNS 兜底判定已注册时，附带实际 DNS 记录
+      if (!$parser->registered && $dnsActive && $dnsInfo) {
+        $value["dnsActive"] = true;
+        $value["dns"] = $dnsInfo;
+      }
     }
 
     $json = json_encode($value, JSON_UNESCAPED_UNICODE);

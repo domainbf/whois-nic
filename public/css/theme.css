@@ -989,6 +989,66 @@ form {
   .domain-info-box--taken      { --state: var(--foreground); --state-bg: var(--neutral-bg); }
   .domain-info-box--error      { --state: var(--warn); --state-bg: var(--warn-bg); }
 
+/* ---- DNS 兜底信息块（WHOIS/RDAP 不可用时展示实时 DNS 记录）---- */
+.domain-dns-fallback {
+  width: 100%;
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px solid hsl(var(--foreground) / 0.1);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  text-align: left;
+}
+
+.domain-dns-note {
+  margin: 0;
+  font-size: 0.75rem;
+  color: hsl(var(--muted-foreground)) !important;
+}
+
+.domain-dns-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.domain-dns-label {
+  flex: 0 0 76px;
+  font-size: 0.8125rem;
+  color: hsl(var(--muted-foreground)) !important;
+  padding-top: 2px;
+}
+
+.domain-dns-val {
+  flex: 1 1 auto;
+  min-width: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  align-items: center;
+  font-size: 0.8125rem;
+  color: hsl(var(--foreground)) !important;
+}
+
+.domain-dns-val a {
+  color: hsl(var(--foreground)) !important;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.domain-dns-chip {
+  padding: 3px 9px;
+  border-radius: 7px;
+  background: hsl(var(--foreground) / 0.06);
+  word-break: break-all;
+}
+
+.domain-dns-mono .domain-dns-chip {
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 0.75rem;
+}
+
 /* ---------- 结果卡片（玻璃）---------- */
 .messages {
   margin-top: 8px !important;
@@ -1218,7 +1278,7 @@ code a { color: hsl(var(--info)) !important; }
 .nw-price-slot .message-tag svg,
 .nw-beian-slot .message-tag svg { width: 12px; height: 12px; }
 
-/* 加载骨架：�������寸与胶囊一致，圆角对齐年份/价格药丸 */
+/* 加载骨架：���������寸与胶囊一致，圆角对齐年份/价格药丸 */
 .nw-skeleton {
   display: inline-block;
   width: 72px;
@@ -2551,14 +2611,14 @@ a.nw-dns-provider:hover {
                          0 0 0 4px hsl(var(--ring) / 0.06); }
 }
 
-/* 主卡静息呼吸：几乎不可察觉的缩放，赋予"活着"的感觉 */
+/* 主卡静息呼吸：几乎不可察觉的缩放，赋予"活着"的感��� */
 @keyframes nw-breathe-scale {
   0%, 100% { transform: scale(1); }
   50%      { transform: scale(1.006); }
 }
 
 /* ============================================================
-   释放可注册时间预测
+   释放可注册时间预��
    ============================================================ */
 .nw-forecast {
   margin-top: 20px;
