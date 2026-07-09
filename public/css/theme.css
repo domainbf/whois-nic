@@ -1314,7 +1314,7 @@ code a { color: hsl(var(--info)) !important; }
   fill: hsl(var(--foreground));
 }
 
-/* 尊重减少动态偏好：停止卫星点运动，定格于轨道右端 */
+/* 尊重减少动态偏好：停止卫星点运动，定格��轨道右端 */
 @media (prefers-reduced-motion: reduce) {
   .nw-globe-orbit-dot animateMotion { display: none; }
   .nw-globe-orbit-dot { transform: translate(112px, 60px); }
@@ -1979,6 +1979,17 @@ a.nw-status-name:hover { text-decoration: underline; }
   font-size: 10px;
   color: hsl(var(--muted-foreground) / 0.65);
   flex-shrink: 0;
+}
+
+/* 汇总 DNS 提供商：放在 NS 卡标题右侧的小胶囊 */
+.nw-dns-provider {
+  margin-left: auto;
+  padding: 2px 8px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 500;
+  color: hsl(var(--muted-foreground));
+  background: hsl(var(--muted) / 0.6);
 }
 
 /* ---------- 注册商卡 ---------- */
