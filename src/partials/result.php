@@ -367,11 +367,18 @@
     $forSaleNs = [
       'dan.com', 'undeveloped.com', 'afternic', 'hugedomains', 'uniregistrymarket',
       'buydomains', 'brandbucket', 'sav.com', 'domainmarket',
+      // 品牌域名 / 域名交易市场（其 NS 通常表明域名正在挂售）
+      'atom.com', 'squadhelp', 'dnowner', 'brandpa', 'namerific',
+      'efty.com', 'domainagents', 'godaddy-dns-sale', 'sedomls', 'namejet',
+      'dropcatch', 'snapnames', 'domainnamesales', 'epik-market', 'squareup-parking',
     ];
     $parkingNs = [
       'bodis.com', 'parkingcrew', 'sedoparking', 'sedo.com', 'above.com',
       'cashparking', 'parklogic', 'voodoo.com', 'fabulous.com', 'parking',
       'dnspark', 'trafficclub', 'domainsponsor', 'skenzo', 'rookdns',
+      // 更多停放 / 变现平台
+      'parkingpanel', 'parkingdots', 'domain-for-sale', 'namedrive', 'smartname',
+      'domainapps', 'parked.com', 'brainydns', 'tppinternet-park', 'sedo-parking',
     ];
     $isForSale = false;
     $isParked = false;
