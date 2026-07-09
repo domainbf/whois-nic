@@ -2,13 +2,33 @@
 
 // 自动加载器与请求辅助函数（从 index.php 抽离，行为保持不变）
 
-// 静态资源版本化：给 CSS/JS 追加 ?v=<文件修改时间>，实现内容变更时缓存击穿。
+// 静态资源版本化：给 CSS/JS 追加 ?v=<版本>，实现每次部署后缓存击穿。
 // 这些资源带 30 天强缓存（max-age=2592000），无版本号会导致浏览器长期使用旧文件。
+// 注意：Vercel 部署时会把所有文件的 mtime 归一到同一固定值（如 1540000000），
+// 因此 filemtime 在生产环境永远不变、无法击穿缓存。改为优先使用每次部署都变化的
+// 部署标识（git commit SHA / 部署 ID），本地开发再回退到 filemtime。
+function asset_version(): string
+{
+  static $ver = null;
+  if ($ver !== null) {
+    return $ver;
+  }
+  // Vercel 系统环境变量：每次部署都不同
+  $candidates = ["VERCEL_GIT_COMMIT_SHA", "VERCEL_DEPLOYMENT_ID", "VERCEL_URL"];
+  foreach ($candidates as $key) {
+    $val = getenv($key);
+    if (is_string($val) && $val !== "") {
+      return $ver = substr(preg_replace('/[^A-Za-z0-9]/', "", $val), 0, 12);
+    }
+  }
+  // 本地开发回退：用 index.php 的 mtime（本地不会被归一化）
+  $mt = @filemtime(__DIR__ . "/../index.php");
+  return $ver = $mt ? (string) $mt : (string) time();
+}
+
 function asset(string $relPath): string
 {
-  $abs = __DIR__ . "/../../" . ltrim($relPath, "/");
-  $ver = @filemtime($abs);
-  return $relPath . ($ver ? "?v=" . $ver : "");
+  return $relPath . "?v=" . asset_version();
 }
 
 spl_autoload_register(function ($class) {
