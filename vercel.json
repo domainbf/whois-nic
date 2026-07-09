@@ -32,6 +32,8 @@
   ],
   "rewrites": [
     { "source": "/public/:path*", "destination": "/:path*" },
+    { "source": "/robots.txt", "destination": "/api/vercel.php" },
+    { "source": "/sitemap.xml", "destination": "/api/vercel.php" },
     { "source": "/manifest", "destination": "/api/vercel.php" },
     { "source": "/price", "destination": "/api/vercel.php" },
     { "source": "/login", "destination": "/api/vercel.php" },
