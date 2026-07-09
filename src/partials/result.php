@@ -4,6 +4,14 @@
     require_once __DIR__ . "/../lib/registrar-map.php";
     require_once __DIR__ . "/../lib/dns-provider-map.php";
     $statusMapping = require __DIR__ . "/../lib/status-map.php";
+    // 大小写不敏感的状态翻译索引：许多冷门 ccTLD 用首字母大写（如 nic.md 的
+    // "Inactive"/"RenewProhibited"），与映射表键的大小写不一致会导致翻译落空。
+    $statusMappingLower = [];
+    foreach ($statusMapping as $k => $v) { $statusMappingLower[strtolower($k)] = $v; }
+    $translateStatus = function (string $code) use ($statusMapping, $statusMappingLower): string {
+      if (isset($statusMapping[$code])) { return $statusMapping[$code]; }
+      return $statusMappingLower[strtolower($code)] ?? $code;
+    };
     $registrarLink = $parser->registrar ? ($parser->registrarURL ?: registrar_website($parser->registrar)) : "";
 
     // 域名状态 → 颜色（活跃 / 即将到期 / 已过期）
@@ -668,7 +676,7 @@
               <div class="nw-status-list">
                 <?php foreach ($parser->status as $st):
                   $code = $st["text"];
-                  $cn = $statusMapping[$code] ?? $code; ?>
+                  $cn = $translateStatus($code); ?>
                   <div class="nw-status-item">
                     <span class="nw-status-bullet" style="background-color: <?= $eppColor($code); ?>"></span>
                     <div class="nw-status-item-body">

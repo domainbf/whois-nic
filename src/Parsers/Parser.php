@@ -578,21 +578,49 @@ class Parser
   protected function getStatus()
   {
     if (preg_match_all($this->getStatusRegExp(), $this->data, $matches)) {
-      return array_map(
-        function ($item) {
-          if (preg_match("/^[a-z]+ https?:\/\/.+/i", $item, $matches)) {
-            $parts = explode(" ", $item, 2);
+      $result = [];
+      $seen = [];
 
-            return ["text" => $parts[0], "url" => $parts[1]];
-          }
+      foreach (array_filter(array_map("trim", $matches[1])) as $item) {
+        // 标准 EPP 格式："statusCode https://icann.org/epp#statusCode"
+        if (preg_match("/^[a-z]+ https?:\/\/.+/i", $item, $m)) {
+          $parts = explode(" ", $item, 2);
+          $this->pushStatus($result, $seen, $parts[0], $parts[1]);
+          continue;
+        }
 
-          return ["text" => $item, "url" => ""];
-        },
-        array_unique(array_filter(array_map("trim", $matches[1]))),
-      );
+        // 不规则 ccTLD 格式：同一行含多个以空白分隔的状态词
+        // （如 nic.md 的 "Inactive RenewProhibited RedemptionPeriod"）。
+        // 当整行仅由多个“纯单词 token”组成（字母/数字，无描述性文字或标点）时，
+        // 拆分为独立状态，便于逐个着色与翻译；否则保持整体不变。
+        $tokens = preg_split('/[\t ]+/', $item);
+        $allWordTokens = count($tokens) > 1;
+        foreach ($tokens as $tk) {
+          if (!preg_match('/^[A-Za-z][A-Za-z0-9]*$/', $tk)) { $allWordTokens = false; break; }
+        }
+        if ($allWordTokens) {
+          foreach ($tokens as $tk) { $this->pushStatus($result, $seen, $tk, ""); }
+          continue;
+        }
+
+        $this->pushStatus($result, $seen, $item, "");
+      }
+
+      return $result;
     }
 
     return [];
+  }
+
+  // 追加一个状态项并按（小写）去重，避免同一状态重复出现
+  private function pushStatus(array &$result, array &$seen, string $text, string $url): void
+  {
+    $text = trim($text);
+    if ($text === "") { return; }
+    $key = strtolower($text);
+    if (isset($seen[$key])) { return; }
+    $seen[$key] = true;
+    $result[] = ["text" => $text, "url" => $url];
   }
 
   protected function getStatusFromExplode($separator)

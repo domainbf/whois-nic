@@ -23,7 +23,7 @@
 define("LOOKUP_CACHE_TTL_REGISTERED", 21600);   // 已注册：6 小时
 define("LOOKUP_CACHE_TTL_UNREGISTERED", 900);   // 未注册/可注册：15 分钟
 define("LOOKUP_CACHE_TTL_RESERVED", 86400);     // 保留/禁止：24 小时（几乎不变）
-define("LOOKUP_CACHE_VERSION", "v2");           // 结构变更时递增，天然失效旧缓存（v2：ccTLD 解析修复 + BOM 清洗）
+define("LOOKUP_CACHE_VERSION", "v3");           // 结构变更时递增，天然失效旧缓存（v3：ccTLD 多状态拆分与翻译）
 
 /**
  * 计算缓存文件路径。
