@@ -30,6 +30,9 @@ require_once __DIR__ . "/../vendor/autoload.php";
 // 自动加载器与请求辅助函数（checkPassword / cleanDomain / getDataSource）
 require_once __DIR__ . "/lib/helpers.php";
 
+// WHOIS/RDAP 结果本地缓存（避免重复查询、优化冷启动后的热请求）
+require_once __DIR__ . "/lib/lookup-cache.php";
+
 // 多域名批量查询（暗号 "0" 触发）
 require_once __DIR__ . "/lib/multi-lookup.php";
 
@@ -181,33 +184,67 @@ if ($domain) {
   $fetchPrices = filter_var($_GET["prices"] ?? 0, FILTER_VALIDATE_BOOL);
   $fetchBeiAn = filter_var($_GET["beian"] ?? 0, FILTER_VALIDATE_BOOL);
 
+  // 是否绕过缓存（?nocache=1 强制刷新，便于排查与获取最新数据）
+  $noCache = filter_var($_GET["nocache"] ?? 0, FILTER_VALIDATE_BOOL);
+  $cacheHit = false;
+
   try {
     $queryStart = microtime(true);
-    $lookup = new Lookup($domain, $dataSource);
-    // 归一化后回填；若解析器未返回域名，则保留用户查询值，确保搜索框始终回显
-    $domain = $lookup->domain ?: $domain;
-    $whoisData = $lookup->whoisData;
-    $rdapData = $lookup->rdapData;
-    $parser = $lookup->parser;
 
-    if ($lookup->extension === "iana") {
-      $fetchPrices = false;
-    }
+    // ---- 优先命中本地缓存 ----
+    $cached = $noCache ? null : lookup_cache_get($domain, $dataSource);
+    if ($cached !== null) {
+      $cacheHit = true;
+      $domain = $cached["domain"] ?: $domain;
+      $whoisData = $cached["whoisData"];
+      $rdapData = $cached["rdapData"];
+      $parser = $cached["parser"];
+      $dnsActive = $cached["dnsActive"];
+      if (($cached["extension"] ?? "") === "iana") {
+        $fetchPrices = false;
+      }
+    } else {
+      $lookup = new Lookup($domain, $dataSource);
+      // 归一化后回填；若解析器未返回域名，则保留用户查询值，确保搜索框始终回显
+      $domain = $lookup->domain ?: $domain;
+      $whoisData = $lookup->whoisData;
+      $rdapData = $lookup->rdapData;
+      $parser = $lookup->parser;
 
-    // 当 WHOIS/RDAP 判定为"未注册/未知"（既非已注册，也非保留/禁止）时，
-    // 追加 DNS 校验以提升准确性：若存在 NS/A/AAAA/MX 记录，说明域名其实已被注册。
-    if (
-      $lookup->extension !== "iana" &&
-      !$parser->registered &&
-      !$parser->reserved &&
-      !$parser->prohibited
-    ) {
-      $dnsActive = domainHasDnsRecords($domain);
+      if ($lookup->extension === "iana") {
+        $fetchPrices = false;
+      }
+
+      // 当 WHOIS/RDAP 判定为"未注册/未知"（既非已注册，也非保留/禁止）时，
+      // 追加 DNS 校验以提升准确性：若存在 NS/A/AAAA/MX 记录，说明域名其实已被注册。
+      if (
+        $lookup->extension !== "iana" &&
+        !$parser->registered &&
+        !$parser->reserved &&
+        !$parser->prohibited
+      ) {
+        $dnsActive = domainHasDnsRecords($domain);
+      }
+
+      // 写入缓存（仅缓存确定性结果；错误在 catch 分支不会写入）
+      lookup_cache_set($domain, $dataSource, [
+        "domain" => $domain,
+        "whoisData" => $whoisData,
+        "rdapData" => $rdapData,
+        "parser" => $parser,
+        "dnsActive" => $dnsActive,
+        "extension" => $lookup->extension,
+      ]);
     }
 
     // 计时覆盖 WHOIS/RDAP + DNS 兜底的完整服务端查询耗时，
     // 使显示的耗时与真实等待一致（此前仅计 Lookup，未含 DNS 兜底）。
     $queryElapsed = microtime(true) - $queryStart;
+
+    // 便于排查：标记本次结果是否来自缓存
+    if (!headers_sent()) {
+      header("X-Whois-Cache: " . ($cacheHit ? "HIT" : "MISS"));
+    }
   } catch (Exception $e) {
     if ($e instanceof SyntaxError || $e instanceof UnableToResolveDomain) {
       // 真正的格式/后缀非法：才算"无效域名"

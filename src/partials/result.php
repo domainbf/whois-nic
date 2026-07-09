@@ -100,6 +100,10 @@
     $registryDomainId = $grab('Registry Domain ID');
     $whoisServerVal   = $grab(['Registrar WHOIS Server', 'WHOIS Server']);
     $registrarIanaId  = $grab(['Registrar IANA ID', 'IANA ID', 'Sponsoring Registrar IANA ID']);
+    // 注册商电话（注册商自身联系电话，区别于"滥用联系电话"）
+    $registrarPhone   = $cleanPhone($grab(['Registrar Phone', 'Registrar Contact Phone']));
+    // 代理商 / 分销商（Reseller）：不少域名经代理注册，注册商下会标注实际代理商
+    $reseller         = $grab(['Reseller', 'Reseller Name']);
     // 注册商地址：拼接街道 / 城市 / 省州 / 邮编 / 国家（任一存在即显示）
     $registrarAddrParts = array_filter([
       $grab(['Registrar Street', 'Registrar Address']),
@@ -142,7 +146,7 @@
 
     // RDAP 结构化兜底：薄注册局 / RDAP-first 的 gTLD，IANA ID、注册商地址、滥用联系
     // 往往不在原始 WHOIS 文本里，而在 RDAP 实体（registrar entity）的结构化字段中。
-    // 这里在不改动后端解析器的前提下，从 RDAP JSON 补全缺失字段，提升识别准确率。
+    // 这里在不改动后端解析器的前提下，从 RDAP JSON 补全��失字段，提升识别准确率。
     $rdapJson = $rdapData ? json_decode($rdapData, true) : null;
     if (is_array($rdapJson) && !empty($rdapJson['entities'])) {
       // 递归查找指定 role 的实体（registrar 顶层、abuse 常为其子实体）
@@ -302,7 +306,7 @@
     $hasAdmin      = $adminName || $adminOrg || $adminEmail || $adminPhone || $adminCountry;
     $hasTech       = $techName || $techOrg || $techEmail || $techPhone || $techCountry;
     $hasAbuse      = $abuseEmail || $abusePhone;
-    $hasRegTech    = $whoisServerVal || $registryDomainId || $registrarIanaId || $registrarAddress;
+    $hasRegTech    = $whoisServerVal || $registryDomainId || $registrarIanaId || $registrarAddress || $registrarPhone || $reseller;
     $dataSourceLabel = $whoisData ? 'whois' : ($rdapData ? 'rdap' : '');
 
     // NS 提供商识别（用于右侧小徽标 + 汇总 DNS 提供商字段）
@@ -716,6 +720,18 @@
                   <div class="nw-kv">
                     <span class="nw-kv-key"><?= htmlspecialchars(t('registrar_address'), ENT_QUOTES, 'UTF-8'); ?></span>
                     <span class="nw-kv-val"><?= htmlspecialchars($registrarAddress, ENT_QUOTES, 'UTF-8'); ?></span>
+                  </div>
+                <?php endif; ?>
+                <?php if ($registrarPhone): ?>
+                  <div class="nw-kv">
+                    <span class="nw-kv-key"><?= htmlspecialchars(t('registrar_phone'), ENT_QUOTES, 'UTF-8'); ?></span>
+                    <span class="nw-kv-val"><?= htmlspecialchars($registrarPhone, ENT_QUOTES, 'UTF-8'); ?></span>
+                  </div>
+                <?php endif; ?>
+                <?php if ($reseller): ?>
+                  <div class="nw-kv">
+                    <span class="nw-kv-key"><?= htmlspecialchars(t('reseller'), ENT_QUOTES, 'UTF-8'); ?></span>
+                    <span class="nw-kv-val"><?= htmlspecialchars($reseller, ENT_QUOTES, 'UTF-8'); ?></span>
                   </div>
                 <?php endif; ?>
               </div>
