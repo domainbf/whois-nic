@@ -52,15 +52,38 @@
       return t('rel_days_ago', intval($d / $day));
     };
 
-    // 从原始 WHOIS 文本提取扩展字段（注册局 ID / WHOIS 服务器 / 注册人 / 滥用联系）
+    // 占位/脱敏判定：只丢弃"纯占位提示"（如 REDACTED FOR PRIVACY / Data Protected），
+    // 但保留真实的隐私托管方身份（如 "Withheld for Privacy ehf" / "Domains By Proxy, LLC" /
+    // "Whois Privacy Protection Service"）——这些是有价值的联系人信息，不应清洗掉。
+    $isPlaceholder = function ($v): bool {
+      $s = trim($v);
+      if ($s === '') return true;
+      $low = strtolower($s);
+      // 整体即为占位说明的常见值
+      static $exact = [
+        'redacted', 'redacted for privacy', 'redacted for gdpr', 'redacted for privacy purposes',
+        'not disclosed', 'not disclosed!', 'not available', 'not applicable', 'n/a', 'na',
+        'data protected', 'data redacted', 'gdpr masked', 'gdpr redacted',
+        'statutory masking enabled', 'non-public data', 'private', 'privacy',
+        'not shown', 'hidden', 'withheld', 'unknown', 'none', '-', '.',
+      ];
+      if (in_array($low, $exact, true)) return true;
+      // 以脱敏关键词开头的说明句，或以 "redacted for privacy" 结尾的占位串
+      if (preg_match('/^(redacted|not disclosed|data protected|gdpr|statutory masking|non-public data)\b/i', $s)) return true;
+      if (preg_match('/redacted for privacy\.?$/i', $s)) return true;
+      if (preg_match('/^(please query|please refer|please see|see )\b/i', $s)) return true;
+      return false;
+    };
+
+    // 从原始 WHOIS 文本提取扩展字段（注册局 ID / WHOIS 服务器 / 联系人等）
     $wRaw = $whoisData ?: '';
     // 冒号后只允许同一行内的空格/制表符（[ \t]），值必须以非空白字符起始，
     // 避免字段为空时把后续行（如下一标签或 Domain Status）误当成值。
-    $grab = function ($labels) use ($wRaw) {
+    $grab = function ($labels) use ($wRaw, $isPlaceholder) {
       foreach ((array) $labels as $lb) {
         if (preg_match('/^[ \t]*' . preg_quote($lb, '/') . '[ \t]*:[ \t]*(\S.*?)[ \t]*\r?$/mi', $wRaw, $m)) {
           $v = trim($m[1]);
-          if ($v !== '' && !preg_match('/redact|privacy|not disclosed|data protected|gdpr|statutory masking/i', $v)) {
+          if (!$isPlaceholder($v)) {
             return $v;
           }
         }
@@ -96,18 +119,26 @@
     // 因此这里提取的都是注册局真实公开的联系信息，不会展示占位垃圾。
     $registrantName    = $grab(['Registrant Name', 'Registrant']);
     $registrantOrg     = $grab(['Registrant Organization', 'Registrant Organisation', 'Registrant Org']);
+    $registrantCity    = $grab(['Registrant City']);
     $registrantCountry = $grab(['Registrant Country', 'Registrant Country/Economy']);
     $registrantState   = $grab(['Registrant State/Province', 'Registrant Province', 'Registrant State']);
+    // 注册人地区：城市 · 州省 · 国家（去重后拼接，任一存在即展示）
+    $registrantLocation = implode(' · ', array_values(array_unique(array_filter(
+      [$registrantCity, $registrantState, $registrantCountry],
+      fn($v) => $v !== ''
+    ))));
 
-    $adminName  = $grab(['Admin Name', 'Administrative Contact Name', 'Administrative Contact']);
-    $adminOrg   = $grab(['Admin Organization', 'Admin Organisation', 'Administrative Contact Organization']);
-    $adminEmail = $cleanEmail($grab(['Admin Email', 'Administrative Contact Email']));
-    $adminPhone = $cleanPhone($grab(['Admin Phone', 'Administrative Contact Phone']));
+    $adminName    = $grab(['Admin Name', 'Administrative Contact Name', 'Administrative Contact']);
+    $adminOrg     = $grab(['Admin Organization', 'Admin Organisation', 'Administrative Contact Organization']);
+    $adminEmail   = $cleanEmail($grab(['Admin Email', 'Administrative Contact Email']));
+    $adminPhone   = $cleanPhone($grab(['Admin Phone', 'Administrative Contact Phone']));
+    $adminCountry = $grab(['Admin Country', 'Administrative Contact Country']);
 
-    $techName   = $grab(['Tech Name', 'Technical Contact Name', 'Technical Contact']);
-    $techOrg    = $grab(['Tech Organization', 'Tech Organisation', 'Technical Contact Organization']);
-    $techEmail  = $cleanEmail($grab(['Tech Email', 'Technical Contact Email']));
-    $techPhone  = $cleanPhone($grab(['Tech Phone', 'Technical Contact Phone']));
+    $techName    = $grab(['Tech Name', 'Technical Contact Name', 'Technical Contact']);
+    $techOrg     = $grab(['Tech Organization', 'Tech Organisation', 'Technical Contact Organization']);
+    $techEmail   = $cleanEmail($grab(['Tech Email', 'Technical Contact Email']));
+    $techPhone   = $cleanPhone($grab(['Tech Phone', 'Technical Contact Phone']));
+    $techCountry = $grab(['Tech Country', 'Technical Contact Country']);
 
     // RDAP 结构化兜底：薄注册局 / RDAP-first 的 gTLD，IANA ID、注册商地址、滥用联系
     // 往往不在原始 WHOIS 文本里，而在 RDAP 实体（registrar entity）的结构化字段中。
@@ -195,62 +226,63 @@
         }
       }
 
-      // 通用联系人 vcard 提取：返回 [姓名(fn), 组织(org), 邮箱, 电话, 国家]。
-      // 对姓名/组织做隐私脱敏过滤，避免展示 "REDACTED FOR PRIVACY" 之类占位值。
-      $notRedacted = function (string $v): bool {
-        return $v !== '' && !preg_match('/redact|privacy|not disclosed|data protected|gdpr|statutory masking/i', $v);
-      };
-      $vcardContact = function ($entity) use ($vcardEls, $vcardGet, $cleanEmail, $cleanPhone, $notRedacted) {
+      // 通用联系人 vcard 提取：返回 [姓名(fn), 组织(org), 邮箱, 电话, 国家, 城市, 州省]。
+      // 复用与 WHOIS 相同的 $isPlaceholder 判定：只滤掉纯占位值，保留真实隐私托管方身份。
+      $vcardContact = function ($entity) use ($vcardEls, $vcardGet, $cleanEmail, $cleanPhone, $isPlaceholder) {
         $els = $vcardEls($entity);
         $pick = function ($key) use ($els, $vcardGet) {
           $it = $vcardGet($els, $key);
           return ($it && isset($it[3]) && is_string($it[3])) ? trim($it[3]) : '';
         };
-        $name = $pick('fn');
-        $org  = $pick('org');
+        $keep = fn($v) => $isPlaceholder($v) ? '' : $v;
+        $name = $keep($pick('fn'));
+        $org  = $keep($pick('org'));
         $email = $cleanEmail($pick('email'));
         $phone = $cleanPhone($pick('tel'));
-        $country = '';
+        // vcard adr 结构化数组：[信箱, 扩展, 街道, 城市, 州省, 邮编, 国家]
+        $country = $city = $state = '';
         $adr = $vcardGet($els, 'adr');
         if ($adr && isset($adr[3]) && is_array($adr[3])) {
-          $last = end($adr[3]); // vcard adr 结构化数组最后一段为国家
-          if (is_string($last)) $country = trim($last);
+          $p = $adr[3];
+          $city    = isset($p[3]) && is_string($p[3]) ? trim($p[3]) : '';
+          $state   = isset($p[4]) && is_string($p[4]) ? trim($p[4]) : '';
+          $country = isset($p[6]) && is_string($p[6]) ? trim($p[6]) : '';
+          if ($country === '') { $last = end($p); if (is_string($last)) $country = trim($last); }
         }
-        return [
-          $notRedacted($name) ? $name : '',
-          $notRedacted($org) ? $org : '',
-          $email, $phone,
-          $notRedacted($country) ? $country : '',
-        ];
+        return [$name, $org, $email, $phone, $keep($country), $keep($city), $keep($state)];
       };
 
       // 注册人（registrant）
       $regEntity = $findEntity($rdapJson['entities'], 'registrant');
       if ($regEntity) {
-        [$rn, $ro, $re, $rp, $rc] = $vcardContact($regEntity);
+        [$rn, $ro, $re, $rp, $rc, $rcity, $rstate] = $vcardContact($regEntity);
         if ($registrantName === '')    $registrantName = $rn;
         if ($registrantOrg === '')     $registrantOrg = $ro;
         if ($registrantEmail === '')   $registrantEmail = $re;
         if ($registrantPhone === '')   $registrantPhone = $rp;
         if ($registrantCountry === '') $registrantCountry = $rc;
+        if ($registrantCity === '')    $registrantCity = $rcity;
+        if ($registrantState === '')   $registrantState = $rstate;
       }
       // 管理联系人（administrative）
       $adminEntity = $findEntity($rdapJson['entities'], 'administrative');
       if ($adminEntity) {
-        [$an, $ao, $ae, $ap] = $vcardContact($adminEntity);
-        if ($adminName === '')  $adminName = $an;
-        if ($adminOrg === '')   $adminOrg = $ao;
-        if ($adminEmail === '') $adminEmail = $ae;
-        if ($adminPhone === '') $adminPhone = $ap;
+        [$an, $ao, $ae, $ap, $ac] = $vcardContact($adminEntity);
+        if ($adminName === '')    $adminName = $an;
+        if ($adminOrg === '')     $adminOrg = $ao;
+        if ($adminEmail === '')   $adminEmail = $ae;
+        if ($adminPhone === '')   $adminPhone = $ap;
+        if ($adminCountry === '') $adminCountry = $ac;
       }
       // 技术联系人（technical）
       $techEntity = $findEntity($rdapJson['entities'], 'technical');
       if ($techEntity) {
-        [$tn, $to, $te, $tp] = $vcardContact($techEntity);
-        if ($techName === '')  $techName = $tn;
-        if ($techOrg === '')   $techOrg = $to;
-        if ($techEmail === '') $techEmail = $te;
-        if ($techPhone === '') $techPhone = $tp;
+        [$tn, $to, $te, $tp, $tc] = $vcardContact($techEntity);
+        if ($techName === '')    $techName = $tn;
+        if ($techOrg === '')     $techOrg = $to;
+        if ($techEmail === '')   $techEmail = $te;
+        if ($techPhone === '')   $techPhone = $tp;
+        if ($techCountry === '') $techCountry = $tc;
       }
     }
 
@@ -260,9 +292,15 @@
       return '';
     };
 
-    $hasRegistrant = $registrantEmail || $registrantPhone || $registrantName || $registrantOrg || $registrantCountry || $registrantState;
-    $hasAdmin      = $adminName || $adminOrg || $adminEmail || $adminPhone;
-    $hasTech       = $techName || $techOrg || $techEmail || $techPhone;
+    // RDAP 兜底可能补全了城市/州省/国家，这里重算注册人地区拼接串
+    $registrantLocation = implode(' · ', array_values(array_unique(array_filter(
+      [$registrantCity, $registrantState, $registrantCountry],
+      fn($v) => $v !== ''
+    ))));
+
+    $hasRegistrant = $registrantEmail || $registrantPhone || $registrantName || $registrantOrg || $registrantLocation;
+    $hasAdmin      = $adminName || $adminOrg || $adminEmail || $adminPhone || $adminCountry;
+    $hasTech       = $techName || $techOrg || $techEmail || $techPhone || $techCountry;
     $hasAbuse      = $abuseEmail || $abusePhone;
     $hasRegTech    = $whoisServerVal || $registryDomainId || $registrarIanaId || $registrarAddress;
     $dataSourceLabel = $whoisData ? 'whois' : ($rdapData ? 'rdap' : '');
@@ -716,11 +754,10 @@
                     <span class="nw-kv-val"><?= htmlspecialchars($registrantOrg, ENT_QUOTES, 'UTF-8'); ?></span>
                   </div>
                 <?php endif; ?>
-                <?php $regLocation = implode(' · ', array_filter([$registrantState, $registrantCountry], fn($v) => $v !== '')); ?>
-                <?php if ($regLocation): ?>
+                <?php if ($registrantLocation): ?>
                   <div class="nw-kv">
                     <span class="nw-kv-key"><?= htmlspecialchars(t('contact_location'), ENT_QUOTES, 'UTF-8'); ?></span>
-                    <span class="nw-kv-val"><?= htmlspecialchars($regLocation, ENT_QUOTES, 'UTF-8'); ?></span>
+                    <span class="nw-kv-val"><?= htmlspecialchars($registrantLocation, ENT_QUOTES, 'UTF-8'); ?></span>
                   </div>
                 <?php endif; ?>
                 <?php if ($registrantEmail): ?>
@@ -765,6 +802,12 @@
                     <span class="nw-kv-val"><?= htmlspecialchars($adminPhone, ENT_QUOTES, 'UTF-8'); ?></span>
                   </div>
                 <?php endif; ?>
+                <?php if ($adminCountry): ?>
+                  <div class="nw-kv">
+                    <span class="nw-kv-key"><?= htmlspecialchars(t('contact_location'), ENT_QUOTES, 'UTF-8'); ?></span>
+                    <span class="nw-kv-val"><?= htmlspecialchars($adminCountry, ENT_QUOTES, 'UTF-8'); ?></span>
+                  </div>
+                <?php endif; ?>
               </div>
             <?php endif; ?>
 
@@ -793,6 +836,12 @@
                   <div class="nw-kv">
                     <span class="nw-kv-key"><?= htmlspecialchars(t('phone'), ENT_QUOTES, 'UTF-8'); ?></span>
                     <span class="nw-kv-val"><?= htmlspecialchars($techPhone, ENT_QUOTES, 'UTF-8'); ?></span>
+                  </div>
+                <?php endif; ?>
+                <?php if ($techCountry): ?>
+                  <div class="nw-kv">
+                    <span class="nw-kv-key"><?= htmlspecialchars(t('contact_location'), ENT_QUOTES, 'UTF-8'); ?></span>
+                    <span class="nw-kv-val"><?= htmlspecialchars($techCountry, ENT_QUOTES, 'UTF-8'); ?></span>
                   </div>
                 <?php endif; ?>
               </div>
