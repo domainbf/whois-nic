@@ -2,6 +2,15 @@
 
 // 自动加载器与请求辅助函数（从 index.php 抽离，行为保持不变）
 
+// 静态资源版本化：给 CSS/JS 追加 ?v=<文件修改时间>，实现内容变更时缓存击穿。
+// 这些资源带 30 天强缓存（max-age=2592000），无版本号会导致浏览器长期使用旧文件。
+function asset(string $relPath): string
+{
+  $abs = __DIR__ . "/../../" . ltrim($relPath, "/");
+  $ver = @filemtime($abs);
+  return $relPath . ($ver ? "?v=" . $ver : "");
+}
+
 spl_autoload_register(function ($class) {
   // 类文件位于 src/ 目录（本文件在 src/lib/，故上溯一级）
   $base = __DIR__ . "/..";

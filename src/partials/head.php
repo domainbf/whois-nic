@@ -104,7 +104,7 @@
   <?= CUSTOM_HEAD ?>
   <link rel="stylesheet" href="public/css/index-extra.css">
   <!-- next-whois 风格主题层（最后加载，覆盖旧版样式）-->
-  <link rel="stylesheet" href="public/css/theme.css">
+  <link rel="stylesheet" href="<?= htmlspecialchars(asset('public/css/theme.css'), ENT_QUOTES, 'UTF-8'); ?>">
   <!-- 多语言：将当前语言译文负载暴露给前端脚本 -->
   <script>window.__I18N__ = <?= i18n_js_payload(); ?>;</script>
   <script src="public/js/theme.js" defer></script>

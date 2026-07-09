@@ -2,7 +2,7 @@
   <script src="public/js/history.js" defer></script>
 
   <?php if (!empty($multiMode) && empty($embed)): ?>
-    <script src="public/js/multi.js" defer></script>
+    <script src="<?= htmlspecialchars(asset('public/js/multi.js'), ENT_QUOTES, 'UTF-8'); ?>" defer></script>
   <?php endif; ?>
 
   <?php if ($whoisData || $rdapData): ?>

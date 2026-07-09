@@ -86,11 +86,14 @@
   </section>
 
   <!-- 详情弹窗：点击列表项在此弹窗内以 iframe 加载该域名的完整查询结果 -->
-  <div class="nw-modal" id="multi-modal" hidden aria-hidden="true" role="dialog" aria-modal="true" aria-labelledby="multi-modal-title">
+  <div class="nw-modal" id="multi-modal" hidden aria-hidden="true" role="dialog" aria-modal="true" aria-labelledby="multi-modal-title" data-slow="<?= htmlspecialchars(t('multi_modal_slow'), ENT_QUOTES, 'UTF-8'); ?>">
     <div class="nw-modal-backdrop" data-close="1"></div>
     <div class="nw-modal-panel">
       <div class="nw-modal-head">
         <span class="nw-modal-title" id="multi-modal-title"></span>
+        <a class="nw-modal-open" id="multi-modal-open" href="#" target="_blank" rel="noopener" title="<?= htmlspecialchars(t('multi_modal_open'), ENT_QUOTES, 'UTF-8'); ?>" aria-label="<?= htmlspecialchars(t('multi_modal_open'), ENT_QUOTES, 'UTF-8'); ?>">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 3h6v6"/><path d="M10 14 21 3"/><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/></svg>
+        </a>
         <button type="button" class="nw-modal-close" data-close="1" aria-label="<?= htmlspecialchars(t('multi_modal_close'), ENT_QUOTES, 'UTF-8'); ?>">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
         </button>
@@ -98,6 +101,15 @@
       <div class="nw-modal-body">
         <div class="nw-modal-loading" id="multi-modal-loading">
           <span class="nw-modal-spinner" aria-hidden="true"></span>
+          <span class="nw-modal-loading-text" id="multi-modal-loading-text"><?= htmlspecialchars(t('multi_modal_loading'), ENT_QUOTES, 'UTF-8'); ?></span>
+        </div>
+        <div class="nw-modal-error" id="multi-modal-error" hidden>
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+          <p class="nw-modal-error-text"><?= htmlspecialchars(t('multi_modal_error'), ENT_QUOTES, 'UTF-8'); ?></p>
+          <div class="nw-modal-error-actions">
+            <button type="button" class="nw-modal-btn" id="multi-modal-retry"><?= htmlspecialchars(t('multi_modal_retry'), ENT_QUOTES, 'UTF-8'); ?></button>
+            <a class="nw-modal-btn nw-modal-btn--ghost" id="multi-modal-error-open" href="#" target="_blank" rel="noopener"><?= htmlspecialchars(t('multi_modal_open'), ENT_QUOTES, 'UTF-8'); ?></a>
+          </div>
         </div>
         <iframe class="nw-modal-frame" id="multi-modal-frame" title="" hidden></iframe>
       </div>
