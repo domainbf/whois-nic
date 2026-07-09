@@ -1285,33 +1285,43 @@ code a { color: hsl(var(--info)) !important; }
 
 .nw-globe {
   position: absolute;
-  top: 18px;
-  right: 18px;
-  width: 84px;
-  height: 84px;
+  top: 16px;
+  right: 14px;
+  width: 116px;
+  height: 116px;
   pointer-events: none;
-  color: hsl(var(--muted-foreground));
-  opacity: 0.55;
-  animation: nw-globe-float 9s var(--ease-natural) infinite;
+  opacity: 0.9;
 }
 
-/* 细线地球分层描边：外圈与主经纬线略实，辅助纬线更淡，克制精致 */
-.nw-globe-ring { opacity: 0.9; }
-.nw-globe-line { opacity: 0.75; }
-.nw-globe-line-soft { opacity: 0.4; }
-
-/* 极缓的上下浮动，赋予图标轻微的“悬浮呼吸”生命感 */
-@keyframes nw-globe-float {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-3px); }
+.nw-globe-sphere {
+  fill: hsl(var(--muted) / 0.5);
 }
 
+.nw-globe-grid {
+  fill: none;
+  stroke: hsl(var(--muted-foreground) / 0.28);
+  stroke-width: 0.7;
+}
+
+.nw-globe-orbit-ring {
+  fill: none;
+  stroke: hsl(var(--muted-foreground) / 0.3);
+  stroke-width: 0.9;
+  stroke-dasharray: 2 4;
+}
+
+.nw-globe-orbit-dot {
+  fill: hsl(var(--foreground));
+}
+
+/* 尊重减少动态偏好：停止卫星点运动，定格于轨道右端 */
 @media (prefers-reduced-motion: reduce) {
-  .nw-globe { animation: none; }
+  .nw-globe-orbit-dot animateMotion { display: none; }
+  .nw-globe-orbit-dot { transform: translate(112px, 60px); }
 }
 
 @media (max-width: 420px) {
-  .nw-globe { width: 66px; height: 66px; top: 16px; right: 16px; }
+  .nw-globe { width: 96px; height: 96px; top: 14px; right: 12px; }
 }
 
 .nw-globe svg { width: 100%; height: 100%; }

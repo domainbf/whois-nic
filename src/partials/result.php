@@ -315,14 +315,25 @@
         <!-- 域名主卡 -->
         <div class="nw-card nw-domain-card">
           <div class="nw-globe" aria-hidden="true">
-            <svg viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg" fill="none"
-                 stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round">
-              <!-- 与顶栏同款的极简细线地球，做得更精致：外圈 + 赤道 + 两条纬线 + 中经线 + 两条弧形经线 -->
-              <circle cx="24" cy="24" r="17" class="nw-globe-ring"/>
-              <line x1="7" y1="24" x2="41" y2="24" class="nw-globe-line"/>
-              <path d="M24 7v34" class="nw-globe-line"/>
-              <path d="M8.6 17.5h30.8M8.6 30.5h30.8" class="nw-globe-line-soft"/>
-              <path d="M24 7c5.4 4.4 8.2 10.6 8.2 17s-2.8 12.6-8.2 17c-5.4-4.4-8.2-10.6-8.2-17S18.6 11.4 24 7z" class="nw-globe-line"/>
+            <svg viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg">
+              <!-- 球体本体 -->
+              <circle cx="60" cy="60" r="33" class="nw-globe-sphere"/>
+              <!-- 经纬网格（静止，干净的地球轮廓）-->
+              <g class="nw-globe-grid">
+                <circle cx="60" cy="60" r="33"/>
+                <line x1="27" y1="60" x2="93" y2="60"/>
+                <ellipse cx="60" cy="60" rx="33" ry="12"/>
+                <ellipse cx="60" cy="60" rx="33" ry="24"/>
+                <ellipse cx="60" cy="60" rx="12" ry="33"/>
+                <ellipse cx="60" cy="60" rx="24" ry="33"/>
+              </g>
+              <!-- 倾斜轨道 + 沿轨运行的卫星点（平滑旋转，替代生硬的自转）-->
+              <g class="nw-globe-orbit" transform="rotate(-20 60 60)">
+                <ellipse cx="60" cy="60" rx="52" ry="17" class="nw-globe-orbit-ring"/>
+                <circle r="3.2" class="nw-globe-orbit-dot">
+                  <animateMotion dur="6s" repeatCount="indefinite" path="M 8 60 a 52 17 0 1 0 104 0 a 52 17 0 1 0 -104 0"/>
+                </circle>
+              </g>
             </svg>
           </div>
 
