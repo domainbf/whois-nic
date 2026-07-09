@@ -14,7 +14,10 @@
   };
 
   function formatDuration(seconds) {
-    seconds = Number(seconds);
+    // 使用绝对值：过期域名的 remainingSeconds 为负，若不取绝对值，
+    // 下面的 Math.floor 会得到负数，所有 "> 0" 判断均失败，
+    // 最终误返回 "今天"（这正是"已过期却显示距离过期：今天"的根因）。
+    seconds = Math.abs(Number(seconds) || 0);
     const years = Math.floor(seconds / (365 * 24 * 60 * 60));
     seconds %= 365 * 24 * 60 * 60;
     const months = Math.floor(seconds / (30 * 24 * 60 * 60));
@@ -105,8 +108,20 @@
   }
 
   const remaining = document.getElementById("remaining");
-  if (remaining && remaining.dataset.seconds) {
+  if (remaining && remaining.dataset.seconds != null && remaining.dataset.seconds !== "") {
+    const secs = Number(remaining.dataset.seconds);
     const span = remaining.querySelector("span");
-    if (span) span.innerText = I18N.t("remaining_title", formatDuration(remaining.dataset.seconds));
+    if (span) {
+      if (secs > 0) {
+        // 未过期：距离过期还有 X
+        span.innerText = I18N.t("remaining_title", formatDuration(secs));
+      } else if (Math.abs(secs) < 86400) {
+        // 今天过期 / 刚过期：直接显示"已过期"
+        span.innerText = I18N.t("rem_expired");
+      } else {
+        // 已过期：显示过期时长（已过期 X）
+        span.innerText = I18N.t("expired_ago", formatDuration(secs));
+      }
+    }
   }
 });

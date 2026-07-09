@@ -35,6 +35,22 @@
       $ageYears = $y < 1 ? t('age_lt1') : t('age_years', intval($y));
     }
 
+    // 释放可注册时间预测：仅当域名已过期，或状态处于赎回/待删除阶段时展示。
+    $forecast = null;
+    $statusCodes = array_map(fn($s) => $s['text'] ?? '', $parser->status ?: []);
+    $inDropCycle = false;
+    foreach ($statusCodes as $sc) {
+      $scl = strtolower($sc);
+      if (strpos($scl, 'redemption') !== false || strpos($scl, 'pendingdelete') !== false) {
+        $inDropCycle = true;
+        break;
+      }
+    }
+    if (($remSec !== null && $remSec <= 0) || $inDropCycle) {
+      require_once __DIR__ . "/../lib/tld-lifecycle.php";
+      $forecast = domain_release_forecast($parser->domain, $parser->expirationDateISO8601, $statusCodes);
+    }
+
     // 日期：YYYY-MM-DD + 中文相对时间
     $isoDate = function ($iso, $fallback = '') {
       if ($iso) { $t = strtotime($iso); if ($t) return date('Y-m-d', $t); }
@@ -468,7 +484,7 @@
             <svg viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg">
               <!-- 球体本体 -->
               <circle cx="60" cy="60" r="33" class="nw-globe-sphere"/>
-              <!-- 经纬网格（静止，干净的地球轮廓）-->
+              <!-- 经纬网格（静止，干��的地球轮廓）-->
               <g class="nw-globe-grid">
                 <circle cx="60" cy="60" r="33"/>
                 <line x1="27" y1="60" x2="93" y2="60"/>
@@ -571,6 +587,79 @@
                     <p class="nw-date-value" <?= $parser->availableDateISO8601 ? 'id="available-date" data-iso8601="' . htmlspecialchars($parser->availableDateISO8601, ENT_QUOTES, 'UTF-8') . '"' : ''; ?>><?= htmlspecialchars($isoDate($parser->availableDateISO8601, $parser->availableDate), ENT_QUOTES, 'UTF-8'); ?></p>
                   </div>
                 <?php endif; ?>
+              </div>
+            <?php endif; ?>
+
+            <!-- 释放可注册时间预测 -->
+            <?php if ($forecast): ?>
+              <?php
+                $phaseLabels = [
+                  'renewGrace'    => t('phase_renewGrace'),
+                  'redemption'    => t('phase_redemption'),
+                  'pendingDelete' => t('phase_pendingDelete'),
+                  'released'      => t('phase_released'),
+                ];
+              ?>
+              <div class="nw-forecast" role="group" aria-label="<?= htmlspecialchars(t('forecast_title'), ENT_QUOTES, 'UTF-8'); ?>">
+                <div class="nw-forecast-head">
+                  <div class="nw-forecast-title">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>
+                    <span><?= htmlspecialchars(t('forecast_title'), ENT_QUOTES, 'UTF-8'); ?></span>
+                  </div>
+                  <span class="nw-forecast-badge"><?= htmlspecialchars(t('forecast_estimate'), ENT_QUOTES, 'UTF-8'); ?></span>
+                </div>
+
+                <?php if (!empty($forecast['predictable'])): ?>
+                  <!-- 预计可注册时间 + 天数 -->
+                  <div class="nw-forecast-hero">
+                    <div class="nw-forecast-hero-main">
+                      <span class="nw-forecast-hero-label"><?= htmlspecialchars(t('forecast_release'), ENT_QUOTES, 'UTF-8'); ?></span>
+                      <span class="nw-forecast-hero-date"><?= htmlspecialchars($forecast['releaseDate'], ENT_QUOTES, 'UTF-8'); ?></span>
+                    </div>
+                    <span class="nw-forecast-hero-sub <?= $forecast['released'] ? 'nw-text-ok' : ($forecast['daysUntilRelease'] <= 14 ? 'nw-text-warn' : ''); ?>">
+                      <?= $forecast['released']
+                        ? htmlspecialchars(t('forecast_released'), ENT_QUOTES, 'UTF-8')
+                        : htmlspecialchars(t('forecast_in_days', max(0, $forecast['daysUntilRelease'])), ENT_QUOTES, 'UTF-8'); ?>
+                    </span>
+                  </div>
+
+                  <!-- 阶段时间线 -->
+                  <ol class="nw-forecast-timeline">
+                    <?php foreach ($forecast['phases'] as $ph): ?>
+                      <?php if ($ph['days'] <= 0) { continue; } ?>
+                      <?php $isCurrent = $forecast['currentPhase'] === $ph['key']; ?>
+                      <li class="nw-forecast-phase<?= $isCurrent ? ' is-current' : ''; ?>">
+                        <span class="nw-forecast-dot" aria-hidden="true"></span>
+                        <div class="nw-forecast-phase-body">
+                          <span class="nw-forecast-phase-name">
+                            <?= htmlspecialchars($phaseLabels[$ph['key']] ?? $ph['key'], ENT_QUOTES, 'UTF-8'); ?>
+                            <?php if ($isCurrent): ?>
+                              <em class="nw-forecast-now"><?= htmlspecialchars(t('forecast_current'), ENT_QUOTES, 'UTF-8'); ?></em>
+                            <?php endif; ?>
+                          </span>
+                          <span class="nw-forecast-phase-range">
+                            <?= htmlspecialchars(date('Y-m-d', $ph['start']) . ' → ' . date('Y-m-d', $ph['end']), ENT_QUOTES, 'UTF-8'); ?>
+                            · <?= intval($ph['days']); ?>d
+                          </span>
+                        </div>
+                      </li>
+                    <?php endforeach; ?>
+                    <li class="nw-forecast-phase nw-forecast-phase-final<?= $forecast['released'] ? ' is-current' : ''; ?>">
+                      <span class="nw-forecast-dot" aria-hidden="true"></span>
+                      <div class="nw-forecast-phase-body">
+                        <span class="nw-forecast-phase-name"><?= htmlspecialchars($phaseLabels['released'], ENT_QUOTES, 'UTF-8'); ?></span>
+                        <span class="nw-forecast-phase-range"><?= htmlspecialchars($forecast['releaseDate'], ENT_QUOTES, 'UTF-8'); ?></span>
+                      </div>
+                    </li>
+                  </ol>
+                <?php endif; ?>
+
+                <p class="nw-forecast-note">
+                  <?php if (!empty($forecast['registry'])): ?>
+                    <span class="nw-forecast-registry"><?= htmlspecialchars(t('forecast_registry') . '：' . $forecast['registry'], ENT_QUOTES, 'UTF-8'); ?></span>
+                  <?php endif; ?>
+                  <?= htmlspecialchars(t('forecast_note'), ENT_QUOTES, 'UTF-8'); ?>
+                </p>
               </div>
             <?php endif; ?>
 

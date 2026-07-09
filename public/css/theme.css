@@ -2344,3 +2344,184 @@ a.nw-status-name:hover { text-decoration: underline; }
   0%, 100% { transform: scale(1); }
   50%      { transform: scale(1.006); }
 }
+
+/* ============================================================
+   释放可注册时间预测
+   ============================================================ */
+.nw-forecast {
+  margin-top: 20px;
+  padding: 16px;
+  border: 1px solid hsl(var(--border));
+  border-radius: var(--radius);
+  background: hsl(var(--muted) / 0.4);
+}
+
+.nw-forecast-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.nw-forecast-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  color: hsl(var(--foreground));
+}
+
+.nw-forecast-title svg { color: hsl(var(--muted-foreground)); }
+
+.nw-forecast-badge {
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  padding: 2px 8px;
+  border-radius: 999px;
+  color: hsl(var(--muted-foreground));
+  background: hsl(var(--background));
+  border: 1px solid hsl(var(--border));
+}
+
+/* 预计可注册：日期 + 天数 */
+.nw-forecast-hero {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 12px;
+  margin: 14px 0 4px;
+  padding-bottom: 14px;
+  border-bottom: 1px dashed hsl(var(--border));
+}
+
+.nw-forecast-hero-main {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+
+.nw-forecast-hero-label {
+  font-size: 11px;
+  font-weight: 500;
+  color: hsl(var(--muted-foreground));
+}
+
+.nw-forecast-hero-date {
+  font-size: 22px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  color: hsl(var(--foreground));
+  font-variant-numeric: tabular-nums;
+}
+
+.nw-forecast-hero-sub {
+  font-size: 12px;
+  font-weight: 600;
+  white-space: nowrap;
+  color: hsl(var(--muted-foreground));
+}
+
+/* 阶段时间线 */
+.nw-forecast-timeline {
+  list-style: none;
+  margin: 14px 0 0;
+  padding: 0;
+}
+
+.nw-forecast-phase {
+  position: relative;
+  display: flex;
+  gap: 10px;
+  padding: 0 0 14px 2px;
+}
+
+/* 竖线连接各阶段圆点 */
+.nw-forecast-phase:not(:last-child)::before {
+  content: "";
+  position: absolute;
+  left: 5px;
+  top: 14px;
+  bottom: 0;
+  width: 1px;
+  background: hsl(var(--border));
+}
+
+.nw-forecast-dot {
+  flex: 0 0 auto;
+  width: 11px;
+  height: 11px;
+  margin-top: 2px;
+  border-radius: 999px;
+  background: hsl(var(--background));
+  border: 2px solid hsl(var(--border-hover));
+  z-index: 1;
+}
+
+.nw-forecast-phase.is-current .nw-forecast-dot {
+  border-color: hsl(var(--warn));
+  background: hsl(var(--warn));
+  box-shadow: 0 0 0 4px hsl(var(--warn) / 0.15);
+}
+
+.nw-forecast-phase-final.is-current .nw-forecast-dot {
+  border-color: hsl(var(--ok));
+  background: hsl(var(--ok));
+  box-shadow: 0 0 0 4px hsl(var(--ok) / 0.15);
+}
+
+.nw-forecast-phase-body {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.nw-forecast-phase-name {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  font-weight: 600;
+  color: hsl(var(--foreground));
+}
+
+.nw-forecast-phase.is-current .nw-forecast-phase-name { color: hsl(var(--warn)); }
+.nw-forecast-phase-final.is-current .nw-forecast-phase-name { color: hsl(var(--ok)); }
+
+.nw-forecast-now {
+  font-style: normal;
+  font-size: 10px;
+  font-weight: 600;
+  padding: 1px 6px;
+  border-radius: 999px;
+  color: hsl(var(--warn));
+  background: hsl(var(--warn-bg));
+}
+
+.nw-forecast-phase-final.is-current .nw-forecast-now {
+  color: hsl(var(--ok));
+  background: hsl(var(--ok-bg));
+}
+
+.nw-forecast-phase-range {
+  font-size: 11px;
+  color: hsl(var(--muted-foreground));
+  font-variant-numeric: tabular-nums;
+}
+
+.nw-forecast-note {
+  margin: 6px 0 0;
+  font-size: 10.5px;
+  line-height: 1.5;
+  color: hsl(var(--muted-foreground));
+}
+
+.nw-forecast-registry {
+  display: block;
+  margin-bottom: 2px;
+  font-weight: 600;
+  color: hsl(var(--foreground) / 0.75);
+}
