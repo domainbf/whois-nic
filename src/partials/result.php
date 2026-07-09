@@ -2,6 +2,7 @@
 <?php if ($parser->registered): ?>
   <?php
     require_once __DIR__ . "/../lib/registrar-map.php";
+    require_once __DIR__ . "/../lib/dns-provider-map.php";
     $statusMapping = require __DIR__ . "/../lib/status-map.php";
     $registrarLink = $parser->registrar ? ($parser->registrarURL ?: registrar_website($parser->registrar)) : "";
 
@@ -326,49 +327,17 @@
     $dataSourceLabel = $whoisData ? 'whois' : ($rdapData ? 'rdap' : '');
 
     // NS 提供商识别（用于右侧小徽标 + 汇总 DNS 提供商字段）
+    // 统一走 dns-provider-map.php 库，返回品牌名与官网 URL，便于点击直达。
     $nsBrand = function (string $ns): string {
-      $n = strtolower($ns);
-      $map = [
-        // CDN / 云厂商
-        'cloudflare' => 'Cloudflare', 'ns.cloudflare' => 'Cloudflare',
-        'awsdns' => 'AWS Route 53', 'amazonaws' => 'AWS Route 53',
-        'azure-dns' => 'Azure DNS', 'azuredns' => 'Azure DNS',
-        'googledomains' => 'Google', 'google.com' => 'Google', 'googledns' => 'Google',
-        'ns.google' => 'Google Cloud DNS',
-        'vercel-dns' => 'Vercel', 'netlify' => 'Netlify', 'nsone' => 'NS1', 'ultradns' => 'UltraDNS',
-        'akamai' => 'Akamai', 'akam.net' => 'Akamai', 'fastly' => 'Fastly',
-        'digitalocean' => 'DigitalOcean', 'linode' => 'Linode', 'vultr' => 'Vultr',
-        'he.net' => 'Hurricane Electric', 'oracle' => 'Oracle', 'oraclecloud' => 'Oracle',
-        // 中国厂商
-        'dnspod' => 'DNSPod（腾讯云）', 'qcloud' => '腾讯云', 'tencent' => '腾讯云',
-        'alidns' => '阿里云', 'aliyun' => '阿里云', 'hichina' => '阿里云',
-        'dnsv' => '阿里云', 'huaweicloud' => '华为云', 'myhuaweicloud' => '华为云',
-        'baidubce' => '百度云', 'bdydns' => '百度云', 'jdcloud' => '京东云',
-        'dnspai' => 'DNSPai', 'cloudxns' => 'CloudXNS', ' dnsdun' => 'DNSDun',
-        // 注册商 / DNS 托管
-        'godaddy' => 'GoDaddy', 'domaincontrol' => 'GoDaddy',
-        'namecheap' => 'Namecheap', 'registrar-servers' => 'Namecheap',
-        'name-services' => 'eNom', 'dnsowl' => 'NameSilo', 'namesilo' => 'NameSilo',
-        'dynadot' => 'Dynadot', 'porkbun' => 'Porkbun', 'name.com' => 'Name.com',
-        'gandi' => 'Gandi', 'ovh' => 'OVH', 'ionos' => 'IONOS', 'hostinger' => 'Hostinger',
-        'bluehost' => 'Bluehost', 'hostgator' => 'HostGator', 'siteground' => 'SiteGround',
-        'wordpress' => 'WordPress.com', 'wixdns' => 'Wix', 'squarespace' => 'Squarespace',
-        'shopify' => 'Shopify', 'wpengine' => 'WP Engine', 'flywheel' => 'Flywheel',
-        'dreamhost' => 'DreamHost', 'namebright' => 'NameBright', 'registrar-servers' => 'Namecheap',
-        // 专业 DNS
-        'dnsmadeeasy' => 'DNS Made Easy', 'easydns' => 'easyDNS', 'zilore' => 'Zilore',
-        'constellix' => 'Constellix', 'nsproxy' => 'NSProxy', 'clouddns' => 'CloudDNS',
-        'bunny' => 'BunnyCDN', 'bunnyinfra' => 'BunnyCDN',
-      ];
-      foreach ($map as $k => $v) { if (strpos($n, $k) !== false) return $v; }
-      return '';
+      return dns_provider_detect($ns)['name'];
     };
 
     // 汇总 DNS 提供商：取名称服务器中第一个可识别的品牌（NS 通常同属一家）
     $dnsProvider = '';
+    $dnsProviderUrl = '';
     foreach (($parser->nameServers ?: []) as $ns) {
-      $b = $nsBrand($ns);
-      if ($b !== '') { $dnsProvider = $b; break; }
+      $info = dns_provider_detect($ns);
+      if ($info['name'] !== '') { $dnsProvider = $info['name']; $dnsProviderUrl = $info['url']; break; }
     }
 
     // EPP 状态码 → 颜色点
@@ -590,7 +559,7 @@
               </div>
             <?php endif; ?>
 
-            <!-- 释放可注册时间预测 -->
+            <!-- 释放可注册��间预测 -->
             <?php if ($forecast): ?>
               <?php
                 $phaseLabels = [
@@ -722,7 +691,11 @@
                 <?= inline_icon('server'); ?>
                 <?= htmlspecialchars(t('card_ns'), ENT_QUOTES, 'UTF-8'); ?>
                 <?php if ($dnsProvider): ?>
-                  <span class="nw-ns-brand nw-dns-provider" title="<?= htmlspecialchars(t('dns_provider'), ENT_QUOTES, 'UTF-8'); ?>"><?= htmlspecialchars($dnsProvider, ENT_QUOTES, 'UTF-8'); ?></span>
+                  <?php if ($dnsProviderUrl): ?>
+                    <a class="nw-ns-brand nw-dns-provider" href="<?= htmlspecialchars($dnsProviderUrl, ENT_QUOTES, 'UTF-8'); ?>" rel="nofollow noopener noreferrer" target="_blank" title="<?= htmlspecialchars(t('dns_provider'), ENT_QUOTES, 'UTF-8'); ?>"><?= htmlspecialchars($dnsProvider, ENT_QUOTES, 'UTF-8'); ?></a>
+                  <?php else: ?>
+                    <span class="nw-ns-brand nw-dns-provider" title="<?= htmlspecialchars(t('dns_provider'), ENT_QUOTES, 'UTF-8'); ?>"><?= htmlspecialchars($dnsProvider, ENT_QUOTES, 'UTF-8'); ?></span>
+                  <?php endif; ?>
                 <?php endif; ?>
               </h3>
               <div class="nw-ns-list">

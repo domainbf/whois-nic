@@ -1218,7 +1218,7 @@ code a { color: hsl(var(--info)) !important; }
 .nw-price-slot .message-tag svg,
 .nw-beian-slot .message-tag svg { width: 12px; height: 12px; }
 
-/* 加载骨架：���寸与胶囊一致，圆角对齐年份/价格药丸 */
+/* 加载骨架：�����寸与胶囊一致，圆角对齐年份/价格药丸 */
 .nw-skeleton {
   display: inline-block;
   width: 72px;
@@ -1981,8 +1981,8 @@ a.nw-status-name:hover { text-decoration: underline; }
   flex-shrink: 0;
 }
 
-/* 汇总 DNS 提供商：放在 NS 卡标题右侧的小胶囊 */
-.nw-dns-provider {
+  /* 汇总 DNS 提供商：放在 NS 卡标题右侧的小胶囊 */
+> .nw-dns-provider {
   margin-left: auto;
   padding: 2px 8px;
   border-radius: 999px;
@@ -1990,7 +1990,15 @@ a.nw-status-name:hover { text-decoration: underline; }
   font-weight: 500;
   color: hsl(var(--muted-foreground));
   background: hsl(var(--muted) / 0.6);
-}
+  text-decoration: none;
+  transition: color 0.15s ease, background-color 0.15s ease;
+  }
+
+  /* 当 DNS 提供商可点击（链接到官网）时的悬停反馈 */
+a.nw-dns-provider:hover {
+  color: hsl(var(--foreground));
+  background: hsl(var(--muted));
+  }
 
 /* ---------- 注册商卡 ---------- */
 .nw-registrar-card { padding: 20px; }
@@ -2247,7 +2255,7 @@ a.nw-status-name:hover { text-decoration: underline; }
    呼吸感动效层：自然、流畅、克制
    - 分层入场：顶栏 → 搜索 → 卡片/历史 → 页脚，柔和上浮淡入并错峰
    - 静息呼吸：搜索框与主卡在空闲时极轻微地"呼吸"（光晕/缩放）
-   - 顺滑悬停：卡片与历史项浮起，采用自然缓动
+   - 顺滑悬停：卡片与历史项浮起，采用自然���动
    仅在用户未开启"减少动态"时启用，避免打扰无障碍需求。
    ===================================================================== */
 
