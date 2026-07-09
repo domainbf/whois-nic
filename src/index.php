@@ -1,5 +1,9 @@
 <?php
-session_start();
+// 说明：本应用不使用 $_SESSION（语言偏好走独立的 lang cookie）。
+// 此前的 session_start() 会在每个响应写入 Set-Cookie: PHPSESSID，
+// 而携带 Set-Cookie 的响应无法被 Vercel Edge CDN 缓存。移除后，
+// 无状态接口（favicon 代理、JSON API、manifest 等）可被 CDN 命中，
+// 大幅减少函数调用与冷启动，提升全球访问速度。
 
 // 解析域名参数
 $domain = null;
@@ -110,13 +114,15 @@ if (isset($_GET["api"]) && $_GET["api"] === "favicon") {
 
   if ($img === null) {
     // 全部失败：返回 204，前端据此保留通用链接图标
-    header("Cache-Control: public, max-age=86400");
+    // s-maxage 让 Vercel Edge CDN 也缓存该结果，避免重复回源抓取
+    header("Cache-Control: public, max-age=86400, s-maxage=86400, stale-while-revalidate=604800");
     http_response_code(204);
     exit;
   }
 
   header("Content-Type: " . $ctype);
-  header("Cache-Control: public, max-age=604800"); // 缓存 7 天，避免重复抓取
+  // 缓存 7 天（浏览器 + Edge CDN），并允许过期后先返回旧图再后台刷新
+  header("Cache-Control: public, max-age=604800, s-maxage=604800, stale-while-revalidate=2592000");
   header("Content-Length: " . strlen($img));
   echo $img;
   exit;
@@ -263,8 +269,21 @@ if ($domain) {
     header("Content-Type: application/json");
 
     if ($error) {
+      // 错误结果不缓存（可能是临时性网络/注册局故障，下次应重试）
+      header("Cache-Control: no-store");
       $value = ["code" => 1, "msg" => $error, "data" => null];
     } else {
+      // JSON 数据与语言无关，非常适合 Edge CDN 缓存。
+      // 按状态分级设置 s-maxage：已注册结果稳定→缓存更久；未注册可能随时被抢注→更短。
+      $sMaxAge = 3600; // 默认 1 小时
+      if ($parser->registered) {
+        $sMaxAge = 21600; // 已注册：6 小时
+      } elseif ($parser->reserved || $parser->prohibited) {
+        $sMaxAge = 86400; // 保留/禁止：24 小时
+      } else {
+        $sMaxAge = 1800; // 未注册/未知：30 分钟
+      }
+      header("Cache-Control: public, max-age=0, s-maxage={$sMaxAge}, stale-while-revalidate=86400");
       $value = ["code" => 0, "msg" => "Query successful", "data" => $parser];
     }
 
