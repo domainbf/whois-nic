@@ -46,6 +46,9 @@
   --bad: 0 74% 42%;
   --bad-bg: 0 86% 97%;
   --info: 215 80% 50%;
+  /* 溢价域名：金棕色，区别于普通状态色，凸显“高价值”属性 */
+  --premium: 38 82% 38%;
+  --premium-bg: 42 88% 95%;
   --neutral: 220 9% 46%;
   --neutral-bg: 220 14% 96%;
 }
@@ -128,6 +131,8 @@
   --bad: 0 75% 65%;
   --bad-bg: 0 50% 13%;
   --info: 215 85% 65%;
+  --premium: 42 88% 62%;
+  --premium-bg: 40 45% 13%;
   --neutral: 220 10% 70%;
   --neutral-bg: 220 8% 16%;
 }
@@ -999,6 +1004,63 @@ form {
 .domain-info-box--unknown    { --state: var(--muted-foreground); --state-bg: var(--neutral-bg); }
   .domain-info-box--taken      { --state: var(--foreground); --state-bg: var(--neutral-bg); }
   .domain-info-box--error      { --state: var(--warn); --state-bg: var(--warn-bg); }
+
+/* ---- 溢价域名槽位（异步注入到可注册卡片内）---- */
+/* 容器：默认隐藏，命中溢价或有价格时由 JS 移除 hidden；与说明文字拉开间距 */
+.domain-premium {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  margin-top: 16px;
+  width: 100%;
+}
+.domain-premium[hidden] { display: none; }
+
+/* 溢价徽章：金棕描边胶囊 + 皇冠图标，明确“溢价/高价值”身份 */
+.domain-premium-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 12px;
+  border-radius: 9999px;
+  background: hsl(var(--premium-bg));
+  border: 1px solid hsl(var(--premium) / 0.45);
+  color: hsl(var(--premium)) !important;
+  font-size: 0.8125rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  line-height: 1.2;
+}
+.domain-premium-badge svg { width: 15px; height: 15px; }
+
+/* 价格：主价格加大加重，人民币估算次级、更淡 */
+.domain-premium-price {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 8px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+.domain-premium-amount {
+  font-size: 1.375rem;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  color: hsl(var(--foreground)) !important;
+  line-height: 1.1;
+}
+.domain-premium-cny {
+  font-size: 0.9375rem;
+  font-weight: 500;
+  color: hsl(var(--muted-foreground)) !important;
+}
+
+/* 数据来源脚注 */
+.domain-premium-source {
+  font-size: 0.75rem;
+  color: hsl(var(--muted-foreground)) !important;
+  opacity: 0.85;
+}
 
 /* ---- DNS 兜底信息块（WHOIS/RDAP 不可用时展示实时 DNS 记录）---- */
 .domain-dns-fallback {
@@ -2579,7 +2641,7 @@ a.nw-dns-provider:hover {
     animation: none;
   }
 
-  /* ---- 静息呼吸：域名主卡极缓慢的缩放起伏 ----
+  /* ---- 静息呼���：域名主卡极缓慢的缩放起伏 ----
      选择器需与 `main .nw-card` 同等优先级并置于其后，方能接管 animation。 */
   main .nw-domain-card {
     animation: nw-rise-in 0.7s var(--ease-natural) 0.16s both,

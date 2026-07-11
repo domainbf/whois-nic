@@ -17,6 +17,16 @@
   <?php if ($fetchPrices): ?>
     <script src="public/js/price.js" defer></script>
   <?php endif; ?>
+  <?php
+    // 溢价检测脚本：仅当页面渲染了"可注册"域名的溢价槽位时加载。
+    // 该脚本会异步请求 /premium 并在命中溢价时展示金色徽章+价格。
+    $loadPremium = !empty($domain) && empty($multiMode) && empty($error)
+      && isset($parser) && !$parser->registered && !$parser->reserved && !$parser->prohibited
+      && !$parser->unknown && empty($dnsActive);
+    if ($loadPremium):
+  ?>
+    <script src="<?= htmlspecialchars(asset('public/js/premium.js'), ENT_QUOTES, 'UTF-8'); ?>" defer></script>
+  <?php endif; ?>
   <?php if ($fetchBeiAn): ?>
     <script src="public/js/beian.js" defer></script>
   <?php endif; ?>

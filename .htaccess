@@ -13,6 +13,7 @@ RewriteRule ^$ index.php [L]
 RewriteRule ^api/?$ index.php?json=1 [L,QSA]
 RewriteRule ^login/?$ login.php [L]
 RewriteRule ^manifest/?$ manifest.php [L]
+RewriteRule ^premium/?$ premium.php [L,QSA]
 
 # 域名查询规则 - 支持 /example.com 和 /example.com/ 格式
 RewriteCond %{REQUEST_FILENAME} !-f
