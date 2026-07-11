@@ -83,7 +83,11 @@
   };
 
   // 立即渲染，不再人为延迟（加载速度取决于后端聚合，前端不再额外等待）
+  // 若该域名被 premium.js 判为溢价并已接管价格（上锁），则普通价不再覆盖，避免竞态。
   const render = (html) => {
+    if (messagePrice.dataset.premiumLock === "1") {
+      return;
+    }
     messagePrice.innerHTML = html;
   };
 
@@ -129,6 +133,11 @@
 
     if (innerHTML === "") {
       throw new Error("empty price data");
+    }
+
+    // 溢价域名已由 premium.js 接管价格，普通价直接放弃渲染
+    if (messagePrice.dataset.premiumLock === "1") {
+      return;
     }
 
     // 立即渲染（不再人为延迟）

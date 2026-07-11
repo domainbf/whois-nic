@@ -18,11 +18,11 @@
     <script src="public/js/price.js" defer></script>
   <?php endif; ?>
   <?php
-    // 溢价检测脚本：仅当页面渲染了"可注册"域名的溢价槽位时加载。
-    // 该脚本会异步请求 /premium 并在命中溢价时展示金色徽章+价格。
+    // 溢价检测脚本：对"已注册"与"可注册"的单域名查询都加载。
+    // 溢价域名（如 b.tools）既可能已注册、也可能待注册，二者都需检测并接管价格。
+    // 排除保留 / 禁止 / 未知 / 无效等无价格意义的状态。
     $loadPremium = !empty($domain) && empty($multiMode) && empty($error)
-      && isset($parser) && !$parser->registered && !$parser->reserved && !$parser->prohibited
-      && !$parser->unknown && empty($dnsActive);
+      && isset($parser) && !$parser->reserved && !$parser->prohibited && !$parser->unknown;
     if ($loadPremium):
   ?>
     <script src="<?= htmlspecialchars(asset('public/js/premium.js'), ENT_QUOTES, 'UTF-8'); ?>" defer></script>

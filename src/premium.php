@@ -242,27 +242,16 @@ function premium_from_netim($domain)
     }
     $auth = ["headers" => ["Authorization: Bearer " . $token], "timeout" => 8];
 
-    // 2) 可注册性
-    $available = null;
-    $check = premium_http("GET", $base . "/domain/" . rawurlencode($domain) . "/check/", $auth);
-    if (is_array($check)) {
-        $row = (isset($check[0]) && is_array($check[0])) ? $check[0] : $check;
-        $result = strtoupper((string) premium_get($row, ["result", "status"]));
-        if ($result !== "") {
-            $available = (strpos($result, "NOT") === false && strpos($result, "AVAILABLE") !== false);
-        }
-    }
-
-    // 3) 价格 / 溢价（权威）
+    // 2) 价格 / 溢价（权威）：/price/ 直接返回 IsPremium + Fee4Registration/Renewal/Transfer + FeeCurrency
+    //    可注册性由页面上下文已知，无需额外 /check/ 调用，减少上游请求与限速压力。
     $price = premium_http("GET", $base . "/domain/" . rawurlencode($domain) . "/price/", $auth);
 
-    // 4) 主动关闭会话（尽力而为）
+    // 3) 主动关闭会话（尽力而为）
     premium_http("DELETE", $base . "/session/", $auth);
 
     if (!is_array($price)) {
-        // 至少返回可注册性
         return [
-            "available" => $available,
+            "available" => null,
             "premium"   => false,
             "currency"  => null,
             "register"  => null,
@@ -280,7 +269,7 @@ function premium_from_netim($domain)
     $transfer = premium_num(premium_get($price, ["Fee4Transfer", "fee4Transfer", "transfer"]));
 
     return [
-        "available" => $available,
+        "available" => null,
         "premium"   => $premium,
         "currency"  => $currency ? strtoupper($currency) : null,
         "register"  => $register,

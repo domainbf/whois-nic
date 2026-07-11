@@ -609,7 +609,7 @@ form {
   height: 14px !important;
 }
 
-/* 提交按钮：圆形深色图标按钮，嵌入胶囊右侧 */
+/* 提交按钮：���形深色图标按钮，嵌入胶囊右侧 */
 .search-button {
   position: relative;
   flex-shrink: 0;
@@ -1017,8 +1017,9 @@ form {
 }
 .domain-premium[hidden] { display: none; }
 
-/* 溢价徽章：金棕描边胶囊 + 皇冠图标，明确“溢价/高价值”身份 */
-.domain-premium-badge {
+/* 溢价徽章：金棕描边胶囊 + 皇冠图标，明确“溢价/高价值”身份。
+   两种上下文共用（可注册卡片槽位 & 已注册状态行）。 */
+.nw-premium-badge {
   display: inline-flex;
   align-items: center;
   gap: 6px;
@@ -1031,8 +1032,21 @@ form {
   font-weight: 700;
   letter-spacing: 0.02em;
   line-height: 1.2;
+  white-space: nowrap;
 }
-.domain-premium-badge svg { width: 15px; height: 15px; }
+.nw-premium-badge svg { width: 15px; height: 15px; flex: none; }
+
+/* 已注册上下文：溢价价格标签的金色变体（覆盖普通 message-tag 灰底） */
+.message-tag-premium {
+  background: hsl(var(--premium-bg)) !important;
+  color: hsl(var(--premium)) !important;
+  border: 1px solid hsl(var(--premium) / 0.35) !important;
+}
+.message-tag-premium svg { color: hsl(var(--premium)) !important; width: 1em; height: 1em; }
+.message-tag-premium-primary {
+  border-color: hsl(var(--premium) / 0.6) !important;
+  font-weight: 700 !important;
+}
 
 /* 价格：主价格加大加重，人民币估算次级、更淡 */
 .domain-premium-price {
@@ -2596,7 +2610,7 @@ a.nw-dns-provider:hover {
    仅在用户未开启"减少动态"时启用，避免打扰无障碍需求。
    ===================================================================== */
 
-/* 统一的自然缓动（easeOutQuint 近似，收尾柔和） */
+/* 统一的��然缓动（easeOutQuint 近似，收尾柔和） */
 :root {
   --ease-natural: cubic-bezier(0.22, 1, 0.36, 1);
 }
