@@ -216,7 +216,6 @@ function premium_get($arr, $keys)
 
 // ---- 数据源 1：Netim REST（主源）--------------------------------------------
 // 先用 Basic Auth 建立会话拿 access_token，再用 Bearer 查询：
-//   /domain/{name}/check/  → 可注册性（result / reason=PREMIUM）
 //   /domain/{name}/price/  → IsPremium + Fee4Registration/Renewal/Transfer + FeeCurrency
 // 返回统一结构或 null。
 function premium_from_netim($domain)
