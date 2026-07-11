@@ -8,10 +8,28 @@
  *
  * 仅当后端 /premium 判定 premium=true 时才介入；普通域名保持原有价格展示不变。
  */
+// ---- 共享“溢价决策” deferred（与 price.js 协同，消除普价→溢价闪烁）----------
+// price.js 在渲染普通价前会 await 本决策：若判定溢价则放弃普通价、由本脚本接管，
+// 从而彻底避免“先显示普通价、随后跳变为溢价价”的不友好闪烁。
+// 该 slot 一定会被 resolve（成功 / 非溢价 / 失败 / 提前返回，见各出口），
+// 保证 price.js 不会无限等待。
+var NW_PREMIUM = (window.__nwPremium = window.__nwPremium || (function () {
+  var slot = { done: false, value: null };
+  slot.promise = new Promise(function (resolve) { slot._resolve = resolve; });
+  slot.resolve = function (v) {
+    if (slot.done) return;
+    slot.done = true;
+    slot.value = v;
+    slot._resolve(v);
+  };
+  return slot;
+})());
+
 (window.nwReady || function (f) { window.addEventListener("DOMContentLoaded", f); })(async () => {
   const priceSlot = document.getElementById("message-price");   // 已注册上下文
   const availSlot = document.getElementById("domain-premium");  // 可注册上下文
   if (!priceSlot && !availSlot) {
+    NW_PREMIUM.resolve(null);
     return;
   }
 
@@ -20,6 +38,7 @@
     (availSlot && availSlot.dataset.domain) ||
     "";
   if (!domain) {
+    NW_PREMIUM.resolve(null);
     return;
   }
 
@@ -61,16 +80,21 @@
     } finally {
       if (timer) clearTimeout(timer);
     }
-    if (!resp.ok) return;
+    if (!resp.ok) { NW_PREMIUM.resolve(null); return; }
     data = await resp.json();
   } catch {
+    NW_PREMIUM.resolve(null);
     return; // 网络/超时失败：静默，保持普通价格展示
   }
 
   // 非溢价：不介入，普通域名价格由 price.js 正常展示
   if (!data || data.code !== 200 || !data.premium) {
+    NW_PREMIUM.resolve(data && data.code === 200 ? data : null);
     return;
   }
+
+  // 命中溢价：公布决策，price.js 将放弃普通价并中止其请求，由本脚本接管
+  NW_PREMIUM.resolve(data);
 
   const currency = data.currency || "";
 

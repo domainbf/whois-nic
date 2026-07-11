@@ -62,7 +62,9 @@ if (is_file($cacheFile) && (time() - filemtime($cacheFile)) < PREMIUM_CACHE_TTL)
     $cached = file_get_contents($cacheFile);
     if ($cached !== false && $cached !== "") {
         header("X-Premium-Cache: HIT");
-        header("Cache-Control: public, max-age=3600");
+        // 溢价结果与语言无关、变动慢，交给 Vercel Edge CDN 跨用户缓存，
+        // 让前端“溢价判定”尽快返回（毫秒级），是消除价格闪烁 + 提速的关键。
+        header("Cache-Control: public, max-age=3600, s-maxage=43200, stale-while-revalidate=86400");
         echo $cached;
         exit;
     }
@@ -76,7 +78,8 @@ function premium_emit($payload, $cacheDir, $cacheFile, $maxAge = 3600)
     }
     @file_put_contents($cacheFile, $payload, LOCK_EX);
     header("X-Premium-Cache: MISS");
-    header("Cache-Control: public, max-age=" . (int) $maxAge);
+    // 同时交给 Edge CDN 缓存，重复查询走边缘毫秒级返回（s-maxage 与服务端 TTL 对齐）
+    header("Cache-Control: public, max-age=" . (int) $maxAge . ", s-maxage=43200, stale-while-revalidate=86400");
     echo $payload;
     exit;
 }
@@ -399,7 +402,7 @@ function premium_race($domain)
         if ($winner !== "") {
             break;
         }
-        // 仍有未完成句柄则等待活动（select 立即返回时靠 exec 推进，循环上限受各请求超时约束）
+        // 仍有未完成句柄则等待活动（select 立即返回时��� exec 推进，循环上限受各请求超时约束）
         if (!empty($handles)) {
             if (curl_multi_select($mh, 1.0) === -1) {
                 usleep(20000); // 20ms，避免 select 立即返回时空转

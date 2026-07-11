@@ -609,7 +609,7 @@ form {
   height: 14px !important;
 }
 
-/* 提交按钮：���形深色图标按钮，嵌入胶囊右侧 */
+/* 提交按钮：�����形深色图标按钮，嵌入胶囊右侧 */
 .search-button {
   position: relative;
   flex-shrink: 0;
@@ -695,10 +695,19 @@ form {
   line-height: 1;
 }
 
-/* 搜索框内左侧的 "/" 提示 */
+/* 搜索框内左侧的 "/" 提示：仅在桌面（精确指针）显示。
+   移动端触屏没有物理键盘、无法“按 / 聚焦”，该提示不仅无意义，
+   还会挤占输入框起始处、让文本光标与 "/" 徽标视觉重叠。默认隐藏，
+   仅在大屏 + 鼠标设备显示（与下方 .nw-hotkeys 的显示条件保持一致）。 */
 .nw-kbd-inline {
+  display: none;
   margin-right: 10px;
   flex-shrink: 0;
+}
+@media (min-width: 768px) and (pointer: fine) {
+  .nw-kbd-inline {
+    display: inline-flex;
+  }
 }
 
 /* 搜索框下方的快捷键提示行（右对齐）*/
@@ -958,7 +967,7 @@ form {
 }
 .domain-info-icon svg { width: 28px; height: 28px; }
 
-/* 域名（可点击访问）—— 卡片第一层级：最大、最重 */
+/* ���名（可点击访问）—— 卡片第一层级：最大、最重 */
 .domain-info-name {
   font-size: 1.5rem;
   font-weight: 700;

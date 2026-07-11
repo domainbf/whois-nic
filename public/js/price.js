@@ -7,6 +7,30 @@
 
   const domain = messagePrice.dataset.domain || "";
 
+  // ---- 与 premium.js 协同的“溢价决策” slot（消除普价→溢价闪烁）--------------
+  // price.js 通常先执行，这里负责创建共享 slot；premium.js 复用同一个。
+  const NW_PREMIUM = (window.__nwPremium = window.__nwPremium || (function () {
+    var slot = { done: false, value: null };
+    slot.promise = new Promise(function (resolve) { slot._resolve = resolve; });
+    slot.resolve = function (v) {
+      if (slot.done) return;
+      slot.done = true;
+      slot.value = v;
+      slot._resolve(v);
+    };
+    return slot;
+  })());
+
+  // 等待溢价决策（带安全超时兜底，避免溢价接口异常时普通价永不出现）。
+  // 返回值：溢价 JSON（含 premium 布尔）或 null。
+  const waitPremiumDecision = () => {
+    if (NW_PREMIUM.done) return Promise.resolve(NW_PREMIUM.value);
+    return Promise.race([
+      NW_PREMIUM.promise,
+      new Promise((res) => setTimeout(() => res(NW_PREMIUM.done ? NW_PREMIUM.value : null), 13000)),
+    ]);
+  };
+
   // 多语言访问器（缺失时回退中文）
   const I18N = window.I18N || {
     t: function (k) {
@@ -95,6 +119,16 @@
     // 客户端超时保护：上游偶发卡顿时不让价格骨架无限停留（10s 后判失败）
     const ctrl = typeof AbortController === "function" ? new AbortController() : null;
     const timer = ctrl ? setTimeout(() => ctrl.abort(), 10000) : null;
+
+    // 竞速接管：一旦溢价决策先返回“溢价”，立即中止普通价请求（省流量、快接管）。
+    let premiumWon = false;
+    waitPremiumDecision().then((pd) => {
+      if (pd && pd.premium) {
+        premiumWon = true;
+        if (ctrl) { try { ctrl.abort(); } catch (e) {} }
+      }
+    });
+
     let response;
     try {
       response = await fetch(`/price?domain=${encodeURIComponent(domain)}`, ctrl ? { signal: ctrl.signal } : undefined);
@@ -135,8 +169,12 @@
       throw new Error("empty price data");
     }
 
-    // 溢价域名已由 premium.js 接管价格，普通价直接放弃渲染
-    if (messagePrice.dataset.premiumLock === "1") {
+    // 关键：渲染普通价之前，先等待溢价决策落定。
+    // - 溢价域名 → 直接放弃普通价，由 premium.js 接管（不再出现普价→溢价跳变）；
+    // - 非溢价 → 正常渲染普通价。
+    // 决策通常与本请求几乎同时返回（溢价接口已加 Edge 缓存提速），骨架屏平滑过渡。
+    const decision = await waitPremiumDecision();
+    if ((decision && decision.premium) || messagePrice.dataset.premiumLock === "1") {
       return;
     }
 
@@ -156,6 +194,11 @@
       activeTips.forEach((t) => tippy(t.id, { content: t.content, placement: "bottom" }));
     }
   } catch {
+    // 若普通价请求是因“溢价接管”被主动中止，则静默让位给溢价渲染，不显示失败。
+    const decision = await waitPremiumDecision();
+    if ((decision && decision.premium) || messagePrice.dataset.premiumLock === "1") {
+      return;
+    }
     render(`<span class="message-tag message-tag-pink">${I18N.t("price_failed")}</span>`);
   }
 });
