@@ -23,7 +23,10 @@
 
   // 等待溢价决策（带安全超时兜底，避免溢价接口异常时普通价永不出现）。
   // 返回值：溢价 JSON（含 premium 布尔）或 null。
+  // 若本次查询未启用溢价检测（premium.js 未加载），立即返回 null 不等待，
+  // 保证普通价不受任何延迟影响。
   const waitPremiumDecision = () => {
+    if (!window.__nwPremiumActive) return Promise.resolve(null);
     if (NW_PREMIUM.done) return Promise.resolve(NW_PREMIUM.value);
     return Promise.race([
       NW_PREMIUM.promise,

@@ -25,6 +25,7 @@
       && isset($parser) && !$parser->reserved && !$parser->prohibited && !$parser->unknown;
     if ($loadPremium):
   ?>
+    <script>window.__nwPremiumActive = true;</script>
     <script src="<?= htmlspecialchars(asset('public/js/premium.js'), ENT_QUOTES, 'UTF-8'); ?>" defer></script>
   <?php endif; ?>
   <?php if ($fetchBeiAn): ?>
