@@ -1,16 +1,20 @@
 <?php
 
 /**
- * 溢价域名检测代理（逐域名）
+ * 溢价域名检测代理（逐域名，双源并行竞速）
  *
  * 与 price.php（后缀级通用价）不同，本接口检测「具体域名」本身是否为
  * 溢价（premium）域名，并返回其溢价价格（注册 / 续费 / 转移）。
  *
- * 数据源：
- *   - 主源 Netim（代理 REST API）：/domain/{name}/price/ 直接返回
- *     IsPremium 标记与 Fee4Registration / Fee4Renewal / Fee4Transfer 及币种，
- *     是最完整、最权威的溢价价格来源。
- *   - 补充源 Dynadot（search API）：用于交叉验证 / 在 Netim 不可用时兜底。
+ * 数据源（并行竞速，谁先确认溢价用谁的，主打速度）：
+ *   - Netim（代理 REST API）：/domain/{name}/price/ 返回 IsPremium 标记与
+ *     Fee4Registration / Fee4Renewal / Fee4Transfer 及币种（需先建会话拿 token）。
+ *   - Dynadot（search API）：单发请求，返回可注册性与溢价价格。
+ *
+ * 竞速策略：用 curl_multi 同时发出 Dynadot 请求与 Netim 建会话请求；
+ * Netim 拿到 token 后立即并发价格请求。任一源率先「确认溢价且带价格」
+ * 即刻采用并返回，另一源放弃（不再等待）。二者都未命中溢价时，
+ * 合并可注册性等信息返回非溢价结果。
  *
  * 溢价域名的价格「接管」普通后缀价：命中溢价时，前端用本接口返回的
  * 注册 / 续费价替换 price.php 的通用价，并展示金色溢价徽章；
@@ -21,20 +25,9 @@
  * 任一数据源缺凭证或失败时自动跳过，优雅降级，绝不因单源失败而报错。
  *
  * 请求: GET /premium?domain=example.com
- * 响应: {
- *   code: 200,
- *   domain: "b.tools",
- *   premium: true|false,          // 是否为溢价域名
- *   available: true|false|null,   // 是否可注册（null=未知）
- *   currency: "EUR"|null,         // 原始币种
- *   register: 455.00|null,        // 溢价注册价（原币种）
- *   renew: 455.00|null,           // 溢价续费价（原币种）
- *   transfer: 455.00|null,        // 溢价转移价（原币种）
- *   register_cny: 3549.00|null,   // 注册价人民币估算
- *   renew_cny: 3549.00|null,      // 续费价人民币估算
- *   transfer_cny: 3549.00|null,   // 转移价人民币估算
- *   source: "netim"|"dynadot"|""  // 采用的数据源
- * }
+ * 响应: { code, domain, premium, available, currency,
+ *         register, renew, transfer,
+ *         register_cny, renew_cny, transfer_cny, source }
  */
 
 header("Content-Type: application/json; charset=utf-8");
@@ -88,8 +81,22 @@ function premium_emit($payload, $cacheDir, $cacheFile, $maxAge = 3600)
     exit;
 }
 
-// ---- 通用 HTTP 请求（GET / POST / DELETE，支持 Basic / Bearer）--------------
+// ---- 单次 HTTP 请求（仅用于汇率等非竞速场景）-------------------------------
 function premium_http($method, $url, $opts = [])
+{
+    $ch = premium_curl_handle($url, array_merge($opts, ["method" => $method]));
+    $resp = curl_exec($ch);
+    $code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+    curl_close($ch);
+    if ($resp === false || $code < 200 || $code >= 300) {
+        return null;
+    }
+    $json = json_decode($resp, true);
+    return is_array($json) ? $json : null;
+}
+
+// ---- 构建 curl 句柄（供单发与 curl_multi 并发复用）-------------------------
+function premium_curl_handle($url, $opts = [])
 {
     $ch = curl_init($url);
     $headers = array_merge(
@@ -98,8 +105,8 @@ function premium_http($method, $url, $opts = [])
     );
     $curl = [
         CURLOPT_RETURNTRANSFER => true,
-        CURLOPT_CUSTOMREQUEST  => $method,
-        CURLOPT_TIMEOUT        => $opts["timeout"] ?? 8,
+        CURLOPT_CUSTOMREQUEST  => $opts["method"] ?? "GET",
+        CURLOPT_TIMEOUT        => $opts["timeout"] ?? 7,
         CURLOPT_CONNECTTIMEOUT => 4,
         CURLOPT_FOLLOWLOCATION => true,
         CURLOPT_SSL_VERIFYPEER => false,
@@ -113,14 +120,7 @@ function premium_http($method, $url, $opts = [])
         $curl[CURLOPT_POSTFIELDS] = is_string($opts["body"]) ? $opts["body"] : json_encode($opts["body"]);
     }
     curl_setopt_array($ch, $curl);
-    $resp = curl_exec($ch);
-    $code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-    curl_close($ch);
-    if ($resp === false || $code < 200 || $code >= 300) {
-        return null;
-    }
-    $json = json_decode($resp, true);
-    return is_array($json) ? $json : null;
+    return $ch;
 }
 
 // ---- 金额解析：从字符串或数字提取浮点金额（兼容 "455.00" / "2,999.99"）------
@@ -136,6 +136,22 @@ function premium_num($v)
     if (preg_match('/([0-9][0-9,]*(?:\.[0-9]+)?)/', (string) $v, $m)) {
         $n = (float) str_replace(",", "", $m[1]);
         return $n > 0 ? $n : null;
+    }
+    return null;
+}
+
+// ---- 大小写无关取值助手 ------------------------------------------------------
+function premium_get($arr, $keys)
+{
+    if (!is_array($arr)) {
+        return null;
+    }
+    foreach ((array) $keys as $k) {
+        foreach ($arr as $rk => $rv) {
+            if (strcasecmp((string) $rk, $k) === 0) {
+                return $rv;
+            }
+        }
     }
     return null;
 }
@@ -198,110 +214,30 @@ function premium_to_cny($price, $currency)
     return $rate === null ? null : round((float) $price * $rate, 2);
 }
 
-// ---- 大小写无关取值助手 ------------------------------------------------------
-function premium_get($arr, $keys)
+// ---- 响应解析：Netim /price/ → 统一结构 -------------------------------------
+function premium_parse_netim($json)
 {
-    if (!is_array($arr)) {
+    if (!is_array($json)) {
         return null;
     }
-    foreach ((array) $keys as $k) {
-        foreach ($arr as $rk => $rv) {
-            if (strcasecmp((string) $rk, $k) === 0) {
-                return $rv;
-            }
-        }
-    }
-    return null;
-}
-
-// ---- 数据源 1：Netim REST（主源）--------------------------------------------
-// 先用 Basic Auth 建立会话拿 access_token，再用 Bearer 查询：
-//   /domain/{name}/price/  → IsPremium + Fee4Registration/Renewal/Transfer + FeeCurrency
-// 返回统一结构或 null。
-function premium_from_netim($domain)
-{
-    $login = getenv("NETIM_API_LOGIN");
-    $secret = getenv("NETIM_API_SECRET");
-    if (!$login || !$secret) {
-        return null;
-    }
-    $base = "https://rest.netim.com/1.0";
-
-    // 1) 建立会话（HTTP Basic Auth）
-    $session = premium_http("POST", $base . "/session/", [
-        "userpwd" => $login . ":" . $secret,
-        "timeout" => 8,
-    ]);
-    if (!$session) {
-        return null;
-    }
-    $token = premium_get($session, ["access_token", "id", "sessionId", "session_id", "token"]);
-    if (!$token) {
-        return null;
-    }
-    $auth = ["headers" => ["Authorization: Bearer " . $token], "timeout" => 8];
-
-    // 2) 价格 / 溢价（权威）：/price/ 直接返回 IsPremium + Fee4Registration/Renewal/Transfer + FeeCurrency
-    //    可注册性由页面上下文已知，无需额外 /check/ 调用，减少上游请求与限速压力。
-    $price = premium_http("GET", $base . "/domain/" . rawurlencode($domain) . "/price/", $auth);
-
-    // 3) 主动关闭会话（尽力而为）
-    premium_http("DELETE", $base . "/session/", $auth);
-
-    if (!is_array($price)) {
-        return [
-            "available" => null,
-            "premium"   => false,
-            "currency"  => null,
-            "register"  => null,
-            "renew"     => null,
-            "transfer"  => null,
-        ];
-    }
-
-    $isPremiumRaw = premium_get($price, ["IsPremium", "isPremium", "premium"]);
+    $isPremiumRaw = premium_get($json, ["IsPremium", "isPremium", "premium"]);
     $premium = in_array(strtolower((string) $isPremiumRaw), ["1", "yes", "true"], true) || (int) $isPremiumRaw === 1;
 
-    $currency = premium_get($price, ["FeeCurrency", "currency", "Currency"]);
-    $register = premium_num(premium_get($price, ["Fee4Registration", "fee4Registration", "registration"]));
-    $renew    = premium_num(premium_get($price, ["Fee4Renewal", "fee4Renewal", "renewal"]));
-    $transfer = premium_num(premium_get($price, ["Fee4Transfer", "fee4Transfer", "transfer"]));
-
+    $currency = premium_get($json, ["FeeCurrency", "currency", "Currency"]);
     return [
         "available" => null,
         "premium"   => $premium,
         "currency"  => $currency ? strtoupper($currency) : null,
-        "register"  => $register,
-        "renew"     => $renew,
-        "transfer"  => $transfer,
+        "register"  => premium_num(premium_get($json, ["Fee4Registration", "fee4Registration", "registration"])),
+        "renew"     => premium_num(premium_get($json, ["Fee4Renewal", "fee4Renewal", "renewal"])),
+        "transfer"  => premium_num(premium_get($json, ["Fee4Transfer", "fee4Transfer", "transfer"])),
     ];
 }
 
-// ---- 数据源 2：Dynadot search（补充 / 兜底）---------------------------------
-// 兼容旧版 api3.json 与新版 RESTful v1；返回统一结构或 null。
-function premium_from_dynadot($domain)
+// ---- 响应解析：Dynadot search → 统一结构 ------------------------------------
+function premium_parse_dynadot($json)
 {
-    $key = getenv("DYNADOT_API_KEY");
-    if (!$key) {
-        return null;
-    }
-
-    // 优先尝试新版 RESTful v1（Bearer）
-    $json = premium_http(
-        "GET",
-        "https://api.dynadot.com/restful/v1/domains/" . rawurlencode($domain) . "/search?show_price=true&currency=USD",
-        ["headers" => ["Authorization: Bearer " . $key], "timeout" => 7]
-    );
-    // 回退旧版 api3.json（key 作为 query 参数）
-    if (!$json) {
-        $json = premium_http(
-            "GET",
-            "https://api.dynadot.com/api3.json?key=" . urlencode($key)
-                . "&command=search&show_price=1&currency=USD&domain0=" . urlencode($domain),
-            ["timeout" => 7]
-        );
-    }
-    if (!$json) {
+    if (!is_array($json)) {
         return null;
     }
 
@@ -326,7 +262,7 @@ function premium_from_dynadot($domain)
             break;
         }
     }
-    if ($result === null && (premium_get($json, ["Available", "available"]) !== null)) {
+    if ($result === null && premium_get($json, ["Available", "available"]) !== null) {
         $result = $json;
     }
     if (!is_array($result)) {
@@ -355,11 +291,136 @@ function premium_from_dynadot($domain)
     ];
 }
 
-// ---- 聚合：Netim 主源（价格最全）+ Dynadot 补充 -----------------------------
-$netim = premium_from_netim($domain);
-$dyna  = premium_from_dynadot($domain);
+/**
+ * 双源并行竞速检测。
+ * 用 curl_multi 同时发出 Dynadot 请求与 Netim 建会话请求；Netim 拿到 token
+ * 后立即并发价格请求。任一源率先「确认溢价且带价格」即刻返回该结果。
+ *
+ * @return array [$netimResult|null, $dynadotResult|null, $winnerSource]
+ */
+function premium_race($domain)
+{
+    $netimBase = "https://rest.netim.com/1.0";
+    $dynaKey   = getenv("DYNADOT_API_KEY");
+    $nLogin    = getenv("NETIM_API_LOGIN");
+    $nSecret   = getenv("NETIM_API_SECRET");
 
-// 两源都不可用：明确返回未启用/无数据
+    $mh = curl_multi_init();
+    $handles = [];   // (int)$ch => ["ch"=>resource, "kind"=>string]
+    $results = ["netim" => null, "dynadot" => null];
+    $dynaLegacyTried = false;
+    $winner = "";
+
+    $addHandle = function ($ch, $kind) use ($mh, &$handles) {
+        curl_multi_add_handle($mh, $ch);
+        $handles[(int) $ch] = ["ch" => $ch, "kind" => $kind];
+    };
+
+    // 起跑：Dynadot 单发（新版 RESTful，失败再回退旧版）
+    if ($dynaKey) {
+        $addHandle(premium_curl_handle(
+            "https://api.dynadot.com/restful/v1/domains/" . rawurlencode($domain) . "/search?show_price=true&currency=USD",
+            ["headers" => ["Authorization: Bearer " . $dynaKey], "timeout" => 7]
+        ), "dynadot");
+    }
+    // 起跑：Netim 建会话（拿到 token 后再并发价格请求）
+    if ($nLogin && $nSecret) {
+        $addHandle(premium_curl_handle(
+            $netimBase . "/session/",
+            ["method" => "POST", "userpwd" => $nLogin . ":" . $nSecret, "timeout" => 7]
+        ), "netim-session");
+    }
+
+    if (empty($handles)) {
+        curl_multi_close($mh);
+        return [null, null, ""];
+    }
+
+    // 事件循环：处理率先完成的请求，动态追加 Netim 价格 / Dynadot 旧版兜底。
+    // 以「是否仍有未完成句柄」为循环条件，确保新追加的请求一定会被执行，
+    // 不依赖 $active 计数（避免同轮全部完成后新句柄被漏跑）。
+    $active = null;
+    do {
+        do {
+            $status = curl_multi_exec($mh, $active);
+        } while ($status === CURLM_CALL_MULTI_PERFORM);
+
+        while ($info = curl_multi_info_read($mh)) {
+            $ch = $info["handle"];
+            $id = (int) $ch;
+            $kind = $handles[$id]["kind"] ?? "";
+            $body = curl_multi_getcontent($ch);
+            $code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+            curl_multi_remove_handle($mh, $ch);
+            curl_close($ch);
+            unset($handles[$id]);
+
+            $json = ($body !== false && $body !== "" && $code >= 200 && $code < 300)
+                ? json_decode($body, true) : null;
+
+            if ($kind === "dynadot") {
+                if (!is_array($json) && !$dynaLegacyTried && $dynaKey) {
+                    // 新版失败 → 并发回退旧版 api3.json
+                    $dynaLegacyTried = true;
+                    $addHandle(premium_curl_handle(
+                        "https://api.dynadot.com/api3.json?key=" . urlencode($dynaKey)
+                            . "&command=search&show_price=1&currency=USD&domain0=" . urlencode($domain),
+                        ["timeout" => 7]
+                    ), "dynadot");
+                } else {
+                    $results["dynadot"] = premium_parse_dynadot($json);
+                }
+            } elseif ($kind === "netim-session") {
+                $token = is_array($json)
+                    ? premium_get($json, ["access_token", "id", "sessionId", "session_id", "token"]) : null;
+                if ($token) {
+                    $addHandle(premium_curl_handle(
+                        $netimBase . "/domain/" . rawurlencode($domain) . "/price/",
+                        ["headers" => ["Authorization: Bearer " . $token], "timeout" => 7]
+                    ), "netim-price");
+                }
+            } elseif ($kind === "netim-price") {
+                $results["netim"] = premium_parse_netim($json);
+            }
+
+            // 竞速裁决：任一源率先「确认溢价且带注册价」立即夺冠
+            foreach (["netim", "dynadot"] as $src) {
+                $r = $results[$src];
+                if ($r !== null && $r["premium"] && $r["register"] !== null) {
+                    $winner = $src;
+                    break;
+                }
+            }
+            if ($winner !== "") {
+                break;
+            }
+        }
+
+        if ($winner !== "") {
+            break;
+        }
+        // 仍有未完成句柄则等待活动（select 立即返回时靠 exec 推进，循环上限受各请求超时约束）
+        if (!empty($handles)) {
+            if (curl_multi_select($mh, 1.0) === -1) {
+                usleep(20000); // 20ms，避免 select 立即返回时空转
+            }
+        }
+    } while (!empty($handles));
+
+    // 清理未完成句柄（夺冠后放弃其余请求）
+    foreach ($handles as $h) {
+        curl_multi_remove_handle($mh, $h["ch"]);
+        curl_close($h["ch"]);
+    }
+    curl_multi_close($mh);
+
+    return [$results["netim"], $results["dynadot"], $winner];
+}
+
+// ---- 执行竞速并聚合 ----------------------------------------------------------
+[$netim, $dyna, $winner] = premium_race($domain);
+
+// 两源都不可用：明确返回未启用 / 无数据
 if ($netim === null && $dyna === null) {
     premium_emit(json_encode([
         "code" => 200, "domain" => $domain, "premium" => false, "available" => null,
@@ -368,15 +429,20 @@ if ($netim === null && $dyna === null) {
     ], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES), $cacheDir, $cacheFile, 1800);
 }
 
-// 选源：优先采用「已判为溢价且带价格」的源；Netim 价格更全，作为首选。
 $premium = false;
 $available = null;
 $currency = null;
 $register = $renew = $transfer = null;
 $source = "";
 
-foreach ([["netim", $netim], ["dynadot", $dyna]] as $pair) {
-    [$name, $d] = $pair;
+// 竞速优胜者优先（谁先确认溢价用谁的）；否则按 Netim（价格更全）→ Dynadot 顺序择优
+$order = $winner !== ""
+    ? [$winner, $winner === "netim" ? "dynadot" : "netim"]
+    : ["netim", "dynadot"];
+
+$byName = ["netim" => $netim, "dynadot" => $dyna];
+foreach ($order as $name) {
+    $d = $byName[$name];
     if ($d === null) {
         continue;
     }
@@ -393,15 +459,17 @@ foreach ([["netim", $netim], ["dynadot", $dyna]] as $pair) {
     }
 }
 
-// 若判为溢价但主选源缺某项价格，尝试用另一源补全
+// 若判为溢价但优胜源缺某项价格，用另一源补全
 if ($premium) {
-    foreach ([$netim, $dyna] as $d) {
+    foreach ($byName as $d) {
         if ($d === null || !$d["premium"]) {
             continue;
         }
         if ($register === null && $d["register"] !== null) {
             $register = $d["register"];
-            if ($currency === null) $currency = $d["currency"];
+            if ($currency === null) {
+                $currency = $d["currency"];
+            }
         }
         if ($renew === null && $d["renew"] !== null) {
             $renew = $d["renew"];
