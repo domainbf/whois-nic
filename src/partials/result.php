@@ -57,7 +57,14 @@
     }
     if (($remSec !== null && $remSec <= 0) || $inDropCycle) {
       require_once __DIR__ . "/../lib/tld-lifecycle.php";
-      $forecast = domain_release_forecast($parser->domain, $parser->expirationDateISO8601, $statusCodes);
+      // 以“最后变更”日期作为锚点：域名进入赎回/待删除阶段时该字段通常同步更新，
+      // 用它锚定当前阶段起点，可比纯“到期日+固定偏移”更精确地推算真实删除/释放时间。
+      $forecast = domain_release_forecast(
+        $parser->domain,
+        $parser->expirationDateISO8601,
+        $statusCodes,
+        $parser->updatedDateISO8601 ?: null
+      );
     }
 
     // 日期：YYYY-MM-DD + 中文相对时间
@@ -138,19 +145,19 @@
       $grab('Registrar Country'),
     ], function ($v) { return $v !== ''; });
     $registrarAddress = implode(' · ', $registrarAddrParts);
-    $registrantEmail  = $cleanEmail($grab(['Registrant Email', 'Registrant Contact Email']));
-    $registrantPhone  = $cleanPhone($grab(['Registrant Phone', 'Registrant Contact Phone']));
-    $abuseEmail       = $cleanEmail($grab('Registrar Abuse Contact Email'));
-    $abusePhone       = $cleanPhone($grab('Registrar Abuse Contact Phone'));
+    $registrantEmail  = $cleanEmail($grab(['Registrant Email', 'Registrant Contact Email', 'Holder Email', 'Owner Email', 'e-mail']));
+    $registrantPhone  = $cleanPhone($grab(['Registrant Phone', 'Registrant Contact Phone', 'Holder Phone', 'Owner Phone']));
+    $abuseEmail       = $cleanEmail($grab(['Registrar Abuse Contact Email', 'Abuse Contact Email', 'Abuse Email']));
+    $abusePhone       = $cleanPhone($grab(['Registrar Abuse Contact Phone', 'Abuse Contact Phone', 'Abuse Phone']));
 
     // 联系人身份信息（此前被完全丢弃，现在提取：注册人姓名/组织/国家 + 管理/技术联系人）。
     // 注意：$grab 已内置隐私脱敏过滤（REDACTED / privacy 等噪声值不返回），
     // 因此这里提取的都是注册局真实公开的联系信息，不会展示占位垃圾。
-    $registrantName    = $grab(['Registrant Name', 'Registrant']);
-    $registrantOrg     = $grab(['Registrant Organization', 'Registrant Organisation', 'Registrant Org']);
-    $registrantCity    = $grab(['Registrant City']);
-    $registrantCountry = $grab(['Registrant Country', 'Registrant Country/Economy']);
-    $registrantState   = $grab(['Registrant State/Province', 'Registrant Province', 'Registrant State']);
+    $registrantName    = $grab(['Registrant Name', 'Registrant Contact Name', 'Registrant', 'Holder', 'Holder Name', 'Domain Holder', 'Owner', 'Owner Name', 'Registrant Contact']);
+    $registrantOrg     = $grab(['Registrant Organization', 'Registrant Organisation', 'Registrant Org', 'Holder Organization', 'Organization', 'Organisation', 'Registrant Company']);
+    $registrantCity    = $grab(['Registrant City', 'Holder City']);
+    $registrantCountry = $grab(['Registrant Country', 'Registrant Country/Economy', 'Holder Country', 'Country']);
+    $registrantState   = $grab(['Registrant State/Province', 'Registrant Province', 'Registrant State', 'Holder State/Province']);
     // 注册人地区：城市 · 州省 · 国家（去重后拼接，任一存在即展示）
     $registrantLocation = implode(' · ', array_values(array_unique(array_filter(
       [$registrantCity, $registrantState, $registrantCountry],

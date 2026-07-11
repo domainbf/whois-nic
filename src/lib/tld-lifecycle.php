@@ -35,9 +35,13 @@ function tld_from_domain(string $domain): string
  * @param string      $domain        完整域名（用于取后缀）
  * @param string|null $expirationISO 到期日（ISO8601 / 可被 strtotime 解析）
  * @param array       $statusCodes   EPP 状态码数组（如 ["redemptionPeriod", ...]），用于校准当前阶段
+ * @param string|null $anchorISO     “最后变更”日期（WHOIS updated / RDAP last changed）。
+ *                                    当域名已处于赎回/待删除阶段时，该日期通常正是进入当前
+ *                                    阶段的时间点，用它锚定可比“到期日+固定偏移”更精确地推算
+ *                                    真实删除/释放时间（规避注册商延迟进入删除流程的差异）。
  * @return array|null                无到期日时返回 null
  */
-function domain_release_forecast(string $domain, ?string $expirationISO, array $statusCodes = []): ?array
+function domain_release_forecast(string $domain, ?string $expirationISO, array $statusCodes = [], ?string $anchorISO = null): ?array
 {
     if (!$expirationISO) {
         return null;
@@ -46,6 +50,7 @@ function domain_release_forecast(string $domain, ?string $expirationISO, array $
     if ($exp === false) {
         return null;
     }
+    $anchor = $anchorISO ? strtotime($anchorISO) : false;
 
     $tld = tld_from_domain($domain);
     $conf = tld_lifecycle_config($tld);
@@ -116,6 +121,41 @@ function domain_release_forecast(string $domain, ?string $expirationISO, array $
         }
     }
 
+    // 3) 锚点校准：若已进入赎回 / 待删除阶段，且有“最后变更”日期，
+    //    则以该日期为当前阶段起点，重算后续阶段边界与释放时间。
+    //    这比“到期日 + 固定偏移”更贴近真实删除流程（不同注册商进入删除的时机不一）。
+    $anchored = false;
+    if ($anchor !== false && $anchor > 0) {
+        if ($currentPhase === "pendingDelete" && $pendingDays > 0) {
+            // 处于待删除：删除通常在进入该阶段约 pendingDelete 天后完成
+            $pendingEnd = $anchor + $pendingDays * $day;
+            $redeemEnd  = $anchor;
+            $releaseTs  = $pendingEnd;
+            $anchored   = true;
+        } elseif ($currentPhase === "redemption" && $redeemDays > 0) {
+            // 处于赎回期：赎回起点为锚点，之后依次经历赎回剩余 + 待删除
+            $redeemEnd  = $anchor + $redeemDays * $day;
+            $pendingEnd = $redeemEnd + $pendingDays * $day;
+            $renewEnd   = $anchor;
+            $releaseTs  = $pendingEnd;
+            $anchored   = true;
+        }
+    }
+
+    // 锚点校准后同步刷新受影响的阶段边界，保持时间线与释放日一致
+    if ($anchored) {
+        foreach ($phases as &$ph) {
+            if ($ph["key"] === "redemption") {
+                $ph["start"] = $renewEnd;
+                $ph["end"] = $redeemEnd;
+            } elseif ($ph["key"] === "pendingDelete") {
+                $ph["start"] = $redeemEnd;
+                $ph["end"] = $pendingEnd;
+            }
+        }
+        unset($ph);
+    }
+
     $daysUntilRelease = (int) ceil(($releaseTs - $now) / $day);
     $released = $now >= $releaseTs;
 
@@ -133,6 +173,7 @@ function domain_release_forecast(string $domain, ?string $expirationISO, array $
         "daysUntilRelease" => $daysUntilRelease,
         "released"         => $released,
         "currentPhase"     => $currentPhase,
+        "anchored"         => $anchored,
         "totalDays"        => $renewDays + $redeemDays + $pendingDays,
     ];
 }

@@ -78,6 +78,24 @@ return [
     "es"     => ["renewGrace" => 0,  "redemption" => 0,  "pendingDelete" => 0, "registry" => "Red.es", "predictable" => false],
     "jp"     => ["renewGrace" => 30, "redemption" => 0,  "pendingDelete" => 0, "registry" => "JPRS"],        // 到期次月月底删除（估算）
     "kr"     => ["renewGrace" => 30, "redemption" => 0,  "pendingDelete" => 0, "registry" => "KISA"],
+    "it"     => ["renewGrace" => 30, "redemption" => 30, "pendingDelete" => 0, "registry" => "IIT-CNR"],      // 到期 30 天 autoRenew + 30 天 pendingDelete/赎回
+    "ch"     => ["renewGrace" => 40, "redemption" => 0,  "pendingDelete" => 0, "registry" => "SWITCH"],       // 约 40 天后释放
+    "li"     => ["renewGrace" => 40, "redemption" => 0,  "pendingDelete" => 0, "registry" => "SWITCH"],
+    "be"     => ["renewGrace" => 40, "redemption" => 0,  "pendingDelete" => 0, "registry" => "DNS Belgium"],  // 到期后约 40 天隔离
+    "se"     => ["renewGrace" => 30, "redemption" => 30, "pendingDelete" => 0, "registry" => "IIS"],          // 30 天宽限 + 30 天赎回
+    "nu"     => ["renewGrace" => 30, "redemption" => 30, "pendingDelete" => 0, "registry" => "IIS"],
+    "dk"     => ["renewGrace" => 30, "redemption" => 30, "pendingDelete" => 0, "registry" => "Punktum dk"],
+    "pl"     => ["renewGrace" => 30, "redemption" => 0,  "pendingDelete" => 0, "registry" => "NASK"],         // 到期后约 30 天释放
+    "cz"     => ["renewGrace" => 60, "redemption" => 0,  "pendingDelete" => 0, "registry" => "CZ.NIC"],       // 60 天宽限后删除
+    "at"     => ["renewGrace" => 0,  "redemption" => 0,  "pendingDelete" => 0, "registry" => "nic.at", "predictable" => false],
+    "sg"     => ["renewGrace" => 30, "redemption" => 30, "pendingDelete" => 5, "registry" => "SGNIC"],
+    "hk"     => ["renewGrace" => 30, "redemption" => 30, "pendingDelete" => 0, "registry" => "HKIRC"],
+    "tw"     => ["renewGrace" => 30, "redemption" => 30, "pendingDelete" => 0, "registry" => "TWNIC"],
+    "ie"     => ["renewGrace" => 30, "redemption" => 30, "pendingDelete" => 0, "registry" => "IE Domain Registry"],
+    "fi"     => ["renewGrace" => 0,  "redemption" => 0,  "pendingDelete" => 0, "registry" => "Traficom", "predictable" => false],
+    "pt"     => ["renewGrace" => 15, "redemption" => 15, "pendingDelete" => 0, "registry" => "DNS.PT"],
+    "za"     => ["renewGrace" => 0,  "redemption" => 15, "pendingDelete" => 5, "registry" => "ZADNA (.co.za)"],
+    "ua"     => ["renewGrace" => 30, "redemption" => 0,  "pendingDelete" => 0, "registry" => "Hostmaster UA"],
 
     // ---- 无固定到期删除周期 / 政策特殊，仅展示阶段说明 ----
     "uk"     => ["renewGrace" => 90, "redemption" => 0,  "pendingDelete" => 2, "registry" => "Nominet"],     // 约 90 天后取消并释放

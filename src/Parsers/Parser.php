@@ -244,6 +244,8 @@ class Parser
     "dominio", // cu
     "domainname", // lu
     "domain name \(utf8\)", // укр
+    "domain-name", // 连字符写法
+    "nom de domaine", // fr 变体
   ];
 
   protected function getDomainRegExp()
@@ -333,6 +335,11 @@ class Parser
     "registration date", // rs
     "activation", // tg
     "created date", // th
+    "domain registration date", // 通用
+    "registration date time", // 通用
+    "record created on", // 通用
+    "creation time", // 通用
+    "registered at", // 通用
   ];
 
   protected function getCreationDateRegExp()
@@ -373,6 +380,13 @@ class Parser
     "expiration", // tg
     "exp date", // th
     "expiry", // tm
+    "expiration date time", // 通用
+    "domain expiration date", // 通用
+    "expire time", // 通用
+    "expires on date", // 通用
+    "valid till", // 通用
+    "valid-date", // 通用
+    "registrar registration expiration date", // gTLD
   ];
 
   protected function getExpirationDateRegExp()
@@ -465,12 +479,18 @@ class Parser
       return null;
     }
 
+    if (empty($format)) {
+      $format = $this->dateFormat;
+    }
+
+    // 仅在“无显式格式”的通用路径上做不规则日期清洗；带 $dateFormat 的解析器
+    // 走 createFromFormat 精确匹配，清洗会破坏其固定格式，故保持原样。
+    if (empty($format)) {
+      $dateString = $this->normalizeDateString($dateString);
+    }
+
     try {
       $hasTime = preg_match("/\d{2}:\d{2}(:\d{2}(\.\d{1,6})?)?/", $dateString);
-
-      if (empty($format)) {
-        $format = $this->dateFormat;
-      }
 
       $timezone = new DateTimeZone($hasTime ? $this->timezone : "UTC");
 
@@ -478,12 +498,51 @@ class Parser
         ? new DateTime($dateString, $timezone)
         : DateTime::createFromFormat($format, $dateString, $timezone);
 
+      if ($date === false) {
+        return null;
+      }
+
       $date->setTimezone(new DateTimeZone("UTC"));
 
       return $date->format($hasTime ? "Y-m-d\TH:i:s\Z" : "Y-m-d");
     } catch (Throwable $e) {
       return null;
     }
+  }
+
+  // 归一化各类国别域名（ccTLD）不规则日期写法，尽量提升可解析率。
+  // 设计原则：只做“无歧义”的安全转换，模糊输入保持原样交给 DateTime 兜底，
+  // 解析失败最终返回 null（与原行为一致，不会产生错误日期）。
+  protected function normalizeDateString($s)
+  {
+    $s = trim((string) $s);
+    if ($s === "") {
+      return $s;
+    }
+
+    // 1) 去除括号内注释，如 "2024-01-01 (registry grace)" / "（UTC）"
+    $s = preg_replace('/[（(][^）)]*[）)]/u', ' ', $s);
+
+    // 2) 去除多余描述词与前缀，如 "before 2025-01-01" / "on 2024.." 
+    $s = preg_replace('/^(before|on|at|since|至|到|于)\s+/iu', '', trim($s));
+
+    // 3) 常见非标准时区缩写（DateTime 无法识别）→ 去掉，按注册局本地时区处理
+    $s = preg_replace('/\b(CLST|CLT|BRT|BRST|MSK|JST|KST|IST|EET|EEST|CET|CEST|WET)\b/i', '', $s);
+
+    // 4) 将 "yyyy.mm.dd" / "yyyy/mm/dd" 统一为 ISO 短横线
+    if (preg_match('/^(\d{4})[.\/](\d{1,2})[.\/](\d{1,2})\b(.*)$/', $s, $m)) {
+      $s = sprintf('%04d-%02d-%02d', $m[1], $m[2], $m[3]) . $m[4];
+    }
+    // 5) 将 "dd.mm.yyyy" / "dd-mm-yyyy" / "dd/mm/yyyy" 转 ISO。
+    //    仅当首段 > 12（必为“日”，无歧义）时转换，避免误判月/日顺序。
+    elseif (preg_match('/^(\d{1,2})[.\/-](\d{1,2})[.\/-](\d{4})\b(.*)$/', $s, $m)) {
+      if ((int) $m[1] > 12 && (int) $m[2] <= 12) {
+        $s = sprintf('%04d-%02d-%02d', $m[3], $m[2], $m[1]) . $m[4];
+      }
+    }
+
+    // 6) 折叠多余空白
+    return trim(preg_replace('/\s{2,}/', ' ', $s));
   }
 
   protected function getDateDiffText($start, $end)
@@ -652,6 +711,11 @@ class Parser
     "nserver", // ar
     "nameserver", // gf
     "name server \(db\)", // tg
+    "name servers", // 复数写法
+    "dns server", // 通用
+    "dns servers", // 通用
+    "nameservers", // 通用
+    "domain nameservers", // 通用
   ];
 
   protected function getNameServersRegExp()
