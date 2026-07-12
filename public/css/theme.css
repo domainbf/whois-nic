@@ -609,7 +609,7 @@ form {
   height: 14px !important;
 }
 
-/* 提交按钮：�����形深色图标按钮，嵌入胶囊右侧 */
+/* 提交按钮：圆形深色图标按钮，嵌入胶囊右侧 */
 .search-button {
   position: relative;
   flex-shrink: 0;
@@ -967,7 +967,7 @@ form {
 }
 .domain-info-icon svg { width: 28px; height: 28px; }
 
-/* ���名（可点击访问）—— 卡片第一层级：最大、最重 */
+/* 域名（可点击访问）—— 卡片第一层级：最大、最重 */
 .domain-info-name {
   font-size: 1.5rem;
   font-weight: 700;
@@ -1145,7 +1145,7 @@ form {
   font-size: 0.75rem;
 }
 
-/* ---------- 结果卡��（玻璃）---------- */
+/* ---------- 结果卡片（玻璃）---------- */
 .messages {
   margin-top: 8px !important;
 }
@@ -1374,7 +1374,7 @@ code a { color: hsl(var(--info)) !important; }
 .nw-price-slot .message-tag svg,
 .nw-beian-slot .message-tag svg { width: 12px; height: 12px; }
 
-/* 加载骨架：���������寸与胶囊一致，圆角对齐年份/价格药丸 */
+/* 加载骨架：尺寸与胶囊一致，圆角对齐年份/价格药丸 */
 .nw-skeleton {
   display: inline-block;
   width: 72px;
@@ -1470,7 +1470,7 @@ code a { color: hsl(var(--info)) !important; }
   fill: hsl(var(--foreground));
 }
 
-/* 尊重减少动态偏好：停止卫星点运动，定格��轨道右端 */
+/* 尊重减少动态偏好：停止卫星点运动，定格在轨道右端 */
 @media (prefers-reduced-motion: reduce) {
   .nw-globe-orbit-dot animateMotion { display: none; }
   .nw-globe-orbit-dot { transform: translate(112px, 60px); }
@@ -2615,11 +2615,11 @@ a.nw-dns-provider:hover {
    呼吸感动效层：自然、流畅、克制
    - 分层入场：顶栏 → 搜索 → 卡片/历史 → 页脚，柔和上浮淡入并错峰
    - 静息呼吸：搜索框与主卡在空闲时极轻微地"呼吸"（光晕/缩放）
-   - 顺滑悬停：卡片与历史项浮起，采用自然���动
+   - 顺滑悬停：卡片与历史项浮起，采用自然缓动
    仅在用户未开启"减少动态"时启用，避免打扰无障碍需求。
    ===================================================================== */
 
-/* 统一的��然缓动（easeOutQuint 近似，收尾柔和） */
+/* 统一的自然缓动（easeOutQuint 近似，收尾柔和） */
 :root {
   --ease-natural: cubic-bezier(0.22, 1, 0.36, 1);
 }
@@ -2664,7 +2664,7 @@ a.nw-dns-provider:hover {
     animation: none;
   }
 
-  /* ---- 静息呼���：域名主卡极缓慢的缩放起伏 ----
+  /* ---- 静息呼吸：域名主卡极缓慢的缩放起伏 ----
      选择器需与 `main .nw-card` 同等优先级并置于其后，方能接管 animation。 */
   main .nw-domain-card {
     animation: nw-rise-in 0.7s var(--ease-natural) 0.16s both,
@@ -2707,14 +2707,14 @@ a.nw-dns-provider:hover {
                          0 0 0 4px hsl(var(--ring) / 0.06); }
 }
 
-/* 主卡静息呼吸：几乎不可察觉的缩放，赋予"活着"的感��� */
+/* 主卡静息呼吸：几乎不可察觉的缩放，赋予"活着"的感觉 */
 @keyframes nw-breathe-scale {
   0%, 100% { transform: scale(1); }
   50%      { transform: scale(1.006); }
 }
 
 /* ============================================================
-   释放可注册时间预��
+   释放可注册时间预测
    ============================================================ */
 .nw-forecast {
   margin-top: 20px;

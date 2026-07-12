@@ -402,7 +402,7 @@ function premium_race($domain)
         if ($winner !== "") {
             break;
         }
-        // 仍有未完成句柄则等待活动（select 立即返回时��� exec 推进，循环上限受各请求超时约束）
+        // 仍有未完成句柄则等待活动（select 立即返回时靠 exec 推进，循环上限受各请求超时约束）
         if (!empty($handles)) {
             if (curl_multi_select($mh, 1.0) === -1) {
                 usleep(20000); // 20ms，避免 select 立即返回时空转

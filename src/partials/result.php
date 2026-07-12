@@ -178,7 +178,7 @@
 
     // RDAP 结构化兜底：薄注册局 / RDAP-first 的 gTLD，IANA ID、注册商地址、滥用联系
     // 往往不在原始 WHOIS 文本里，而在 RDAP 实体（registrar entity）的结构化字段中。
-    // 这里在不改动后端解析器的前提下，从 RDAP JSON 补全��失字段，提升识别准确率。
+    // 这里在不改动后端解析器的前提下，从 RDAP JSON 补全缺失字段，提升识别准确率。
     $rdapJson = $rdapData ? json_decode($rdapData, true) : null;
     if (is_array($rdapJson) && !empty($rdapJson['entities'])) {
       // 递归查找指定 role 的实体（registrar 顶层、abuse 常为其子实体）
@@ -475,7 +475,7 @@
             <svg viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg">
               <!-- 球体本体 -->
               <circle cx="60" cy="60" r="33" class="nw-globe-sphere"/>
-              <!-- 经纬网格（静止，干��的地球轮廓）-->
+              <!-- 经纬网格（静止，干净的地球轮廓）-->
               <g class="nw-globe-grid">
                 <circle cx="60" cy="60" r="33"/>
                 <line x1="27" y1="60" x2="93" y2="60"/>
@@ -581,7 +581,7 @@
               </div>
             <?php endif; ?>
 
-            <!-- 释放可注册��间预测 -->
+            <!-- 释放可注册时间预测 -->
             <?php if ($forecast): ?>
               <?php
                 $phaseLabels = [
