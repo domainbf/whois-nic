@@ -725,7 +725,7 @@ footer {
   padding: 4px 8px;
 }
 
-/* 解决微信内���体放大导致价格换行的问题 */
+/* 解决微信内字体放大导致价格换行的问题 */
 .checkbox-label {
   white-space: nowrap;
 }

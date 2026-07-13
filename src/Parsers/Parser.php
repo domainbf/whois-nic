@@ -45,6 +45,8 @@ class Parser
 
   public $nameServers = [];
 
+  public $dnssec = "";
+
   public $age = "";
 
   public $ageSeconds = null;
@@ -61,6 +63,14 @@ class Parser
 
   public function __construct($data)
   {
+    // 清除部分 registry 响应开头的 UTF-8 BOM 与零宽字符。
+    // 若不清除，BOM 会附着到首个数据行，使该行字段（常为域名）匹配失败并返回空。
+    // 保留原始 whoisData 用于“原始记录”展示，仅对参与解析的 data 做清洗。
+    if (is_string($data) && $data !== "") {
+      $data = preg_replace('/^\xEF\xBB\xBF/', '', $data); // UTF-8 BOM
+      $data = preg_replace('/^[\x{FEFF}\x{200B}\x{200E}\x{200F}]+/u', '', $data); // 零宽/方向标记
+    }
+
     $this->data = $data;
     $this->whoisData = $data;
 
@@ -105,6 +115,8 @@ class Parser
     $this->setStatusUrl();
 
     $this->nameServers = $this->getNameServers();
+
+    $this->dnssec = $this->getDNSSEC();
 
     $this->age = $this->getDateDiffText($this->creationDateISO8601, "now");
     $this->ageSeconds = $this->getDateDiffSeconds($this->creationDateISO8601, "now");
@@ -216,7 +228,14 @@ class Parser
 
   protected function getBaseRegExp($pattern)
   {
-    return "/^[\t ]*(?:$pattern):(.+)$/im";
+    // 字段名内部的空格匹配任意数量的空白（含制表符），并容忍冒号前的空白。
+    // 许多国别域名（ccTLD）registry 采用“按列对齐”的输出格式，字段名内会出现
+    // 多个空格，例如 nic.md 的 "Domain  name:"（Domain 与 name 之间为两个空格）。
+    // 原正则要求字段名与冒号严格相连且内部为单空格，导致这类字段整体匹配失败
+    // （域名、状态等显示为空）。这里将关键词中的空格替换为 [\t ]+ 使匹配更健壮。
+    $pattern = str_replace(" ", "[\\t ]+", $pattern);
+
+    return "/^[\t ]*(?:$pattern)[\t ]*:(.+)$/im";
   }
 
   private const DOMAIN_KEYWORDS = [
@@ -225,6 +244,8 @@ class Parser
     "dominio", // cu
     "domainname", // lu
     "domain name \(utf8\)", // укр
+    "domain-name", // 连字符写法
+    "nom de domaine", // fr 变体
   ];
 
   protected function getDomainRegExp()
@@ -314,6 +335,11 @@ class Parser
     "registration date", // rs
     "activation", // tg
     "created date", // th
+    "domain registration date", // 通用
+    "registration date time", // 通用
+    "record created on", // 通用
+    "creation time", // 通用
+    "registered at", // 通用
   ];
 
   protected function getCreationDateRegExp()
@@ -354,6 +380,13 @@ class Parser
     "expiration", // tg
     "exp date", // th
     "expiry", // tm
+    "expiration date time", // 通用
+    "domain expiration date", // 通用
+    "expire time", // 通用
+    "expires on date", // 通用
+    "valid till", // 通用
+    "valid-date", // 通用
+    "registrar registration expiration date", // gTLD
   ];
 
   protected function getExpirationDateRegExp()
@@ -446,12 +479,18 @@ class Parser
       return null;
     }
 
+    if (empty($format)) {
+      $format = $this->dateFormat;
+    }
+
+    // 仅在“无显式格式”的通用路径上做不规则日期清洗；带 $dateFormat 的解析器
+    // 走 createFromFormat 精确匹配，清洗会破坏其固定格式，故保持原样。
+    if (empty($format)) {
+      $dateString = $this->normalizeDateString($dateString);
+    }
+
     try {
       $hasTime = preg_match("/\d{2}:\d{2}(:\d{2}(\.\d{1,6})?)?/", $dateString);
-
-      if (empty($format)) {
-        $format = $this->dateFormat;
-      }
 
       $timezone = new DateTimeZone($hasTime ? $this->timezone : "UTC");
 
@@ -459,12 +498,51 @@ class Parser
         ? new DateTime($dateString, $timezone)
         : DateTime::createFromFormat($format, $dateString, $timezone);
 
+      if ($date === false) {
+        return null;
+      }
+
       $date->setTimezone(new DateTimeZone("UTC"));
 
       return $date->format($hasTime ? "Y-m-d\TH:i:s\Z" : "Y-m-d");
     } catch (Throwable $e) {
       return null;
     }
+  }
+
+  // 归一化各类国别域名（ccTLD）不规则日期写法，尽量提升可解析率。
+  // 设计原则：只做“无歧义”的安全转换，模糊输入保持原样交给 DateTime 兜底，
+  // 解析失败最终返回 null（与原行为一致，不会产生错误日期）。
+  protected function normalizeDateString($s)
+  {
+    $s = trim((string) $s);
+    if ($s === "") {
+      return $s;
+    }
+
+    // 1) 去除括号内注释，如 "2024-01-01 (registry grace)" / "（UTC）"
+    $s = preg_replace('/[（(][^）)]*[）)]/u', ' ', $s);
+
+    // 2) 去除多余描述词与前缀，如 "before 2025-01-01" / "on 2024.." 
+    $s = preg_replace('/^(before|on|at|since|至|到|于)\s+/iu', '', trim($s));
+
+    // 3) 常见非标准时区缩写（DateTime 无法识别）→ 去掉，按注册局本地时区处理
+    $s = preg_replace('/\b(CLST|CLT|BRT|BRST|MSK|JST|KST|IST|EET|EEST|CET|CEST|WET)\b/i', '', $s);
+
+    // 4) 将 "yyyy.mm.dd" / "yyyy/mm/dd" 统一为 ISO 短横线
+    if (preg_match('/^(\d{4})[.\/](\d{1,2})[.\/](\d{1,2})\b(.*)$/', $s, $m)) {
+      $s = sprintf('%04d-%02d-%02d', $m[1], $m[2], $m[3]) . $m[4];
+    }
+    // 5) 将 "dd.mm.yyyy" / "dd-mm-yyyy" / "dd/mm/yyyy" 转 ISO。
+    //    仅当首段 > 12（必为“日”，无歧义）时转换，避免误判月/日顺序。
+    elseif (preg_match('/^(\d{1,2})[.\/-](\d{1,2})[.\/-](\d{4})\b(.*)$/', $s, $m)) {
+      if ((int) $m[1] > 12 && (int) $m[2] <= 12) {
+        $s = sprintf('%04d-%02d-%02d', $m[3], $m[2], $m[1]) . $m[4];
+      }
+    }
+
+    // 6) 折叠多余空白
+    return trim(preg_replace('/\s{2,}/', ' ', $s));
   }
 
   protected function getDateDiffText($start, $end)
@@ -520,6 +598,8 @@ class Parser
     "status", // ae
     "registration status", // bg
     "registry status", // укр
+    "domain state", // md
+    "eppstatus", // fr / re / pm / yt / tf / wf（AFNIC：EPP 锁定状态单列于 eppstatus 行）
   ];
 
   protected const STATUS_MAP = [
@@ -557,21 +637,49 @@ class Parser
   protected function getStatus()
   {
     if (preg_match_all($this->getStatusRegExp(), $this->data, $matches)) {
-      return array_map(
-        function ($item) {
-          if (preg_match("/^[a-z]+ https?:\/\/.+/i", $item, $matches)) {
-            $parts = explode(" ", $item, 2);
+      $result = [];
+      $seen = [];
 
-            return ["text" => $parts[0], "url" => $parts[1]];
-          }
+      foreach (array_filter(array_map("trim", $matches[1])) as $item) {
+        // 标准 EPP 格式："statusCode https://icann.org/epp#statusCode"
+        if (preg_match("/^[a-z]+ https?:\/\/.+/i", $item, $m)) {
+          $parts = explode(" ", $item, 2);
+          $this->pushStatus($result, $seen, $parts[0], $parts[1]);
+          continue;
+        }
 
-          return ["text" => $item, "url" => ""];
-        },
-        array_unique(array_filter(array_map("trim", $matches[1]))),
-      );
+        // 不规则 ccTLD 格式：同一行含多个以空白分隔的状态词
+        // （如 nic.md 的 "Inactive RenewProhibited RedemptionPeriod"）。
+        // 当整行仅由多个“纯单词 token”组成（字母/数字，无描述性文字或标点）时，
+        // 拆分为独立状态，便于逐个着色与翻译；否则保持整体不变。
+        $tokens = preg_split('/[\t ]+/', $item);
+        $allWordTokens = count($tokens) > 1;
+        foreach ($tokens as $tk) {
+          if (!preg_match('/^[A-Za-z][A-Za-z0-9]*$/', $tk)) { $allWordTokens = false; break; }
+        }
+        if ($allWordTokens) {
+          foreach ($tokens as $tk) { $this->pushStatus($result, $seen, $tk, ""); }
+          continue;
+        }
+
+        $this->pushStatus($result, $seen, $item, "");
+      }
+
+      return $result;
     }
 
     return [];
+  }
+
+  // 追加一个状态项并按（小写）去重，避免同一状态重复出现
+  private function pushStatus(array &$result, array &$seen, string $text, string $url): void
+  {
+    $text = trim($text);
+    if ($text === "") { return; }
+    $key = strtolower($text);
+    if (isset($seen[$key])) { return; }
+    $seen[$key] = true;
+    $result[] = ["text" => $text, "url" => $url];
   }
 
   protected function getStatusFromExplode($separator)
@@ -603,6 +711,11 @@ class Parser
     "nserver", // ar
     "nameserver", // gf
     "name server \(db\)", // tg
+    "name servers", // 复数写法
+    "dns server", // 通用
+    "dns servers", // 通用
+    "nameservers", // 通用
+    "domain nameservers", // 通用
   ];
 
   protected function getNameServersRegExp()
@@ -632,6 +745,67 @@ class Parser
     }
 
     return [];
+  }
+
+  private const DNSSEC_KEYWORDS = [
+    "dnssec", // com
+    "dnssec status", // generic
+    "dnssec signed", // generic
+    "signing key", // generic
+  ];
+
+  // 归一化为 signed / unsigned / ""（未知）。
+  private const DNSSEC_SIGNED_VALUES = [
+    "signed",
+    "signeddelegation",
+    "signed delegation",
+    "yes",
+    "active",
+    "true",
+    "enabled",
+  ];
+
+  private const DNSSEC_UNSIGNED_VALUES = [
+    "unsigned",
+    "unsigneddelegation",
+    "unsigned delegation",
+    "no",
+    "inactive",
+    "false",
+    "disabled",
+    "no dnssec",
+    "not signed",
+  ];
+
+  protected function getDNSSECRegExp()
+  {
+    return $this->getBaseRegExp(implode("|", self::DNSSEC_KEYWORDS));
+  }
+
+  protected function getDNSSEC()
+  {
+    if (preg_match($this->getDNSSECRegExp(), $this->data, $matches)) {
+      $value = strtolower(trim($matches[1]));
+
+      if ($value === "") {
+        return "";
+      }
+
+      if (in_array($value, self::DNSSEC_UNSIGNED_VALUES, true)) {
+        return "unsigned";
+      }
+
+      if (in_array($value, self::DNSSEC_SIGNED_VALUES, true)) {
+        return "signed";
+      }
+
+      // 出现 DS/DNSKEY 记录等信息通常代表已签名
+      if (strpos($value, "signeddelegation") !== false || strpos($value, "ds ") !== false) {
+        return "signed";
+      }
+    }
+
+    return "";
   }
 
   protected const GRACE_PERIOD_KEYWORDS = [

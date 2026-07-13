@@ -61,6 +61,11 @@
   var isLoading = false;
   // 记录本次查询的域名，用于 pjax 替换 header 后确保搜索框回显（服务端归一化可能清空）
   var lastQueryDomain = "";
+  // 取消查询支持：当前请求控制器 + 查询前的内容快照与地址，用于点击停止后恢复
+  var currentController = null;
+  var savedMainHTML = null;
+  var prevURL = "";
+  var wasCanceled = false;
 
   // ---- 加载动画（内联展示于内容区，全程流畅动画） ----
   function showLoadingOverlay(domainValue) {
@@ -90,11 +95,45 @@
     var staleInfo = document.querySelector(".domain-info-box");
     if (staleInfo) staleInfo.remove();
     if (mainEl) {
+      // 保存查询前的主内容，取消查询时可原样恢复
+      savedMainHTML = mainEl.innerHTML;
       mainEl.innerHTML = "";
       mainEl.appendChild(overlay);
     } else {
+      savedMainHTML = null;
       document.body.appendChild(overlay);
     }
+  }
+
+  // 结束加载态：清理旋转环 class（成功/取消/失败通用）
+  function clearLoadingState() {
+    isLoading = false;
+    currentController = null;
+    var searchBtn = document.querySelector(".search-button");
+    if (searchBtn) searchBtn.classList.remove("is-loading");
+  }
+
+  // 取消进行中的查询：中止请求 → 恢复查询前内容与地址栏
+  function cancelLoad() {
+    if (!isLoading) return;
+    wasCanceled = true;
+    if (currentController) {
+      try { currentController.abort(); } catch (e) {}
+    }
+    var mainEl = document.querySelector("main");
+    if (mainEl) {
+      if (savedMainHTML !== null) {
+        mainEl.innerHTML = savedMainHTML;
+      } else {
+        var loadingEl = mainEl.querySelector(".nw-loading");
+        if (loadingEl) loadingEl.remove();
+      }
+    }
+    // 地址栏回退到查询前的 URL，保持前进/后退一致
+    if (prevURL) {
+      try { history.replaceState({ pjax: true }, "", prevURL); } catch (e) {}
+    }
+    clearLoadingState();
   }
 
   // ---- 顺序加载脚本，保持原始顺序（库先于初始化脚本） ----
@@ -131,16 +170,61 @@
   }
 
   // ---- 用新文档替换 <header> 与 <main>，并刷新标题/状态 ----
-  function applyDocument(html) {
+  function applyDocument(html, opts) {
+    opts = opts || {};
+    var preserveInput = !!opts.preserveInput;
+
     var doc = new DOMParser().parseFromString(html, "text/html");
     var newHeader = doc.querySelector("header");
     var newMain = doc.querySelector("main");
     if (!newMain) throw new Error("pjax: main not found");
 
+    // 关键优化：默认“保留搜索表单 DOM”，只重建 header 内会变化的部分
+    // （状态卡片 / 快捷键 / 历史列表）与 <main>。此前整块替换 <header> 会重建
+    // 搜索输入框，导致移动端键盘收起再弹出、光标错位、页面顶部跳闪。保留 <form>
+    // 后，输入框元素身份不变，焦点/光标/键盘全程稳定，只有结果区平滑刷新。
+    // 仅当“多域名模式”切换（表单结构本身改变）时才回退为整块替换。
     var curHeader = document.querySelector("header");
-    if (newHeader && curHeader) {
+    var newWrap = newHeader ? (newHeader.querySelector("div") || newHeader.firstElementChild) : null;
+    var curWrap = curHeader ? (curHeader.querySelector("div") || curHeader.firstElementChild) : null;
+    var curForm = curWrap ? curWrap.querySelector("#form") : null;
+    var newForm = newWrap ? newWrap.querySelector("#form") : null;
+
+    var curMulti = !!document.querySelector(".search-box--multi");
+    var newMulti = !!(newWrap && newWrap.querySelector(".search-box--multi"));
+    var multiChanged = curMulti !== newMulti;
+
+    // 快照旧输入框状态（仅“整块替换”回退路径需要用它恢复焦点/光标）
+    var formPreserved = false;
+    var inputSnapshot = null;
+    var oldInput = document.getElementById("domain");
+    if (oldInput) {
+      inputSnapshot = {
+        value: oldInput.value,
+        focused: document.activeElement === oldInput,
+        selStart: oldInput.selectionStart,
+        selEnd: oldInput.selectionEnd,
+      };
+    }
+
+    if (newHeader && curHeader && newWrap && curWrap && curForm && newForm && !multiChanged) {
+      // —— 保留 <form>，只重建 header 内除表单外的子节点 ——
+      var kids = Array.prototype.slice.call(curWrap.children);
+      for (var k = 0; k < kids.length; k++) {
+        if (kids[k] !== curForm) curWrap.removeChild(kids[k]);
+      }
+      var newKids = Array.prototype.slice.call(newWrap.children);
+      for (var n = 0; n < newKids.length; n++) {
+        var node = newKids[n];
+        if (node === newForm || node.id === "form" || node.tagName === "FORM") continue;
+        curWrap.appendChild(document.importNode(node, true));
+      }
+      formPreserved = true;
+    } else if (newHeader && curHeader) {
+      // 回退：整块替换（多域名模式切换等表单结构变化场景）
       curHeader.replaceWith(document.importNode(newHeader, true));
     }
+
     var curMain = document.querySelector("main");
     curMain.replaceWith(document.importNode(newMain, true));
 
@@ -163,10 +247,30 @@
           window.Prism.highlightAll();
         } catch (err) {}
       }
-      // 确保搜索框回显本次查询的域名（服务端归一化后可能为空）
+      // 恢复/回显搜索框内容：
+      // 1) 多域名模式：一律采用服务端渲染的后缀值，绝不回填暗号 "0"；
+      // 2) 保留模式（用户提交查询）：还原用户刚输入的原文 + 焦点 + 光标，
+      //    使结果出现后可直接编辑并再次查询，无缝切换；
+      // 3) 其它（前进/后退、历史点击）：服务端值为空时回填上次查询域名。
       var domainInput = document.getElementById("domain");
-      if (domainInput && !domainInput.value && lastQueryDomain) {
-        domainInput.value = lastQueryDomain;
+      var isMultiPage = !!document.querySelector('input[name="multi"], .search-box--multi');
+      if (domainInput) {
+        if (formPreserved) {
+          // 表单被保留：输入框元素未被替换，用户的值/焦点/光标天然保持，
+          // 无需任何回填或重新聚焦（避免移动端键盘闪动）。
+        } else if (isMultiPage) {
+          // 保持服务端渲染值，不做任何回填
+        } else if (preserveInput && inputSnapshot) {
+          domainInput.value = inputSnapshot.value;
+          if (inputSnapshot.focused) {
+            try {
+              domainInput.focus({ preventScroll: true });
+              domainInput.setSelectionRange(inputSnapshot.selStart, inputSnapshot.selEnd);
+            } catch (e) {}
+          }
+        } else if (!domainInput.value && lastQueryDomain) {
+          domainInput.value = lastQueryDomain;
+        }
       }
       // 同步搜索框清除按钮状态 + 历史记录
       syncSearchBox();
@@ -191,22 +295,25 @@
     opts = opts || {};
     var push = opts.push !== false;
     var domainForLoader = opts.domain || "";
+    var preserveInput = !!opts.preserveInput;
     if (domainForLoader) lastQueryDomain = domainForLoader;
+
+    // 记录查询前地址，供取消时回退（在 pushState 之前捕获）
+    prevURL = window.location.href;
+    wasCanceled = false;
 
     if (push) history.pushState({ pjax: true }, "", url);
 
     // 命中缓存：瞬时展示（仍显示极短加载态以保持一致体验则可省略）
     if (pageCache[url]) {
       isLoading = true;
-      applyDocument(pageCache[url])
+      applyDocument(pageCache[url], { preserveInput: preserveInput })
         .then(function () {
           window.scrollTo({ top: 0, behavior: "auto" });
+          clearLoadingState();
         })
         .catch(function () {
           window.location.href = url;
-        })
-        .finally(function () {
-          isLoading = false;
         });
       return;
     }
@@ -214,9 +321,12 @@
     isLoading = true;
     showLoadingOverlay(domainForLoader);
 
+    currentController = typeof AbortController === "function" ? new AbortController() : null;
+
     fetch(url, {
       headers: { "X-Requested-With": "fetch" },
       credentials: "same-origin",
+      signal: currentController ? currentController.signal : undefined,
     })
       .then(function (res) {
         if (!res.ok) throw new Error("pjax fetch failed: " + res.status);
@@ -224,17 +334,19 @@
       })
       .then(function (html) {
         cachePut(url, html);
-        return applyDocument(html);
+        return applyDocument(html, { preserveInput: preserveInput });
       })
       .then(function () {
         window.scrollTo({ top: 0, behavior: "auto" });
+        clearLoadingState();
       })
-      .catch(function () {
-        // 任意失败：回退为整页导航，保证可用性
+      .catch(function (err) {
+        // 用户主动取消：已在 cancelLoad 中恢复，不再回退导航
+        if (wasCanceled || (err && err.name === "AbortError")) {
+          return;
+        }
+        // 其他失败：回退为整页导航，保证可用性
         window.location.href = url;
-      })
-      .finally(function () {
-        isLoading = false;
       });
   }
 
@@ -244,14 +356,20 @@
     if (!form || form.id !== "form") return;
     if (!PJAX_OK) return; // 回退整页导航
 
+    // 正在查询时点击按钮 = 暂停/取消查询（优先于输入校验）
+    if (isLoading) {
+      e.preventDefault();
+      cancelLoad();
+      return;
+    }
+
     var input = form.querySelector("#domain");
     var val = input ? input.value.trim() : "";
     if (!val) return; // 交给原生 required 校验
 
     e.preventDefault();
-    if (isLoading) return;
 
-    // 查询按钮进入加载态：显示简洁旋转环（替代原先晃动的图标动画）
+    // 查询按钮进入加载态：显示可点击的停止图标（点击可取消查询）
     var searchBtn = document.querySelector(".search-button");
     if (searchBtn) searchBtn.classList.add("is-loading");
 
@@ -270,7 +388,7 @@
     });
     url.search = params.toString();
 
-    pjaxLoad(url.toString(), { push: true, domain: val });
+    pjaxLoad(url.toString(), { push: true, domain: val, preserveInput: true });
   });
 
   // ---- 事件委托：搜索框输入切换清除按钮 ----
@@ -339,15 +457,27 @@
   });
 
   // ---- 返回顶部按钮显隐（滚动监听） ----
-  window.addEventListener("scroll", function () {
-    var backToTop = document.getElementById("back-to-top");
-    if (!backToTop) return;
-    if (document.documentElement.scrollTop > 360) {
-      backToTop.classList.add("visible");
-    } else {
-      backToTop.classList.remove("visible");
-    }
-  });
+  // passive:true 让浏览器无需等待回调即可滚动，消除移动端滚动卡顿；
+  // 用 rAF 节流，避免每个滚动事件都触发布局读写。
+  var scrollTicking = false;
+  window.addEventListener(
+    "scroll",
+    function () {
+      if (scrollTicking) return;
+      scrollTicking = true;
+      window.requestAnimationFrame(function () {
+        scrollTicking = false;
+        var backToTop = document.getElementById("back-to-top");
+        if (!backToTop) return;
+        if (document.documentElement.scrollTop > 360) {
+          backToTop.classList.add("visible");
+        } else {
+          backToTop.classList.remove("visible");
+        }
+      });
+    },
+    { passive: true }
+  );
 
   // ---- 首屏初始化搜索框状态 ----
   (window.nwReady || function (f) { window.addEventListener("DOMContentLoaded", f); })(function () {

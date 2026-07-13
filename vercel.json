@@ -1,5 +1,6 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
+  "regions": ["iad1"],
   "functions": {
     "api/vercel.php": {
       "runtime": "vercel-php@0.7.4",
@@ -7,6 +8,16 @@
     }
   },
   "headers": [
+    {
+      "source": "/(.*)",
+      "headers": [
+        { "key": "X-Content-Type-Options", "value": "nosniff" },
+        { "key": "X-Frame-Options", "value": "SAMEORIGIN" },
+        { "key": "Referrer-Policy", "value": "strict-origin-when-cross-origin" },
+        { "key": "Strict-Transport-Security", "value": "max-age=63072000; includeSubDomains; preload" },
+        { "key": "Permissions-Policy", "value": "camera=(), microphone=(), geolocation=(), interest-cohort=()" }
+      ]
+    },
     {
       "source": "/public/fonts/(.*)",
       "headers": [{ "key": "Cache-Control", "value": "public, max-age=31536000, immutable" }]
@@ -22,8 +33,11 @@
   ],
   "rewrites": [
     { "source": "/public/:path*", "destination": "/:path*" },
+    { "source": "/robots.txt", "destination": "/api/vercel.php" },
+    { "source": "/sitemap.xml", "destination": "/api/vercel.php" },
     { "source": "/manifest", "destination": "/api/vercel.php" },
     { "source": "/price", "destination": "/api/vercel.php" },
+    { "source": "/premium", "destination": "/api/vercel.php" },
     { "source": "/login", "destination": "/api/vercel.php" },
     { "source": "/api/", "destination": "/api/vercel.php?json=1" },
     { "source": "/:domain([a-zA-Z0-9.-]+\\.[a-zA-Z0-9.-]+)", "destination": "/api/vercel.php?domain=:domain" },

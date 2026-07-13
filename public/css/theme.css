@@ -46,6 +46,9 @@
   --bad: 0 74% 42%;
   --bad-bg: 0 86% 97%;
   --info: 215 80% 50%;
+  /* 溢价域名：金棕色，区别于普通状态色，凸显“高价值”属性 */
+  --premium: 38 82% 38%;
+  --premium-bg: 42 88% 95%;
   --neutral: 220 9% 46%;
   --neutral-bg: 220 14% 96%;
 }
@@ -128,6 +131,8 @@
   --bad: 0 75% 65%;
   --bad-bg: 0 50% 13%;
   --info: 215 85% 65%;
+  --premium: 42 88% 62%;
+  --premium-bg: 40 45% 13%;
   --neutral: 220 10% 70%;
   --neutral-bg: 220 8% 16%;
 }
@@ -226,18 +231,20 @@ body::before {
   letter-spacing: 0.02em;
 }
 
-/* 动态 logo：持续的流光扫过 + 轻微呼吸缩放 */
+/* 动态 logo：呼吸缩放 + 光晕脉动 + 斜向流光扫过 */
 .brand-logo.is-animated {
   position: relative;
   overflow: hidden;
   background: linear-gradient(
     135deg,
     hsl(var(--primary)) 0%,
-    hsl(var(--primary) / 0.78) 50%,
+    hsl(var(--primary) / 0.72) 50%,
     hsl(var(--primary)) 100%
   );
   background-size: 200% 200%;
-  animation: brand-logo-breathe 3.2s ease-in-out infinite,
+  transform-origin: center;
+  will-change: transform;
+  animation: brand-logo-breathe 3s ease-in-out infinite,
              brand-logo-flow 4.5s ease infinite;
 }
 
@@ -248,17 +255,23 @@ body::before {
   inset: 0;
   background: linear-gradient(
     120deg,
-    transparent 30%,
-    hsl(var(--primary-foreground) / 0.35) 50%,
-    transparent 70%
+    transparent 28%,
+    hsl(var(--primary-foreground) / 0.5) 50%,
+    transparent 72%
   );
-  transform: translateX(-120%);
-  animation: brand-logo-shine 3.2s ease-in-out infinite;
+  transform: translateX(-130%);
+  animation: brand-logo-shine 3s ease-in-out infinite;
 }
 
 @keyframes brand-logo-breathe {
-  0%, 100% { transform: scale(1); }
-  50% { transform: scale(1.08); }
+  0%, 100% {
+    transform: scale(1);
+    box-shadow: 0 0 0 0 hsl(var(--primary) / 0);
+  }
+  50% {
+    transform: scale(1.1);
+    box-shadow: 0 0 14px 1px hsl(var(--primary) / 0.35);
+  }
 }
 
 @keyframes brand-logo-flow {
@@ -268,8 +281,8 @@ body::before {
 }
 
 @keyframes brand-logo-shine {
-  0%, 60% { transform: translateX(-120%); }
-  100% { transform: translateX(120%); }
+  0%, 55% { transform: translateX(-130%); }
+  100% { transform: translateX(130%); }
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -285,6 +298,40 @@ body::before {
   font-weight: 700;
   font-size: 14px;
   letter-spacing: 0.1em;
+}
+
+/* 文字标光束：一道高光沿字面横向滑过（用渐变 + background-clip 实现） */
+.brand-name.is-shine {
+  position: relative;
+  background: linear-gradient(
+    100deg,
+    hsl(var(--foreground)) 0%,
+    hsl(var(--foreground)) 38%,
+    hsl(var(--foreground) / 0.35) 50%,
+    hsl(var(--foreground)) 62%,
+    hsl(var(--foreground)) 100%
+  );
+  background-size: 220% 100%;
+  background-position: 120% 0;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: transparent;
+  animation: brand-name-shine 4.5s ease-in-out infinite;
+}
+
+@keyframes brand-name-shine {
+  0% { background-position: 120% 0; }
+  55%, 100% { background-position: -40% 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .brand-name.is-shine {
+    animation: none;
+    background: none;
+    -webkit-text-fill-color: currentColor;
+    color: hsl(var(--foreground));
+  }
 }
 
 .brand-badge {
@@ -562,7 +609,7 @@ form {
   height: 14px !important;
 }
 
-/* 提交按钮：圆形深色图标按钮，嵌���胶囊右侧 */
+/* 提交按钮：圆形深色图标按钮，嵌入胶囊右侧 */
 .search-button {
   position: relative;
   flex-shrink: 0;
@@ -580,8 +627,9 @@ form {
   transition: opacity 0.2s ease, transform 0.1s ease;
 }
 
-/* 查询加载态：隐藏放大镜，显示简洁旋转环（不再晃动） */
+/* 查询加载态：隐藏放大镜，显示旋转环 + 居中停止方块（提示可点击取消） */
 .search-button.is-loading > svg { opacity: 0; }
+.search-button.is-loading { cursor: pointer; }
 .search-button.is-loading::after {
   content: "";
   position: absolute;
@@ -591,6 +639,16 @@ form {
   border: 2px solid hsl(var(--primary-foreground) / 0.35);
   border-top-color: hsl(var(--primary-foreground));
   animation: nw-spin 0.7s linear infinite;
+}
+/* 居中停止方块：明确暗示点击按钮可暂停/取消查询 */
+.search-button.is-loading::before {
+  content: "";
+  position: absolute;
+  width: 7px;
+  height: 7px;
+  border-radius: 1.5px;
+  background: hsl(var(--primary-foreground));
+  z-index: 1;
 }
 
 .search-button:hover {
@@ -637,10 +695,19 @@ form {
   line-height: 1;
 }
 
-/* 搜索框内左侧的 "/" 提示 */
+/* 搜索框内左侧的 "/" 提示：仅在桌面（精确指针）显示。
+   移动端触屏没有物理键盘、无法“按 / 聚焦”，该提示不仅无意义，
+   还会挤占输入框起始处、让文本光标与 "/" 徽标视觉重叠。默认隐藏，
+   仅在大屏 + 鼠标设备显示（与下方 .nw-hotkeys 的显示条件保持一致）。 */
 .nw-kbd-inline {
+  display: none;
   margin-right: 10px;
   flex-shrink: 0;
+}
+@media (min-width: 768px) and (pointer: fine) {
+  .nw-kbd-inline {
+    display: inline-flex;
+  }
 }
 
 /* 搜索框下方的快捷键提示行（右对齐）*/
@@ -751,7 +818,7 @@ form {
   height: 17px;
 }
 
-/* 竖排主体：域�����在上，类型·时间在下 */
+/* 竖排主体：域名在上，类型·时间在下 */
 .nw-history-body {
   display: flex;
   flex-direction: column;
@@ -876,14 +943,14 @@ form {
   display: flex !important;
   flex-direction: column;
   align-items: center;
-  gap: 6px;
+  gap: 0;
   text-align: center;
   border-radius: var(--radius) !important;
   border: 1px solid hsl(var(--state) / 0.28) !important;
   background: hsl(var(--state-bg) / 0.5) !important;
   color: hsl(var(--foreground)) !important;
   box-shadow: 0 1px 3px hsl(var(--foreground) / 0.04) !important;
-  padding: 28px 24px !important;
+  padding: 32px 24px !important;
 }
 
 /* 状态图标圆形徽章 */
@@ -893,39 +960,50 @@ form {
   justify-content: center;
   width: 52px;
   height: 52px;
-  margin-bottom: 6px;
+  margin-bottom: 16px;
   border-radius: 9999px;
   background: hsl(var(--state) / 0.12);
   color: hsl(var(--state));
 }
 .domain-info-icon svg { width: 28px; height: 28px; }
 
-/* 域名（可点击访问） */
+/* 域名（可点击访问）—— 卡片第一层级：最大、最重 */
 .domain-info-name {
-  font-size: 1.35rem;
+  font-size: 1.5rem;
   font-weight: 700;
+  letter-spacing: -0.01em;
   color: hsl(var(--foreground)) !important;
   word-break: break-all;
   overflow-wrap: break-word;
   text-decoration: none;
-  line-height: 1.2;
+  line-height: 1.15;
 }
 .domain-info-name:hover { text-decoration: underline; }
 
-/* 主标题（状态结论） */
+/* 状态结论 —— 第二层级：带状态色的胶囊徽章，一眼看清结论 */
 .domain-info-title {
-  margin: 0;
-  font-size: 1rem;
+  margin: 14px 0 0 !important;
+  display: inline-flex;
+  align-items: center;
+  padding: 5px 14px;
+  border-radius: 9999px;
+  background: hsl(var(--state) / 0.14);
+  font-size: 0.8125rem;
   font-weight: 600;
-  color: hsl(var(--foreground)) !important;
+  letter-spacing: 0.02em;
+  line-height: 1.3;
+  color: hsl(var(--state)) !important;
 }
 
-/* 副标题（补充说明） */
+/* 补充说明 —— 第三层级：更小、更淡、行距宽松，限制字宽便于阅读 */
 .domain-info-sub {
-  margin: 0;
+  margin: 12px auto 0 !important;
+  max-width: 30ch;
   font-size: 0.875rem;
-  line-height: 1.5;
+  line-height: 1.65;
   color: hsl(var(--muted-foreground)) !important;
+  word-break: normal !important;
+  overflow-wrap: break-word !important;
 }
 
 .domain-info-box--available  { --state: var(--ok);   --state-bg: var(--ok-bg); }
@@ -935,6 +1013,137 @@ form {
 .domain-info-box--unknown    { --state: var(--muted-foreground); --state-bg: var(--neutral-bg); }
   .domain-info-box--taken      { --state: var(--foreground); --state-bg: var(--neutral-bg); }
   .domain-info-box--error      { --state: var(--warn); --state-bg: var(--warn-bg); }
+
+/* ---- 溢价域名槽位（异步注入到可注册卡片内）---- */
+/* 容器：默认隐藏，命中溢价或有价格时由 JS 移除 hidden；与说明文字拉开间距 */
+.domain-premium {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  margin-top: 16px;
+  width: 100%;
+}
+.domain-premium[hidden] { display: none; }
+
+/* 溢价徽章：金棕描边胶囊 + 皇冠图标，明确“溢价/高价值”身份。
+   两种上下文共用（可注册卡片槽位 & 已注册状态行）。 */
+.nw-premium-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 12px;
+  border-radius: 9999px;
+  background: hsl(var(--premium-bg));
+  border: 1px solid hsl(var(--premium) / 0.45);
+  color: hsl(var(--premium)) !important;
+  font-size: 0.8125rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  line-height: 1.2;
+  white-space: nowrap;
+}
+.nw-premium-badge svg { width: 15px; height: 15px; flex: none; }
+
+/* 已注册上下文：溢价价格标签的金色变体（覆盖普通 message-tag 灰底） */
+.message-tag-premium {
+  background: hsl(var(--premium-bg)) !important;
+  color: hsl(var(--premium)) !important;
+  border: 1px solid hsl(var(--premium) / 0.35) !important;
+}
+.message-tag-premium svg { color: hsl(var(--premium)) !important; width: 1em; height: 1em; }
+.message-tag-premium-primary {
+  border-color: hsl(var(--premium) / 0.6) !important;
+  font-weight: 700 !important;
+}
+
+/* 价格：主价格加大加重，人民币估算次级、更淡 */
+.domain-premium-price {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 8px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+.domain-premium-amount {
+  font-size: 1.375rem;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  color: hsl(var(--foreground)) !important;
+  line-height: 1.1;
+}
+.domain-premium-cny {
+  font-size: 0.9375rem;
+  font-weight: 500;
+  color: hsl(var(--muted-foreground)) !important;
+}
+
+/* 数据来源脚注 */
+.domain-premium-source {
+  font-size: 0.75rem;
+  color: hsl(var(--muted-foreground)) !important;
+  opacity: 0.85;
+}
+
+/* ---- DNS 兜底信息块（WHOIS/RDAP 不可用时展示实时 DNS 记录）---- */
+.domain-dns-fallback {
+  width: 100%;
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px solid hsl(var(--foreground) / 0.1);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  text-align: left;
+}
+
+.domain-dns-note {
+  margin: 0;
+  font-size: 0.75rem;
+  color: hsl(var(--muted-foreground)) !important;
+}
+
+.domain-dns-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.domain-dns-label {
+  flex: 0 0 76px;
+  font-size: 0.8125rem;
+  color: hsl(var(--muted-foreground)) !important;
+  padding-top: 2px;
+}
+
+.domain-dns-val {
+  flex: 1 1 auto;
+  min-width: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  align-items: center;
+  font-size: 0.8125rem;
+  color: hsl(var(--foreground)) !important;
+}
+
+.domain-dns-val a {
+  color: hsl(var(--foreground)) !important;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.domain-dns-chip {
+  padding: 3px 9px;
+  border-radius: 7px;
+  background: hsl(var(--foreground) / 0.06);
+  word-break: break-all;
+}
+
+.domain-dns-mono .domain-dns-chip {
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 0.75rem;
+}
 
 /* ---------- 结果卡片（玻璃）---------- */
 .messages {
@@ -1261,7 +1470,7 @@ code a { color: hsl(var(--info)) !important; }
   fill: hsl(var(--foreground));
 }
 
-/* 尊重减少动态偏好：停止卫星点运动，定格于轨道右端 */
+/* 尊重减少动态偏好：停止卫星点运动，定格在轨道右端 */
 @media (prefers-reduced-motion: reduce) {
   .nw-globe-orbit-dot animateMotion { display: none; }
   .nw-globe-orbit-dot { transform: translate(112px, 60px); }
@@ -1421,12 +1630,572 @@ code a { color: hsl(var(--info)) !important; }
 /* 数据来源行 */
 .nw-source-row {
   margin-top: 16px;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
   font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
   font-size: 11px;
   color: hsl(var(--muted-foreground) / 0.7);
 }
 
-/* 注册人联系（���卡内） */
+/* 智能状态徽章 */
+.nw-smart-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 3px 10px;
+  border-radius: 999px;
+  font-family: var(--font-sans, ui-sans-serif, system-ui, sans-serif);
+  font-size: 11px;
+  line-height: 1.4;
+  font-weight: 500;
+  color: hsl(var(--muted-foreground));
+  background-color: hsl(var(--muted) / 0.7);
+  border: 1px solid hsl(var(--border) / 0.6);
+  white-space: nowrap;
+}
+
+/* 高亮徽章：黑色胶囊 + 粗体（停放 / 出售 / HOLD / 正在转移 等） */
+.nw-smart-badge-strong {
+  font-weight: 700;
+  color: hsl(var(--primary-foreground));
+  background-color: hsl(var(--foreground));
+  border-color: hsl(var(--foreground));
+}
+
+/* ===================== 多域名批量查询（暗号 0） ===================== */
+/* 搜索框内的“多域名”标签，替代 / 快捷键提示 */
+.nw-multi-tag {
+  display: inline-flex;
+  align-items: center;
+  flex: 0 0 auto;
+  margin-right: 10px;
+  padding: 4px 10px;
+  border-radius: 8px;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  color: hsl(var(--primary-foreground));
+  background-color: hsl(var(--foreground));
+  white-space: nowrap;
+}
+
+/* 多域名模式下，搜索框左内边距收紧，给标签+输入更舒展的呼吸空间 */
+.search-box--multi {
+  padding-left: 12px !important;
+}
+
+.search-box--multi .search-input {
+  padding-left: 2px !important;
+}
+
+.nw-multi {
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 0 16px;
+}
+
+/* 引导 / 空态卡片 */
+.nw-multi-intro {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 10px;
+  padding: 40px 24px;
+  border: 1px solid hsl(var(--border));
+  border-radius: var(--radius, 16px);
+  background-color: hsl(var(--card));
+}
+
+.nw-multi-intro-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  color: hsl(var(--muted-foreground));
+  background-color: hsl(var(--muted) / 0.7);
+}
+
+.nw-multi-intro-title {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 700;
+  color: hsl(var(--foreground));
+}
+
+.nw-multi-intro-desc {
+  margin: 0;
+  max-width: 460px;
+  font-size: 13px;
+  line-height: 1.6;
+  color: hsl(var(--muted-foreground));
+}
+
+/* 结果概览行 */
+.nw-multi-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.nw-multi-head-title {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+}
+
+.nw-multi-suffix {
+  font-size: 20px;
+  font-weight: 800;
+  color: hsl(var(--foreground));
+}
+
+.nw-multi-count {
+  font-size: 12px;
+  color: hsl(var(--muted-foreground));
+}
+
+.nw-multi-summary {
+  display: flex;
+  gap: 14px;
+}
+
+.nw-multi-sum-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  color: hsl(var(--muted-foreground));
+}
+
+/* 概览行圆点：覆盖 nw-status-bullet 的 margin-top，使其在行内垂直居中 */
+.nw-multi-sum-item .nw-status-bullet {
+  margin-top: 0;
+}
+
+/* 紧凑列表 */
+.nw-multi-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  border: 1px solid hsl(var(--border));
+  border-radius: var(--radius, 14px);
+  overflow: hidden;
+  background-color: hsl(var(--card));
+}
+
+.nw-multi-row + .nw-multi-row {
+  border-top: 1px solid hsl(var(--border) / 0.7);
+}
+
+.nw-multi-link {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 11px 14px;
+  text-decoration: none;
+  color: hsl(var(--foreground));
+  transition: background-color 0.15s ease;
+}
+
+.nw-multi-link:hover {
+  background-color: hsl(var(--muted) / 0.5);
+}
+
+.nw-multi-dot {
+  flex: 0 0 auto;
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+}
+
+.nw-multi-domain {
+  flex: 1 1 auto;
+  min-width: 0;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 14px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.nw-multi-prefix {
+  font-weight: 700;
+  color: hsl(var(--foreground));
+}
+
+.nw-multi-tld {
+  color: hsl(var(--muted-foreground));
+}
+
+.nw-multi-state {
+  flex: 0 0 auto;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.nw-multi-state--available { color: #16a34a; }
+.nw-multi-state--registered { color: hsl(var(--muted-foreground)); }
+.nw-multi-state--unknown { color: hsl(var(--muted-foreground) / 0.7); }
+
+.nw-multi-arrow {
+  flex: 0 0 auto;
+  color: hsl(var(--muted-foreground) / 0.6);
+}
+
+.nw-multi-foot {
+  margin: 12px 2px 0;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 11px;
+  color: hsl(var(--muted-foreground) / 0.7);
+}
+
+/* ---- 详情弹窗 ---- */
+.nw-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+}
+
+.nw-modal-backdrop {
+  position: absolute;
+  inset: 0;
+  background: hsl(0 0% 0% / 0.5);
+  backdrop-filter: blur(2px);
+  animation: nw-modal-fade 0.15s ease;
+}
+
+.nw-modal-panel {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  max-width: 560px;
+  height: min(80vh, 720px);
+  background-color: hsl(var(--background));
+  border: 1px solid hsl(var(--border));
+  border-radius: 16px;
+  box-shadow: 0 20px 50px hsl(0 0% 0% / 0.25);
+  overflow: hidden;
+  animation: nw-modal-pop 0.18s ease;
+}
+
+.nw-modal-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px 12px 12px 18px;
+  border-bottom: 1px solid hsl(var(--border) / 0.7);
+  flex: 0 0 auto;
+}
+
+.nw-modal-title {
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 14px;
+  font-weight: 700;
+  color: hsl(var(--foreground));
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.nw-modal-close {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  flex: 0 0 auto;
+  border: none;
+  border-radius: 9px;
+  cursor: pointer;
+  color: hsl(var(--muted-foreground));
+  background-color: hsl(var(--muted) / 0.6);
+  transition: background-color 0.15s ease, color 0.15s ease;
+}
+
+.nw-modal-close:hover {
+  color: hsl(var(--foreground));
+  background-color: hsl(var(--muted));
+}
+
+/* 关闭按钮内的 SVG 图标不拦截点击，确保点到图标也能触发按钮的关闭逻辑 */
+.nw-modal-close svg {
+  pointer-events: none;
+}
+
+.nw-modal-body {
+  position: relative;
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* 关键：[hidden] 必须真正隐藏。三态元素用了 display:flex，
+   会覆盖 hidden 的默认 display:none，导致加载态与错误态叠加显示。
+   这里显式让 hidden 优先，彻底修复“弹窗内容重叠”问题。 */
+.nw-modal-body [hidden] {
+  display: none !important;
+}
+
+.nw-modal-loading {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  padding: 24px;
+  text-align: center;
+}
+
+.nw-modal-loading-text {
+  font-size: 13px;
+  color: hsl(var(--muted-foreground));
+  line-height: 1.5;
+  max-width: 30ch;
+}
+
+.nw-modal-spinner {
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  border: 3px solid hsl(var(--muted-foreground) / 0.25);
+  border-top-color: hsl(var(--foreground));
+  animation: nw-spin 0.7s linear infinite;
+}
+
+/* 错误态：查询超时 / 注册局不可用 */
+.nw-modal-error {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  padding: 28px;
+  text-align: center;
+  color: hsl(var(--muted-foreground));
+}
+
+.nw-modal-error-text {
+  font-size: 14px;
+  line-height: 1.5;
+  color: hsl(var(--foreground));
+  margin: 0;
+  max-width: 34ch;
+}
+
+.nw-modal-error-actions {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.nw-modal-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 38px;
+  padding: 0 18px;
+  border: none;
+  border-radius: 10px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  text-decoration: none;
+  color: hsl(var(--primary-foreground));
+  background-color: hsl(var(--primary));
+  transition: opacity 0.15s ease;
+}
+
+.nw-modal-btn:hover { opacity: 0.9; }
+
+.nw-modal-btn--ghost {
+  color: hsl(var(--foreground));
+  background-color: hsl(var(--muted));
+}
+
+/* 标题栏“在新标签打开”链接 */
+.nw-modal-open {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  flex: 0 0 auto;
+  border-radius: 9px;
+  color: hsl(var(--muted-foreground));
+  background-color: hsl(var(--muted) / 0.6);
+  transition: background-color 0.15s ease, color 0.15s ease;
+}
+
+.nw-modal-open:hover {
+  color: hsl(var(--foreground));
+  background-color: hsl(var(--muted));
+}
+
+.nw-modal-open svg { pointer-events: none; }
+
+body.nw-modal-open {
+  overflow: hidden;
+}
+
+/* ---- 弹窗内原生详情卡片（替代 iframe） ---- */
+.nw-modal-content {
+  padding: 18px 18px 22px;
+}
+
+.nw-md-hero {
+  margin-bottom: 16px;
+}
+
+.nw-md-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 14px;
+  border-radius: 999px;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.nw-md-badge.is-avail {
+  color: #15803d;
+  background-color: #16a34a1a;
+}
+
+.nw-md-badge.is-reg {
+  color: hsl(var(--muted-foreground));
+  background-color: hsl(var(--muted));
+}
+
+.nw-md-fields {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.nw-md-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  padding: 11px 2px;
+  border-bottom: 1px solid hsl(var(--border) / 0.6);
+}
+
+.nw-md-row:last-child {
+  border-bottom: none;
+}
+
+.nw-md-label {
+  flex: 0 0 84px;
+  font-size: 13px;
+  color: hsl(var(--muted-foreground));
+}
+
+.nw-md-value {
+  flex: 1 1 auto;
+  min-width: 0;
+  font-size: 13px;
+  color: hsl(var(--foreground));
+  word-break: break-word;
+  text-align: right;
+}
+
+.nw-md-value a {
+  color: hsl(var(--foreground));
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.nw-md-chips,
+.nw-md-nslist {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  justify-content: flex-end;
+}
+
+.nw-md-chip {
+  padding: 3px 9px;
+  border-radius: 7px;
+  font-size: 12px;
+  color: hsl(var(--muted-foreground));
+  background-color: hsl(var(--muted) / 0.7);
+}
+
+.nw-md-ns {
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 12px;
+  color: hsl(var(--foreground));
+}
+
+.nw-md-empty {
+  padding: 20px 0;
+  text-align: center;
+  color: hsl(var(--muted-foreground));
+  font-size: 13px;
+}
+
+.nw-md-full {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  height: 44px;
+  margin-top: 18px;
+}
+
+/* 移动端：弹窗更高、更贴边，充分利用竖屏空间 */
+@media (max-width: 640px) {
+  .nw-modal { padding: 10px; }
+  .nw-modal-panel {
+    max-width: 100%;
+    height: min(90vh, 900px);
+  }
+}
+
+@keyframes nw-modal-fade {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes nw-modal-pop {
+  from { opacity: 0; transform: translateY(8px) scale(0.98); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+/* ---- 嵌入模式（iframe 内）：去除外层留白，仅展示结果卡片 ---- */
+body.is-embed {
+  padding: 0;
+  background-color: hsl(var(--background));
+}
+
+body.is-embed main {
+  margin: 0;
+  padding: 12px;
+}
+
+/* 注册人联系（卡内） */
 .nw-contact-grid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
@@ -1571,6 +2340,25 @@ a.nw-status-name:hover { text-decoration: underline; }
   color: hsl(var(--muted-foreground) / 0.65);
   flex-shrink: 0;
 }
+
+  /* 汇总 DNS 提供商：放在 NS 卡标题右侧的小胶囊 */
+> .nw-dns-provider {
+  margin-left: auto;
+  padding: 2px 8px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 500;
+  color: hsl(var(--muted-foreground));
+  background: hsl(var(--muted) / 0.6);
+  text-decoration: none;
+  transition: color 0.15s ease, background-color 0.15s ease;
+  }
+
+  /* 当 DNS 提供商可点击（链接到官网）时的悬停反馈 */
+a.nw-dns-provider:hover {
+  color: hsl(var(--foreground));
+  background: hsl(var(--muted));
+  }
 
 /* ---------- 注册商卡 ---------- */
 .nw-registrar-card { padding: 20px; }
@@ -1923,4 +2711,185 @@ a.nw-status-name:hover { text-decoration: underline; }
 @keyframes nw-breathe-scale {
   0%, 100% { transform: scale(1); }
   50%      { transform: scale(1.006); }
+}
+
+/* ============================================================
+   释放可注册时间预测
+   ============================================================ */
+.nw-forecast {
+  margin-top: 20px;
+  padding: 16px;
+  border: 1px solid hsl(var(--border));
+  border-radius: var(--radius);
+  background: hsl(var(--muted) / 0.4);
+}
+
+.nw-forecast-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.nw-forecast-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  color: hsl(var(--foreground));
+}
+
+.nw-forecast-title svg { color: hsl(var(--muted-foreground)); }
+
+.nw-forecast-badge {
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  padding: 2px 8px;
+  border-radius: 999px;
+  color: hsl(var(--muted-foreground));
+  background: hsl(var(--background));
+  border: 1px solid hsl(var(--border));
+}
+
+/* 预计可注册：日期 + 天数 */
+.nw-forecast-hero {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 12px;
+  margin: 14px 0 4px;
+  padding-bottom: 14px;
+  border-bottom: 1px dashed hsl(var(--border));
+}
+
+.nw-forecast-hero-main {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+
+.nw-forecast-hero-label {
+  font-size: 11px;
+  font-weight: 500;
+  color: hsl(var(--muted-foreground));
+}
+
+.nw-forecast-hero-date {
+  font-size: 22px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  color: hsl(var(--foreground));
+  font-variant-numeric: tabular-nums;
+}
+
+.nw-forecast-hero-sub {
+  font-size: 12px;
+  font-weight: 600;
+  white-space: nowrap;
+  color: hsl(var(--muted-foreground));
+}
+
+/* 阶段时间线 */
+.nw-forecast-timeline {
+  list-style: none;
+  margin: 14px 0 0;
+  padding: 0;
+}
+
+.nw-forecast-phase {
+  position: relative;
+  display: flex;
+  gap: 10px;
+  padding: 0 0 14px 2px;
+}
+
+/* 竖线连接各阶段圆点 */
+.nw-forecast-phase:not(:last-child)::before {
+  content: "";
+  position: absolute;
+  left: 5px;
+  top: 14px;
+  bottom: 0;
+  width: 1px;
+  background: hsl(var(--border));
+}
+
+.nw-forecast-dot {
+  flex: 0 0 auto;
+  width: 11px;
+  height: 11px;
+  margin-top: 2px;
+  border-radius: 999px;
+  background: hsl(var(--background));
+  border: 2px solid hsl(var(--border-hover));
+  z-index: 1;
+}
+
+.nw-forecast-phase.is-current .nw-forecast-dot {
+  border-color: hsl(var(--warn));
+  background: hsl(var(--warn));
+  box-shadow: 0 0 0 4px hsl(var(--warn) / 0.15);
+}
+
+.nw-forecast-phase-final.is-current .nw-forecast-dot {
+  border-color: hsl(var(--ok));
+  background: hsl(var(--ok));
+  box-shadow: 0 0 0 4px hsl(var(--ok) / 0.15);
+}
+
+.nw-forecast-phase-body {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.nw-forecast-phase-name {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  font-weight: 600;
+  color: hsl(var(--foreground));
+}
+
+.nw-forecast-phase.is-current .nw-forecast-phase-name { color: hsl(var(--warn)); }
+.nw-forecast-phase-final.is-current .nw-forecast-phase-name { color: hsl(var(--ok)); }
+
+.nw-forecast-now {
+  font-style: normal;
+  font-size: 10px;
+  font-weight: 600;
+  padding: 1px 6px;
+  border-radius: 999px;
+  color: hsl(var(--warn));
+  background: hsl(var(--warn-bg));
+}
+
+.nw-forecast-phase-final.is-current .nw-forecast-now {
+  color: hsl(var(--ok));
+  background: hsl(var(--ok-bg));
+}
+
+.nw-forecast-phase-range {
+  font-size: 11px;
+  color: hsl(var(--muted-foreground));
+  font-variant-numeric: tabular-nums;
+}
+
+.nw-forecast-note {
+  margin: 6px 0 0;
+  font-size: 10.5px;
+  line-height: 1.5;
+  color: hsl(var(--muted-foreground));
+}
+
+.nw-forecast-registry {
+  display: block;
+  margin-bottom: 2px;
+  font-weight: 600;
+  color: hsl(var(--foreground) / 0.75);
 }

@@ -1,22 +1,34 @@
+  <?php
+    // 多域名模式：切换搜索框占位符/回显值，并携带 multi=1 使后续查询走批量逻辑
+    $isMulti = !empty($multiMode);
+    $searchValue = $isMulti ? ($multiSuffix ?? '') : ($domain ?? '');
+    $searchPlaceholder = $isMulti ? t('multi_placeholder') : t('search_placeholder');
+    $shouldAutofocus = $isMulti ? true : !$domain;
+  ?>
   <header>
     <div>
       <form action="<?= BASE; ?>" id="form" method="get">
         <div class="search-and-button-container">
-            <div class="search-box">
-                <kbd class="nw-kbd nw-kbd-inline" id="slash-hint" aria-hidden="true">/</kbd>
+            <div class="search-box<?= $isMulti ? ' search-box--multi' : ''; ?>">
+                <?php if ($isMulti): ?>
+                  <span class="nw-multi-tag" aria-hidden="true"><?= htmlspecialchars(t('multi_tag'), ENT_QUOTES, 'UTF-8'); ?></span>
+                  <input type="hidden" name="multi" value="1">
+                <?php else: ?>
+                  <kbd class="nw-kbd nw-kbd-inline" id="slash-hint" aria-hidden="true">/</kbd>
+                <?php endif; ?>
                 <input
                   autocapitalize="off"
                   autocomplete="domain"
                   autocorrect="off"
-                  <?= $domain ? "" : "autofocus"; ?>
+                  <?= $shouldAutofocus ? "autofocus" : ""; ?>
                   class="input search-input"
                   id="domain"
                   inputmode="url"
                   name="domain"
-                  placeholder="<?= htmlspecialchars(t('search_placeholder'), ENT_QUOTES, 'UTF-8'); ?>"
+                  placeholder="<?= htmlspecialchars($searchPlaceholder, ENT_QUOTES, 'UTF-8'); ?>"
                   required
                   type="text"
-                  value="<?= htmlspecialchars($domain ?? '', ENT_QUOTES, 'UTF-8'); ?>">
+                  value="<?= htmlspecialchars($searchValue, ENT_QUOTES, 'UTF-8'); ?>">
                 <button class="search-clear" id="domain-clear" type="button" aria-label="<?= htmlspecialchars(t('clear'), ENT_QUOTES, 'UTF-8'); ?>">
                     <svg viewBox="0 0 16 16" fill="currentColor">
                         <path d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708" />
@@ -92,6 +104,76 @@
     <a class="domain-info-name" href="http://<?= htmlspecialchars($domain, ENT_QUOTES, 'UTF-8'); ?>" rel="nofollow noopener noreferrer" target="_blank"><?= htmlspecialchars($domain, ENT_QUOTES, 'UTF-8'); ?></a>
     <p class="domain-info-title"><?= htmlspecialchars($stateTitle, ENT_QUOTES, 'UTF-8'); ?></p>
     <p class="domain-info-sub"><?= htmlspecialchars($resultMessage, ENT_QUOTES, 'UTF-8'); ?></p>
+    <?php
+      // 溢价域名槽位：仅对"可注册"域名异步检测（逐域名调用 Dynadot/Netim）。
+      // 默认隐藏，命中溢价时由 premium.js 填充并展示金色徽章+价格。
+      if ($resultState === 'available'):
+    ?>
+    <div class="domain-premium" id="domain-premium" data-domain="<?= htmlspecialchars($domain, ENT_QUOTES, 'UTF-8'); ?>" hidden></div>
+    <?php endif; ?>
+    <?php
+      // DNS 兜底增强：WHOIS/RDAP 无详情但 DNS 确认已注册时，展示实时 DNS 记录，
+      // 让用户即使在注册局接口不可用时也能拿到有用信息（NS / IP / 邮件服务器）。
+      $hasDnsInfo = $resultState === 'taken' && !empty($dnsInfo) && (
+        !empty($dnsInfo['ns']) || !empty($dnsInfo['a']) || !empty($dnsInfo['aaaa']) || !empty($dnsInfo['mx'])
+      );
+      if ($hasDnsInfo):
+        require_once __DIR__ . "/../lib/dns-provider-map.php";
+        // 识别 DNS 提供商（取第一个可识别的 NS 品牌）
+        $dnsProv = '';
+        $dnsProvUrl = '';
+        foreach ($dnsInfo['ns'] as $nsHost) {
+          $info = dns_provider_detect($nsHost);
+          if ($info['name'] !== '') { $dnsProv = $info['name']; $dnsProvUrl = $info['url']; break; }
+        }
+        $ipList = array_merge($dnsInfo['a'] ?? [], $dnsInfo['aaaa'] ?? []);
+    ?>
+    <div class="domain-dns-fallback">
+      <p class="domain-dns-note"><?= htmlspecialchars(t('dns_fallback_note'), ENT_QUOTES, 'UTF-8'); ?></p>
+      <?php if ($dnsProv !== ''): ?>
+        <div class="domain-dns-row">
+          <span class="domain-dns-label"><?= htmlspecialchars(t('dns_provider'), ENT_QUOTES, 'UTF-8'); ?></span>
+          <span class="domain-dns-val">
+            <?php if ($dnsProvUrl !== ''): ?>
+              <a href="<?= htmlspecialchars($dnsProvUrl, ENT_QUOTES, 'UTF-8'); ?>" target="_blank" rel="noopener nofollow"><?= htmlspecialchars($dnsProv, ENT_QUOTES, 'UTF-8'); ?></a>
+            <?php else: ?>
+              <?= htmlspecialchars($dnsProv, ENT_QUOTES, 'UTF-8'); ?>
+            <?php endif; ?>
+          </span>
+        </div>
+      <?php endif; ?>
+      <?php if (!empty($dnsInfo['ns'])): ?>
+        <div class="domain-dns-row">
+          <span class="domain-dns-label"><?= htmlspecialchars(t('card_ns'), ENT_QUOTES, 'UTF-8'); ?></span>
+          <span class="domain-dns-val domain-dns-mono">
+            <?php foreach ($dnsInfo['ns'] as $nsHost): ?>
+              <span class="domain-dns-chip"><?= htmlspecialchars($nsHost, ENT_QUOTES, 'UTF-8'); ?></span>
+            <?php endforeach; ?>
+          </span>
+        </div>
+      <?php endif; ?>
+      <?php if (!empty($ipList)): ?>
+        <div class="domain-dns-row">
+          <span class="domain-dns-label"><?= htmlspecialchars(t('card_ip'), ENT_QUOTES, 'UTF-8'); ?></span>
+          <span class="domain-dns-val domain-dns-mono">
+            <?php foreach ($ipList as $ip): ?>
+              <span class="domain-dns-chip"><?= htmlspecialchars($ip, ENT_QUOTES, 'UTF-8'); ?></span>
+            <?php endforeach; ?>
+          </span>
+        </div>
+      <?php endif; ?>
+      <?php if (!empty($dnsInfo['mx'])): ?>
+        <div class="domain-dns-row">
+          <span class="domain-dns-label"><?= htmlspecialchars(t('card_mx'), ENT_QUOTES, 'UTF-8'); ?></span>
+          <span class="domain-dns-val domain-dns-mono">
+            <?php foreach ($dnsInfo['mx'] as $mxHost): ?>
+              <span class="domain-dns-chip"><?= htmlspecialchars($mxHost, ENT_QUOTES, 'UTF-8'); ?></span>
+            <?php endforeach; ?>
+          </span>
+        </div>
+      <?php endif; ?>
+    </div>
+    <?php endif; ?>
   </div>
 <?php endif; ?>
       <!-- 搜索框下方快捷键提示行（复刻 next-whois）-->
@@ -99,7 +181,7 @@
         <span class="nw-hotkey-item"><?= htmlspecialchars(t('hotkey_query'), ENT_QUOTES, 'UTF-8'); ?> <kbd class="nw-kbd">/</kbd></span>
         <span class="nw-hotkey-item"><?= htmlspecialchars(t('hotkey_clear'), ENT_QUOTES, 'UTF-8'); ?> <kbd class="nw-kbd">Esc</kbd></span>
       </div>
-      <?php if (!$domain): ?>
+      <?php if (!$domain && empty($multiMode)): ?>
       <!-- 首页：历史查询列表（由 history.js 基于 localStorage 渲染，支持翻页）-->
       <div class="nw-history" id="search-history" hidden>
         <div class="nw-history-divider"><span id="search-history-label"><?= htmlspecialchars(t('history_title'), ENT_QUOTES, 'UTF-8'); ?></span></div>

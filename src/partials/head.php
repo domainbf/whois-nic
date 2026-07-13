@@ -19,13 +19,27 @@
   </script>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
   <meta name="theme-color" content="#ffffff">
-  <meta name="description" content="<?= SITE_DESCRIPTION ?>">
+  <!-- 预连接批量查询所用的 Cloudflare DoH，加速首个 DNS-over-HTTPS 请求 -->
+  <link rel="preconnect" href="https://cloudflare-dns.com" crossorigin>
+  <link rel="dns-prefetch" href="https://cloudflare-dns.com">
+  <meta name="description" content="<?= htmlspecialchars($shareDescription, ENT_QUOTES, 'UTF-8'); ?>">
   <meta name="keywords" content="<?= SITE_KEYWORDS ?>">
+  <meta name="robots" content="index, follow, max-image-preview:large">
+  <link rel="canonical" href="<?= htmlspecialchars($canonicalUrl, ENT_QUOTES, 'UTF-8'); ?>">
 
+  <!-- Open Graph（微信 / Telegram / Facebook / LinkedIn 等分享卡片）-->
+  <meta property="og:site_name" content="<?= htmlspecialchars(SITE_TITLE, ENT_QUOTES, 'UTF-8'); ?>">
+  <meta property="og:locale" content="<?= htmlspecialchars(str_replace('-', '_', i18n_html_lang()), ENT_QUOTES, 'UTF-8'); ?>">
   <meta property="og:title" content="<?= htmlspecialchars($shareTitle, ENT_QUOTES, 'UTF-8'); ?>">
   <meta property="og:description" content="<?= htmlspecialchars($shareDescription, ENT_QUOTES, 'UTF-8'); ?>">
   <meta property="og:image" content="<?= htmlspecialchars($shareImage, ENT_QUOTES, 'UTF-8'); ?>">
+  <meta property="og:image:secure_url" content="<?= htmlspecialchars($shareImage, ENT_QUOTES, 'UTF-8'); ?>">
+  <meta property="og:image:type" content="image/png">
+  <meta property="og:image:width" content="<?= (int) $shareImageWidth; ?>">
+  <meta property="og:image:height" content="<?= (int) $shareImageHeight; ?>">
+  <meta property="og:image:alt" content="<?= htmlspecialchars($shareImageAlt, ENT_QUOTES, 'UTF-8'); ?>">
   <meta property="og:url" content="<?= htmlspecialchars($currentUrl, ENT_QUOTES, 'UTF-8'); ?>">
   <meta property="og:type" content="website">
 
@@ -33,6 +47,10 @@
   <meta name="twitter:title" content="<?= htmlspecialchars($shareTitle, ENT_QUOTES, 'UTF-8'); ?>">
   <meta name="twitter:description" content="<?= htmlspecialchars($shareDescription, ENT_QUOTES, 'UTF-8'); ?>">
   <meta name="twitter:image" content="<?= htmlspecialchars($shareImage, ENT_QUOTES, 'UTF-8'); ?>">
+  <meta name="twitter:image:alt" content="<?= htmlspecialchars($shareImageAlt, ENT_QUOTES, 'UTF-8'); ?>">
+
+  <!-- 结构化数据：便于搜索引擎理解站点与站内搜索 -->
+  <script type="application/ld+json"><?= $jsonLd; ?></script>
 
   <link rel="shortcut icon" href="public/favicon.ico">
   <link rel="icon" href="public/images/favicon.svg" type="image/svg+xml">
@@ -76,7 +94,7 @@
   <link rel="apple-touch-startup-image" href="public/images/apple-splash-1334-750.jpg" media="(device-width: 375px) and (device-height: 667px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape)">
   <link rel="apple-touch-startup-image" href="public/images/apple-splash-1136-640.jpg" media="(device-width: 320px) and (device-height: 568px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape)">
   <link rel="manifest" href="<?= $manifestHref; ?>">
-  <title><?= ($domain ? "$domain | " : "") . SITE_TITLE ?></title>
+  <title><?= htmlspecialchars($pageTitle, ENT_QUOTES, 'UTF-8'); ?></title>
   <!-- 自托管 Fraunces 字体，避免依赖境外 Google Fonts，提升国内访问速度 -->
   <link rel="preload" href="public/fonts/fraunces-latin.woff2" as="font" type="font/woff2" crossorigin>
   <link rel="stylesheet" href="public/css/fonts.css">
@@ -86,7 +104,7 @@
   <?= CUSTOM_HEAD ?>
   <link rel="stylesheet" href="public/css/index-extra.css">
   <!-- next-whois 风格主题层（最后加载，覆盖旧版样式）-->
-  <link rel="stylesheet" href="public/css/theme.css">
+  <link rel="stylesheet" href="<?= htmlspecialchars(asset('public/css/theme.css'), ENT_QUOTES, 'UTF-8'); ?>">
   <!-- 多语言：将当前语言译文负载暴露给前端脚本 -->
   <script>window.__I18N__ = <?= i18n_js_payload(); ?>;</script>
   <script src="public/js/theme.js" defer></script>

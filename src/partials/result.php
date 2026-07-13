@@ -2,7 +2,16 @@
 <?php if ($parser->registered): ?>
   <?php
     require_once __DIR__ . "/../lib/registrar-map.php";
+    require_once __DIR__ . "/../lib/dns-provider-map.php";
     $statusMapping = require __DIR__ . "/../lib/status-map.php";
+    // 大小写不敏感的状态翻译索引：许多冷门 ccTLD 用首字母大写（如 nic.md 的
+    // "Inactive"/"RenewProhibited"），与映射表键的大小写不一致会导致翻译落空。
+    $statusMappingLower = [];
+    foreach ($statusMapping as $k => $v) { $statusMappingLower[strtolower($k)] = $v; }
+    $translateStatus = function (string $code) use ($statusMapping, $statusMappingLower): string {
+      if (isset($statusMapping[$code])) { return $statusMapping[$code]; }
+      return $statusMappingLower[strtolower($code)] ?? $code;
+    };
     $registrarLink = $parser->registrar ? ($parser->registrarURL ?: registrar_website($parser->registrar)) : "";
 
     // 域名状态 → 颜色（活跃 / 即将到期 / 已过期）
@@ -35,6 +44,29 @@
       $ageYears = $y < 1 ? t('age_lt1') : t('age_years', intval($y));
     }
 
+    // 释放可注册时间预测：仅当域名已过期，或状态处于赎回/待删除阶段时展示。
+    $forecast = null;
+    $statusCodes = array_map(fn($s) => $s['text'] ?? '', $parser->status ?: []);
+    $inDropCycle = false;
+    foreach ($statusCodes as $sc) {
+      $scl = strtolower($sc);
+      if (strpos($scl, 'redemption') !== false || strpos($scl, 'pendingdelete') !== false) {
+        $inDropCycle = true;
+        break;
+      }
+    }
+    if (($remSec !== null && $remSec <= 0) || $inDropCycle) {
+      require_once __DIR__ . "/../lib/tld-lifecycle.php";
+      // 以“最后变更”日期作为锚点：域名进入赎回/待删除阶段时该字段通常同步更新，
+      // 用它锚定当前阶段起点，可比纯“到期日+固定偏移”更精确地推算真实删除/释放时间。
+      $forecast = domain_release_forecast(
+        $parser->domain,
+        $parser->expirationDateISO8601,
+        $statusCodes,
+        $parser->updatedDateISO8601 ?: null
+      );
+    }
+
     // 日期：YYYY-MM-DD + 中文相对时间
     $isoDate = function ($iso, $fallback = '') {
       if ($iso) { $t = strtotime($iso); if ($t) return date('Y-m-d', $t); }
@@ -52,15 +84,38 @@
       return t('rel_days_ago', intval($d / $day));
     };
 
-    // 从原始 WHOIS 文本提取扩展字段（注册局 ID / WHOIS 服务器 / 注册人 / 滥用联系）
+    // 占位/脱敏判定：只丢弃"纯占位提示"（如 REDACTED FOR PRIVACY / Data Protected），
+    // 但保留真实的隐私托管方身份（如 "Withheld for Privacy ehf" / "Domains By Proxy, LLC" /
+    // "Whois Privacy Protection Service"）——这些是有价值的联系人信息，不应清洗掉。
+    $isPlaceholder = function ($v): bool {
+      $s = trim($v);
+      if ($s === '') return true;
+      $low = strtolower($s);
+      // 整体即为占位说明的常见值
+      static $exact = [
+        'redacted', 'redacted for privacy', 'redacted for gdpr', 'redacted for privacy purposes',
+        'not disclosed', 'not disclosed!', 'not available', 'not applicable', 'n/a', 'na',
+        'data protected', 'data redacted', 'gdpr masked', 'gdpr redacted',
+        'statutory masking enabled', 'non-public data', 'private', 'privacy',
+        'not shown', 'hidden', 'withheld', 'unknown', 'none', '-', '.',
+      ];
+      if (in_array($low, $exact, true)) return true;
+      // 以脱敏关键词开头的说明句，或以 "redacted for privacy" 结尾的占位串
+      if (preg_match('/^(redacted|not disclosed|data protected|gdpr|statutory masking|non-public data)\b/i', $s)) return true;
+      if (preg_match('/redacted for privacy\.?$/i', $s)) return true;
+      if (preg_match('/^(please query|please refer|please see|see )\b/i', $s)) return true;
+      return false;
+    };
+
+    // 从原始 WHOIS 文本提取扩展字段（注册局 ID / WHOIS 服务器 / 联系人等）
     $wRaw = $whoisData ?: '';
     // 冒号后只允许同一行内的空格/制表符（[ \t]），值必须以非空白字符起始，
     // 避免字段为空时把后续行（如下一标签或 Domain Status）误当成值。
-    $grab = function ($labels) use ($wRaw) {
+    $grab = function ($labels) use ($wRaw, $isPlaceholder) {
       foreach ((array) $labels as $lb) {
         if (preg_match('/^[ \t]*' . preg_quote($lb, '/') . '[ \t]*:[ \t]*(\S.*?)[ \t]*\r?$/mi', $wRaw, $m)) {
           $v = trim($m[1]);
-          if ($v !== '' && !preg_match('/redact|privacy|not disclosed|data protected|gdpr|statutory masking/i', $v)) {
+          if (!$isPlaceholder($v)) {
             return $v;
           }
         }
@@ -77,6 +132,10 @@
     $registryDomainId = $grab('Registry Domain ID');
     $whoisServerVal   = $grab(['Registrar WHOIS Server', 'WHOIS Server']);
     $registrarIanaId  = $grab(['Registrar IANA ID', 'IANA ID', 'Sponsoring Registrar IANA ID']);
+    // 注册商电话（注册商自身联系电话，区别于"滥用联系电话"）
+    $registrarPhone   = $cleanPhone($grab(['Registrar Phone', 'Registrar Contact Phone']));
+    // 代理商 / 分销商（Reseller）：不少域名经代理注册，注册商下会标注实际代理商
+    $reseller         = $grab(['Reseller', 'Reseller Name']);
     // 注册商地址：拼接街道 / 城市 / 省州 / 邮编 / 国家（任一存在即显示）
     $registrarAddrParts = array_filter([
       $grab(['Registrar Street', 'Registrar Address']),
@@ -86,10 +145,36 @@
       $grab('Registrar Country'),
     ], function ($v) { return $v !== ''; });
     $registrarAddress = implode(' · ', $registrarAddrParts);
-    $registrantEmail  = $cleanEmail($grab(['Registrant Email', 'Registrant Contact Email']));
-    $registrantPhone  = $cleanPhone($grab('Registrant Phone'));
-    $abuseEmail       = $cleanEmail($grab('Registrar Abuse Contact Email'));
-    $abusePhone       = $cleanPhone($grab('Registrar Abuse Contact Phone'));
+    $registrantEmail  = $cleanEmail($grab(['Registrant Email', 'Registrant Contact Email', 'Holder Email', 'Owner Email', 'e-mail']));
+    $registrantPhone  = $cleanPhone($grab(['Registrant Phone', 'Registrant Contact Phone', 'Holder Phone', 'Owner Phone']));
+    $abuseEmail       = $cleanEmail($grab(['Registrar Abuse Contact Email', 'Abuse Contact Email', 'Abuse Email']));
+    $abusePhone       = $cleanPhone($grab(['Registrar Abuse Contact Phone', 'Abuse Contact Phone', 'Abuse Phone']));
+
+    // 联系人身份信息（此前被完全丢弃，现在提取：注册人姓名/组织/国家 + 管理/技术联系人）。
+    // 注意：$grab 已内置隐私脱敏过滤（REDACTED / privacy 等噪声值不返回），
+    // 因此这里提取的都是注册局真实公开的联系信息，不会展示占位垃圾。
+    $registrantName    = $grab(['Registrant Name', 'Registrant Contact Name', 'Registrant', 'Holder', 'Holder Name', 'Domain Holder', 'Owner', 'Owner Name', 'Registrant Contact']);
+    $registrantOrg     = $grab(['Registrant Organization', 'Registrant Organisation', 'Registrant Org', 'Holder Organization', 'Organization', 'Organisation', 'Registrant Company']);
+    $registrantCity    = $grab(['Registrant City', 'Holder City']);
+    $registrantCountry = $grab(['Registrant Country', 'Registrant Country/Economy', 'Holder Country', 'Country']);
+    $registrantState   = $grab(['Registrant State/Province', 'Registrant Province', 'Registrant State', 'Holder State/Province']);
+    // 注册人地区：城市 · 州省 · 国家（去重后拼接，任一存在即展示）
+    $registrantLocation = implode(' · ', array_values(array_unique(array_filter(
+      [$registrantCity, $registrantState, $registrantCountry],
+      fn($v) => $v !== ''
+    ))));
+
+    $adminName    = $grab(['Admin Name', 'Administrative Contact Name', 'Administrative Contact']);
+    $adminOrg     = $grab(['Admin Organization', 'Admin Organisation', 'Administrative Contact Organization']);
+    $adminEmail   = $cleanEmail($grab(['Admin Email', 'Administrative Contact Email']));
+    $adminPhone   = $cleanPhone($grab(['Admin Phone', 'Administrative Contact Phone']));
+    $adminCountry = $grab(['Admin Country', 'Administrative Contact Country']);
+
+    $techName    = $grab(['Tech Name', 'Technical Contact Name', 'Technical Contact']);
+    $techOrg     = $grab(['Tech Organization', 'Tech Organisation', 'Technical Contact Organization']);
+    $techEmail   = $cleanEmail($grab(['Tech Email', 'Technical Contact Email']));
+    $techPhone   = $cleanPhone($grab(['Tech Phone', 'Technical Contact Phone']));
+    $techCountry = $grab(['Tech Country', 'Technical Contact Country']);
 
     // RDAP 结构化兜底：薄注册局 / RDAP-first 的 gTLD，IANA ID、注册商地址、滥用联系
     // 往往不在原始 WHOIS 文本里，而在 RDAP 实体（registrar entity）的结构化字段中。
@@ -176,6 +261,65 @@
           }
         }
       }
+
+      // 通用联系人 vcard 提取：返回 [姓名(fn), 组织(org), 邮箱, 电话, 国家, 城市, 州省]。
+      // 复用与 WHOIS 相同的 $isPlaceholder 判定：只滤掉纯占位值，保留真实隐私托管方身份。
+      $vcardContact = function ($entity) use ($vcardEls, $vcardGet, $cleanEmail, $cleanPhone, $isPlaceholder) {
+        $els = $vcardEls($entity);
+        $pick = function ($key) use ($els, $vcardGet) {
+          $it = $vcardGet($els, $key);
+          return ($it && isset($it[3]) && is_string($it[3])) ? trim($it[3]) : '';
+        };
+        $keep = fn($v) => $isPlaceholder($v) ? '' : $v;
+        $name = $keep($pick('fn'));
+        $org  = $keep($pick('org'));
+        $email = $cleanEmail($pick('email'));
+        $phone = $cleanPhone($pick('tel'));
+        // vcard adr 结构化数组：[信箱, 扩展, 街道, 城市, 州省, 邮编, 国家]
+        $country = $city = $state = '';
+        $adr = $vcardGet($els, 'adr');
+        if ($adr && isset($adr[3]) && is_array($adr[3])) {
+          $p = $adr[3];
+          $city    = isset($p[3]) && is_string($p[3]) ? trim($p[3]) : '';
+          $state   = isset($p[4]) && is_string($p[4]) ? trim($p[4]) : '';
+          $country = isset($p[6]) && is_string($p[6]) ? trim($p[6]) : '';
+          if ($country === '') { $last = end($p); if (is_string($last)) $country = trim($last); }
+        }
+        return [$name, $org, $email, $phone, $keep($country), $keep($city), $keep($state)];
+      };
+
+      // 注册人（registrant）
+      $regEntity = $findEntity($rdapJson['entities'], 'registrant');
+      if ($regEntity) {
+        [$rn, $ro, $re, $rp, $rc, $rcity, $rstate] = $vcardContact($regEntity);
+        if ($registrantName === '')    $registrantName = $rn;
+        if ($registrantOrg === '')     $registrantOrg = $ro;
+        if ($registrantEmail === '')   $registrantEmail = $re;
+        if ($registrantPhone === '')   $registrantPhone = $rp;
+        if ($registrantCountry === '') $registrantCountry = $rc;
+        if ($registrantCity === '')    $registrantCity = $rcity;
+        if ($registrantState === '')   $registrantState = $rstate;
+      }
+      // 管理联系人（administrative）
+      $adminEntity = $findEntity($rdapJson['entities'], 'administrative');
+      if ($adminEntity) {
+        [$an, $ao, $ae, $ap, $ac] = $vcardContact($adminEntity);
+        if ($adminName === '')    $adminName = $an;
+        if ($adminOrg === '')     $adminOrg = $ao;
+        if ($adminEmail === '')   $adminEmail = $ae;
+        if ($adminPhone === '')   $adminPhone = $ap;
+        if ($adminCountry === '') $adminCountry = $ac;
+      }
+      // 技术联系人（technical）
+      $techEntity = $findEntity($rdapJson['entities'], 'technical');
+      if ($techEntity) {
+        [$tn, $to, $te, $tp, $tc] = $vcardContact($techEntity);
+        if ($techName === '')    $techName = $tn;
+        if ($techOrg === '')     $techOrg = $to;
+        if ($techEmail === '')   $techEmail = $te;
+        if ($techPhone === '')   $techPhone = $tp;
+        if ($techCountry === '') $techCountry = $tc;
+      }
     }
 
     $mailLink = function ($val) {
@@ -184,26 +328,32 @@
       return '';
     };
 
-    $hasRegistrant = $registrantEmail || $registrantPhone;
+    // RDAP 兜底可能补全了城市/州省/国家，这里重算注册人地区拼接串
+    $registrantLocation = implode(' · ', array_values(array_unique(array_filter(
+      [$registrantCity, $registrantState, $registrantCountry],
+      fn($v) => $v !== ''
+    ))));
+
+    $hasRegistrant = $registrantEmail || $registrantPhone || $registrantName || $registrantOrg || $registrantLocation;
+    $hasAdmin      = $adminName || $adminOrg || $adminEmail || $adminPhone || $adminCountry;
+    $hasTech       = $techName || $techOrg || $techEmail || $techPhone || $techCountry;
     $hasAbuse      = $abuseEmail || $abusePhone;
-    $hasRegTech    = $whoisServerVal || $registryDomainId || $registrarIanaId || $registrarAddress;
+    $hasRegTech    = $whoisServerVal || $registryDomainId || $registrarIanaId || $registrarAddress || $registrarPhone || $reseller;
     $dataSourceLabel = $whoisData ? 'whois' : ($rdapData ? 'rdap' : '');
 
-    // NS 提供商识别（用于右侧小徽标）
+    // NS 提供商识别（用于右侧小徽标 + 汇总 DNS 提供商字段）
+    // 统一走 dns-provider-map.php 库，返回品牌名与官网 URL，便于点击直达。
     $nsBrand = function (string $ns): string {
-      $n = strtolower($ns);
-      $map = [
-        'cloudflare' => 'Cloudflare', 'awsdns' => 'AWS', 'amazonaws' => 'AWS',
-        'azure-dns' => 'Azure', 'googledomains' => 'Google', 'google' => 'Google',
-        'dnspod' => 'DNSPod', 'alidns' => '阿里云', 'aliyun' => '阿里云',
-        'godaddy' => 'GoDaddy', 'domaincontrol' => 'GoDaddy', 'namecheap' => 'Namecheap',
-        'registrar-servers' => 'Namecheap', 'vercel-dns' => 'Vercel', 'name-services' => 'eNom',
-        'dnsowl' => 'NameSilo', 'nsone' => 'NS1', 'ns.cloudflare' => 'Cloudflare',
-        'hichina' => '阿里云', 'he.net' => 'HE', 'digitalocean' => 'DigitalOcean',
-      ];
-      foreach ($map as $k => $v) { if (strpos($n, $k) !== false) return $v; }
-      return '';
+      return dns_provider_detect($ns)['name'];
     };
+
+    // 汇总 DNS 提供商：取名称服务器中第一个可识别的品牌（NS 通常同属一家）
+    $dnsProvider = '';
+    $dnsProviderUrl = '';
+    foreach (($parser->nameServers ?: []) as $ns) {
+      $info = dns_provider_detect($ns);
+      if ($info['name'] !== '') { $dnsProvider = $info['name']; $dnsProviderUrl = $info['url']; break; }
+    }
 
     // EPP 状态码 → 颜色点
     $eppColor = function (string $code): string {
@@ -214,6 +364,91 @@
       if ($c === 'ok' || $c === 'active') return '#10b981';
       return '#71717a';
     };
+
+    // ===== 智能状态徽章：在数据来源行后方，基于 NS / 状态码 / 事件日期做简单判断提示 =====
+    // 每项：['text' => 文案, 'strong' => 是否用黑色胶囊高亮]
+    $smartBadges = [];
+
+    // 1) 停放 / 出售：基于 NS 提供商域名特征识别
+    $nsJoined = strtolower(implode(' ', $parser->nameServers ?: []));
+    $forSaleNs = [
+      'dan.com', 'undeveloped.com', 'afternic', 'hugedomains', 'uniregistrymarket',
+      'buydomains', 'brandbucket', 'sav.com', 'domainmarket',
+      // 品牌域名 / 域名交易市场（其 NS 通常表明域名正在挂售）
+      'atom.com', 'squadhelp', 'dnowner', 'brandpa', 'namerific',
+      'efty.com', 'domainagents', 'godaddy-dns-sale', 'sedomls', 'namejet',
+      'dropcatch', 'snapnames', 'domainnamesales', 'epik-market', 'squareup-parking',
+    ];
+    $parkingNs = [
+      'bodis.com', 'parkingcrew', 'sedoparking', 'sedo.com', 'above.com',
+      'cashparking', 'parklogic', 'voodoo.com', 'fabulous.com', 'parking',
+      'dnspark', 'trafficclub', 'domainsponsor', 'skenzo', 'rookdns',
+      // 更多停放 / 变现平台
+      'parkingpanel', 'parkingdots', 'domain-for-sale', 'namedrive', 'smartname',
+      'domainapps', 'parked.com', 'brainydns', 'tppinternet-park', 'sedo-parking',
+    ];
+    $isForSale = false;
+    $isParked = false;
+    if ($nsJoined !== '') {
+      foreach ($forSaleNs as $k) { if (strpos($nsJoined, $k) !== false) { $isForSale = true; break; } }
+      if (!$isForSale) {
+        foreach ($parkingNs as $k) { if (strpos($nsJoined, $k) !== false) { $isParked = true; break; } }
+      }
+    }
+    if ($isForSale) {
+      $smartBadges[] = ['text' => t('badge_for_sale'), 'strong' => true];
+    } elseif ($isParked) {
+      $smartBadges[] = ['text' => t('badge_parked'), 'strong' => true];
+    }
+
+    // 2) EPP 状态码判断：HOLD / 正在转移 / 赎回期 / 即将删除
+    $statusCodes = array_map(
+      fn($s) => strtolower(is_array($s) ? ($s['text'] ?? '') : (string) $s),
+      $parser->status ?: []
+    );
+    $hasCode = function (string $needle) use ($statusCodes): bool {
+      foreach ($statusCodes as $c) { if (strpos($c, $needle) !== false) return true; }
+      return false;
+    };
+    if ($hasCode('hold')) {
+      $smartBadges[] = ['text' => t('badge_hold'), 'strong' => true];
+    }
+    if ($hasCode('pendingtransfer')) {
+      $smartBadges[] = ['text' => t('badge_transferring'), 'strong' => true];
+    }
+    if ($hasCode('redemption')) {
+      $smartBadges[] = ['text' => t('badge_redemption'), 'strong' => true];
+    } elseif ($hasCode('pendingdelete')) {
+      $smartBadges[] = ['text' => t('badge_pending_delete'), 'strong' => true];
+    }
+
+    // 3) 日期 / 事件判断：新注册 / 近期转移 / 近期更新（近 30 天）
+    $withinDays = function (?string $iso, int $days): bool {
+      if (!$iso) return false;
+      $ts = strtotime($iso);
+      if (!$ts) return false;
+      $diff = time() - $ts;
+      return $diff >= 0 && $diff <= $days * 86400;
+    };
+    if ($withinDays($parser->creationDateISO8601, 30)) {
+      $smartBadges[] = ['text' => t('badge_new_reg'), 'strong' => false];
+    } else {
+      // 近期转移：优先看 RDAP events 中的 transfer 事件（更准确）
+      $transferRecent = false;
+      if (is_array($rdapJson) && !empty($rdapJson['events'])) {
+        foreach ($rdapJson['events'] as $ev) {
+          if (
+            !empty($ev['eventAction']) && stripos($ev['eventAction'], 'transfer') !== false &&
+            !empty($ev['eventDate']) && $withinDays($ev['eventDate'], 30)
+          ) { $transferRecent = true; break; }
+        }
+      }
+      if ($transferRecent) {
+        $smartBadges[] = ['text' => t('badge_recently_transferred'), 'strong' => false];
+      } elseif ($withinDays($parser->updatedDateISO8601, 30)) {
+        $smartBadges[] = ['text' => t('badge_recently_updated'), 'strong' => false];
+      }
+    }
 
     $displayDomain = $parser->domain ?: $domain;
     $registrarInitial = $parser->registrar ? mb_substr($parser->registrar, 0, 1) : '';
@@ -294,11 +529,16 @@
               </div>
             <?php endif; ?>
 
-            <!-- 数据来源行：查询耗时 · 数据来源 -->
-            <?php if ($dataSourceLabel): ?>
+            <!-- 数据来源行：查询耗时 · 数据来源 · 智能状态徽章 -->
+            <?php if ($dataSourceLabel || $smartBadges): ?>
               <?php $elapsedText = (isset($queryElapsed) && $queryElapsed > 0) ? number_format($queryElapsed, 2) . 's · ' : ''; ?>
               <div class="nw-source-row">
-                <span class="nw-source-label"><?= htmlspecialchars($elapsedText . $dataSourceLabel, ENT_QUOTES, 'UTF-8'); ?></span>
+                <?php if ($dataSourceLabel): ?>
+                  <span class="nw-source-label"><?= htmlspecialchars($elapsedText . $dataSourceLabel, ENT_QUOTES, 'UTF-8'); ?></span>
+                <?php endif; ?>
+                <?php foreach ($smartBadges as $badge): ?>
+                  <span class="nw-smart-badge<?= $badge['strong'] ? ' nw-smart-badge-strong' : ''; ?>"><?= htmlspecialchars($badge['text'], ENT_QUOTES, 'UTF-8'); ?></span>
+                <?php endforeach; ?>
               </div>
             <?php endif; ?>
 
@@ -341,6 +581,79 @@
               </div>
             <?php endif; ?>
 
+            <!-- 释放可注册时间预测 -->
+            <?php if ($forecast): ?>
+              <?php
+                $phaseLabels = [
+                  'renewGrace'    => t('phase_renewGrace'),
+                  'redemption'    => t('phase_redemption'),
+                  'pendingDelete' => t('phase_pendingDelete'),
+                  'released'      => t('phase_released'),
+                ];
+              ?>
+              <div class="nw-forecast" role="group" aria-label="<?= htmlspecialchars(t('forecast_title'), ENT_QUOTES, 'UTF-8'); ?>">
+                <div class="nw-forecast-head">
+                  <div class="nw-forecast-title">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>
+                    <span><?= htmlspecialchars(t('forecast_title'), ENT_QUOTES, 'UTF-8'); ?></span>
+                  </div>
+                  <span class="nw-forecast-badge"><?= htmlspecialchars(t('forecast_estimate'), ENT_QUOTES, 'UTF-8'); ?></span>
+                </div>
+
+                <?php if (!empty($forecast['predictable'])): ?>
+                  <!-- 预计可注册时间 + 天数 -->
+                  <div class="nw-forecast-hero">
+                    <div class="nw-forecast-hero-main">
+                      <span class="nw-forecast-hero-label"><?= htmlspecialchars(t('forecast_release'), ENT_QUOTES, 'UTF-8'); ?></span>
+                      <span class="nw-forecast-hero-date"><?= htmlspecialchars($forecast['releaseDate'], ENT_QUOTES, 'UTF-8'); ?></span>
+                    </div>
+                    <span class="nw-forecast-hero-sub <?= $forecast['released'] ? 'nw-text-ok' : ($forecast['daysUntilRelease'] <= 14 ? 'nw-text-warn' : ''); ?>">
+                      <?= $forecast['released']
+                        ? htmlspecialchars(t('forecast_released'), ENT_QUOTES, 'UTF-8')
+                        : htmlspecialchars(t('forecast_in_days', max(0, $forecast['daysUntilRelease'])), ENT_QUOTES, 'UTF-8'); ?>
+                    </span>
+                  </div>
+
+                  <!-- 阶段时间线 -->
+                  <ol class="nw-forecast-timeline">
+                    <?php foreach ($forecast['phases'] as $ph): ?>
+                      <?php if ($ph['days'] <= 0) { continue; } ?>
+                      <?php $isCurrent = $forecast['currentPhase'] === $ph['key']; ?>
+                      <li class="nw-forecast-phase<?= $isCurrent ? ' is-current' : ''; ?>">
+                        <span class="nw-forecast-dot" aria-hidden="true"></span>
+                        <div class="nw-forecast-phase-body">
+                          <span class="nw-forecast-phase-name">
+                            <?= htmlspecialchars($phaseLabels[$ph['key']] ?? $ph['key'], ENT_QUOTES, 'UTF-8'); ?>
+                            <?php if ($isCurrent): ?>
+                              <em class="nw-forecast-now"><?= htmlspecialchars(t('forecast_current'), ENT_QUOTES, 'UTF-8'); ?></em>
+                            <?php endif; ?>
+                          </span>
+                          <span class="nw-forecast-phase-range">
+                            <?= htmlspecialchars(date('Y-m-d', $ph['start']) . ' → ' . date('Y-m-d', $ph['end']), ENT_QUOTES, 'UTF-8'); ?>
+                            · <?= intval($ph['days']); ?>d
+                          </span>
+                        </div>
+                      </li>
+                    <?php endforeach; ?>
+                    <li class="nw-forecast-phase nw-forecast-phase-final<?= $forecast['released'] ? ' is-current' : ''; ?>">
+                      <span class="nw-forecast-dot" aria-hidden="true"></span>
+                      <div class="nw-forecast-phase-body">
+                        <span class="nw-forecast-phase-name"><?= htmlspecialchars($phaseLabels['released'], ENT_QUOTES, 'UTF-8'); ?></span>
+                        <span class="nw-forecast-phase-range"><?= htmlspecialchars($forecast['releaseDate'], ENT_QUOTES, 'UTF-8'); ?></span>
+                      </div>
+                    </li>
+                  </ol>
+                <?php endif; ?>
+
+                <p class="nw-forecast-note">
+                  <?php if (!empty($forecast['registry'])): ?>
+                    <span class="nw-forecast-registry"><?= htmlspecialchars(t('forecast_registry') . '：' . $forecast['registry'], ENT_QUOTES, 'UTF-8'); ?></span>
+                  <?php endif; ?>
+                  <?= htmlspecialchars(t('forecast_note'), ENT_QUOTES, 'UTF-8'); ?>
+                </p>
+              </div>
+            <?php endif; ?>
+
             <!-- 注册人联系（主卡内） -->
             <?php if ($hasRegistrant): ?>
               <div class="nw-contact-grid">
@@ -377,7 +690,7 @@
               <div class="nw-status-list">
                 <?php foreach ($parser->status as $st):
                   $code = $st["text"];
-                  $cn = $statusMapping[$code] ?? $code; ?>
+                  $cn = $translateStatus($code); ?>
                   <div class="nw-status-item">
                     <span class="nw-status-bullet" style="background-color: <?= $eppColor($code); ?>"></span>
                     <div class="nw-status-item-body">
@@ -399,6 +712,13 @@
               <h3 class="nw-card-title">
                 <?= inline_icon('server'); ?>
                 <?= htmlspecialchars(t('card_ns'), ENT_QUOTES, 'UTF-8'); ?>
+                <?php if ($dnsProvider): ?>
+                  <?php if ($dnsProviderUrl): ?>
+                    <a class="nw-ns-brand nw-dns-provider" href="<?= htmlspecialchars($dnsProviderUrl, ENT_QUOTES, 'UTF-8'); ?>" rel="nofollow noopener noreferrer" target="_blank" title="<?= htmlspecialchars(t('dns_provider'), ENT_QUOTES, 'UTF-8'); ?>"><?= htmlspecialchars($dnsProvider, ENT_QUOTES, 'UTF-8'); ?></a>
+                  <?php else: ?>
+                    <span class="nw-ns-brand nw-dns-provider" title="<?= htmlspecialchars(t('dns_provider'), ENT_QUOTES, 'UTF-8'); ?>"><?= htmlspecialchars($dnsProvider, ENT_QUOTES, 'UTF-8'); ?></span>
+                  <?php endif; ?>
+                <?php endif; ?>
               </h3>
               <div class="nw-ns-list">
                 <?php foreach ($parser->nameServers as $nsIndex => $ns): $brand = $nsBrand($ns); ?>
@@ -408,6 +728,27 @@
                     <?php if ($brand): ?><span class="nw-ns-brand"><?= htmlspecialchars($brand, ENT_QUOTES, 'UTF-8'); ?></span><?php endif; ?>
                   </div>
                 <?php endforeach; ?>
+              </div>
+            </div>
+          <?php endif; ?>
+
+          <?php if (!empty($parser->dnssec)):
+            $isSigned = $parser->dnssec === 'signed';
+            $dnssecLabel = $isSigned ? t('dnssec_signed') : t('dnssec_unsigned');
+            $dnssecColor = $isSigned ? '#16a34a' : '#9ca3af'; ?>
+            <div class="nw-card nw-list-card">
+              <h3 class="nw-card-title">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+                <?= htmlspecialchars(t('card_dnssec'), ENT_QUOTES, 'UTF-8'); ?>
+              </h3>
+              <div class="nw-status-list">
+                <div class="nw-status-item">
+                  <span class="nw-status-bullet" style="background-color: <?= $dnssecColor; ?>"></span>
+                  <div class="nw-status-item-body">
+                    <span class="nw-status-name"><?= htmlspecialchars($dnssecLabel, ENT_QUOTES, 'UTF-8'); ?></span>
+                    <p class="nw-status-code"><?= htmlspecialchars($parser->dnssec === 'signed' ? 'signedDelegation' : 'unsigned', ENT_QUOTES, 'UTF-8'); ?></p>
+                  </div>
+                </div>
               </div>
             </div>
           <?php endif; ?>
@@ -465,6 +806,18 @@
                     <span class="nw-kv-val"><?= htmlspecialchars($registrarAddress, ENT_QUOTES, 'UTF-8'); ?></span>
                   </div>
                 <?php endif; ?>
+                <?php if ($registrarPhone): ?>
+                  <div class="nw-kv">
+                    <span class="nw-kv-key"><?= htmlspecialchars(t('registrar_phone'), ENT_QUOTES, 'UTF-8'); ?></span>
+                    <span class="nw-kv-val"><?= htmlspecialchars($registrarPhone, ENT_QUOTES, 'UTF-8'); ?></span>
+                  </div>
+                <?php endif; ?>
+                <?php if ($reseller): ?>
+                  <div class="nw-kv">
+                    <span class="nw-kv-key"><?= htmlspecialchars(t('reseller'), ENT_QUOTES, 'UTF-8'); ?></span>
+                    <span class="nw-kv-val"><?= htmlspecialchars($reseller, ENT_QUOTES, 'UTF-8'); ?></span>
+                  </div>
+                <?php endif; ?>
               </div>
             <?php endif; ?>
 
@@ -489,6 +842,24 @@
             <?php if ($hasRegistrant): ?>
               <div class="nw-registrar-section">
                 <p class="nw-section-title"><?= htmlspecialchars(t('registrant_info'), ENT_QUOTES, 'UTF-8'); ?></p>
+                <?php if ($registrantName): ?>
+                  <div class="nw-kv">
+                    <span class="nw-kv-key"><?= htmlspecialchars(t('contact_name'), ENT_QUOTES, 'UTF-8'); ?></span>
+                    <span class="nw-kv-val"><?= htmlspecialchars($registrantName, ENT_QUOTES, 'UTF-8'); ?></span>
+                  </div>
+                <?php endif; ?>
+                <?php if ($registrantOrg): ?>
+                  <div class="nw-kv">
+                    <span class="nw-kv-key"><?= htmlspecialchars(t('contact_org'), ENT_QUOTES, 'UTF-8'); ?></span>
+                    <span class="nw-kv-val"><?= htmlspecialchars($registrantOrg, ENT_QUOTES, 'UTF-8'); ?></span>
+                  </div>
+                <?php endif; ?>
+                <?php if ($registrantLocation): ?>
+                  <div class="nw-kv">
+                    <span class="nw-kv-key"><?= htmlspecialchars(t('contact_location'), ENT_QUOTES, 'UTF-8'); ?></span>
+                    <span class="nw-kv-val"><?= htmlspecialchars($registrantLocation, ENT_QUOTES, 'UTF-8'); ?></span>
+                  </div>
+                <?php endif; ?>
                 <?php if ($registrantEmail): ?>
                   <div class="nw-kv">
                     <span class="nw-kv-key"><?= htmlspecialchars(t('email'), ENT_QUOTES, 'UTF-8'); ?></span>
@@ -499,6 +870,78 @@
                   <div class="nw-kv">
                     <span class="nw-kv-key"><?= htmlspecialchars(t('phone'), ENT_QUOTES, 'UTF-8'); ?></span>
                     <span class="nw-kv-val"><?= htmlspecialchars($registrantPhone, ENT_QUOTES, 'UTF-8'); ?></span>
+                  </div>
+                <?php endif; ?>
+              </div>
+            <?php endif; ?>
+
+            <?php if ($hasAdmin): ?>
+              <div class="nw-registrar-section">
+                <p class="nw-section-title"><?= htmlspecialchars(t('admin_contact'), ENT_QUOTES, 'UTF-8'); ?></p>
+                <?php if ($adminName): ?>
+                  <div class="nw-kv">
+                    <span class="nw-kv-key"><?= htmlspecialchars(t('contact_name'), ENT_QUOTES, 'UTF-8'); ?></span>
+                    <span class="nw-kv-val"><?= htmlspecialchars($adminName, ENT_QUOTES, 'UTF-8'); ?></span>
+                  </div>
+                <?php endif; ?>
+                <?php if ($adminOrg): ?>
+                  <div class="nw-kv">
+                    <span class="nw-kv-key"><?= htmlspecialchars(t('contact_org'), ENT_QUOTES, 'UTF-8'); ?></span>
+                    <span class="nw-kv-val"><?= htmlspecialchars($adminOrg, ENT_QUOTES, 'UTF-8'); ?></span>
+                  </div>
+                <?php endif; ?>
+                <?php if ($adminEmail): ?>
+                  <div class="nw-kv">
+                    <span class="nw-kv-key"><?= htmlspecialchars(t('email'), ENT_QUOTES, 'UTF-8'); ?></span>
+                    <a class="nw-kv-val nw-link" href="<?= htmlspecialchars($mailLink($adminEmail) ?: '#', ENT_QUOTES, 'UTF-8'); ?>" rel="nofollow noopener noreferrer" target="_blank"><?= htmlspecialchars($adminEmail, ENT_QUOTES, 'UTF-8'); ?></a>
+                  </div>
+                <?php endif; ?>
+                <?php if ($adminPhone): ?>
+                  <div class="nw-kv">
+                    <span class="nw-kv-key"><?= htmlspecialchars(t('phone'), ENT_QUOTES, 'UTF-8'); ?></span>
+                    <span class="nw-kv-val"><?= htmlspecialchars($adminPhone, ENT_QUOTES, 'UTF-8'); ?></span>
+                  </div>
+                <?php endif; ?>
+                <?php if ($adminCountry): ?>
+                  <div class="nw-kv">
+                    <span class="nw-kv-key"><?= htmlspecialchars(t('contact_location'), ENT_QUOTES, 'UTF-8'); ?></span>
+                    <span class="nw-kv-val"><?= htmlspecialchars($adminCountry, ENT_QUOTES, 'UTF-8'); ?></span>
+                  </div>
+                <?php endif; ?>
+              </div>
+            <?php endif; ?>
+
+            <?php if ($hasTech): ?>
+              <div class="nw-registrar-section">
+                <p class="nw-section-title"><?= htmlspecialchars(t('tech_contact'), ENT_QUOTES, 'UTF-8'); ?></p>
+                <?php if ($techName): ?>
+                  <div class="nw-kv">
+                    <span class="nw-kv-key"><?= htmlspecialchars(t('contact_name'), ENT_QUOTES, 'UTF-8'); ?></span>
+                    <span class="nw-kv-val"><?= htmlspecialchars($techName, ENT_QUOTES, 'UTF-8'); ?></span>
+                  </div>
+                <?php endif; ?>
+                <?php if ($techOrg): ?>
+                  <div class="nw-kv">
+                    <span class="nw-kv-key"><?= htmlspecialchars(t('contact_org'), ENT_QUOTES, 'UTF-8'); ?></span>
+                    <span class="nw-kv-val"><?= htmlspecialchars($techOrg, ENT_QUOTES, 'UTF-8'); ?></span>
+                  </div>
+                <?php endif; ?>
+                <?php if ($techEmail): ?>
+                  <div class="nw-kv">
+                    <span class="nw-kv-key"><?= htmlspecialchars(t('email'), ENT_QUOTES, 'UTF-8'); ?></span>
+                    <a class="nw-kv-val nw-link" href="<?= htmlspecialchars($mailLink($techEmail) ?: '#', ENT_QUOTES, 'UTF-8'); ?>" rel="nofollow noopener noreferrer" target="_blank"><?= htmlspecialchars($techEmail, ENT_QUOTES, 'UTF-8'); ?></a>
+                  </div>
+                <?php endif; ?>
+                <?php if ($techPhone): ?>
+                  <div class="nw-kv">
+                    <span class="nw-kv-key"><?= htmlspecialchars(t('phone'), ENT_QUOTES, 'UTF-8'); ?></span>
+                    <span class="nw-kv-val"><?= htmlspecialchars($techPhone, ENT_QUOTES, 'UTF-8'); ?></span>
+                  </div>
+                <?php endif; ?>
+                <?php if ($techCountry): ?>
+                  <div class="nw-kv">
+                    <span class="nw-kv-key"><?= htmlspecialchars(t('contact_location'), ENT_QUOTES, 'UTF-8'); ?></span>
+                    <span class="nw-kv-val"><?= htmlspecialchars($techCountry, ENT_QUOTES, 'UTF-8'); ?></span>
                   </div>
                 <?php endif; ?>
               </div>
