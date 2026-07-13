@@ -57,7 +57,14 @@
     }
     if (($remSec !== null && $remSec <= 0) || $inDropCycle) {
       require_once __DIR__ . "/../lib/tld-lifecycle.php";
-      $forecast = domain_release_forecast($parser->domain, $parser->expirationDateISO8601, $statusCodes);
+      // 以“最后变更”日期作为锚点：域名进入赎回/待删除阶段时该字段通常同步更新，
+      // 用它锚定当前阶段起点，可比纯“到期日+固定偏移”更精确地推算真实删除/释放时间。
+      $forecast = domain_release_forecast(
+        $parser->domain,
+        $parser->expirationDateISO8601,
+        $statusCodes,
+        $parser->updatedDateISO8601 ?: null
+      );
     }
 
     // 日期：YYYY-MM-DD + 中文相对时间
@@ -138,19 +145,19 @@
       $grab('Registrar Country'),
     ], function ($v) { return $v !== ''; });
     $registrarAddress = implode(' · ', $registrarAddrParts);
-    $registrantEmail  = $cleanEmail($grab(['Registrant Email', 'Registrant Contact Email']));
-    $registrantPhone  = $cleanPhone($grab(['Registrant Phone', 'Registrant Contact Phone']));
-    $abuseEmail       = $cleanEmail($grab('Registrar Abuse Contact Email'));
-    $abusePhone       = $cleanPhone($grab('Registrar Abuse Contact Phone'));
+    $registrantEmail  = $cleanEmail($grab(['Registrant Email', 'Registrant Contact Email', 'Holder Email', 'Owner Email', 'e-mail']));
+    $registrantPhone  = $cleanPhone($grab(['Registrant Phone', 'Registrant Contact Phone', 'Holder Phone', 'Owner Phone']));
+    $abuseEmail       = $cleanEmail($grab(['Registrar Abuse Contact Email', 'Abuse Contact Email', 'Abuse Email']));
+    $abusePhone       = $cleanPhone($grab(['Registrar Abuse Contact Phone', 'Abuse Contact Phone', 'Abuse Phone']));
 
     // 联系人身份信息（此前被完全丢弃，现在提取：注册人姓名/组织/国家 + 管理/技术联系人）。
     // 注意：$grab 已内置隐私脱敏过滤（REDACTED / privacy 等噪声值不返回），
     // 因此这里提取的都是注册局真实公开的联系信息，不会展示占位垃圾。
-    $registrantName    = $grab(['Registrant Name', 'Registrant']);
-    $registrantOrg     = $grab(['Registrant Organization', 'Registrant Organisation', 'Registrant Org']);
-    $registrantCity    = $grab(['Registrant City']);
-    $registrantCountry = $grab(['Registrant Country', 'Registrant Country/Economy']);
-    $registrantState   = $grab(['Registrant State/Province', 'Registrant Province', 'Registrant State']);
+    $registrantName    = $grab(['Registrant Name', 'Registrant Contact Name', 'Registrant', 'Holder', 'Holder Name', 'Domain Holder', 'Owner', 'Owner Name', 'Registrant Contact']);
+    $registrantOrg     = $grab(['Registrant Organization', 'Registrant Organisation', 'Registrant Org', 'Holder Organization', 'Organization', 'Organisation', 'Registrant Company']);
+    $registrantCity    = $grab(['Registrant City', 'Holder City']);
+    $registrantCountry = $grab(['Registrant Country', 'Registrant Country/Economy', 'Holder Country', 'Country']);
+    $registrantState   = $grab(['Registrant State/Province', 'Registrant Province', 'Registrant State', 'Holder State/Province']);
     // 注册人地区：城市 · 州省 · 国家（去重后拼接，任一存在即展示）
     $registrantLocation = implode(' · ', array_values(array_unique(array_filter(
       [$registrantCity, $registrantState, $registrantCountry],
@@ -171,7 +178,7 @@
 
     // RDAP 结构化兜底：薄注册局 / RDAP-first 的 gTLD，IANA ID、注册商地址、滥用联系
     // 往往不在原始 WHOIS 文本里，而在 RDAP 实体（registrar entity）的结构化字段中。
-    // 这里在不改动后端解析器的前提下，从 RDAP JSON 补全��失字段，提升识别准确率。
+    // 这里在不改动后端解析器的前提下，从 RDAP JSON 补全缺失字段，提升识别准确率。
     $rdapJson = $rdapData ? json_decode($rdapData, true) : null;
     if (is_array($rdapJson) && !empty($rdapJson['entities'])) {
       // 递归查找指定 role 的实体（registrar 顶层、abuse 常为其子实体）
@@ -468,7 +475,7 @@
             <svg viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg">
               <!-- 球体本体 -->
               <circle cx="60" cy="60" r="33" class="nw-globe-sphere"/>
-              <!-- 经纬网格（静止，干��的地球轮廓）-->
+              <!-- 经纬网格（静止，干净的地球轮廓）-->
               <g class="nw-globe-grid">
                 <circle cx="60" cy="60" r="33"/>
                 <line x1="27" y1="60" x2="93" y2="60"/>
@@ -574,7 +581,7 @@
               </div>
             <?php endif; ?>
 
-            <!-- 释放可注册��间预测 -->
+            <!-- 释放可注册时间预测 -->
             <?php if ($forecast): ?>
               <?php
                 $phaseLabels = [

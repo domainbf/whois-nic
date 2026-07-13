@@ -7,6 +7,8 @@ if ($path === "/robots.txt" || $path === "/sitemap.xml") {
   require_once __DIR__ . "/../src/manifest.php";
 } else if ($path === "/price") {
   require_once __DIR__ . "/../src/price.php";
+} else if ($path === "/premium") {
+  require_once __DIR__ . "/../src/premium.php";
 } else if ($path === "/login") {
   require_once __DIR__ . "/../src/login.php";
 } else {

@@ -46,6 +46,9 @@
   --bad: 0 74% 42%;
   --bad-bg: 0 86% 97%;
   --info: 215 80% 50%;
+  /* 溢价域名：金棕色，区别于普通状态色，凸显“高价值”属性 */
+  --premium: 38 82% 38%;
+  --premium-bg: 42 88% 95%;
   --neutral: 220 9% 46%;
   --neutral-bg: 220 14% 96%;
 }
@@ -128,6 +131,8 @@
   --bad: 0 75% 65%;
   --bad-bg: 0 50% 13%;
   --info: 215 85% 65%;
+  --premium: 42 88% 62%;
+  --premium-bg: 40 45% 13%;
   --neutral: 220 10% 70%;
   --neutral-bg: 220 8% 16%;
 }
@@ -690,10 +695,19 @@ form {
   line-height: 1;
 }
 
-/* 搜索框内左侧的 "/" 提示 */
+/* 搜索框内左侧的 "/" 提示：仅在桌面（精确指针）显示。
+   移动端触屏没有物理键盘、无法“按 / 聚焦”，该提示不仅无意义，
+   还会挤占输入框起始处、让文本光标与 "/" 徽标视觉重叠。默认隐藏，
+   仅在大屏 + 鼠标设备显示（与下方 .nw-hotkeys 的显示条件保持一致）。 */
 .nw-kbd-inline {
+  display: none;
   margin-right: 10px;
   flex-shrink: 0;
+}
+@media (min-width: 768px) and (pointer: fine) {
+  .nw-kbd-inline {
+    display: inline-flex;
+  }
 }
 
 /* 搜索框下方的快捷键提示行（右对齐）*/
@@ -929,14 +943,14 @@ form {
   display: flex !important;
   flex-direction: column;
   align-items: center;
-  gap: 6px;
+  gap: 0;
   text-align: center;
   border-radius: var(--radius) !important;
   border: 1px solid hsl(var(--state) / 0.28) !important;
   background: hsl(var(--state-bg) / 0.5) !important;
   color: hsl(var(--foreground)) !important;
   box-shadow: 0 1px 3px hsl(var(--foreground) / 0.04) !important;
-  padding: 28px 24px !important;
+  padding: 32px 24px !important;
 }
 
 /* 状态图标圆形徽章 */
@@ -946,39 +960,50 @@ form {
   justify-content: center;
   width: 52px;
   height: 52px;
-  margin-bottom: 6px;
+  margin-bottom: 16px;
   border-radius: 9999px;
   background: hsl(var(--state) / 0.12);
   color: hsl(var(--state));
 }
 .domain-info-icon svg { width: 28px; height: 28px; }
 
-/* 域名（可点击访问） */
+/* 域名（可点击访问）—— 卡片第一层级：最大、最重 */
 .domain-info-name {
-  font-size: 1.35rem;
+  font-size: 1.5rem;
   font-weight: 700;
+  letter-spacing: -0.01em;
   color: hsl(var(--foreground)) !important;
   word-break: break-all;
   overflow-wrap: break-word;
   text-decoration: none;
-  line-height: 1.2;
+  line-height: 1.15;
 }
 .domain-info-name:hover { text-decoration: underline; }
 
-/* 主标题（状态结论） */
+/* 状态结论 —— 第二层级：带状态色的胶囊徽章，一眼看清结论 */
 .domain-info-title {
-  margin: 0;
-  font-size: 1rem;
+  margin: 14px 0 0 !important;
+  display: inline-flex;
+  align-items: center;
+  padding: 5px 14px;
+  border-radius: 9999px;
+  background: hsl(var(--state) / 0.14);
+  font-size: 0.8125rem;
   font-weight: 600;
-  color: hsl(var(--foreground)) !important;
+  letter-spacing: 0.02em;
+  line-height: 1.3;
+  color: hsl(var(--state)) !important;
 }
 
-/* 副标题（补充说明） */
+/* 补充说明 —— 第三层级：更小、更淡、行距宽松，限制字宽便于阅读 */
 .domain-info-sub {
-  margin: 0;
+  margin: 12px auto 0 !important;
+  max-width: 30ch;
   font-size: 0.875rem;
-  line-height: 1.5;
+  line-height: 1.65;
   color: hsl(var(--muted-foreground)) !important;
+  word-break: normal !important;
+  overflow-wrap: break-word !important;
 }
 
 .domain-info-box--available  { --state: var(--ok);   --state-bg: var(--ok-bg); }
@@ -988,6 +1013,77 @@ form {
 .domain-info-box--unknown    { --state: var(--muted-foreground); --state-bg: var(--neutral-bg); }
   .domain-info-box--taken      { --state: var(--foreground); --state-bg: var(--neutral-bg); }
   .domain-info-box--error      { --state: var(--warn); --state-bg: var(--warn-bg); }
+
+/* ---- 溢价域名槽位（异步注入到可注册卡片内）---- */
+/* 容器：默认隐藏，命中溢价或有价格时由 JS 移除 hidden；与说明文字拉开间距 */
+.domain-premium {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  margin-top: 16px;
+  width: 100%;
+}
+.domain-premium[hidden] { display: none; }
+
+/* 溢价徽章：金棕描边胶囊 + 皇冠图标，明确“溢价/高价值”身份。
+   两种上下文共用（可注册卡片槽位 & 已注册状态行）。 */
+.nw-premium-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 12px;
+  border-radius: 9999px;
+  background: hsl(var(--premium-bg));
+  border: 1px solid hsl(var(--premium) / 0.45);
+  color: hsl(var(--premium)) !important;
+  font-size: 0.8125rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  line-height: 1.2;
+  white-space: nowrap;
+}
+.nw-premium-badge svg { width: 15px; height: 15px; flex: none; }
+
+/* 已注册上下文：溢价价格标签的金色变体（覆盖普通 message-tag 灰底） */
+.message-tag-premium {
+  background: hsl(var(--premium-bg)) !important;
+  color: hsl(var(--premium)) !important;
+  border: 1px solid hsl(var(--premium) / 0.35) !important;
+}
+.message-tag-premium svg { color: hsl(var(--premium)) !important; width: 1em; height: 1em; }
+.message-tag-premium-primary {
+  border-color: hsl(var(--premium) / 0.6) !important;
+  font-weight: 700 !important;
+}
+
+/* 价格：主价格加大加重，人民币估算次级、更淡 */
+.domain-premium-price {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 8px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+.domain-premium-amount {
+  font-size: 1.375rem;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  color: hsl(var(--foreground)) !important;
+  line-height: 1.1;
+}
+.domain-premium-cny {
+  font-size: 0.9375rem;
+  font-weight: 500;
+  color: hsl(var(--muted-foreground)) !important;
+}
+
+/* 数据来源脚注 */
+.domain-premium-source {
+  font-size: 0.75rem;
+  color: hsl(var(--muted-foreground)) !important;
+  opacity: 0.85;
+}
 
 /* ---- DNS 兜底信息块（WHOIS/RDAP 不可用时展示实时 DNS 记录）---- */
 .domain-dns-fallback {
@@ -1278,7 +1374,7 @@ code a { color: hsl(var(--info)) !important; }
 .nw-price-slot .message-tag svg,
 .nw-beian-slot .message-tag svg { width: 12px; height: 12px; }
 
-/* 加载骨架：���������寸与胶囊一致，圆角对齐年份/价格药丸 */
+/* 加载骨架：尺寸与胶囊一致，圆角对齐年份/价格药丸 */
 .nw-skeleton {
   display: inline-block;
   width: 72px;
@@ -1374,7 +1470,7 @@ code a { color: hsl(var(--info)) !important; }
   fill: hsl(var(--foreground));
 }
 
-/* 尊重减少动态偏好：停止卫星点运动，定格��轨道右端 */
+/* 尊重减少动态偏好：停止卫星点运动，定格在轨道右端 */
 @media (prefers-reduced-motion: reduce) {
   .nw-globe-orbit-dot animateMotion { display: none; }
   .nw-globe-orbit-dot { transform: translate(112px, 60px); }
@@ -2519,7 +2615,7 @@ a.nw-dns-provider:hover {
    呼吸感动效层：自然、流畅、克制
    - 分层入场：顶栏 → 搜索 → 卡片/历史 → 页脚，柔和上浮淡入并错峰
    - 静息呼吸：搜索框与主卡在空闲时极轻微地"呼吸"（光晕/缩放）
-   - 顺滑悬停：卡片与历史项浮起，采用自然���动
+   - 顺滑悬停：卡片与历史项浮起，采用自然缓动
    仅在用户未开启"减少动态"时启用，避免打扰无障碍需求。
    ===================================================================== */
 
@@ -2611,14 +2707,14 @@ a.nw-dns-provider:hover {
                          0 0 0 4px hsl(var(--ring) / 0.06); }
 }
 
-/* 主卡静息呼吸：几乎不可察觉的缩放，赋予"活着"的感��� */
+/* 主卡静息呼吸：几乎不可察觉的缩放，赋予"活着"的感觉 */
 @keyframes nw-breathe-scale {
   0%, 100% { transform: scale(1); }
   50%      { transform: scale(1.006); }
 }
 
 /* ============================================================
-   释放可注册时间预��
+   释放可注册时间预测
    ============================================================ */
 .nw-forecast {
   margin-top: 20px;

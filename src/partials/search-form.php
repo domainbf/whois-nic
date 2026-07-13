@@ -105,6 +105,13 @@
     <p class="domain-info-title"><?= htmlspecialchars($stateTitle, ENT_QUOTES, 'UTF-8'); ?></p>
     <p class="domain-info-sub"><?= htmlspecialchars($resultMessage, ENT_QUOTES, 'UTF-8'); ?></p>
     <?php
+      // 溢价域名槽位：仅对"可注册"域名异步检测（逐域名调用 Dynadot/Netim）。
+      // 默认隐藏，命中溢价时由 premium.js 填充并展示金色徽章+价格。
+      if ($resultState === 'available'):
+    ?>
+    <div class="domain-premium" id="domain-premium" data-domain="<?= htmlspecialchars($domain, ENT_QUOTES, 'UTF-8'); ?>" hidden></div>
+    <?php endif; ?>
+    <?php
       // DNS 兜底增强：WHOIS/RDAP 无详情但 DNS 确认已注册时，展示实时 DNS 记录，
       // 让用户即使在注册局接口不可用时也能拿到有用信息（NS / IP / 邮件服务器）。
       $hasDnsInfo = $resultState === 'taken' && !empty($dnsInfo) && (

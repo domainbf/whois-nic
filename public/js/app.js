@@ -179,8 +179,23 @@
     var newMain = doc.querySelector("main");
     if (!newMain) throw new Error("pjax: main not found");
 
-    // 替换 header 前，快照当前搜索框状态（值 + 是否聚焦 + 光标位置），
-    // 以便替换后无缝恢复用户正在输入的内容与光标，实现连续再查询。
+    // 关键优化：默认“保留搜索表单 DOM”，只重建 header 内会变化的部分
+    // （状态卡片 / 快捷键 / 历史列表）与 <main>。此前整块替换 <header> 会重建
+    // 搜索输入框，导致移动端键盘收起再弹出、光标错位、页面顶部跳闪。保留 <form>
+    // 后，输入框元素身份不变，焦点/光标/键盘全程稳定，只有结果区平滑刷新。
+    // 仅当“多域名模式”切换（表单结构本身改变）时才回退为整块替换。
+    var curHeader = document.querySelector("header");
+    var newWrap = newHeader ? (newHeader.querySelector("div") || newHeader.firstElementChild) : null;
+    var curWrap = curHeader ? (curHeader.querySelector("div") || curHeader.firstElementChild) : null;
+    var curForm = curWrap ? curWrap.querySelector("#form") : null;
+    var newForm = newWrap ? newWrap.querySelector("#form") : null;
+
+    var curMulti = !!document.querySelector(".search-box--multi");
+    var newMulti = !!(newWrap && newWrap.querySelector(".search-box--multi"));
+    var multiChanged = curMulti !== newMulti;
+
+    // 快照旧输入框状态（仅“整块替换”回退路径需要用它恢复焦点/光标）
+    var formPreserved = false;
     var inputSnapshot = null;
     var oldInput = document.getElementById("domain");
     if (oldInput) {
@@ -192,10 +207,24 @@
       };
     }
 
-    var curHeader = document.querySelector("header");
-    if (newHeader && curHeader) {
+    if (newHeader && curHeader && newWrap && curWrap && curForm && newForm && !multiChanged) {
+      // —— 保留 <form>，只重建 header 内除表单外的子节点 ——
+      var kids = Array.prototype.slice.call(curWrap.children);
+      for (var k = 0; k < kids.length; k++) {
+        if (kids[k] !== curForm) curWrap.removeChild(kids[k]);
+      }
+      var newKids = Array.prototype.slice.call(newWrap.children);
+      for (var n = 0; n < newKids.length; n++) {
+        var node = newKids[n];
+        if (node === newForm || node.id === "form" || node.tagName === "FORM") continue;
+        curWrap.appendChild(document.importNode(node, true));
+      }
+      formPreserved = true;
+    } else if (newHeader && curHeader) {
+      // 回退：整块替换（多域名模式切换等表单结构变化场景）
       curHeader.replaceWith(document.importNode(newHeader, true));
     }
+
     var curMain = document.querySelector("main");
     curMain.replaceWith(document.importNode(newMain, true));
 
@@ -226,7 +255,10 @@
       var domainInput = document.getElementById("domain");
       var isMultiPage = !!document.querySelector('input[name="multi"], .search-box--multi');
       if (domainInput) {
-        if (isMultiPage) {
+        if (formPreserved) {
+          // 表单被保留：输入框元素未被替换，用户的值/焦点/光标天然保持，
+          // 无需任何回填或重新聚焦（避免移动端键盘闪动）。
+        } else if (isMultiPage) {
           // 保持服务端渲染值，不做任何回填
         } else if (preserveInput && inputSnapshot) {
           domainInput.value = inputSnapshot.value;
